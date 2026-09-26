@@ -18,14 +18,14 @@ public final class PuzzlesTerminalsCategory {
         String[] progressFormats = {"25%", "1/4"};
         b.dropdown("  Progress Format", progressFormats,
                 () -> progressFormats[config.melodyProgressFormat == 1 ? 1 : 0],
-                v -> config.melodyProgressFormat = v.equals(progressFormats[1]) ? 1 : 0);
+                v -> config.melodyProgressFormat = v.equals(progressFormats[1]) ? 1 : 0).fresh();
         b.button("  Edit Melody Messages",
-                () -> Minecraft.getInstance().setScreen(new MelodyMessageScreen(Minecraft.getInstance().screen)));
-        b.toggle("Melody Display (party progress)", () -> config.melodyDisplay, v -> config.melodyDisplay = v);
-        b.info("Shows \"<name> has 2/4 melody\" from party chat in P3 (/tmap gui)");
+                () -> Minecraft.getInstance().setScreen(new MelodyMessageScreen(Minecraft.getInstance().screen))).fresh();
+        b.toggle("Melody Display (party progress)", () -> config.melodyDisplay, v -> config.melodyDisplay = v).fresh();
+        b.info("Shows \"<name> has 2/4 melody\" from party chat in P3 (/tmap gui)").fresh();
         b.slider("  Display Duration (s)", 0.5f, 5f,
-                () -> config.melodyDisplayDuration, v -> config.melodyDisplayDuration = v, 1);
-        b.toggle("  Display Sound", () -> config.melodyDisplaySound, v -> config.melodyDisplaySound = v);
+                () -> config.melodyDisplayDuration, v -> config.melodyDisplayDuration = v, 1).fresh();
+        b.toggle("  Display Sound", () -> config.melodyDisplaySound, v -> config.melodyDisplaySound = v).fresh();
         b.toggle("Terminal Solver", () -> config.terminalSolver, v -> config.terminalSolver = v);
         String[] renderTypes = {"Odin", "Normal", "Custom GUI"};
         b.dropdown("Render Type", renderTypes,
@@ -37,11 +37,11 @@ public final class PuzzlesTerminalsCategory {
                 });
         b.slider("Normal Term Size", 1f, 6f,
                 () -> (float) config.terminalNormalSize, v -> config.terminalNormalSize = Math.round(v), 0);
-        b.toggle("  Inventory Scale (all containers)", () -> config.inventoryScaleOverride, v -> config.inventoryScaleOverride = v)
+        b.toggle("  Inventory Scale (all containers)", () -> config.inventoryScaleOverride, v -> config.inventoryScaleOverride = v).fresh()
                 .desc("Same idea as the terminal size for every chest menu and the inventory: own GUI scale while open, restored on close. Terminals and the storage scale win.")
                 .tags("gui scale", "inventory", "container", "chest");
         b.slider("    Inventory GUI Scale (0 = auto)", 0f, 5f,
-                () -> (float) config.inventoryScale, v -> config.inventoryScale = Math.round(v), 0);
+                () -> (float) config.inventoryScale, v -> config.inventoryScale = Math.round(v), 0).fresh();
         b.slider("Custom GUI Size", 1f, 3f,
                 () -> config.terminalCustomSize, v -> config.terminalCustomSize = v, 1);
         b.slider("Custom GUI Roundness", 0f, 15f,
@@ -51,18 +51,18 @@ public final class PuzzlesTerminalsCategory {
         String[] slotStyles = {"Rounded", "Rect", "Bordered Rect", "Button"};
         b.dropdown("Custom GUI Slot Style", slotStyles,
                 () -> slotStyles[Math.max(0, Math.min(3, config.terminalSlotStyle))],
-                v -> config.terminalSlotStyle = Math.max(0, java.util.Arrays.asList(slotStyles).indexOf(v)));
-        b.keybind("  Terminal Click Key", () -> config.terminalDropKey, v -> config.terminalDropKey = v)
+                v -> config.terminalSlotStyle = Math.max(0, java.util.Arrays.asList(slotStyles).indexOf(v))).fresh();
+        b.keybind("  Terminal Click Key", () -> config.terminalDropKey, v -> config.terminalDropKey = v).fresh()
                 .desc("Clicks the hovered terminal slot, any render type. Mouse buttons work too.");
         b.toggle("Stop Melody Solver", () -> config.terminalCancelMelodySolver, v -> config.terminalCancelMelodySolver = v);
-        b.toggle("  Stop Panes Solver", () -> config.terminalStopPanes, v -> config.terminalStopPanes = v);
-        b.toggle("  Stop Rubix Solver", () -> config.terminalStopRubix, v -> config.terminalStopRubix = v);
-        b.toggle("  Stop Click in Order Solver", () -> config.terminalStopNumbers, v -> config.terminalStopNumbers = v);
-        b.toggle("  Stop Starts With Solver", () -> config.terminalStopStartsWith, v -> config.terminalStopStartsWith = v);
-        b.toggle("  Stop Select All Solver", () -> config.terminalStopSelect, v -> config.terminalStopSelect = v);
-        b.toggle("  Melody Keys (1-4)", () -> config.terminalMelodyKeys, v -> config.terminalMelodyKeys = v)
+        b.toggle("  Stop Panes Solver", () -> config.terminalStopPanes, v -> config.terminalStopPanes = v).fresh();
+        b.toggle("  Stop Rubix Solver", () -> config.terminalStopRubix, v -> config.terminalStopRubix = v).fresh();
+        b.toggle("  Stop Click in Order Solver", () -> config.terminalStopNumbers, v -> config.terminalStopNumbers = v).fresh();
+        b.toggle("  Stop Starts With Solver", () -> config.terminalStopStartsWith, v -> config.terminalStopStartsWith = v).fresh();
+        b.toggle("  Stop Select All Solver", () -> config.terminalStopSelect, v -> config.terminalStopSelect = v).fresh();
+        b.toggle("  Melody Keys (1-4)", () -> config.terminalMelodyKeys, v -> config.terminalMelodyKeys = v).fresh()
                 .desc("Keys 1-4 click the button of that melody row.");
-        b.toggle("  Hide Chat & Boss Bar in Terminals", () -> config.terminalHideClutter, v -> config.terminalHideClutter = v)
+        b.toggle("  Hide Chat & Boss Bar in Terminals", () -> config.terminalHideClutter, v -> config.terminalHideClutter = v).fresh()
                 .desc("Also hides the container background, titles, carried item and slot highlights.");
         b.slider("Melody GUI Size", 1f, 3f,
                 () -> config.terminalMelodySize, v -> config.terminalMelodySize = v, 1);
@@ -80,20 +80,20 @@ public final class PuzzlesTerminalsCategory {
         b.slider("  Lag Protection Ticks", 7f, 16f,
                 () -> (float) config.terminalLagProtectionTicks, v -> config.terminalLagProtectionTicks = Math.round(v), 0);
         b.toggle("Announce Solve Times", () -> config.terminalTimes, v -> config.terminalTimes = v);
-        b.button("  Reset Terminal PBs", com.teslamaps.features.TerminalSolver::resetPbs);
-        b.toggle("Terminal Sounds", () -> config.terminalSounds, v -> config.terminalSounds = v);
-        b.info("Replaces Hypixel's terminal pling with your own click sound");
+        b.button("  Reset Terminal PBs", com.teslamaps.features.TerminalSolver::resetPbs).fresh();
+        b.toggle("Terminal Sounds", () -> config.terminalSounds, v -> config.terminalSounds = v).fresh();
+        b.info("Replaces Hypixel's terminal pling with your own click sound").fresh();
         b.soundDropdown("  Click Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.terminalClickSound, v -> config.terminalClickSound = v);
-        b.slider("  Click Volume", 0f, 4f, () -> config.terminalClickVolume, v -> config.terminalClickVolume = v, 2);
-        b.slider("  Click Pitch", 0.5f, 2f, () -> config.terminalClickPitch, v -> config.terminalClickPitch = v, 2);
-        b.toggle("  Completion Sound", () -> config.terminalCompleteSound, v -> config.terminalCompleteSound = v);
+                () -> config.terminalClickSound, v -> config.terminalClickSound = v).fresh();
+        b.slider("  Click Volume", 0f, 4f, () -> config.terminalClickVolume, v -> config.terminalClickVolume = v, 2).fresh();
+        b.slider("  Click Pitch", 0.5f, 2f, () -> config.terminalClickPitch, v -> config.terminalClickPitch = v, 2).fresh();
+        b.toggle("  Completion Sound", () -> config.terminalCompleteSound, v -> config.terminalCompleteSound = v).fresh();
         b.soundDropdown("    Completion Sound Type", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.terminalCompleteSoundId, v -> config.terminalCompleteSoundId = v);
-        b.slider("    Completion Volume", 0f, 4f, () -> config.terminalCompleteVolume, v -> config.terminalCompleteVolume = v, 2);
-        b.slider("    Completion Pitch", 0.5f, 2f, () -> config.terminalCompletePitch, v -> config.terminalCompletePitch = v, 2);
-        b.toggle("    Skip Click Sound On Last Click", () -> config.terminalCancelLastClick, v -> config.terminalCancelLastClick = v);
-        b.toggle("  Pling On Gate / Core Open", () -> config.terminalGateSound, v -> config.terminalGateSound = v);
+                () -> config.terminalCompleteSoundId, v -> config.terminalCompleteSoundId = v).fresh();
+        b.slider("    Completion Volume", 0f, 4f, () -> config.terminalCompleteVolume, v -> config.terminalCompleteVolume = v, 2).fresh();
+        b.slider("    Completion Pitch", 0.5f, 2f, () -> config.terminalCompletePitch, v -> config.terminalCompletePitch = v, 2).fresh();
+        b.toggle("    Skip Click Sound On Last Click", () -> config.terminalCancelLastClick, v -> config.terminalCancelLastClick = v).fresh();
+        b.toggle("  Pling On Gate / Core Open", () -> config.terminalGateSound, v -> config.terminalGateSound = v).fresh();
         b.toggle("Solver Debug Overlay", () -> config.terminalSolverDebug, v -> config.terminalSolverDebug = v);
         b.label("Terminal Simulator");
         b.slider("Simulated Ping (ms)", 0f, 500f,
@@ -126,46 +126,46 @@ public final class PuzzlesTerminalsCategory {
                 () -> (float) config.blazeLineAmount, v -> config.blazeLineAmount = Math.round(v), 0);
         b.slider("  Blaze Line Width", 0.5f, 5f,
                 () -> config.blazeLineWidth, v -> config.blazeLineWidth = v, 1);
-        b.toggle("  Blaze Standing Spot + Etherwarp", () -> config.blazeSpots, v -> config.blazeSpots = v);
-        b.color("    Spot Outline", () -> config.blazeSpotOutline, v -> config.blazeSpotOutline = v);
-        b.color("    Spot Fill", () -> config.blazeSpotFill, v -> config.blazeSpotFill = v);
-        b.color("    Etherwarp Outline", () -> config.blazeEtherOutline, v -> config.blazeEtherOutline = v);
-        b.color("    Etherwarp Fill", () -> config.blazeEtherFill, v -> config.blazeEtherFill = v);
+        b.toggle("  Blaze Standing Spot + Etherwarp", () -> config.blazeSpots, v -> config.blazeSpots = v).fresh();
+        b.color("    Spot Outline", () -> config.blazeSpotOutline, v -> config.blazeSpotOutline = v).fresh();
+        b.color("    Spot Fill", () -> config.blazeSpotFill, v -> config.blazeSpotFill = v).fresh();
+        b.color("    Etherwarp Outline", () -> config.blazeEtherOutline, v -> config.blazeEtherOutline = v).fresh();
+        b.color("    Etherwarp Fill", () -> config.blazeEtherFill, v -> config.blazeEtherFill = v).fresh();
         b.toggle("Three Weirdos Solver", () -> config.solveThreeWeirdos, v -> config.solveThreeWeirdos = v);
-        b.dropdown("  Weirdos Style", PuzzleDraw.STYLES, () -> config.weirdosStyle, v -> config.weirdosStyle = v);
-        b.color("  Weirdos: Correct", () -> config.colorWeirdosCorrect, v -> config.colorWeirdosCorrect = v);
-        b.color("  Weirdos: Wrong", () -> config.colorWeirdosWrong, v -> config.colorWeirdosWrong = v);
-        b.toggle("  Weirdos Solved Sound", () -> config.weirdosSolvedSound, v -> config.weirdosSolvedSound = v);
+        b.dropdown("  Weirdos Style", PuzzleDraw.STYLES, () -> config.weirdosStyle, v -> config.weirdosStyle = v).fresh();
+        b.color("  Weirdos: Correct", () -> config.colorWeirdosCorrect, v -> config.colorWeirdosCorrect = v).fresh();
+        b.color("  Weirdos: Wrong", () -> config.colorWeirdosWrong, v -> config.colorWeirdosWrong = v).fresh();
+        b.toggle("  Weirdos Solved Sound", () -> config.weirdosSolvedSound, v -> config.weirdosSolvedSound = v).fresh();
         b.soundDropdown("  Weirdos Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.weirdosSound, v -> config.weirdosSound = v);
-        b.toggle("  Weirdos: Block Wrong Chests", () -> config.weirdosBlockWrongClicks, v -> config.weirdosBlockWrongClicks = v)
+                () -> config.weirdosSound, v -> config.weirdosSound = v).fresh();
+        b.toggle("  Weirdos: Block Wrong Chests", () -> config.weirdosBlockWrongClicks, v -> config.weirdosBlockWrongClicks = v).fresh()
                 .legit().desc("Right-clicks on a lying weirdo's chest do nothing once the answer is known. Sneak to click anyway. Nothing is sent to the server.");
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
-        b.toggle("  TTT: Show All Best Moves", () -> config.tttShowAllBest, v -> config.tttShowAllBest = v)
+        b.toggle("  TTT: Show All Best Moves", () -> config.tttShowAllBest, v -> config.tttShowAllBest = v).fresh()
                 .desc("Marks every equally good move instead of one");
-        b.toggle("  TTT: Gamble Color", () -> config.tttGamble, v -> config.tttGamble = v)
+        b.toggle("  TTT: Gamble Color", () -> config.tttGamble, v -> config.tttGamble = v).fresh()
                 .desc("Uses the gamble color when no move is safe any more");
-        b.toggle("  TTT: Prediction", () -> config.tttPrediction, v -> config.tttPrediction = v)
+        b.toggle("  TTT: Prediction", () -> config.tttPrediction, v -> config.tttPrediction = v).fresh()
                 .desc("Marks your likely next move after the AI answers (may be off)");
-        b.toggle("  TTT: Done Message (/pc)", () -> config.tttDoneMessage, v -> config.tttDoneMessage = v)
+        b.toggle("  TTT: Done Message (/pc)", () -> config.tttDoneMessage, v -> config.tttDoneMessage = v).fresh()
                 .desc("Sends \"Tic Tac Toe done\" to party chat when you tie it");
-        b.toggle("  TTT: Block Wrong Buttons", () -> config.tttBlockWrongClicks, v -> config.tttBlockWrongClicks = v)
+        b.toggle("  TTT: Block Wrong Buttons", () -> config.tttBlockWrongClicks, v -> config.tttBlockWrongClicks = v).fresh()
                 .legit().desc("Right-clicks on board buttons that are not a best move do nothing. Sneak to click anyway. Nothing is sent to the server.");
-        b.dropdown("  TTT Style", PuzzleDraw.STYLES, () -> config.tttStyle, v -> config.tttStyle = v);
-        b.color("  TTT: Best Move", () -> config.colorTttBest, v -> config.colorTttBest = v);
-        b.color("  TTT: Gamble", () -> config.colorTttGamble, v -> config.colorTttGamble = v);
-        b.color("  TTT: Prediction Color", () -> config.colorTttPrediction, v -> config.colorTttPrediction = v);
+        b.dropdown("  TTT Style", PuzzleDraw.STYLES, () -> config.tttStyle, v -> config.tttStyle = v).fresh();
+        b.color("  TTT: Best Move", () -> config.colorTttBest, v -> config.colorTttBest = v).fresh();
+        b.color("  TTT: Gamble", () -> config.colorTttGamble, v -> config.colorTttGamble = v).fresh();
+        b.color("  TTT: Prediction Color", () -> config.colorTttPrediction, v -> config.colorTttPrediction = v).fresh();
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
         b.toggle("  Creeper Beams Tracers", () -> config.creeperBeamsTracers, v -> config.creeperBeamsTracers = v);
-        b.dropdown("  Creeper Beams Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.creeperBeamsStyle, v -> config.creeperBeamsStyle = v);
+        b.dropdown("  Creeper Beams Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.creeperBeamsStyle, v -> config.creeperBeamsStyle = v).fresh();
         b.slider("  Creeper Beams Alpha", 0.05f, 1f,
-                () -> config.creeperBeamsAlpha, v -> config.creeperBeamsAlpha = v, 2);
+                () -> config.creeperBeamsAlpha, v -> config.creeperBeamsAlpha = v, 2).fresh();
         b.toggle("Creeper Beams Ding", () -> config.creeperBeamsDing, v -> config.creeperBeamsDing = v);
         b.soundDropdown("  Ding Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.creeperBeamsSound, v -> config.creeperBeamsSound = v);
-        b.toggle("  Mute Creeper Hurt (room only)", () -> config.creeperBeamsMuteHurt, v -> config.creeperBeamsMuteHurt = v)
+                () -> config.creeperBeamsSound, v -> config.creeperBeamsSound = v).fresh();
+        b.toggle("  Mute Creeper Hurt (room only)", () -> config.creeperBeamsMuteHurt, v -> config.creeperBeamsMuteHurt = v).fresh()
                 .desc("Creeper hurt and primed sounds, only inside Creeper Beams");
-        b.toggle("  Mute Explosion (room only)", () -> config.creeperBeamsMuteExplosion, v -> config.creeperBeamsMuteExplosion = v)
+        b.toggle("  Mute Explosion (room only)", () -> config.creeperBeamsMuteExplosion, v -> config.creeperBeamsMuteExplosion = v).fresh()
                 .desc("The explosion when the puzzle is done, only inside Creeper Beams");
         b.toggle("Boulder Solver", () -> config.solveBoulder, v -> config.solveBoulder = v);
         b.toggle("  Show All Boulder Clicks", () -> config.showAllBoulderClicks, v -> config.showAllBoulderClicks = v);
@@ -174,15 +174,15 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Quiz Beacon Beam", () -> config.quizBeacon, v -> config.quizBeacon = v);
         b.toggle("  Quiz Chat Highlight", () -> config.quizChatHighlight, v -> config.quizChatHighlight = v);
         b.toggle("  Quiz Hide Wrong Answers", () -> config.quizHideWrongAnswers, v -> config.quizHideWrongAnswers = v);
-        b.toggle("  Quiz Question Timer", () -> config.quizTimer, v -> config.quizTimer = v);
-        b.toggle("  Quiz Question Splits", () -> config.quizSplits, v -> config.quizSplits = v);
+        b.toggle("  Quiz Question Timer", () -> config.quizTimer, v -> config.quizTimer = v).fresh();
+        b.toggle("  Quiz Question Splits", () -> config.quizSplits, v -> config.quizSplits = v).fresh();
         b.dropdown("    Splits Time Format", com.teslamaps.dungeon.puzzle.QuizExtras.FORMATS,
-                () -> config.quizSplitsFormat, v -> config.quizSplitsFormat = v);
-        b.color("  Quiz Chat Color", () -> config.colorQuizChat, v -> config.colorQuizChat = v);
-        b.dropdown("  Quiz Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.quizStyle, v -> config.quizStyle = v);
-        b.toggle("  Quiz Depth Check", () -> config.quizDepthCheck, v -> config.quizDepthCheck = v)
+                () -> config.quizSplitsFormat, v -> config.quizSplitsFormat = v).fresh();
+        b.color("  Quiz Chat Color", () -> config.colorQuizChat, v -> config.colorQuizChat = v).fresh();
+        b.dropdown("  Quiz Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.quizStyle, v -> config.quizStyle = v).fresh();
+        b.toggle("  Quiz Depth Check", () -> config.quizDepthCheck, v -> config.quizDepthCheck = v).fresh()
                 .desc("Hide the answer box behind walls");
-        b.toggle("  Quiz: Block Wrong Answers", () -> config.quizBlockWrongClicks, v -> config.quizBlockWrongClicks = v)
+        b.toggle("  Quiz: Block Wrong Answers", () -> config.quizBlockWrongClicks, v -> config.quizBlockWrongClicks = v).fresh()
                 .legit().desc("Right-clicks next to a wrong answer do nothing once the right one is known. Sneak to click anyway. Nothing is sent to the server.");
         b.toggle("Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v);
         b.toggle("  TP Maze Next-Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
@@ -194,8 +194,8 @@ public final class PuzzlesTerminalsCategory {
         b.dropdown("  Water Board Solutions", waterSets,
                 () -> waterSets[Math.max(0, Math.min(2, config.waterBoardSolutionSet))],
                 v -> config.waterBoardSolutionSet = Math.max(0, java.util.Arrays.asList(waterSets).indexOf(v)));
-        b.toggle("  Water Flow Preview", () -> config.waterBoardPreview, v -> config.waterBoardPreview = v);
-        b.toggle("    Preview Lever You Look At", () -> config.waterBoardPreviewLevers, v -> config.waterBoardPreviewLevers = v);
+        b.toggle("  Water Flow Preview", () -> config.waterBoardPreview, v -> config.waterBoardPreview = v).fresh();
+        b.toggle("    Preview Lever You Look At", () -> config.waterBoardPreviewLevers, v -> config.waterBoardPreviewLevers = v).fresh();
         b.toggle("Ice Fill Solver", () -> config.solveIceFill, v -> config.solveIceFill = v);
         b.toggle("  Ice Fill Optimized", () -> config.iceFillOptimized, v -> config.iceFillOptimized = v);
         b.toggle("  Ice Fill: Solve From Blocks", () -> config.iceFillDynamic, v -> config.iceFillDynamic = v);
@@ -205,17 +205,17 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Ice Path Solver", () -> config.icePathSolver, v -> config.icePathSolver = v);
         b.toggle("  Ice Path: Follow Silverfish", () -> config.icePathDynamic, v -> config.icePathDynamic = v);
         b.toggle("Arrow Align Solver", () -> config.solveArrowAlign, v -> config.solveArrowAlign = v);
-        b.toggle("  Block Wrong Clicks", () -> config.arrowAlignBlockWrong, v -> config.arrowAlignBlockWrong = v)
+        b.toggle("  Block Wrong Clicks", () -> config.arrowAlignBlockWrong, v -> config.arrowAlignBlockWrong = v).fresh()
                 .desc("Swallows clicks on frames that already point the right way. Sneak (or the override key) clicks anyway.");
-        b.keybind("    Override Key (unbound = sneak)", () -> config.arrowAlignOverrideKey, v -> config.arrowAlignOverrideKey = v);
-        b.toggle("    Invert (block only while held)", () -> config.arrowAlignInvertOverride, v -> config.arrowAlignInvertOverride = v);
+        b.keybind("    Override Key (unbound = sneak)", () -> config.arrowAlignOverrideKey, v -> config.arrowAlignOverrideKey = v).fresh();
+        b.toggle("    Invert (block only while held)", () -> config.arrowAlignInvertOverride, v -> config.arrowAlignInvertOverride = v).fresh();
         b.toggle("Puzzle Timers", () -> config.puzzleTimers, v -> config.puzzleTimers = v);
-        b.toggle("Puzzle HUD", () -> config.puzzleHud, v -> config.puzzleHud = v);
-        b.toggle("  Show Player Names", () -> config.puzzleHudPlayers, v -> config.puzzleHudPlayers = v);
-        b.toggle("  Only Before Run Start", () -> config.puzzleHudPreRunOnly, v -> config.puzzleHudPreRunOnly = v);
-        b.toggle("  Failed / Missing Count", () -> config.puzzleHudCounts, v -> config.puzzleHudCounts = v);
-        b.toggle("  Only Failed / Missing", () -> config.puzzleHudCountsOnly, v -> config.puzzleHudCountsOnly = v);
-        b.button("Reset Puzzle Solvers", () -> com.teslamaps.dungeon.puzzle.PuzzleReset.reset("all"))
+        b.toggle("Puzzle HUD", () -> config.puzzleHud, v -> config.puzzleHud = v).fresh();
+        b.toggle("  Show Player Names", () -> config.puzzleHudPlayers, v -> config.puzzleHudPlayers = v).fresh();
+        b.toggle("  Only Before Run Start", () -> config.puzzleHudPreRunOnly, v -> config.puzzleHudPreRunOnly = v).fresh();
+        b.toggle("  Failed / Missing Count", () -> config.puzzleHudCounts, v -> config.puzzleHudCounts = v).fresh();
+        b.toggle("  Only Failed / Missing", () -> config.puzzleHudCountsOnly, v -> config.puzzleHudCountsOnly = v).fresh();
+        b.button("Reset Puzzle Solvers", () -> com.teslamaps.dungeon.puzzle.PuzzleReset.reset("all")).fresh()
                 .desc("Restarts every solver, like /tmap puzzle reset. Water Board: flip the levers back first.");
         b.toggle("Terracotta Spawn Timers (F6/M6)", () -> config.terracottaTimer, v -> config.terracottaTimer = v);
         b.label("Puzzle Colors");

@@ -41,7 +41,7 @@ public final class InterfaceCategory {
                     String id = byLabel.get(pickedPanel);
                     if ("Default".equals(v)) config.hudPanelChroma.remove(id);
                     else config.hudPanelChroma.put(id, v);
-                }).desc("Rainbow text for this panel. Plain Text leaves coloured parts alone. Speed/size: Tooltips & Value chroma settings.")
+                }).fresh().desc("Rainbow text for this panel. Plain Text leaves coloured parts alone. Speed/size: Tooltips & Value chroma settings.")
                 .tags("chroma", "rainbow", "panel");
         perPanel(b, "  Text Of That Panel", com.teslamaps.render.gui.HudTextStyle.SHADOWS, config.hudPanelTextShadow, byLabel,
                 "Shadow, a 1 px black outline, or plain text. Default = HUD Text above.");
@@ -60,7 +60,7 @@ public final class InterfaceCategory {
             String id = byLabel.get(pickedPanel);
             if ("Default".equals(v)) map.remove(id);
             else map.put(id, v);
-        }).desc(desc).tags("panel", "text", "outline", "align");
+        }).fresh().desc(desc).tags("panel", "text", "outline", "align");
     }
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
@@ -70,10 +70,10 @@ public final class InterfaceCategory {
         b.dropdown("HUD Style",
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v);
-        b.toggle("  Custom Accent Color", () -> config.guiCustomAccent, v -> config.guiCustomAccent = v)
+        b.toggle("  Custom Accent Color", () -> config.guiCustomAccent, v -> config.guiCustomAccent = v).fresh()
                 .desc("Replaces the style's accent (selection, active headers, toggles) with your own colour.")
                 .tags("theme", "accent", "color");
-        b.color("    Accent", () -> config.guiAccentColor, v -> config.guiAccentColor = v).tags("theme", "accent");
+        b.color("    Accent", () -> config.guiAccentColor, v -> config.guiAccentColor = v).fresh().tags("theme", "accent");
         b.info("GUI Style skins these screens, HUD Style the in-game panels");
         b.color("  Custom Background", () -> config.hudCustomBg, v -> config.hudCustomBg = v)
                 .desc("Fill of HUD Style \"Custom\", alpha included.").tags("panel", "hud style");
@@ -86,22 +86,22 @@ public final class InterfaceCategory {
         b.slider("  Custom Border Width", 0f, 4f, () -> config.hudCustomBorderWidth, v -> config.hudCustomBorderWidth = v, 1).tags("panel");
         b.slider("  Custom Padding", 0f, 12f, () -> config.hudCustomPadding, v -> config.hudCustomPadding = v, 0).tags("panel");
         b.dropdown("  Text Chroma (All Panels)", com.teslamaps.render.gui.HudStyle.CHROMA_MODES,
-                () -> config.hudChromaAll, v -> config.hudChromaAll = v)
+                () -> config.hudChromaAll, v -> config.hudChromaAll = v).fresh()
                 .desc("Rainbow text on every HUD panel. Plain Text leaves coloured parts alone.").tags("chroma", "rainbow");
         b.dropdown("  HUD Text", com.teslamaps.render.gui.HudTextStyle.SHADOWS,
-                () -> config.hudTextShadow, v -> config.hudTextShadow = v)
+                () -> config.hudTextShadow, v -> config.hudTextShadow = v).fresh()
                 .desc("Text of every HUD panel: vanilla shadow, a 1 px black outline (readable on bright ground), or no shadow.")
                 .tags("outline", "text", "shadow");
-        b.slider("  Custom Blur", 0f, 20f, () -> config.hudCustomBlur, v -> config.hudCustomBlur = v, 0)
+        b.slider("  Custom Blur", 0f, 20f, () -> config.hudCustomBlur, v -> config.hudCustomBlur = v, 0).fresh()
                 .desc("Blurs the world behind \"Custom\" panels. 0 = off.").tags("panel", "blur", "frosted");
         b.dropdown("    Blur Kernel", new String[]{"Gaussian", "Box"},
-                () -> config.hudCustomBlurKernel, v -> config.hudCustomBlurKernel = v).tags("panel", "blur");
+                () -> config.hudCustomBlurKernel, v -> config.hudCustomBlurKernel = v).fresh().tags("panel", "blur");
         panelStyles(b, config);
-        b.label("Layout");
-        b.toggle("Column Layout", () -> config.configColumnLayout, v -> config.configColumnLayout = v)
+        b.label("Layout").fresh();
+        b.toggle("Column Layout", () -> config.configColumnLayout, v -> config.configColumnLayout = v).fresh()
                 .desc("Opens settings as movable columns, one per category: drag a header, scroll while dragging to scale, right-click to fold. Takes effect the next time the settings open.")
                 .tags("clickgui", "columns", "odin", "layout");
-        b.toggle("  Fling Columns", () -> config.configColumnFling, v -> config.configColumnFling = v)
+        b.toggle("  Fling Columns", () -> config.configColumnFling, v -> config.configColumnFling = v).fresh()
                 .desc("A column let go mid-drag keeps sliding and bounces off the screen edges.");
         b.label("HUD Positions");
         b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
@@ -113,34 +113,34 @@ public final class InterfaceCategory {
                 })
                 .desc("Panels in the right or bottom half keep their distance to that edge when the screen size or GUI scale changes.")
                 .tags("anchor", "hud", "position", "gui scale");
-        b.toggle("HUD Editor Helpers", () -> config.hudEditHelpers, v -> config.hudEditHelpers = v)
+        b.toggle("HUD Editor Helpers", () -> config.hudEditHelpers, v -> config.hudEditHelpers = v).fresh()
                 .desc("/tmap gui: grid, edge snap, centre guides with coordinates, Ctrl+click multi-drag, corner resize grip. Hold Alt to drag freely.")
                 .tags("hud", "grid", "snap", "resize", "editor");
-        b.slider("  Grid Size (0 = off)", 0f, 50f, () -> (float) config.hudEditGrid, v -> config.hudEditGrid = Math.round(v), 0);
-        b.toggle("  Snap To Other Panels", () -> config.hudEditSnapEdges, v -> config.hudEditSnapEdges = v);
-        b.toggle("  Centre Guides", () -> config.hudEditGuides, v -> config.hudEditGuides = v);
-        b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v);
-        b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v);
-        b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v)
+        b.slider("  Grid Size (0 = off)", 0f, 50f, () -> (float) config.hudEditGrid, v -> config.hudEditGrid = Math.round(v), 0).fresh();
+        b.toggle("  Snap To Other Panels", () -> config.hudEditSnapEdges, v -> config.hudEditSnapEdges = v).fresh();
+        b.toggle("  Centre Guides", () -> config.hudEditGuides, v -> config.hudEditGuides = v).fresh();
+        b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v).fresh();
+        b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v).fresh();
+        b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v).fresh()
                 .desc("More controls in /tmap gui: global scale (- / + / 1x, top left), hover an element to see its position and the keys.")
                 .tags("hud", "editor", "reset", "nudge", "tmap gui");
-        b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v)
+        b.toggle("  Reset (R Key + Reset All)", () -> config.hudEditReset, v -> config.hudEditReset = v).fresh()
                 .desc("R puts the hovered or last clicked element back to its default position and scale. Reset All asks for a second click.");
-        b.toggle("  Arrow Keys Move, +/- Scale", () -> config.hudEditNudge, v -> config.hudEditNudge = v)
+        b.toggle("  Arrow Keys Move, +/- Scale", () -> config.hudEditNudge, v -> config.hudEditNudge = v).fresh()
                 .desc("1 px per press, 10 px with Shift. +/- (numpad too) change the scale by 0.1.");
-        b.toggle("  Show Disabled HUDs", () -> config.hudEditShowDisabled, v -> config.hudEditShowDisabled = v)
+        b.toggle("  Show Disabled HUDs", () -> config.hudEditShowDisabled, v -> config.hudEditShowDisabled = v).fresh()
                 .desc("Switched-off elements are drawn as grey boxes, so you can place them anyway.");
-        b.toggle("    Right-Click Toggles HUD", () -> config.hudEditRightClickToggle, v -> config.hudEditRightClickToggle = v)
+        b.toggle("    Right-Click Toggles HUD", () -> config.hudEditRightClickToggle, v -> config.hudEditRightClickToggle = v).fresh()
                 .desc("Right-click an element to switch its feature on or off.");
-        b.toggle("  Middle-Click Opens Settings", () -> config.hudEditJump, v -> config.hudEditJump = v)
+        b.toggle("  Middle-Click Opens Settings", () -> config.hudEditJump, v -> config.hudEditJump = v).fresh()
                 .desc("Middle-click an element to jump to its settings.");
-        b.label("Outside SkyBlock");
-        b.toggle("Only Run Features In SkyBlock", () -> config.outsideSbGate, v -> config.outsideSbGate = v)
+        b.label("Outside SkyBlock").fresh();
+        b.toggle("Only Run Features In SkyBlock", () -> config.outsideSbGate, v -> config.outsideSbGate = v).fresh()
                 .desc("Off = unchanged. On = every feature stops outside Hypixel SkyBlock, except the ones picked below.")
                 .tags("skyblock", "outside", "lobby");
         b.searchList("  Also Outside SkyBlock", com.teslamaps.registry.FeatureRegistry::featureNames,
                 id -> config.outsideSbFeatures.contains(id),
-                id -> { if (!config.outsideSbFeatures.remove(id)) config.outsideSbFeatures.add(id); })
+                id -> { if (!config.outsideSbFeatures.remove(id)) config.outsideSbFeatures.add(id); }).fresh()
                 .tags("skyblock", "outside");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
@@ -155,95 +155,95 @@ public final class InterfaceCategory {
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v);
         b.info("Right Shift by default, press again to close");
         b.info("Block Other Mods eats the key before anything else sees it");
-        b.toggle("  Key Conflict Warning", () -> config.keyConflictWarning, v -> config.keyConflictWarning = v)
+        b.toggle("  Key Conflict Warning", () -> config.keyConflictWarning, v -> config.keyConflictWarning = v).fresh()
                 .desc("Key buttons turn red when the same key is also bound elsewhere in TeslaMaps, in a hotkey or in the vanilla/other mods' controls. Hover the button to see which.")
                 .tags("keybind", "conflict", "duplicate");
-        b.toggle("  Quick Mod Menu Switch", () -> config.quickModSwitch, v -> config.quickModSwitch = v)
+        b.toggle("  Quick Mod Menu Switch", () -> config.quickModSwitch, v -> config.quickModSwitch = v).fresh()
                 .desc("Inside the config screens of known mods (TeslaMaps, Skyblocker, SkyHanni, Devonian, Odin, SkyOcean, Firmament) a list of the other installed ones; a click opens their menu. Position in /tmap gui.")
                 .tags("mod menu", "switch");
-        b.toggle("    Also In Pause Menu", () -> config.quickModSwitchPause, v -> config.quickModSwitchPause = v);
-        com.teslamaps.features.FeatureToggleKeys.config(b, config);
+        b.toggle("    Also In Pause Menu", () -> config.quickModSwitchPause, v -> config.quickModSwitchPause = v).fresh();
+        b.fresh(() -> com.teslamaps.features.FeatureToggleKeys.config(b, config));
         b.label("Performance HUD");
         b.toggle("Performance HUD", () -> config.perfHud, v -> config.perfHud = v);
         b.toggle("  Show FPS", () -> config.perfHudFps, v -> config.perfHudFps = v);
         b.toggle("  Show TPS", () -> config.perfHudTps, v -> config.perfHudTps = v);
         b.toggle("  Show Ping", () -> config.perfHudPing, v -> config.perfHudPing = v);
-        b.toggle("  Show CPS", () -> config.perfHudCps, v -> config.perfHudCps = v)
+        b.toggle("  Show CPS", () -> config.perfHudCps, v -> config.perfHudCps = v).fresh()
                 .desc("Left | right clicks per second");
-        b.toggle("  Show Lobby Day", () -> config.perfHudDay, v -> config.perfHudDay = v)
+        b.toggle("  Show Lobby Day", () -> config.perfHudDay, v -> config.perfHudDay = v).fresh()
                 .desc("Day: n = how long this lobby has been running (world time / 24000). Fresh lobbies lag less.");
-        b.toggle("  Lag Display (zzz)", () -> config.perfHudLag, v -> config.perfHudLag = v)
+        b.toggle("  Lag Display (zzz)", () -> config.perfHudLag, v -> config.perfHudLag = v).fresh()
                 .desc("Adds \"zzz for 1.23s\" while the server has not sent a tick for longer than the threshold")
                 .tags("lag", "freeze", "zzz");
-        b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0);
-        b.toggle("  Show Coordinates", () -> config.perfHudCoords, v -> config.perfHudCoords = v)
+        b.slider("    Lag Threshold (ms)", 50f, 1000f, () -> config.perfHudLagThreshold, v -> config.perfHudLagThreshold = v, 0).fresh();
+        b.toggle("  Show Coordinates", () -> config.perfHudCoords, v -> config.perfHudCoords = v).fresh()
                 .desc("x / y / z (yaw / pitch) of your position")
                 .tags("coords", "xyz", "position");
-        b.toggle("    Looking At", () -> config.perfHudLookingAt, v -> config.perfHudLookingAt = v)
+        b.toggle("    Looking At", () -> config.perfHudLookingAt, v -> config.perfHudLookingAt = v).fresh()
                 .desc("Adds \"Looking at: x / y / z\" for the block in your crosshair");
-        b.toggle("  Show Time", () -> config.perfHudTime, v -> config.perfHudTime = v)
+        b.toggle("  Show Time", () -> config.perfHudTime, v -> config.perfHudTime = v).fresh()
                 .desc("Real-world clock (system time)").tags("clock", "time", "uhr");
-        b.dropdown("    Time Format", new String[]{"24h", "12h"}, () -> config.perfHudTimeFormat, v -> config.perfHudTimeFormat = v);
-        b.toggle("    Seconds", () -> config.perfHudTimeSeconds, v -> config.perfHudTimeSeconds = v);
-        b.dropdown("    Time Label", new String[]{"Text", "Symbol", "None"}, () -> config.perfHudTimeLabel, v -> config.perfHudTimeLabel = v);
+        b.dropdown("    Time Format", new String[]{"24h", "12h"}, () -> config.perfHudTimeFormat, v -> config.perfHudTimeFormat = v).fresh();
+        b.toggle("    Seconds", () -> config.perfHudTimeSeconds, v -> config.perfHudTimeSeconds = v).fresh();
+        b.dropdown("    Time Label", new String[]{"Text", "Symbol", "None"}, () -> config.perfHudTimeLabel, v -> config.perfHudTimeLabel = v).fresh();
         b.toggle("  Vertical", () -> config.perfHudVertical, v -> config.perfHudVertical = v);
-        b.lineOrder("  Order", com.teslamaps.features.PerformanceHud.LINES.id())
+        b.lineOrder("  Order", com.teslamaps.features.PerformanceHud.LINES.id()).fresh()
                 .desc("Drag entries to change their order, click the box to hide one.");
-        b.toggle("  Color By Value", () -> config.perfHudColorCoded, v -> config.perfHudColorCoded = v)
+        b.toggle("  Color By Value", () -> config.perfHudColorCoded, v -> config.perfHudColorCoded = v).fresh()
                 .desc("FPS relative to your FPS limit, TPS and ping green to red");
         b.dropdown("  TPS Value", new String[]{"Average", "Current", "Min", "Max"},
-                () -> config.perfHudTpsMode, v -> config.perfHudTpsMode = v);
+                () -> config.perfHudTpsMode, v -> config.perfHudTpsMode = v).fresh();
         b.dropdown("  Ping Value", new String[]{"Instant", "Median", "Mean"},
-                () -> config.perfHudPingMode, v -> config.perfHudPingMode = v);
+                () -> config.perfHudPingMode, v -> config.perfHudPingMode = v).fresh();
         b.color("  Label Color", () -> config.perfHudLabelColor, v -> config.perfHudLabelColor = v);
         b.color("  Value Color", () -> config.perfHudValueColor, v -> config.perfHudValueColor = v);
         b.info("Position/scale in /tmap gui, hidden while F3 is open");
         b.label("Profile Viewer");
         b.toggle("Scroll Long Pages", () -> config.pvScrollPages, v -> config.pvScrollPages = v);
         b.info("Full size text with a scrollbar instead of shrinking the page");
-        b.toggle("Sacks Tab", () -> config.pvSacks, v -> config.pvSacks = v)
+        b.toggle("Sacks Tab", () -> config.pvSacks, v -> config.pvSacks = v).fresh()
                 .desc("Adds the sack contents with their bazaar value to the Inventories page");
-        b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v)
+        b.toggle("Hunting Page", () -> config.pvHunting, v -> config.pvHunting = v).fresh()
                 .desc("Attribute levels and the Hunting Box of the viewed player");
-        b.toggle("Profile Viewer Extras", () -> config.pvExtras, v -> config.pvExtras = v)
+        b.toggle("Profile Viewer Extras", () -> config.pvExtras, v -> config.pvExtras = v).fresh()
                 .desc("Master switch for the options below").tags("pv", "profile viewer");
-        b.toggle("  Island Panorama", () -> config.pvPanorama, v -> config.pvPanorama = v)
+        b.toggle("  Island Panorama", () -> config.pvPanorama, v -> config.pvPanorama = v).fresh()
                 .desc("Panorama of the island the player is on behind the player model, day or night by SkyBlock time")
                 .tags("pv", "panorama", "background");
-        b.toggle("  Info Board", () -> config.pvInfoBoard, v -> config.pvInfoBoard = v)
+        b.toggle("  Info Board", () -> config.pvInfoBoard, v -> config.pvInfoBoard = v).fresh()
                 .desc("Mode, Hypixel level, fairy souls, created date, cookie and crit record on the Basic page")
                 .tags("pv", "fairy souls", "network level", "ironman", "stranded");
-        b.toggle("  Mobs Tab", () -> config.pvMobsTab, v -> config.pvMobsTab = v)
+        b.toggle("  Mobs Tab", () -> config.pvMobsTab, v -> config.pvMobsTab = v).fresh()
                 .desc("Kills and deaths per mob in two scrolling columns").tags("pv", "kills", "deaths");
-        b.toggle("  Bingo Goal Names", () -> config.pvBingoGoals, v -> config.pvBingoGoals = v)
+        b.toggle("  Bingo Goal Names", () -> config.pvBingoGoals, v -> config.pvBingoGoals = v).fresh()
                 .desc("Bingo card with goal names, hover details, community goals and points").tags("pv", "bingo");
-        b.toggle("  Trophy Fisher Rank", () -> config.pvTrophyRank, v -> config.pvTrophyRank = v)
+        b.toggle("  Trophy Fisher Rank", () -> config.pvTrophyRank, v -> config.pvTrophyRank = v).fresh()
                 .desc("Novice to Master Fisher rank and what is missing for the next one").tags("pv", "trophy", "odger");
-        b.toggle("  Power Stats + Tuning", () -> config.pvPowerStats, v -> config.pvPowerStats = v)
+        b.toggle("  Power Stats + Tuning", () -> config.pvPowerStats, v -> config.pvPowerStats = v).fresh()
                 .desc("Hover the Magical Power line on the Accessories page for the power stone stats and tuning")
                 .tags("pv", "magical power", "tuning", "mp");
-        b.toggle("  Copy Error On Right-Click", () -> config.pvErrorCopy, v -> config.pvErrorCopy = v)
+        b.toggle("  Copy Error On Right-Click", () -> config.pvErrorCopy, v -> config.pvErrorCopy = v).fresh()
                 .desc("Right-click a load error to copy the full message").tags("pv", "error", "clipboard");
-        b.toggle("  /peek + Lobby Leaderboards", () -> config.pvPeek, v -> config.pvPeek = v)
+        b.toggle("  /peek + Lobby Leaderboards", () -> config.pvPeek, v -> config.pvPeek = v).fresh()
                 .desc("/peek <name> prints skills, cata, slayers and coins; /tmap lobbylb <purse|skills|cata> ranks the players in your lobby")
                 .tags("pv", "peek", "purselb", "skillslb", "leaderboard");
-        b.toggle("  Mining/Foraging Gear", () -> config.pvGearScan, v -> config.pvGearScan = v)
+        b.toggle("  Mining/Foraging Gear", () -> config.pvGearScan, v -> config.pvGearScan = v).fresh()
                 .desc("Best mining and foraging armor, equipment and tools found in all containers");
-        b.toggle("  Greenhouse", () -> config.pvGreenhouse, v -> config.pvGreenhouse = v)
+        b.toggle("  Greenhouse", () -> config.pvGreenhouse, v -> config.pvGreenhouse = v).fresh()
                 .desc("Greenhouse mutations, copper and larva on the garden page");
-        b.toggle("  Fishing Stats", () -> config.pvFishingStats, v -> config.pvFishingStats = v)
+        b.toggle("  Fishing Stats", () -> config.pvFishingStats, v -> config.pvFishingStats = v).fresh()
                 .desc("Items fished, treasure, sea creatures and the dolphin milestone on the extra page");
-        b.toggle("  Minions", () -> config.pvMinions, v -> config.pvMinions = v)
+        b.toggle("  Minions", () -> config.pvMinions, v -> config.pvMinions = v).fresh()
                 .desc("Crafted minion tiers as an extra collections category");
-        b.toggle("  Misc Bags", () -> config.pvMiscBags, v -> config.pvMiscBags = v)
+        b.toggle("  Misc Bags", () -> config.pvMiscBags, v -> config.pvMiscBags = v).fresh()
                 .desc("Candy and carnival mask bag; potion bag, quiver and fishing bag grouped into Misc");
-        b.toggle("  Overview Links", () -> config.pvDeepLinks, v -> config.pvDeepLinks = v)
+        b.toggle("  Overview Links", () -> config.pvDeepLinks, v -> config.pvDeepLinks = v).fresh()
                 .desc("Click a skill, catacombs or the SkyBlock level on the basic page to open its page");
-        b.toggle("  Level & Hoppity Page", () -> config.pvLevelHoppity, v -> config.pvLevelHoppity = v)
+        b.toggle("  Level & Hoppity Page", () -> config.pvLevelHoppity, v -> config.pvLevelHoppity = v).fresh()
                 .desc("SkyBlock level breakdown per category and the chocolate factory");
         b.label("Updates");
         b.toggle("Check For Updates", () -> config.updateCheck, v -> config.updateCheck = v);
-        b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v);
+        b.toggle("  Show Changelog", () -> config.updateChangelog, v -> config.updateChangelog = v).fresh();
         b.info("Signed releases only, install via popup or /tmap update");
     }
 }

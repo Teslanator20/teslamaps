@@ -13,11 +13,11 @@ public final class RenderCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("World");
         b.toggle("Fullbright", () -> config.fullbright, v -> config.fullbright = v);
-        b.toggle("Night Vision Control", () -> config.nightVisionControl, v -> config.nightVisionControl = v)
+        b.toggle("Night Vision Control", () -> config.nightVisionControl, v -> config.nightVisionControl = v).fresh()
                 .desc("Dims Hypixel's permanent night vision. Only matters while Fullbright is off.");
         b.slider("  Night Vision Strength", 0f, 100f,
-                () -> config.nightVisionStrength, v -> config.nightVisionStrength = v);
-        b.toggle("  No Night Vision Blinking", () -> config.nightVisionNoBlink, v -> config.nightVisionNoBlink = v);
+                () -> config.nightVisionStrength, v -> config.nightVisionStrength = v).fresh();
+        b.toggle("  No Night Vision Blinking", () -> config.nightVisionNoBlink, v -> config.nightVisionNoBlink = v).fresh();
         b.label("Zoom");
         b.toggle("Zoom (hold key)", () -> config.zoomEnabled, v -> config.zoomEnabled = v);
         b.keybind("  Zoom Key", () -> config.zoomKey, v -> config.zoomKey = v);
@@ -51,7 +51,7 @@ public final class RenderCategory {
         b.toggle("  Tint HUD", () -> config.darkModeTintHud, v -> config.darkModeTintHud = v);
         b.label("Loading Screens");
         b.toggle("Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v);
-        b.toggle("  Seamless Server Switch", () -> config.seamlessServerSwitch, v -> config.seamlessServerSwitch = v)
+        b.toggle("  Seamless Server Switch", () -> config.seamlessServerSwitch, v -> config.seamlessServerSwitch = v).fresh()
                 .desc("Hides Hypixel's Reconfiguring screen and keeps the cursor captured, so a /warp looks like a teleport");
         b.toggle("No Texture Reload Screen", () -> config.noReloadScreen, v -> config.noReloadScreen = v);
         b.label("Beacons & Lines");
@@ -80,9 +80,9 @@ public final class RenderCategory {
         b.color("  Chat Waypoint Color", () -> config.chatWaypointColor, v -> config.chatWaypointColor = v);
         b.toggle("  /tmap sendcoords Adds Area", () -> config.chatWaypointShareArea, v -> config.chatWaypointShareArea = v);
         b.dropdown("  /tmap sendcoords Channel", new String[] {"Party", "Current", "All", "Guild", "Coop"},
-                () -> config.sendCoordsChannel, v -> config.sendCoordsChannel = v)
+                () -> config.sendCoordsChannel, v -> config.sendCoordsChannel = v).fresh()
                 .desc("Where /tmap sendcoords [text] goes. Current = the chat you are in");
-        b.toggle("  /tmap wp Commands", () -> config.chatWaypointCommands, v -> config.chatWaypointCommands = v)
+        b.toggle("  /tmap wp Commands", () -> config.chatWaypointCommands, v -> config.chatWaypointCommands = v).fresh()
                 .desc("/tmap wp addtemp [name] [x y z] sets a 60s beam here or at the coords, /tmap wp share [x y z] posts coords in chat, /tmap wp clear removes all");
         b.label("NPC Finder");
         b.toggle("NPC Finder (/tmap npc)", () -> config.npcFinder, v -> config.npcFinder = v);
@@ -92,56 +92,56 @@ public final class RenderCategory {
         b.keybind("  NPC Waypoint Key", () -> config.npcWaypointKey, v -> config.npcWaypointKey = v);
         b.info("Over an NPC item (Abiphone): track, Shift: also warp");
         b.info("In the world: open the finder, Shift: warp to the target");
-        b.toggle("  Visitor's Logbook Navigation", () -> config.visitorLogbookNav, v -> config.visitorLogbookNav = v)
+        b.toggle("  Visitor's Logbook Navigation", () -> config.visitorLogbookNav, v -> config.visitorLogbookNav = v).fresh()
                 .desc("In the Visitor's Logbook a key over a visitor tracks it, or warps to its island first")
                 .tags("visitor", "logbook", "garden", "navigate");
-        b.keybind("    Logbook Key", () -> config.visitorLogbookKey, v -> config.visitorLogbookKey = v);
+        b.keybind("    Logbook Key", () -> config.visitorLogbookKey, v -> config.visitorLogbookKey = v).fresh();
         b.label("Rare Drop Effects");
         b.toggle("Rare Drops", () -> config.rareDropEffects, v -> config.rareDropEffects = v);
         b.dropdown("  Post Drops To", com.teslamaps.features.RareDropEffects.ANNOUNCE,
-                () -> config.rareDropAnnounce, v -> config.rareDropAnnounce = v)
+                () -> config.rareDropAnnounce, v -> config.rareDropAnnounce = v).fresh()
                 .desc("Sends the RARE DROP line with a per-item counter to party and/or guild chat");
         b.slider("    Only Over (Mio, 0 = all)", 0f, 100f,
-                () -> config.rareDropAnnounceMin, v -> config.rareDropAnnounceMin = v, 1);
-        b.toggle("  Copy Drop Line To Clipboard", () -> config.rareDropCopy, v -> config.rareDropCopy = v);
+                () -> config.rareDropAnnounceMin, v -> config.rareDropAnnounceMin = v, 1).fresh();
+        b.toggle("  Copy Drop Line To Clipboard", () -> config.rareDropCopy, v -> config.rareDropCopy = v).fresh();
         b.dropdown("  Burrowing Spores Alarm", com.teslamaps.features.RareDropEffects.SPORES_ALARM,
-                () -> config.burrowingSporesAlarm, v -> config.burrowingSporesAlarm = v)
+                () -> config.burrowingSporesAlarm, v -> config.burrowingSporesAlarm = v).fresh()
                 .desc("VERY RARE CROP! Burrowing Spores: title and/or the big item pop. Works on its own, Rare Drops can stay off")
                 .tags("garden", "rare crop", "spores");
-        b.toggle("  Snow Minion Gift Alert", () -> config.snowMinionGiftAlert, v -> config.snowMinionGiftAlert = v)
+        b.toggle("  Snow Minion Gift Alert", () -> config.snowMinionGiftAlert, v -> config.snowMinionGiftAlert = v).fresh()
                 .desc("Big aqua \"Snow Minion!\" title and a beep when a gift gives a Snow Minion (SWEET! line)")
                 .tags("gift", "jerry", "winter", "snow minion");
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);
         b.toggle("Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v);
-        b.toggle("Crimson Boss Drops", () -> config.crimsonDropAlert, v -> config.crimsonDropAlert = v)
+        b.toggle("Crimson Boss Drops", () -> config.crimsonDropAlert, v -> config.crimsonDropAlert = v).fresh()
                 .desc("After a Crimson Isle miniboss DOWN!: scans the ground for Kuudra Keys, Magma Urchins, Ragnarock, "
                         + "Fire Veil/Freeze/Fury, Wand of Strength, Flaming Fist and Magma Cube pets. Title, chat line and sound")
                 .tags("crimson", "miniboss", "ashfang", "bladesoul", "magma boss", "drop", "loot")
                 .gatedBy("Crimson Isle");
-        b.toggle("  Crimson Boss Loot Tracker", () -> config.crimsonLootTracker, v -> config.crimsonLootTracker = v)
+        b.toggle("  Crimson Boss Loot Tracker", () -> config.crimsonLootTracker, v -> config.crimsonLootTracker = v).fresh()
                 .desc("Counts those drops, shown on the Crimson Isle (/tmap gui)")
                 .gatedBy("Crimson Isle");
         b.buttonRow(new String[]{"Reset Session", "Reset Total", "Session / Total"},
                 new Runnable[]{() -> com.teslamaps.features.crimson.CrimsonDrops.resetTracker(false),
                         () -> com.teslamaps.features.crimson.CrimsonDrops.resetTracker(true),
-                        com.teslamaps.features.crimson.CrimsonDrops::toggleView});
-        b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v)
+                        com.teslamaps.features.crimson.CrimsonDrops::toggleView}).fresh();
+        b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v).fresh()
                 .desc("Title + sound when an Ice Spray Wand or Skeleton Master Chestplate drops on the ground");
-        b.toggle("  SM Chestplate On All Floors", () -> config.rareGroundDropsSmAllFloors, v -> config.rareGroundDropsSmAllFloors = v)
+        b.toggle("  SM Chestplate On All Floors", () -> config.rareGroundDropsSmAllFloors, v -> config.rareGroundDropsSmAllFloors = v).fresh()
                 .desc("Off = only in M7");
-        b.slider("  Title Time (s)", 0.5f, 5f, () -> config.rareGroundDropsTime, v -> config.rareGroundDropsTime = v, 1);
+        b.slider("  Title Time (s)", 0.5f, 5f, () -> config.rareGroundDropsTime, v -> config.rareGroundDropsTime = v, 1).fresh();
         b.toggle("Show Item Name", () -> config.rareDropText, v -> config.rareDropText = v);
         b.toggle("Show Item Value", () -> config.rareDropPrice, v -> config.rareDropPrice = v);
         b.slider("Any Drop Worth Over (Mio)", 0f, 50f,
                 () -> config.rareDropMinValue, v -> config.rareDropMinValue = v, 1);
         b.info("0 = off. Plays the effect for any RARE DROP over this value");
-        b.toggle("Valuable Drop Warning (Trackers)", () -> config.valuableDropWarn, v -> config.valuableDropWarn = v)
+        b.toggle("Valuable Drop Warning (Trackers)", () -> config.valuableDropWarn, v -> config.valuableDropWarn = v).fresh()
                 .desc("Any tracker gain or [Sacks] gain over the value, no RARE DROP line needed")
                 .tags("expensive", "item warning", "tracker");
         b.slider("  Chat Line Over (Mio)", 0.1f, 50f,
-                () -> config.valuableDropChatValue, v -> config.valuableDropChatValue = v, 1);
+                () -> config.valuableDropChatValue, v -> config.valuableDropChatValue = v, 1).fresh();
         b.slider("  Title Over (Mio, 0 = off)", 0f, 200f,
-                () -> config.valuableDropTitleValue, v -> config.valuableDropTitleValue = v, 1);
+                () -> config.valuableDropTitleValue, v -> config.valuableDropTitleValue = v, 1).fresh();
         b.label("Etherwarp");
         b.toggle("Etherwarp Guess Box", () -> config.etherwarp, v -> config.etherwarp = v);
         b.toggle("  Show When Failed", () -> config.etherwarpShowFail, v -> config.etherwarpShowFail = v);

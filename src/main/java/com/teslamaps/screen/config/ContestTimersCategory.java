@@ -19,16 +19,16 @@ public final class ContestTimersCategory {
         b.toggle("  Farming Timer",
                 () -> config.contestShowFarming, v -> config.contestShowFarming = v);
         b.toggle("    Contest Crops",
-                () -> config.contestCrops, v -> config.contestCrops = v)
+                () -> config.contestCrops, v -> config.contestCrops = v).fresh()
                 .desc("The three crops of the running or next Jacob's contest under the farming line, boosted crop in gold. Read from the tab widget or /calendar")
                 .tags("jacob", "crops", "contest", "boosted");
         b.toggle("      Placement (Top x%)",
-                () -> config.contestCropsPlacement, v -> config.contestCropsPlacement = v);
+                () -> config.contestCropsPlacement, v -> config.contestCropsPlacement = v).fresh();
         b.toggle("  Dark Auction Timer",
-                () -> config.contestShowDarkAuction, v -> config.contestShowDarkAuction = v)
+                () -> config.contestShowDarkAuction, v -> config.contestShowDarkAuction = v).fresh()
                 .desc("Time until the next Dark Auction (every hour at :55)");
         b.toggle("  Tab Event Countdown",
-                () -> config.contestTabEvent, v -> config.contestTabEvent = v)
+                () -> config.contestTabEvent, v -> config.contestTabEvent = v).fresh()
                 .desc("The event from the tab list Event widget with its \"Ends in\" or \"Starts in\" time (Mining Fiesta, Hoppity, Zoo, Fishing Festival ...). Needs the Event widget in /tab")
                 .tags("event", "tab", "countdown", "fiesta", "starts in");
         b.toggle("  SkyBlock Only",
@@ -40,17 +40,17 @@ public final class ContestTimersCategory {
         b.toggle("Contest Started Alert",
                 () -> config.contestAlertStart, v -> config.contestAlertStart = v);
         b.toggle("Contest Crop Warning",
-                () -> config.contestCropWarn, v -> config.contestCropWarn = v)
+                () -> config.contestCropWarn, v -> config.contestCropWarn = v).fresh()
                 .desc("Chat, title and sound before a Jacob's contest with one of the chosen crops starts")
                 .tags("jacob", "crops", "contest", "warn");
         b.slider("  Seconds Before", 10f, 600f,
-                () -> (float) config.contestCropWarnSeconds, v -> config.contestCropWarnSeconds = Math.round(v), 0);
+                () -> (float) config.contestCropWarnSeconds, v -> config.contestCropWarnSeconds = Math.round(v), 0).fresh();
         b.searchList("  Only For Crops (none = all)",
                 () -> java.util.List.of(com.teslamaps.features.JacobContests.CROPS),
                 crop -> config.contestCropWarnFor.contains(crop),
-                crop -> { if (!config.contestCropWarnFor.remove(crop)) config.contestCropWarnFor.add(crop); });
+                crop -> { if (!config.contestCropWarnFor.remove(crop)) config.contestCropWarnFor.add(crop); }).fresh();
         b.toggle("  Flash Taskbar When Unfocused",
-                () -> config.contestCropWarnFlash, v -> config.contestCropWarnFlash = v);
+                () -> config.contestCropWarnFlash, v -> config.contestCropWarnFlash = v).fresh();
         b.toggle("Alert if < 5 Minutes left",
                 () -> config.contestAlert5Min, v -> config.contestAlert5Min = v);
         b.toggle("Alert if < 1,5 Minutes left",

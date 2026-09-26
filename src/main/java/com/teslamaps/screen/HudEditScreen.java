@@ -171,8 +171,9 @@ public class HudEditScreen extends Screen {
 
     private void jump(HudEditElement e) {
         TeslaMapsConfig.save();
+        MapConfigScreen.View view = MapConfigScreen.viewFor(e.section(), e.label);
         MapConfigScreen.jumpTo(e.section(), e.label);
-        minecraft.setScreen(MapConfigScreen.open());
+        minecraft.setScreen(MapConfigScreen.open(view));
     }
 
     /** Topmost (last drawn) element under the cursor. */

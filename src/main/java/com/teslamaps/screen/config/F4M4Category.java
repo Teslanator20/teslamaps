@@ -26,7 +26,7 @@ public final class F4M4Category {
         b.toggle("Bats", () -> config.m4HlBat, v -> config.m4HlBat = v);
         b.toggle("Wolves", () -> config.m4HlWolf, v -> config.m4HlWolf = v);
         b.toggle("Rabbits", () -> config.m4HlRabbit, v -> config.m4HlRabbit = v);
-        b.toggle("Spirit Bow", () -> config.m4HlSpiritBow, v -> config.m4HlSpiritBow = v);
+        b.toggle("Spirit Bow", () -> config.m4HlSpiritBow, v -> config.m4HlSpiritBow = v).fresh();
         b.label("Highlight Colors");
         b.color("Thorn", () -> config.m4ColorThorn, v -> config.m4ColorThorn = v);
         b.color("Thorn Damaged", () -> config.m4ColorThornDmg, v -> config.m4ColorThornDmg = v);
@@ -37,7 +37,7 @@ public final class F4M4Category {
         b.color("Bat", () -> config.m4ColorBat, v -> config.m4ColorBat = v);
         b.color("Wolf", () -> config.m4ColorWolf, v -> config.m4ColorWolf = v);
         b.color("Rabbit", () -> config.m4ColorRabbit, v -> config.m4ColorRabbit = v);
-        b.color("Spirit Bow", () -> config.m4ColorSpiritBow, v -> config.m4ColorSpiritBow = v);
+        b.color("Spirit Bow", () -> config.m4ColorSpiritBow, v -> config.m4ColorSpiritBow = v).fresh();
         b.label("Decoy & Trajectories");
         b.toggle("Best Decoy Spot", () -> config.m4Decoy, v -> config.m4Decoy = v);
         b.toggle("Trajectories", () -> config.m4Trajectories, v -> config.m4Trajectories = v);
@@ -55,10 +55,10 @@ public final class F4M4Category {
         b.toggle("Bow Pickup Title", () -> config.titleBowPickup, v -> config.titleBowPickup = v);
         b.toggle("Bear Event Titles", () -> config.titleBearEvents, v -> config.titleBearEvents = v);
         b.toggle("Hide Default Titles (boss)", () -> config.hideDefaultTitles, v -> config.hideDefaultTitles = v);
-        b.toggle("Global Title Duration", () -> config.titleDurationOverride, v -> config.titleDurationOverride = v)
+        b.toggle("Global Title Duration", () -> config.titleDurationOverride, v -> config.titleDurationOverride = v).fresh()
                 .desc("Every title alert TeslaMaps shows (not only these) stays this long. Server titles are left alone.")
                 .tags("title", "alert", "duration", "warning");
         b.slider("  Duration (ticks)", 5f, 200f, () -> (float) config.titleDurationTicks,
-                v -> config.titleDurationTicks = Math.round(v), 0).desc("20 ticks = 1 second");
+                v -> config.titleDurationTicks = Math.round(v), 0).fresh().desc("20 ticks = 1 second");
     }
 }

@@ -17,6 +17,7 @@ public final class ConfigBuilder {
 
     private static final class Target {
         List<MapConfigScreen.SettingsEntry> list;
+        boolean fresh;
     }
 
     private final MapConfigScreen s;
@@ -51,7 +52,24 @@ public final class ConfigBuilder {
 
     public <T extends MapConfigScreen.SettingsEntry> T add(T e) {
         target.list.add(e);
+        if (target.fresh) s.markFresh(e);
         return e;
+    }
+
+    /** Rows added inside are new ones: /tmap all instead of /tmap. */
+    public void fresh(Runnable rows) {
+        boolean was = target.fresh;
+        target.fresh = true;
+        try {
+            rows.run();
+        } finally {
+            target.fresh = was;
+        }
+    }
+
+    /** Every following row is a new one (registry features of the build-out). */
+    public void freshMode(boolean on) {
+        target.fresh = on;
     }
 
     public MapConfigScreen.LabelEntry label(String text) {

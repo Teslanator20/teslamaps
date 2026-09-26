@@ -67,6 +67,20 @@ public final class ConfigCommands {
                         .executes(c -> help(dispatcher, c.getSource(), ""))
                         .then(ClientCommands.argument("query", StringArgumentType.greedyString())
                                 .executes(c -> help(dispatcher, c.getSource(), StringArgumentType.getString(c, "query")))))
+                .then(ClientCommands.literal("all")
+                        .executes(c -> {
+                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(MapConfigScreen.openAll()));
+                            return 1;
+                        })
+                        .then(ClientCommands.literal("dump")
+                                .executes(c -> {
+                                    try {
+                                        c.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §f" + MapConfigScreen.dumpRows()));
+                                    } catch (Exception e) {
+                                        c.getSource().sendError(Component.literal("dump failed: " + e.getMessage()));
+                                    }
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("newfeatures")
                         .executes(c -> {
                             Minecraft.getInstance().schedule(com.teslamaps.features.NewOptions::open);

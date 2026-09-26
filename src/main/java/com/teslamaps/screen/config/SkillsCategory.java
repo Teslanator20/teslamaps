@@ -14,7 +14,7 @@ public final class SkillsCategory {
         b.label("Skill Tracker");
         b.toggle("Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v);
         b.toggle("  Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
-        b.toggle("  Slayer Stats (avg kill/spawn, slayer XP/h)", () -> config.skillTrackerSlayerStats, v -> config.skillTrackerSlayerStats = v)
+        b.toggle("  Slayer Stats (avg kill/spawn, slayer XP/h)", () -> config.skillTrackerSlayerStats, v -> config.skillTrackerSlayerStats = v).fresh()
                 .desc("Combat panel: average kill and spawn time and slayer XP/h (Aatrox buff included). Resets when the slayer type changes");
         String[] pinOptions = new String[com.teslamaps.features.SkillTracker.skills().length + 1];
         pinOptions[0] = "Auto";
@@ -23,14 +23,14 @@ public final class SkillsCategory {
                 () -> config.skillTrackerPin == null || config.skillTrackerPin.isEmpty() ? "Auto" : config.skillTrackerPin,
                 v -> config.skillTrackerPin = "Auto".equals(v) ? "" : v);
         b.info("Auto follows the XP, a skill keeps the panel on it");
-        b.toggle("  Pause Threshold per Skill", () -> config.skillTrackerPauseCustom, v -> config.skillTrackerPauseCustom = v)
+        b.toggle("  Pause Threshold per Skill", () -> config.skillTrackerPauseCustom, v -> config.skillTrackerPauseCustom = v).fresh()
                 .desc("Idle time before the session clock stops, per skill. Shows (PAUSED) while idle and a level-cap hint");
         String[] pauseSkills = com.teslamaps.features.SkillTracker.skills();
         String[] pauseSel = {pauseSkills[0]};
-        b.dropdown("    Threshold Skill", pauseSkills, () -> pauseSel[0], v -> pauseSel[0] = v);
+        b.dropdown("    Threshold Skill", pauseSkills, () -> pauseSel[0], v -> pauseSel[0] = v).fresh();
         b.slider("    Pause After (s)", 5f, 300f,
                 () -> (float) (com.teslamaps.features.SkillTracker.idleCapMs(pauseSel[0]) / 1000L),
-                v -> config.skillTrackerPauseSec.put(pauseSel[0], Math.round(v)), 0);
+                v -> config.skillTrackerPauseSec.put(pauseSel[0], Math.round(v)), 0).fresh();
         b.label("Flare Mode");
         b.toggle("Flare Mode HUD", () -> config.flareMode, v -> config.flareMode = v);
         b.info("Hunting and Combat at once, plus the flare bestiary count");
@@ -52,36 +52,36 @@ public final class SkillsCategory {
         b.toggle("  XP/h Line", () -> config.petOverlayXpRate, v -> config.petOverlayXpRate = v);
         b.toggle("  Time to Next / Max Level", () -> config.petOverlayEta, v -> config.petOverlayEta = v);
         b.toggle("  Show Last Pet", () -> config.petOverlayLastPet, v -> config.petOverlayLastPet = v);
-        b.toggle("  Exp Share Pets", () -> config.petOverlayExpShare, v -> config.petOverlayExpShare = v)
+        b.toggle("  Exp Share Pets", () -> config.petOverlayExpShare, v -> config.petOverlayExpShare = v).fresh()
                 .desc("Small icons and lines for your Exp Share pets, dimmed when the slot is off. Open the Exp Sharing menu once");
-        b.toggle("  Animate XP Ring", () -> config.petOverlayAnimate, v -> config.petOverlayAnimate = v);
-        b.lineOrder("  Lines (drag to sort, click to hide)", com.teslamaps.features.pets.PetOverlay.LINES_ID);
-        b.info("Pet XP estimate counts Diana, Beastmaster Crest, Battle Experience and Exp Share");
-        b.toggle("  Pet Panel In Inventory", () -> config.petInventoryPanel, v -> config.petInventoryPanel = v)
+        b.toggle("  Animate XP Ring", () -> config.petOverlayAnimate, v -> config.petOverlayAnimate = v).fresh();
+        b.lineOrder("  Lines (drag to sort, click to hide)", com.teslamaps.features.pets.PetOverlay.LINES_ID).fresh();
+        b.info("Pet XP estimate counts Diana, Beastmaster Crest, Battle Experience and Exp Share").fresh();
+        b.toggle("  Pet Panel In Inventory", () -> config.petInventoryPanel, v -> config.petInventoryPanel = v).fresh()
                 .desc("Active pet above your inventory. Click it to open /pets");
-        b.toggle("  Kat: Level After Upgrade", () -> config.petKatLevel, v -> config.petKatLevel = v)
+        b.toggle("  Kat: Level After Upgrade", () -> config.petKatLevel, v -> config.petKatLevel = v).fresh()
                 .desc("Kat's menu: the pet's level at the next rarity, next to the menu");
-        b.toggle("  Pet Swap Title", () -> config.petSwapTitle, v -> config.petSwapTitle = v)
+        b.toggle("  Pet Swap Title", () -> config.petSwapTitle, v -> config.petSwapTitle = v).fresh()
                 .desc("Big title with the new pet when Autopet swaps it. Move it in /tmap gui")
                 .tags("autopet", "title");
-        b.toggle("    Also On Summon", () -> config.petSwapTitleSummon, v -> config.petSwapTitleSummon = v);
-        b.toggle("    Only In Dungeons", () -> config.petSwapTitleDungeonOnly, v -> config.petSwapTitleDungeonOnly = v);
-        b.toggle("    Sound", () -> config.petSwapTitleSound, v -> config.petSwapTitleSound = v);
-        b.slider("    Duration (s)", 0.5f, 5f, () -> config.petSwapTitleSeconds, v -> config.petSwapTitleSeconds = v, 1);
-        b.toggle("  Pet Maxed Title", () -> config.petMaxedTitle, v -> config.petMaxedTitle = v)
+        b.toggle("    Also On Summon", () -> config.petSwapTitleSummon, v -> config.petSwapTitleSummon = v).fresh();
+        b.toggle("    Only In Dungeons", () -> config.petSwapTitleDungeonOnly, v -> config.petSwapTitleDungeonOnly = v).fresh();
+        b.toggle("    Sound", () -> config.petSwapTitleSound, v -> config.petSwapTitleSound = v).fresh();
+        b.slider("    Duration (s)", 0.5f, 5f, () -> config.petSwapTitleSeconds, v -> config.petSwapTitleSeconds = v, 1).fresh();
+        b.toggle("  Pet Maxed Title", () -> config.petMaxedTitle, v -> config.petMaxedTitle = v).fresh()
                 .desc("\"Pet is Maxed!\" title and a sound when a pet reaches level 100 (200 for dragons)");
-        b.toggle("Pet Level On Slots", () -> config.petSlotLevel, v -> config.petSlotLevel = v)
+        b.toggle("Pet Level On Slots", () -> config.petSlotLevel, v -> config.petSlotLevel = v).fresh()
                 .desc("Level in the corner of every pet item, also in Autopet's Choose Pet menu");
-        b.toggle("  Hide At Max Level", () -> config.petSlotLevelHideMax, v -> config.petSlotLevelHideMax = v);
-        b.toggle("  Level Progress %", () -> config.petSlotLevelPercent, v -> config.petSlotLevelPercent = v);
-        b.toggle("Pet XP Tooltip", () -> config.petExpTooltip, v -> config.petExpTooltip = v)
+        b.toggle("  Hide At Max Level", () -> config.petSlotLevelHideMax, v -> config.petSlotLevelHideMax = v).fresh();
+        b.toggle("  Level Progress %", () -> config.petSlotLevelPercent, v -> config.petSlotLevelPercent = v).fresh();
+        b.toggle("Pet XP Tooltip", () -> config.petExpTooltip, v -> config.petExpTooltip = v).fresh()
                 .desc("Pet tooltips: progress to max level with a bar and the total pet XP. Hold Shift");
-        b.toggle("  Without Shift", () -> config.petExpTooltipAlways, v -> config.petExpTooltipAlways = v);
-        b.toggle("Favorite Pets", () -> config.petFavorites, v -> config.petFavorites = v)
+        b.toggle("  Without Shift", () -> config.petExpTooltipAlways, v -> config.petExpTooltipAlways = v).fresh();
+        b.toggle("Favorite Pets", () -> config.petFavorites, v -> config.petFavorites = v).fresh()
                 .desc("Pets menu: press the key over a pet to mark it, marked pets get a colored background");
-        b.keybind("  Favorite Key", () -> config.petFavoriteKey, v -> config.petFavoriteKey = v);
-        b.color("  Favorite Color", () -> config.petFavoriteColor, v -> config.petFavoriteColor = v);
-        b.toggle("  Pets Radial Menu: Favorites Only", () -> config.petWheelFavoritesOnly, v -> config.petWheelFavoritesOnly = v);
+        b.keybind("  Favorite Key", () -> config.petFavoriteKey, v -> config.petFavoriteKey = v).fresh();
+        b.color("  Favorite Color", () -> config.petFavoriteColor, v -> config.petFavoriteColor = v).fresh();
+        b.toggle("  Pets Radial Menu: Favorites Only", () -> config.petWheelFavoritesOnly, v -> config.petWheelFavoritesOnly = v).fresh();
         b.label("Skill XP Display");
         b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
         b.info("Cuts the +XP out of the action bar into its own HUD element");
@@ -99,16 +99,16 @@ public final class SkillsCategory {
         b.info("Move it in /tmap gui");
         b.info("Keeps tracking either way — [Hide]/[Show] in the panel does the same");
         b.toggle("Overflow Levels (menu + chat)", () -> config.skillOverflow, v -> config.skillOverflow = v);
-        b.toggle("  Crop Milestones Too", () -> config.cropMilestoneOverflow, v -> config.cropMilestoneOverflow = v)
+        b.toggle("  Crop Milestones Too", () -> config.cropMilestoneOverflow, v -> config.cropMilestoneOverflow = v).fresh()
                 .desc("Crop Milestones menu: overflow tier past 46 with progress bar and tier as stack size, "
                         + "plus a chat message on every overflow milestone. Open the menu once to load your crops.")
                 .tags("garden", "milestone", "farming");
-        b.toggle("    Average Crop Milestone", () -> config.cropMilestoneAverage, v -> config.cropMilestoneAverage = v);
-        b.toggle("  Tier On Crop / Composter Upgrades", () -> config.gardenUpgradeStackTier, v -> config.gardenUpgradeStackTier = v)
+        b.toggle("    Average Crop Milestone", () -> config.cropMilestoneAverage, v -> config.cropMilestoneAverage = v).fresh();
+        b.toggle("  Tier On Crop / Composter Upgrades", () -> config.gardenUpgradeStackTier, v -> config.gardenUpgradeStackTier = v).fresh()
                 .tags("garden", "composter");
         b.toggle("Overflow Skill Avg. (menu tooltip)", () -> config.skillAvgOverflow, v -> config.skillAvgOverflow = v);
         b.toggle("Level as Stack Size (skills menu)", () -> config.skillLevelStackSize, v -> config.skillLevelStackSize = v);
-        b.toggle("  Also Dungeon Menus (Cata/Class/SB Level)", () -> config.dungeonLevelSlotText, v -> config.dungeonLevelSlotText = v)
+        b.toggle("  Also Dungeon Menus (Cata/Class/SB Level)", () -> config.dungeonLevelSlotText, v -> config.dungeonLevelSlotText = v).fresh()
                 .desc("Dungeoneering, Dungeon Classes, Ready Up (party class levels) and the SkyBlock Menu profile head");
         b.info("Combat adds kills/bosses/cocoons, Fishing double hooks, Foraging gifts and whispers");
         String[] catchSources = {"Auto", "Sea Creatures", "Every Catch"};
@@ -132,7 +132,7 @@ public final class SkillsCategory {
         b.toggle("  Big Icon (strongest only)",
                 () -> config.deployableIconMode, v -> config.deployableIconMode = v);
         b.toggle("    Spinning 3D Orb",
-                () -> config.deployableOrb3d, v -> config.deployableOrb3d = v)
+                () -> config.deployableOrb3d, v -> config.deployableOrb3d = v).fresh()
                 .desc("Renders the orb/lantern itself, rotating, instead of the flat head icon.");
         b.toggle("  Power Orbs",
                 () -> config.deployableFlux, v -> config.deployableFlux = v);
@@ -144,58 +144,58 @@ public final class SkillsCategory {
                 () -> config.deployableBlackHole, v -> config.deployableBlackHole = v);
         b.toggle("  Flares",
                 () -> config.deployableFlare, v -> config.deployableFlare = v);
-        b.toggle("    Flare Extras", () -> config.deployableFlareExtras, v -> config.deployableFlareExtras = v)
+        b.toggle("    Flare Extras", () -> config.deployableFlareExtras, v -> config.deployableFlareExtras = v).fresh()
                 .desc("40 block flare range, timer text at the flare, expiry warning, flame hide")
                 .tags("flare", "sos", "alert", "warning", "range", "mana");
         b.dropdown("      Range Display", com.teslamaps.features.FlareExtras.RANGE_MODES,
-                () -> config.deployableFlareRange, v -> config.deployableFlareRange = v);
-        b.color("      Warning Flare Color", () -> config.colorFlareWarning, v -> config.colorFlareWarning = v);
-        b.color("      Alert Flare Color", () -> config.colorFlareAlert, v -> config.colorFlareAlert = v);
-        b.color("      SOS Flare Color", () -> config.colorFlareSos, v -> config.colorFlareSos = v);
-        b.toggle("      Timer At Flare", () -> config.deployableFlareWorldText, v -> config.deployableFlareWorldText = v);
-        b.toggle("      Mana Regen Buff In Overlay", () -> config.deployableFlareManaBuff, v -> config.deployableFlareManaBuff = v);
+                () -> config.deployableFlareRange, v -> config.deployableFlareRange = v).fresh();
+        b.color("      Warning Flare Color", () -> config.colorFlareWarning, v -> config.colorFlareWarning = v).fresh();
+        b.color("      Alert Flare Color", () -> config.colorFlareAlert, v -> config.colorFlareAlert = v).fresh();
+        b.color("      SOS Flare Color", () -> config.colorFlareSos, v -> config.colorFlareSos = v).fresh();
+        b.toggle("      Timer At Flare", () -> config.deployableFlareWorldText, v -> config.deployableFlareWorldText = v).fresh();
+        b.toggle("      Mana Regen Buff In Overlay", () -> config.deployableFlareManaBuff, v -> config.deployableFlareManaBuff = v).fresh();
         b.slider("      Expiry Warning (s, 0 = off)", 0, 60,
-                () -> (float) config.deployableFlareWarn, v -> config.deployableFlareWarn = Math.round(v), 0);
-        b.toggle("      Screen Flash While Expiring", () -> config.deployableFlareFlash, v -> config.deployableFlareFlash = v);
-        b.color("        Flash Color", () -> config.deployableFlareFlashColor, v -> config.deployableFlareFlashColor = v);
-        b.toggle("      Hide Flame Particles", () -> config.deployableFlareHideParticles, v -> config.deployableFlareHideParticles = v);
+                () -> (float) config.deployableFlareWarn, v -> config.deployableFlareWarn = Math.round(v), 0).fresh();
+        b.toggle("      Screen Flash While Expiring", () -> config.deployableFlareFlash, v -> config.deployableFlareFlash = v).fresh();
+        b.color("        Flash Color", () -> config.deployableFlareFlashColor, v -> config.deployableFlareFlashColor = v).fresh();
+        b.toggle("      Hide Flame Particles", () -> config.deployableFlareHideParticles, v -> config.deployableFlareHideParticles = v).fresh();
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
         b.toggle("  Reminder: Nothing Placed",
-                () -> config.deployableReminder, v -> config.deployableReminder = v)
+                () -> config.deployableReminder, v -> config.deployableReminder = v).fresh()
                 .desc("Big title + error sound when no matching deployable is up: power orb in a slayer boss fight, lantern in a Glacite Mineshaft, Umberella while trophy fishing")
                 .tags("power orb", "lantern", "umberella", "reminder", "forgot");
         b.toggle("    Power Orb in Slayer Boss",
-                () -> config.deployableReminderSlayer, v -> config.deployableReminderSlayer = v);
+                () -> config.deployableReminderSlayer, v -> config.deployableReminderSlayer = v).fresh();
         b.toggle("    Lantern in Mineshaft",
-                () -> config.deployableReminderMineshaft, v -> config.deployableReminderMineshaft = v);
+                () -> config.deployableReminderMineshaft, v -> config.deployableReminderMineshaft = v).fresh();
         b.toggle("    Umberella on Trophy Fish",
-                () -> config.deployableReminderTrophy, v -> config.deployableReminderTrophy = v);
+                () -> config.deployableReminderTrophy, v -> config.deployableReminderTrophy = v).fresh();
         b.slider("    Delay (s)", 0f, 30f,
-                () -> config.deployableReminderDelay, v -> config.deployableReminderDelay = v, 0);
+                () -> config.deployableReminderDelay, v -> config.deployableReminderDelay = v, 0).fresh();
         b.toggle("  Totem of Corruption",
-                () -> config.deployableTotem, v -> config.deployableTotem = v)
+                () -> config.deployableTotem, v -> config.deployableTotem = v).fresh()
                 .desc("Time left and owner of your own or the nearest Totem of Corruption, plus its 16 block range")
                 .tags("totem", "corruption", "fishing");
         b.toggle("    Only Own Totem",
-                () -> config.deployableTotemOwnOnly, v -> config.deployableTotemOwnOnly = v);
+                () -> config.deployableTotemOwnOnly, v -> config.deployableTotemOwnOnly = v).fresh();
         b.dropdown("    Range Display", new String[] {"Off", "Wireframe", "Ring At Feet"},
-                () -> config.deployableTotemRange, v -> config.deployableTotemRange = v);
+                () -> config.deployableTotemRange, v -> config.deployableTotemRange = v).fresh();
         b.color("    Range Color",
-                () -> config.colorTotemRange, v -> config.colorTotemRange = v);
+                () -> config.colorTotemRange, v -> config.colorTotemRange = v).fresh();
         b.slider("    Expiry Warning (s, 0 = off)", 0, 60,
-                () -> (float) config.deployableTotemWarn, v -> config.deployableTotemWarn = Math.round(v), 0);
+                () -> (float) config.deployableTotemWarn, v -> config.deployableTotemWarn = Math.round(v), 0).fresh();
         b.toggle("    Hide Witch Particles",
-                () -> config.deployableTotemHideParticles, v -> config.deployableTotemHideParticles = v);
+                () -> config.deployableTotemHideParticles, v -> config.deployableTotemHideParticles = v).fresh();
         b.toggle("  Soulflow Display",
-                () -> config.soulflowDisplay, v -> config.soulflowDisplay = v)
+                () -> config.soulflowDisplay, v -> config.soulflowDisplay = v).fresh()
                 .desc("Internalized soulflow from your Soulflow Pile / Battery / Supercell. Position in /tmap gui");
         b.toggle("  Low Soulflow Warning",
-                () -> config.lowSoulflowWarning, v -> config.lowSoulflowWarning = v)
+                () -> config.lowSoulflowWarning, v -> config.lowSoulflowWarning = v).fresh()
                 .desc("\"Low Soulflow\" title once it drops to the threshold");
         b.slider("    Threshold", 0, 1000, () -> (float) config.lowSoulflowThreshold,
-                v -> config.lowSoulflowThreshold = Math.round(v), 0);
+                v -> config.lowSoulflowThreshold = Math.round(v), 0).fresh();
         b.info("Position and scale in /tmap gui");
         b.toggle("Hide Deployable Particles",
                 () -> config.deployableHideParticles, v -> config.deployableHideParticles = v);

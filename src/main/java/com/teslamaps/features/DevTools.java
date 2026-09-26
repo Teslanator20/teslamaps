@@ -33,7 +33,7 @@ public final class DevTools {
                     b.keybind("  Copy Item NBT Key (over slot)", () -> cfg().devCopyNbtKey, v -> cfg().devCopyNbtKey = v);
                     b.keybind("  Show Slot Numbers (hold)", () -> cfg().devSlotNumbersKey, v -> cfg().devSlotNumbersKey = v);
                     b.toggle("  Highlight Items Missing From Repo", () -> cfg().devMissingRepoItems, v -> cfg().devMissingRepoItems = v);
-                    b.keybind("  Dump Open Menu Key", () -> cfg().dumpGuiKey, v -> cfg().dumpGuiKey = v)
+                    b.keybind("  Dump Open Menu Key", () -> cfg().dumpGuiKey, v -> cfg().dumpGuiKey = v).old()
                             .desc("Writes the open container to config/teslamaps/gui_dump.txt, shift = tooltip");
                     b.toggle("    Hovered Item To Chat", () -> cfg().dumpGuiSingleItem, v -> cfg().dumpGuiSingleItem = v)
                             .desc("Over a slot the key prints that item's id, model and custom data to chat instead");

@@ -26,7 +26,7 @@ public final class FishingCategory {
         b.slider("  Volume", 0f, 4f,
                 () -> config.rareCatchVolume, v -> config.rareCatchVolume = v, 2);
         b.toggle("  Other Players' Catches",
-                () -> config.rareCatchAlertOthers, v -> config.rareCatchAlertOthers = v)
+                () -> config.rareCatchAlertOthers, v -> config.rareCatchAlertOthers = v).fresh()
                 .desc("\"<Name> NEARBY!\" once when someone else's rare sea creature first shows up near you")
                 .tags("nearby", "other", "jawbus", "thunder", "lobby");
         b.toggle("Announce Rare Catch",
@@ -50,7 +50,7 @@ public final class FishingCategory {
         b.toggle("  Hide Hypixel's Label",
                 () -> config.hookHideArmorStand, v -> config.hookHideArmorStand = v);
         b.slider("  World Label Scale", 1f, 4f,
-                () -> config.hookWorldLabelScale, v -> config.hookWorldLabelScale = v, 1)
+                () -> config.hookWorldLabelScale, v -> config.hookWorldLabelScale = v, 1).fresh()
                 .desc("Enlarges Hypixel's countdown over your own bobber. 1 = vanilla size, other bobbers stay as they are")
                 .tags("hook", "bobber", "label", "scale", "countdown");
         b.soundDropdown("  Alert Sound",
@@ -74,7 +74,7 @@ public final class FishingCategory {
         b.color("  Color",
                 () -> config.colorHotspot, v -> config.colorHotspot = v);
         b.toggle("  Mark Unknown Hotspot",
-                () -> config.hotspotRadarUnknown, v -> config.hotspotRadarUnknown = v)
+                () -> config.hotspotRadarUnknown, v -> config.hotspotRadarUnknown = v).fresh()
                 .desc("Red label when you get close and no HOTSPOT stand is at the guess");
 
         b.label("Hotspot Sharing");
@@ -90,10 +90,10 @@ public final class FishingCategory {
                 () -> config.hotspotShareXyz, v -> config.hotspotShareXyz = v);
         b.info("x: 1, y: 2, z: 3 | <perk>, other mods read it too");
         b.toggle("  Share Safari Hunting Hotspot",
-                () -> config.safariHotspotPost, v -> config.safariHotspotPost = v)
+                () -> config.safariHotspotPost, v -> config.safariHotspotPost = v).fresh()
                 .desc("Critter Safari: posts \"My hotspot: <biome>\" when Hypixel tells you your Hunting Hotspot");
         b.channel("    Safari Channel",
-                () -> config.safariHotspotPostChannel, v -> config.safariHotspotPostChannel = v);
+                () -> config.safariHotspotPostChannel, v -> config.safariHotspotPostChannel = v).fresh();
         b.toggle("All Fishing Islands",
                 () -> config.hotspotShareAllIslands, v -> config.hotspotShareAllIslands = v);
         b.info("Sharing, found alert and waypoints outside the two islands");
@@ -122,17 +122,17 @@ public final class FishingCategory {
         b.toggle("Hotspot Closed Title",
                 () -> config.hotspotClosedTitle, v -> config.hotspotClosedTitle = v);
         b.toggle("Hotspot Circle",
-                () -> config.hotspotCircle, v -> config.hotspotCircle = v)
+                () -> config.hotspotCircle, v -> config.hotspotCircle = v).fresh()
                 .desc("Exact hotspot radius as a circle on the water/lava, colored by perk")
                 .tags("radius", "area", "perk");
         b.toggle("  Filled",
-                () -> config.hotspotCircleFill, v -> config.hotspotCircleFill = v);
+                () -> config.hotspotCircleFill, v -> config.hotspotCircleFill = v).fresh();
         b.slider("  Fill Opacity", 0f, 1f,
-                () -> config.hotspotCircleAlpha, v -> config.hotspotCircleAlpha = v, 2);
+                () -> config.hotspotCircleAlpha, v -> config.hotspotCircleAlpha = v, 2).fresh();
         b.toggle("  Rim",
-                () -> config.hotspotCircleRim, v -> config.hotspotCircleRim = v);
+                () -> config.hotspotCircleRim, v -> config.hotspotCircleRim = v).fresh();
         b.toggle("  Hide Hotspot Particles",
-                () -> config.hotspotCircleHideParticles, v -> config.hotspotCircleHideParticles = v)
+                () -> config.hotspotCircleHideParticles, v -> config.hotspotCircleHideParticles = v).fresh()
                 .desc("Drops Hypixel's hotspot edge particles once the circle replaces them");
         b.label("Hotspot Gone");
         b.toggle("Warn When Hotspot Ends",
@@ -196,7 +196,7 @@ public final class FishingCategory {
         b.color("  Lava Tint",
                 () -> config.colorTranslucentLava, v -> config.colorTranslucentLava = v);
         b.toggle("  Crimson Isle Only",
-                () -> config.translucentLavaCrimsonOnly, v -> config.translucentLavaCrimsonOnly = v)
+                () -> config.translucentLavaCrimsonOnly, v -> config.translucentLavaCrimsonOnly = v).fresh()
                 .desc("Lava stays normal everywhere else (Dungeons, Kuudra). /tmap lava toggles the feature")
                 .tags("lava", "crimson", "area", "command");
         b.toggle("Tinted Water",

@@ -18,12 +18,12 @@ public final class TimersCategory {
         b.toggle("  Only Own Cooldown", () -> config.warpCooldownOwnOnly, v -> config.warpCooldownOwnOnly = v);
         b.toggle("  Sound When Ready", () -> config.warpCooldownSound, v -> config.warpCooldownSound = v);
         b.slider("    Warp Sound Volume", 0f, 5f, () -> config.warpCooldownVolume, v -> config.warpCooldownVolume = v);
-        b.toggle("  Block /joininstance", () -> config.warpCooldownBlockJoin, v -> config.warpCooldownBlockJoin = v)
+        b.toggle("  Block /joininstance", () -> config.warpCooldownBlockJoin, v -> config.warpCooldownBlockJoin = v).fresh()
                 .desc("Swallows /joininstance and /instancerequeue while your cooldown runs, also from shortcuts and auto requeue.");
-        b.toggle("  \"Cooldown Over\" Message", () -> config.warpCooldownEndMessage, v -> config.warpCooldownEndMessage = v);
-        b.toggle("  Wait Out Transfer Cooldown", () -> config.warpTransferWait, v -> config.warpTransferWait = v)
+        b.toggle("  \"Cooldown Over\" Message", () -> config.warpCooldownEndMessage, v -> config.warpCooldownEndMessage = v).fresh();
+        b.toggle("  Wait Out Transfer Cooldown", () -> config.warpTransferWait, v -> config.warpTransferWait = v).fresh()
                 .desc("A /warp, /is, /hub or /warpforge typed during the 3s transfer cooldown after a world change is held back and sent once it ends.");
-        b.toggle("    \"Transfer Cooldown Ended\" Message", () -> config.warpTransferWaitMessage, v -> config.warpTransferWaitMessage = v);
+        b.toggle("    \"Transfer Cooldown Ended\" Message", () -> config.warpTransferWaitMessage, v -> config.warpTransferWaitMessage = v).fresh();
         b.toggle("Wither Shield Timer (W-Impact)", () -> config.witherShieldTimer, v -> config.witherShieldTimer = v);
         b.toggle("  Shield HUD", () -> config.witherShieldHud, v -> config.witherShieldHud = v);
         b.toggle("    Hide When Ready", () -> config.witherShieldHideReady, v -> config.witherShieldHideReady = v);
@@ -33,7 +33,7 @@ public final class TimersCategory {
         b.toggle("  Tactical HUD", () -> config.tacticalHud, v -> config.tacticalHud = v);
         b.toggle("  Return Waypoint", () -> config.tacticalWaypoint, v -> config.tacticalWaypoint = v);
         b.espStyle("  Tactical Waypoint", () -> config.tacticalWaypointEsp);
-        b.toggle("Explosive Shot Timer", () -> config.explosiveShotTimer, v -> config.explosiveShotTimer = v)
+        b.toggle("Explosive Shot Timer", () -> config.explosiveShotTimer, v -> config.explosiveShotTimer = v).fresh()
                 .desc("Archer class ability: 6.70s cooldown countdown after \"Used Explosive Shot!\"")
                 .tags("archer", "class ability", "cooldown");
         b.toggle("Invincibility Timer", () -> config.invincibilityTimer, v -> config.invincibilityTimer = v)
@@ -57,25 +57,25 @@ public final class TimersCategory {
         b.color("    Item Cooldown Color", () -> config.invincibilityItemColor, v -> config.invincibilityItemColor = v);
         b.label("Dungeon");
         b.toggle("Spirit Pet Reminder (boss)", () -> config.spiritPetReminder, v -> config.spiritPetReminder = v);
-        b.toggle("  Party Check (before start)", () -> config.spiritPetPartyCheck, v -> config.spiritPetPartyCheck = v)
+        b.toggle("  Party Check (before start)", () -> config.spiritPetPartyCheck, v -> config.spiritPetPartyCheck = v).fresh()
                 .desc("Chat + title when someone in your party shows a Spirit pet before the run starts");
         b.toggle("Secret Tick Timer", () -> config.secretTickTimer, v -> config.secretTickTimer = v);
         b.toggle("Death Tick Timer (run start)", () -> config.deathTickTimer, v -> config.deathTickTimer = v);
-        b.toggle("  Show During Clear", () -> config.deathTickShowClear, v -> config.deathTickShowClear = v)
+        b.toggle("  Show During Clear", () -> config.deathTickShowClear, v -> config.deathTickShowClear = v).fresh()
                 .desc("Keep the 40-tick death cycle up for the whole clear, not only at the start.");
         b.toggle("Livid Invuln Timer (F5/M5)", () -> config.lividTimerHud, v -> config.lividTimerHud = v);
         b.toggle("  Ice Spray Alert", () -> config.lividIceSprayAlert, v -> config.lividIceSprayAlert = v);
-        b.toggle("Fire Freeze Timer (F3/M3)", () -> config.fireFreezeTimer, v -> config.fireFreezeTimer = v);
-        b.toggle("  Anvil Sound on NOW", () -> config.fireFreezeSound, v -> config.fireFreezeSound = v);
-        b.toggle("Guardian HP Labels (F3/M3)", () -> config.guardianHealth, v -> config.guardianHealth = v);
+        b.toggle("Fire Freeze Timer (F3/M3)", () -> config.fireFreezeTimer, v -> config.fireFreezeTimer = v).fresh();
+        b.toggle("  Anvil Sound on NOW", () -> config.fireFreezeSound, v -> config.fireFreezeSound = v).fresh();
+        b.toggle("Guardian HP Labels (F3/M3)", () -> config.guardianHealth, v -> config.guardianHealth = v).fresh();
         b.toggle("Bossbar Health (❤)", () -> config.bossbarHealth, v -> config.bossbarHealth = v);
-        b.toggle("  Percent for All Other Bosses", () -> config.bossbarHealthPercent, v -> config.bossbarHealthPercent = v)
+        b.toggle("  Percent for All Other Bosses", () -> config.bossbarHealthPercent, v -> config.bossbarHealthPercent = v).fresh()
                 .desc("Bosses without a known max HP (and Kuudra) get \" - 25.0%\" on their bar.");
-        b.toggle("  Sadan's Interest Countdown (F6/M6)", () -> config.sadanInterest, v -> config.sadanInterest = v)
+        b.toggle("  Sadan's Interest Countdown (F6/M6)", () -> config.sadanInterest, v -> config.sadanInterest = v).fresh()
                 .desc("Turns the interest bar into the real time left of the terracotta phase.");
-        b.toggle("  Hide Useless Bossbars", () -> config.bossbarHideUseless, v -> config.bossbarHideUseless = v)
+        b.toggle("  Hide Useless Bossbars", () -> config.bossbarHideUseless, v -> config.bossbarHideUseless = v).fresh()
                 .desc("Hides Hypixel's ad and event bossbars. In the dungeon clear only the Watcher bar stays; boss, Kuudra and End bars stay.");
-        b.toggle("Scarf Spawn Timer (F2/M2)", () -> config.scarfSpawnTimer, v -> config.scarfSpawnTimer = v)
+        b.toggle("Scarf Spawn Timer (F2/M2)", () -> config.scarfSpawnTimer, v -> config.scarfSpawnTimer = v).fresh()
                 .desc("Timer line until Scarf's undeads (7.75s) and Scarf himself (10s) spawn.");
         b.dropdown("Timer Format",
                 new String[]{"Seconds", "Ticks", "Both"}, () -> config.tickTimerFormat, v -> config.tickTimerFormat = v);
@@ -87,7 +87,7 @@ public final class TimersCategory {
         b.toggle("  Center Warning", () -> config.kickedCenterWarning, v -> config.kickedCenterWarning = v);
         b.slider("  Wait Time (s)", 10f, 180f, () -> (float) config.kickedWaitSeconds, v -> config.kickedWaitSeconds = Math.round(v), 0);
         b.toggle("  Rejoin Title", () -> config.kickedTitle, v -> config.kickedTitle = v);
-        b.toggle("  Limbo Alert", () -> config.kickedLimboAlert, v -> config.kickedLimboAlert = v)
+        b.toggle("  Limbo Alert", () -> config.kickedLimboAlert, v -> config.kickedLimboAlert = v).fresh()
                 .desc("Title, sound and chat line when you land in Limbo.");
     }
 }
