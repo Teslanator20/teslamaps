@@ -63,6 +63,8 @@ public final class InventoryCategory {
         b.toggle("  Hide Community Goals", () -> config.bingoHideCommunity, v -> config.bingoHideCommunity = v);
         b.toggle("  Next Hint Timer", () -> config.bingoNextHint, v -> config.bingoNextHint = v);
         b.toggle("  Community % Change in Chat", () -> config.bingoCommunityChange, v -> config.bingoCommunityChange = v);
+        b.toggle("  Sneak Quick Toggle", () -> config.bingoQuickToggle, v -> config.bingoQuickToggle = v)
+                .desc("Sneak with the SkyBlock Menu item in hand: full card, step helper only, hidden.");
         b.toggle("  Next Step Helper", () -> config.bingoStepHelper, v -> config.bingoStepHelper = v)
                 .desc("Breaks goals into steps (islands, skills, items) and shows what to do next");
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);

@@ -271,6 +271,7 @@ public class ChatFilter {
         // so it is not tied to the chat filter master switch
         if (c.screenshotHideVanillaMessage && t.startsWith("Saved screenshot as ")) return SCREENSHOT;
         if (c.chickenHeadHideChat && ChickenHeadTimer.hideLine(t)) return SCREENSHOT;
+        if (c.mythoHideChat && com.teslamaps.features.events.MythologicalTracker.hideLine(t)) return SCREENSHOT;
 
         if (!c.chatFilterEnabled) return null;
 

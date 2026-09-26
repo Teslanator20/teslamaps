@@ -2179,6 +2179,164 @@ public class TeslaMapsConfig {
     public boolean defenseBlocksHideParticles = false;
     public boolean caveSnakeHighlight = false;
     public boolean caveSnakeSolo = true;
+    // w19-05-rif
+    public boolean riftAgaricusCap = false;
+    public boolean riftLarvaHighlight = false;
+    public String riftLarvaColor = "FF55FF";
+    public boolean riftOdonataHighlight = false;
+    public String riftOdonataColor = "55FFFF";
+    public boolean riftLarvaSilkLines = false;
+    public String riftLarvaSilkColor = "FFFF55";
+    public boolean riftShyCruxWarning = false;
+    public boolean riftSplatterHearts = false;
+    public String riftSplatterHeartsColor = "64FF5555";
+    public boolean riftGuntherRace = false;
+    public int riftGuntherRaceLookAhead = 2;
+    public boolean riftGuntherRaceRainbow = true;
+    public String riftGuntherRaceColor = "FFFFFF";
+    public boolean riftGuntherRaceHidePlayers = false;
+    // w18-03-evt
+    public boolean dianaLobbyAlert = false;
+    public int dianaLobbyStrangers = 5;
+    public boolean dianaLobbyTitle = true;
+    public boolean dianaLobbyParty = false;
+    public boolean dianaBlackHoleTitle = false;
+    public boolean cfHelper = false;
+    public boolean cfHelperLevels = true;
+    public boolean cfHelperTooltips = true;
+    public boolean cfStats = false;
+    public boolean cfStatsOutside = false;
+    public int cfStatsX = 10;
+    public int cfStatsY = 60;
+    public float cfStatsScale = 1.0f;
+    public boolean cfUpgradeWarning = false;
+    public int cfUpgradeWarnMinutes = 5;
+    public boolean cfUpgradeWarnSound = true;
+    public boolean cfStrayWarning = false;
+    public String cfStrayLevel = "All";
+    public boolean cfStraySound = true;
+    public boolean cfStrayFlash = false;
+    public String cfStrayFlashLevel = "Golden Only";
+    public boolean cfStrayBlockClose = false;
+    public boolean cfStrayTimer = false;
+    public int cfStrayTimerDing = 5;
+    public boolean cfStrayTimerBlockClose = false;
+    public int cfStrayTimerX = 10;
+    public int cfStrayTimerY = 140;
+    public float cfStrayTimerScale = 1.0f;
+    public boolean cfStrayTracker = false;
+    public int cfStrayTrackerX = 10;
+    public int cfStrayTrackerY = 170;
+    public float cfStrayTrackerScale = 1.0f;
+    public boolean cfTimeTowerWarning = false;
+    public boolean cfTimeTowerExpired = false;
+    public boolean cfBarnWarning = false;
+    public int cfBarnThreshold = 6;
+    public boolean cfDupeTime = false;
+    public boolean cfShopPrice = false;
+    public int cfShopPriceX = 10;
+    public int cfShopPriceY = 60;
+    public float cfShopPriceScale = 1.0f;
+    public boolean cfHitman = false;
+    public boolean cfBlockOpen = false;
+    public boolean cfBlockNoRabbit = true;
+    public boolean cfBlockNoCookie = false;
+    public boolean cfBlockNoMixin = false;
+    public boolean cfKeybinds = false;
+    public int cfKey1 = 49;
+    public int cfKey2 = 50;
+    public int cfKey3 = 51;
+    public int cfKey4 = 52;
+    public int cfKey5 = 53;
+    public int cfKey6 = 54;
+    public int cfKey7 = 55;
+    public boolean cfCompactTooltip = false;
+    public boolean cfCompactTooltipAlways = false;
+    public boolean cfReminder = false;
+    public boolean cfReminderOutside = false;
+    public boolean cfReminderHideChat = true;
+    public int cfReminderX = 10;
+    public int cfReminderY = 40;
+    public float cfReminderScale = 1.0f;
+    public boolean cfMenuShortcut = false;
+    public boolean hoppityNextEggChat = false;
+    // w18-05-evt
+    public boolean frozenTreasureHighlight = false;
+    public com.teslamaps.render.EspStyle frozenTreasureStyle = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);
+    public boolean calendarEventDates = false;
+    public boolean bingoQuickToggle = false;
+    public boolean cakeCounterStats = false;
+    public boolean cakeCounterSoulAlert = true;
+    @Global
+    public long cakeCounterCakes = -1;
+    @Global
+    public long cakeCounterSouls = -1;
+    public boolean mythoTracker = false;
+    public boolean mythoTrackerAlways = false;
+    public int mythoTrackerPriceSource = com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL;
+    public boolean mythoTrackerSince = true;
+    public boolean mythoHideChat = false;
+    public boolean mythoPartyCommands = false;
+    public int mythoTrackerX = 10;
+    public int mythoTrackerY = 160;
+    public float mythoTrackerScale = 1f;
+    @Global
+    public java.util.Map<String, Long> mythoSince = new java.util.HashMap<>();
+    public boolean rareDianaMobHighlight = false;
+    public com.teslamaps.render.EspStyle rareDianaMobStyle = visibleOnly(new com.teslamaps.render.EspStyle("FFFF55FF", com.teslamaps.render.EspStyle.OUTLINE));
+    public boolean rareDianaMobSound = true;
+    public String rareDianaMobSoundType = "NOTE_PLING";
+    public float rareDianaMobSoundPitch = 1f;
+    public boolean hiddenJerryAlert = false;
+    public boolean hiddenJerryTitle = true;
+    public boolean hiddenJerrySound = true;
+    public boolean hiddenJerryTimer = true;
+    public boolean hiddenJerryTracker = false;
+    public int hiddenJerryTimerX = 10;
+    public int hiddenJerryTimerY = 60;
+    public float hiddenJerryTimerScale = 1f;
+    public int jerryTrackerX = 10;
+    public int jerryTrackerY = 80;
+    public float jerryTrackerScale = 1f;
+    // w18-04-evt
+    public boolean carnivalZombieShootout = false;
+    public boolean carnivalShootoutHighestOnly = false;
+    public boolean carnivalShootoutTimers = true;
+    public boolean carnivalShootoutLampLine = false;
+    public boolean carnivalShootoutLampTimer = false;
+    public int carnivalLampTimerX = 10;
+    public int carnivalLampTimerY = 180;
+    public float carnivalLampTimerScale = 1.0f;
+    public boolean carnivalCatchAFish = false;
+    public boolean carnivalShopHelper = false;
+    @Global
+    public java.util.Map<String, java.util.Map<String, Integer>> carnivalShopProgress = new java.util.HashMap<>();
+    public boolean carnivalGoals = false;
+    public int carnivalGoalsX = 10;
+    public int carnivalGoalsY = 120;
+    public float carnivalGoalsScale = 1.0f;
+    @Global
+    public java.util.Map<String, java.util.List<String>> carnivalGoalsDone = new java.util.HashMap<>();
+    public boolean carnivalTicketReminder = false;
+    @Global
+    public java.util.Map<String, String> carnivalTicketsClaimed = new java.util.HashMap<>();
+    public boolean carnivalQuickStart = false;
+    public boolean carnivalFruitDigging = false;
+    public boolean fruitDiggingFound = false;
+    public boolean fruitDiggingClues = true;
+    public boolean fruitDiggingGuesses = true;
+    public boolean fruitDiggingBestDig = true;
+    public boolean fruitDiggingRemaining = true;
+    public String colorFruitDiggingBest = "55FF55";
+    public int fruitDiggingHudX = 200;
+    public int fruitDiggingHudY = 20;
+    public float fruitDiggingHudScale = 1.0f;
+    public boolean centuryTeamFinder = false;
+    public String colorCenturyTeamWrong = "555555";
+    public boolean centuryPartyInvite = false;
+    public String colorCenturyInviteYes = "55FF55";
+    public String colorCenturyInviteNo = "FF5555";
+    public boolean hideOtherJerryPresents = false;
     // w18-06-evt
     public boolean griffinPetWarning = false;
     public boolean hoppityCallWarning = false;
@@ -6358,7 +6516,17 @@ public class TeslaMapsConfig {
         c.pestTracers = false;
     }
 
+    private static com.teslamaps.render.EspStyle visibleOnly(com.teslamaps.render.EspStyle s) {
+        s.throughWalls = false;
+        return s;
+    }
+
     static void normalize(TeslaMapsConfig c) {
+        if (c.carnivalShopProgress == null) c.carnivalShopProgress = new java.util.HashMap<>();
+        c.carnivalShopProgress.values().removeIf(java.util.Objects::isNull);
+        if (c.carnivalGoalsDone == null) c.carnivalGoalsDone = new java.util.HashMap<>();
+        c.carnivalGoalsDone.values().removeIf(java.util.Objects::isNull);
+        if (c.carnivalTicketsClaimed == null) c.carnivalTicketsClaimed = new java.util.HashMap<>();
         if (c.dianaWarpIgnored == null) c.dianaWarpIgnored = new java.util.ArrayList<>();
         if (c.dianaRareNoShare == null) c.dianaRareNoShare = new java.util.ArrayList<>();
         if (c.dianaRareNoShow == null) c.dianaRareNoShow = new java.util.ArrayList<>();
@@ -6379,6 +6547,8 @@ public class TeslaMapsConfig {
         if (c.slayerTierLockLast == null) c.slayerTierLockLast = "";
         if (c.voidgloomHideLaserFor == null) c.voidgloomHideLaserFor = "All bosses";
         if (c.zealotSpawnColor == null) c.zealotSpawnColor = "7F00FFFF";
+        if (c.mythoSince == null) c.mythoSince = new java.util.HashMap<>();
+        if (c.rareDianaMobSoundType == null) c.rareDianaMobSoundType = "NOTE_PLING";
         c.slayerCarries.removeIf(x -> x == null || x.customer == null || x.type == null);
         if (c.slayerCarryPrices == null) c.slayerCarryPrices = new java.util.HashMap<>();
         if (c.forgeSlotData == null) c.forgeSlotData = new java.util.ArrayList<>();
