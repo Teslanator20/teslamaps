@@ -9,6 +9,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class NoCursorResetMixin {
+    @Inject(method = "init", at = @At("TAIL"))
+    private void teslamaps$cursorInit(CallbackInfo ci) {
+        NoCursorReset.onContainerInit();
+    }
+
     @Inject(method = "removed", at = @At("HEAD"))
     private void teslamaps$cursorRemoved(CallbackInfo ci) {
         NoCursorReset.onContainerRemoved();

@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MouseHandler.class)
-public class NoCursorResetMouseMixin {
+public class NoCursorResetMouseMixin implements com.teslamaps.utils.CursorAccess {
     @Shadow private double xpos;
     @Shadow private double ypos;
     @Shadow private boolean mouseGrabbed;
@@ -41,5 +41,12 @@ public class NoCursorResetMouseMixin {
         ypos = pos[1];
         InputConstants.grabOrReleaseMouse(window, GLFW.GLFW_CURSOR_NORMAL, xpos, ypos);
         ci.cancel();
+    }
+
+    @Override
+    public void teslamaps$setCursor(double x, double y) {
+        xpos = x;
+        ypos = y;
+        GLFW.glfwSetCursorPos(minecraft.getWindow().handle(), x, y);
     }
 }

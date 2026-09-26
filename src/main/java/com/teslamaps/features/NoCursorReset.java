@@ -10,6 +10,7 @@ public class NoCursorReset {
     private static double savedX, savedY;
     private static boolean savedValid = false;
     private static long savedTime = 0L;
+    private static boolean restored = false;
 
     public static void onContainerRemoved() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -19,6 +20,16 @@ public class NoCursorReset {
         savedY = mc.mouseHandler.ypos();
         savedValid = true;
         savedTime = System.currentTimeMillis();
+        restored = false;
+    }
+
+    /** Container init runs after vanilla centred the cursor, so this also covers opens that skip releaseMouse. */
+    public static void onContainerInit() {
+        if (restored) return;
+        double[] pos = restorePos();
+        if (pos == null) return;
+        restored = true;
+        ((com.teslamaps.utils.CursorAccess) Minecraft.getInstance().mouseHandler).teslamaps$setCursor(pos[0], pos[1]);
     }
 
     /** Position to use instead of the window centre, or null to let vanilla centre the cursor. */
