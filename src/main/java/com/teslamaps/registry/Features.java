@@ -845,6 +845,13 @@ final class Features {
         com.teslamaps.features.fishing.HotspotCircles.register();
         com.teslamaps.features.fishing.FishingBait.register();
         com.teslamaps.features.fishing.GoldenFishTimer.register();
+        // w17-03-for
+        com.teslamaps.features.TrevorTrapper.register();
+        com.teslamaps.features.foraging.TreeFelledNotification.register();
+        com.teslamaps.features.foraging.TreeProgressHud.register();
+        com.teslamaps.features.foraging.SweepOverlay.register();
+        com.teslamaps.features.foraging.ShulkerFinder.register();
+        com.teslamaps.features.foraging.MoongladeBeacon.register();
         // w17-02-for
         com.teslamaps.features.foraging.FrogMask.register();
         com.teslamaps.features.foraging.TemplePuzzles.register();

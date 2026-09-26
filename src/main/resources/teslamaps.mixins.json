@@ -138,6 +138,8 @@
     "CustomDyeColorMixin",
     "DisableLoadingScreenMixin",
     "DropProtectMixin",
+    "MoongladeBeaconMixin",
+    "TreecapBreakMixin",
     "EntityInterpolationMixin",
     "EntityMixin",
     "EntityRenderDispatcherAccessor",
