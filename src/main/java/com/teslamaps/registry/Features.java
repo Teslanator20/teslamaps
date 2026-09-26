@@ -1046,7 +1046,6 @@ final class Features {
         com.teslamaps.features.rift.EnigmaRoseDrop.register();
         com.teslamaps.features.rift.UbikCubeReminder.register();
         com.teslamaps.features.rift.UbikQuickClose.register();
-        com.teslamaps.features.rift.RiftGuntherRace.register();
         // w20-03-com
         com.teslamaps.features.BestiaryMenuData.register();
         com.teslamaps.features.mobvisuals.MobHighlights.register();
