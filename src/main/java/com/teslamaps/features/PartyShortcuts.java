@@ -37,7 +37,7 @@ public final class PartyShortcuts {
         Feature.of("PartyShortcuts").section("Chat").when(() -> cfg().partyShortcuts && cfg().reversePtClickable)
                 .serverChat(PartyShortcuts::onChat);
         ClientSendMessageEvents.MODIFY_COMMAND.register(PartyShortcuts::modify);
-        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("rpt")
+        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> { if (cfg().partyShortcuts) d.register(ClientCommands.literal("rpt")
                 .executes(c -> {
                     reverseTransfer();
                     return 1;
@@ -55,7 +55,7 @@ public final class PartyShortcuts {
                                     TeslaMapsConfig.save();
                                     msg("§fTransfer-back message: §7" + cfg().reversePtMessage);
                                     return 1;
-                                })))));
+                                })))); });
     }
 
     static String modify(String command) {

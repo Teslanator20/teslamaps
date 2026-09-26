@@ -64,7 +64,7 @@ public class WatcherAddons {
     public static void tick() {
         if (startMs == 0L || !graded || moveMs != 0L) return;
         Zombie w = BloodCamp.getWatcherEntity();
-        if (w == null) w = findWatcher();
+        if (w == null && TeslaMapsConfig.get().watcherChatSplits) w = findWatcher();
         if (w == null) return;
         if (dialoguePos == null) {
             dialoguePos = w.position();

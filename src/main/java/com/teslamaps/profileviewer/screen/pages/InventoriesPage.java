@@ -117,14 +117,20 @@ public class InventoriesPage extends ProfileViewerPage {
 
     private static List<Section> visibleSections() {
         boolean sacks = com.teslamaps.config.TeslaMapsConfig.get().pvSacks;
+        if (!extra(true)) return sacks ? RAIL_PLAIN_SACKS : RAIL_PLAIN;
         if (com.teslamaps.profileviewer.PvExtras.miscBags()) return sacks ? RAIL_MISC_SACKS : RAIL_MISC;
         return sacks ? RAIL_SACKS : RAIL;
     }
 
     private static List<Section> railOf(boolean misc, boolean sacks) {
+        return railOf(misc, sacks, true);
+    }
+
+    private static List<Section> railOf(boolean misc, boolean sacks, boolean wardrobe) {
         List<Section> out = new ArrayList<>();
         for (Section s : Section.values()) {
             if (s == Section.SACKS && !sacks) continue;
+            if (s == Section.WARDROBE && !wardrobe) continue;
             boolean miscOnly = s == Section.CANDY || s == Section.CARNIVAL || s == Section.MISC;
             boolean grouped = s == Section.FISHING || s == Section.POTIONS || s == Section.QUIVER || s == Section.CANDY || s == Section.CARNIVAL;
             if (misc ? grouped : miscOnly) continue;
@@ -133,6 +139,8 @@ public class InventoriesPage extends ProfileViewerPage {
         return List.copyOf(out);
     }
 
+    private static final List<Section> RAIL_PLAIN = railOf(false, false, false);
+    private static final List<Section> RAIL_PLAIN_SACKS = railOf(false, true, false);
     private static final List<Section> RAIL = railOf(false, false);
     private static final List<Section> RAIL_SACKS = railOf(false, true);
     private static final List<Section> RAIL_MISC = railOf(true, false);
@@ -356,12 +364,15 @@ public class InventoriesPage extends ProfileViewerPage {
 
         // the player inventory shows armor and equipment as extra columns on the right
         boolean sideColumns = section == Section.INVENTORY;
-        int sideGap = sideColumns ? 16 : 0;
-        int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? 2 : 0), rows);
+        boolean equipColumn = extra(true);
+        int sideCols = equipColumn ? 2 : 1;
+        int sideGapBase = equipColumn ? 16 : 14;
+        int sideGap = sideColumns ? sideGapBase : 0;
+        int slotSize = ItemGrid.fitSlot(areaW - sideGap, areaH, columns + (sideColumns ? sideCols : 0), rows);
 
         // horizontally every section anchors like the player inventory (nine columns plus the
         // armor and equipment columns), so the grid keeps one left edge; vertically it centers as before
-        int refWidth = 9 * slotSize + 16 + 2 * slotSize;
+        int refWidth = 9 * slotSize + sideGapBase + sideCols * slotSize;
         int gridX = areaX + Math.max(0, (areaW - refWidth) / 2);
         int gridY = areaY + Math.max(0, (areaH - rows * slotSize) / 2);
 
@@ -372,9 +383,11 @@ public class InventoriesPage extends ProfileViewerPage {
             ItemStack armorHover = ItemGrid.draw(ctx, reverse(sideArmor), sideX, gridY, 1, 0, 4,
                     mouseX, mouseY, slotSize);
             if (hovered.isEmpty()) hovered = armorHover;
-            ItemStack equipHover = ItemGrid.draw(ctx, reverse(sideEquipment), sideX + slotSize + 2, gridY, 1, 0, 4,
-                    mouseX, mouseY, slotSize);
-            if (hovered.isEmpty()) hovered = equipHover;
+            if (equipColumn) {
+                ItemStack equipHover = ItemGrid.draw(ctx, reverse(sideEquipment), sideX + slotSize + 2, gridY, 1, 0, 4,
+                        mouseX, mouseY, slotSize);
+                if (hovered.isEmpty()) hovered = equipHover;
+            }
         }
 
         if (section == Section.WARDROBE && wardrobeCache != null && !wardrobeCache.isEmpty()) {

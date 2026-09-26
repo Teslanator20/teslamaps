@@ -90,7 +90,8 @@ public final class ChatUserFilters {
 
     /** Hotkey over a chat line: that exact line becomes an "equals" filter. */
     public static void addLine(Component line) {
-        String text = ChatTimestamps.cut(StringUtil.stripTrim(line.getString()));
+        String text = StringUtil.stripTrim(line.getString());
+        if (TeslaMapsConfig.get().chatTimestamps) text = ChatTimestamps.cut(text);
         var player = Minecraft.getInstance().player;
         if (text.isEmpty() || player == null) return;
         boolean added = add("equals", text);

@@ -115,11 +115,15 @@ public class PlayerTracker {
     }
 
     public static void register() {
-        com.teslamaps.registry.Feature.of("PlayerGhost").when(DungeonManager::isInDungeon)
+        com.teslamaps.registry.Feature.of("PlayerGhost").when(() -> ghostDetection() && DungeonManager.isInDungeon())
                 .serverChat(line -> {
                     String m = com.teslamaps.utils.StringUtil.strip(line);
                     if (m.contains("became a ghost")) onGhostMessage(m);
                 });
+    }
+
+    static boolean ghostDetection() {
+        return com.teslamaps.config.TeslaMapsConfig.get().dungeonGhostDetection;
     }
 
     public static void onGhostMessage(String message) {
@@ -209,6 +213,12 @@ public class PlayerTracker {
             // dead players show "(DEAD)" in tab — keep their real class so sorting stays stable
             if ("DEAD".equals(dungeonClass)) {
                 this.alive = false;
+                return;
+            }
+            if (!ghostDetection()) {
+                if ("EMPTY".equals(this.dungeonClass) && lastGhostTime + 2000 > System.currentTimeMillis()) return;
+                this.dungeonClass = dungeonClass;
+                this.alive = !"EMPTY".equals(dungeonClass);
                 return;
             }
             // tab still shows the class for a moment after the ghost line

@@ -270,7 +270,7 @@ public class DungeonPage extends ProfileViewerPage {
     private static int targetLevel = -1;
     private boolean targetFocused = false;
     private String targetText = "";
-    private int calcX, calcY;
+    private int calcX, calcY = -1000;
 
     private Object treasuresFor;
     private int croesusRuns, croesusUnclaimed, dailyRuns;
@@ -325,6 +325,11 @@ public class DungeonPage extends ProfileViewerPage {
 
     private void drawExtras(GuiGraphicsExtractor ctx, Font tr, SkyblockProfile profile, DungeonData data,
                             int cx, int y, int mouseX, int mouseY) {
+        if (!extra(true)) {
+            calcY = -1000;
+            targetFocused = false;
+            return;
+        }
         readTreasures(profile);
 
         String croesus = croesusRuns + "/60" + (croesusUnclaimed > 0 ? " (" + croesusUnclaimed + ")" : "");

@@ -44,7 +44,7 @@ public class GardenPage extends ProfileViewerPage {
         super.init(parent, profiles);
         garden = null;
         SkyblockProfile profile = getProfile();
-        jacobs = profile == null ? null : jacobs(profile.getMemberData());
+        jacobs = profile == null || !extra(true) ? null : jacobs(profile.getMemberData());
         load();
     }
 

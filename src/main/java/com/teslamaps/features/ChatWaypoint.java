@@ -177,7 +177,7 @@ public class ChatWaypoint {
         if (c.chatWaypointDetails) {
             if (msg != null) label = "§e" + msg.author() + " " + label;
             if (!area.isEmpty()) label += " §7at §b" + area;
-            if (!note.isEmpty()) label += " §f" + note;
+            if (!note.isEmpty() && c.chatWaypointCommands) label += " §f" + note;
         }
         waypoints.add(pos, label, TeslaMapsConfig.parseColor(c.chatWaypointColor), DURATION_MS);
     }

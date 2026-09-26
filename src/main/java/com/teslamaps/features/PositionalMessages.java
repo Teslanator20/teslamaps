@@ -66,7 +66,7 @@ public final class PositionalMessages {
                     b.info("/posmsg add at <x y z> <delay> <distance> <color> <text>");
                     b.info("/posmsg add in <x1 y1 z1 x2 y2 z2> <delay> <color> <text>");
                 });
-        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("posmsg")
+        ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> { if (cfg().posMessages) d.register(ClientCommands.literal("posmsg")
                 .then(ClientCommands.literal("add")
                         .then(ClientCommands.literal("at")
                                 .then(coord("x", 0).then(coord("y", 1).then(coord("z", 2)
@@ -97,7 +97,7 @@ public final class PositionalMessages {
                     msg("§fCleared all positional messages.");
                     return 1;
                 }))
-                .then(ClientCommands.literal("list").executes(c -> list()))));
+                .then(ClientCommands.literal("list").executes(c -> list()))); });
     }
 
     private static RequiredArgumentBuilder<FabricClientCommandSource, Double> coord(String name, int axis) {

@@ -85,7 +85,7 @@ public class ChatScreenMixin {
 
         GuiMessage msg = teslamaps$lineAt(mc, event.y());
         if (msg == null) return;
-        Component content = com.teslamaps.features.ChatTimestamps.body(msg.content());
+        Component content = TeslaMapsConfig.get().chatTimestamps ? com.teslamaps.features.ChatTimestamps.body(msg.content()) : msg.content();
         String raw = content.getString();
         if (raw.isEmpty()) return;
 

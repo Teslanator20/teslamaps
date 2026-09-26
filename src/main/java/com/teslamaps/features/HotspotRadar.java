@@ -79,7 +79,7 @@ public class HotspotRadar {
             snappedFor = null;
             return;
         }
-        if (mc.level != null && !mc.level.getWorldBorder().isWithinBounds(guess.x, guess.z)) {
+        if (TeslaMapsConfig.get().hotspotRadarUnknown && mc.level != null && !mc.level.getWorldBorder().isWithinBounds(guess.x, guess.z)) {
             reset();
             return;
         }

@@ -19,12 +19,16 @@ public final class PriceDebug {
     public static LiteralArgumentBuilder<FabricClientCommandSource> command() {
         return ClientCommands.literal("price")
                 .executes(c -> debug(c.getSource(), null))
-                .then(ClientCommands.literal("reload").executes(c -> reload(c.getSource())))
+                .then(ClientCommands.literal("reload").executes(c -> {
+                    PriceManager.forceRefresh();
+                    c.getSource().sendFeedback(Component.literal("§b[TeslaMaps] §7Reloading bazaar + lowest BIN prices…"));
+                    return 1;
+                }))
                 .then(ClientCommands.argument("item", StringArgumentType.greedyString())
                         .executes(c -> debug(c.getSource(), StringArgumentType.getString(c, "item"))));
     }
 
-    /** /tmap refreshprices, same as /tmap price reload. */
+    /** /tmap refreshprices */
     public static LiteralArgumentBuilder<FabricClientCommandSource> refreshCommand() {
         return ClientCommands.literal("refreshprices").executes(c -> reload(c.getSource()));
     }

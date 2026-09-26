@@ -95,8 +95,16 @@ public class ArrowAlignSolver {
         Arrays.fill(rotations, -1);
 
         long now = System.currentTimeMillis();
+        boolean predictLong = TeslaMapsConfig.get().arrowAlignBlockWrong;
         for (int index = 0; index < 25; index++) {
             BlockPos framePos = getFramePosition(index);
+
+            if (!predictLong && recentClicks.containsKey(index) && now - recentClicks.get(index) < 1000) {
+                if (currentRotations != null && currentRotations[index] != -1) {
+                    rotations[index] = currentRotations[index];
+                    continue;
+                }
+            }
 
             int server = -1;
             for (ItemFrame frame : frames) {
@@ -107,7 +115,7 @@ public class ArrowAlignSolver {
             }
 
             // keep the predicted rotation until the server confirms it or it goes stale
-            Long clickedAt = recentClicks.get(index);
+            Long clickedAt = predictLong ? recentClicks.get(index) : null;
             if (clickedAt != null && server != -1 && currentRotations != null && currentRotations[index] != -1) {
                 if (server == currentRotations[index]) recentClicks.remove(index);
                 else if (now - clickedAt < PREDICTION_MS) server = currentRotations[index];
