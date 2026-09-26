@@ -229,6 +229,7 @@ public class Deployables {
 
     /** Main thread. The orbs' own HAPPY_VILLAGER / DUST / FLAME effects, matched like Devonian does. */
     public static boolean hideParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
+        if (com.teslamaps.features.fishing.TotemOfCorruption.hideParticle(p)) return true;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.deployableHideParticles || !cfg.section("Skills")) return false;
         if (!p.alwaysShow() || !p.isOverrideLimiter()) return false;
@@ -403,6 +404,8 @@ public class Deployables {
             if (!visible(c, known)) continue;
             out.add((known == null ? "§b" + e.getKey() : known.displayName) + " §e" + format(left));
         }
+        String totem = com.teslamaps.features.fishing.TotemOfCorruption.line();
+        if (totem != null) out.add(totem);
         return out;
     }
 

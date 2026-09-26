@@ -28,6 +28,7 @@ public class SeaCreatureList {
 
     private static final Map<String, String> messageToName = new ConcurrentHashMap<>();
     private static final Map<String, Info> byName = new ConcurrentHashMap<>();
+    private static final Map<String, String> variantOf = new ConcurrentHashMap<>();
     private static volatile boolean loaded = false;
     private static volatile boolean loading = false;
 
@@ -51,6 +52,7 @@ public class SeaCreatureList {
                                 info.has("rarity") ? info.get("rarity").getAsString() : "COMMON",
                                 info.has("rare") && info.get("rare").getAsBoolean(),
                                 info.has("chat_color") ? info.get("chat_color").getAsString() : groupColor));
+                        variantOf.put(entry.getKey(), variant.getKey());
                         put(info.has("chat_message") ? info.get("chat_message").getAsString() : null, entry.getKey());
                         if (!info.has("alternate_messages")) continue;
                         for (JsonElement alternate : info.getAsJsonArray("alternate_messages")) {
@@ -98,6 +100,11 @@ public class SeaCreatureList {
         java.util.List<String> out = new java.util.ArrayList<>(byName.keySet());
         out.sort(String.CASE_INSENSITIVE_ORDER);
         return out;
+    }
+
+    /** Repo group of the creature (WATER, LAVA, WINTER, ...), null when unknown. */
+    public static String variant(String name) {
+        return variantOf.get(name);
     }
 
     /** @return rarity, rare flag and chat color, or null when the creature is unknown. */
