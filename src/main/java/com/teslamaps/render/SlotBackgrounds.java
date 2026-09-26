@@ -36,5 +36,6 @@ public class SlotBackgrounds {
         com.teslamaps.features.kuudra.KuudraQol.drawSlot(context, slot);
         com.teslamaps.features.crimson.ReputationHelper.drawSlot(context, slot);
         com.teslamaps.features.rift.KloonHacking.drawSlot(context, slot);
+        com.teslamaps.features.pets.PetMenus.drawFavorite(context, slot);
     }
 }

@@ -19,14 +19,14 @@ import java.util.regex.Pattern;
  */
 public class PetTracker {
 
-    private static final Pattern SUMMON = Pattern.compile(
+    static final Pattern SUMMON = Pattern.compile(
             "§aYou summoned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!");
     private static final Pattern DESPAWN = Pattern.compile("You despawned your (?<pet>.+)!");
-    private static final Pattern AUTOPET = Pattern.compile(
+    static final Pattern AUTOPET = Pattern.compile(
             "§cAutopet §eequipped your §7\\[Lvl (?<level>\\d+)] "
                     + "(?:(?:§.)+\\[(?:§.)*\\d+(?:§.)*(?<altskin>§.✦)(?:§.)*] )?"
                     + "(?:§.)*§(?<rarity>.)(?<pet>[^§]+?)(?<skin>§. ✦)?§e! §a§lVIEW RULE");
-    private static final Pattern LEVEL_UP = Pattern.compile(
+    static final Pattern LEVEL_UP = Pattern.compile(
             "Your (?<pet>.+) leveled up to level (?<level>\\d+)!");
     private static final Pattern TAB_NAME = Pattern.compile(
             " \\[Lvl (?<level>[\\d,]+)] (?:\\[\\d+(?<altskin>✦)] )?(?<pet>[\\w -]+?)(?<skin> ✦)?$");
@@ -117,6 +117,7 @@ public class PetTracker {
     }
 
     public static void onChatMessage(String raw) {
+        PetTitles.onChat(raw);
         if (!enabled()) return;
 
         Matcher summon = SUMMON.matcher(raw.trim());
@@ -239,13 +240,41 @@ public class PetTracker {
         double item = itemMultiplier(skill);
         double custom = PetConstants.customMultiplier(internalName);
         double diana = com.teslamaps.api.ElectionApi.hasPerk("Pet XP Buff") ? 1.35 : 1.0;
-        totalXp += amount * base * taming * item * custom * diana * PetStore.beastmaster();
+        double battle = skill.equalsIgnoreCase("COMBAT") ? 1.0 + attributeLevel("Battle Experience") / 100.0 : 1.0;
+        double gain = amount * base * taming * item * custom * diana * PetStore.beastmaster() * battle;
+        totalXp += gain;
         lastEstimateAt = System.currentTimeMillis();
+        shareXp(skill, gain);
 
         if (!maxed) {
             int newLevel = PetConstants.xpToLevel(internalName, rarity, totalXp);
             if (newLevel > level) level = newLevel;
         }
+    }
+
+    /** Skysoft PetXpEstimator.updateExpSharePets: exp share pets get a cut of the active pet's gain. */
+    private static void shareXp(String skill, double gain) {
+        java.util.List<PetStore.Pet> share = PetStore.expSharePets();
+        if (share.isEmpty()) return;
+        double rate = tamingLevel() * 0.002
+                + (com.teslamaps.api.ElectionApi.hasPerk("Sharing is Caring") ? 0.10 : 0)
+                + attributeLevel("Why Not More") / 100.0;
+        for (PetStore.Pet p : share) {
+            if (p.type == null || p.type.equals(internalName)) continue;
+            String type = PetConstants.petType(p.type);
+            if (type == null) continue;
+            double r = rate + ("PET_ITEM_EXP_SHARE".equals(p.heldItem) ? 0.15 : 0);
+            double base = baseMultiplier(type, skill);
+            if (r <= 0 || base <= 0) continue;
+            PetStore.addExp(p, gain * r * base);
+        }
+    }
+
+    /** Attribute (shard) level from the Hunting Box data, 0 when never seen. */
+    private static int attributeLevel(String ability) {
+        var shard = com.teslamaps.features.hunting.ShardData.byAbilityName(ability);
+        if (shard == null) return 0;
+        return com.teslamaps.features.hunting.ShardData.tiers(shard, com.teslamaps.features.hunting.ShardData.syphoned(shard))[0];
     }
 
     private static double baseMultiplier(String petType, String skill) {

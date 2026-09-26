@@ -2148,6 +2148,38 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w20-04-pet
+    public boolean petOverlayExpShare = false;   // exp share pets next to the icon + line
+    public boolean petOverlayAnimate = false;    // xp ring eases towards the new value
+    public boolean petInventoryPanel = false;    // active pet panel beside the inventory, click = /pets
+    public boolean petKatLevel = false;          // Kat menu: level after the rarity upgrade
+    public boolean petSwapTitle = false;         // title on autopet swap
+    public boolean petSwapTitleSummon = false;
+    public boolean petSwapTitleDungeonOnly = false;
+    public boolean petSwapTitleSound = false;
+    public float petSwapTitleSeconds = 2f;
+    public int petSwapTitleX = -1;
+    public int petSwapTitleY = 70;
+    public float petSwapTitleScale = 2.5f;
+    public boolean petMaxedTitle = false;        // title + sound when a pet hits max level
+    public boolean petSlotLevel = false;         // level on pet slots in the Pets / Choose Pet menu
+    public boolean petSlotLevelHideMax = false;
+    public boolean petSlotLevelPercent = false;
+    public boolean petExpTooltip = false;        // tooltip: progress to max + total xp
+    public boolean petExpTooltipAlways = false;
+    public boolean petFavorites = false;
+    public int petFavoriteKey = -1;
+    public String petFavoriteColor = "80FFAA00";
+    public java.util.Set<String> petFavoriteIds = new java.util.HashSet<>();
+    public boolean petWheelFavoritesOnly = false;
+    public boolean petKeybinds = false;
+    public int[] petKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public String[] petKeyUuids = new String[9];
+    public int petUnequipKey = -1;
+    public int petNextPageKey = -1;
+    public int petPrevPageKey = -1;
+    public boolean petKeysNoUnequip = false;
+    public boolean petKeysCloseIfEquipped = false;
     // w20-06-cheat
     public boolean trevorAuto = false;
     public boolean trevorAutoCall = true;
@@ -6750,6 +6782,9 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.petFavoriteIds == null) c.petFavoriteIds = new java.util.HashSet<>();
+        c.petFavoriteIds.remove(null);
+        if (c.petKeyUuids == null || c.petKeyUuids.length != 9) c.petKeyUuids = java.util.Arrays.copyOf(c.petKeyUuids == null ? new String[0] : c.petKeyUuids, 9);
         if (c.ubikReadyAt == null) c.ubikReadyAt = new java.util.HashMap<>();
         c.ubikReadyAt.values().removeIf(java.util.Objects::isNull);
         if (c.carnivalShopProgress == null) c.carnivalShopProgress = new java.util.HashMap<>();
@@ -7095,6 +7130,7 @@ public class TeslaMapsConfig {
         if (c.shardPriceSource == null || c.shardPriceSource.isBlank()) c.shardPriceSource = "Instant Buy";
         // indexed straight through, so a short array out of an older config would throw
         c.wardrobeKeys = fitKeys(c.wardrobeKeys, 9);
+        c.petKeys = fitKeys(c.petKeys, 9);
         c.loadoutKeys = fitKeys(c.loadoutKeys, 12);
         c.instaLoadoutKeys = fitKeys(c.instaLoadoutKeys, 9);
         if (c.trashFilters == null) c.trashFilters = com.teslamaps.features.TrashHighlighter.defaults();

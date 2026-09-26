@@ -1045,6 +1045,10 @@ final class Features {
         com.teslamaps.features.rift.RiftShyCrux.register();
         com.teslamaps.features.rift.RiftSplatterHearts.register();
         com.teslamaps.features.rift.RiftGuntherRace.register();
+        // w20-04-pet
+        com.teslamaps.features.pets.PetTitles.register();
+        com.teslamaps.features.pets.PetMenus.register();
+        com.teslamaps.features.pets.PetKeybinds.register();
         // w20-06-cheat
         com.teslamaps.features.hunting.AutoReelLasso.register();
         com.teslamaps.features.AutoSprint.register();
