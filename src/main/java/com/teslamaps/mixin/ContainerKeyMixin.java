@@ -28,6 +28,11 @@ public class ContainerKeyMixin {
             return;
         }
 
+        if (com.teslamaps.features.choco.ChocoStrays.blockKey(event) || com.teslamaps.features.choco.ChocoExtras.onKey(cs, event.key())) {
+            cir.setReturnValue(true);
+            return;
+        }
+
         if (com.teslamaps.features.ClickFixes.onSnakeKey(cs, event)) {
             cir.setReturnValue(true);
             return;

@@ -916,5 +916,13 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-03-evt
+        com.teslamaps.features.choco.ChocoData.register();
+        com.teslamaps.features.choco.ChocoFactory.register();
+        com.teslamaps.features.choco.ChocoStrays.register();
+        com.teslamaps.features.choco.ChocoExtras.register();
+        com.teslamaps.features.choco.ChocoReminder.register();
+        com.teslamaps.features.choco.HoppityNextEgg.register();
+        com.teslamaps.features.DianaLobbyAlert.register();
     }
 }
