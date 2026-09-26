@@ -36,6 +36,20 @@ public class PetOverlay {
         }
     }
 
+    public static final String LINES_ID = "petOverlay";
+    private static final String[] LINE_KEYS = {"name", "progress", "total", "rate", "eta", "item", "share", "last"};
+    private static final String[] LINE_LABELS = {"Name + Level", "Level Progress", "Total Pet XP", "XP/h",
+            "Until Next / Max Level", "Pet Item", "Exp Share Pets", "Last Pet"};
+
+    static {
+        com.teslamaps.utils.LineOrder.define(LINES_ID, LINE_KEYS, LINE_LABELS);
+    }
+
+    private static final ItemStack[] NO_SHARE = new ItemStack[0];
+    private static ItemStack[] cachedShare = NO_SHARE;
+    private static boolean[] cachedShareOff = new boolean[0];
+    private static float shownProgress = -1;
+
     private static String[] cachedLines = null;
     private static ItemStack cachedIcon = ItemStack.EMPTY;
     private static float cachedProgress = 0;
@@ -55,6 +69,29 @@ public class PetOverlay {
         cachedLines = lines();
         cachedIcon = icon();
         cachedProgress = progress();
+        shareIcons();
+    }
+
+    private static void shareIcons() {
+        if (!TeslaMapsConfig.get().petOverlayExpShare) {
+            cachedShare = NO_SHARE;
+            return;
+        }
+        PetStore.Pet[] slots = PetStore.expShareSlots();
+        int active = com.teslamaps.api.ElectionApi.hasPerk("Sharing is Caring") ? 3 : 1;
+        List<ItemStack> icons = new ArrayList<>(3);
+        List<Boolean> off = new ArrayList<>(3);
+        for (int i = 0; i < slots.length; i++) {
+            if (slots[i] == null || slots[i].type == null) continue;
+            ItemStack s = TeslaMapsConfig.get().petOverlaySkinIcon && slots[i].skin != null ? PetIcons.forSkin(slots[i].skin) : ItemStack.EMPTY;
+            if (s.isEmpty()) s = PetIcons.forType(slots[i].type);
+            icons.add(s);
+            off.add(i >= active);
+        }
+        cachedShare = icons.toArray(NO_SHARE);
+        boolean[] o = new boolean[off.size()];
+        for (int i = 0; i < o.length; i++) o[i] = off.get(i);
+        cachedShareOff = o;
     }
 
     private static final String[] MISSING = com.teslamaps.features.TabWidgetHint.lines("Pet");
@@ -73,7 +110,13 @@ public class PetOverlay {
         if (mc.player == null) return;
 
         if (cachedLines == null) tickNow();
-        draw(ctx, mc, c.petOverlayX, c.petOverlayY, c.petOverlayScale, cachedLines, cachedIcon, cachedProgress);
+        float p = cachedProgress;
+        if (c.petOverlayAnimate) {
+            if (shownProgress < 0 || p < shownProgress - 0.5f) shownProgress = p;
+            else shownProgress += (p - shownProgress) * Math.min(1f, delta.getRealtimeDeltaTicks() * 0.15f);
+            p = shownProgress;
+        }
+        draw(ctx, mc, c.petOverlayX, c.petOverlayY, c.petOverlayScale, cachedLines, cachedIcon, p);
     }
 
     public static void drawPreview(GuiGraphicsExtractor ctx, Minecraft mc, int x, int y, float scale) {
@@ -100,42 +143,67 @@ public class PetOverlay {
 
     private static String[] lines() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        List<String> out = new ArrayList<>(8);
-        out.add("§7[Lvl " + PetTracker.level() + "] " + PetTracker.rarityColor()
+        com.teslamaps.utils.LineOrder.Lines l = com.teslamaps.utils.LineOrder.lines(LINES_ID);
+        l.key("name").add("§7[Lvl " + PetTracker.level() + "] " + PetTracker.rarityColor()
                 + PetTracker.displayName() + (PetTracker.hasSkin() ? " §d✦" : ""));
 
         if (PetTracker.totalXp() >= 0) {
+            l.key("progress");
             if (PetTracker.maxed()) {
                 double overflow = PetTracker.overflowXp();
-                if (overflow > 0) out.add("§eMax-Level XP§7: §7+§b" + separators(overflow));
-                else out.add("§eLevel Progress§7: §bMAX LEVEL");
+                if (overflow > 0) l.add("§eMax-Level XP§7: §7+§b" + separators(overflow));
+                else l.add("§eLevel Progress§7: §bMAX LEVEL");
             } else {
                 double cur = PetTracker.currentLevelXp();
                 double needed = PetTracker.neededLevelXp();
                 double pct = needed > 0 ? Math.min(100, cur / needed * 100) : 0;
-                out.add("§eLevel Progress§7: §b" + separators(cur) + "§9/§b" + shortFormat(needed)
+                l.add("§eLevel Progress§7: §b" + separators(cur) + "§9/§b" + shortFormat(needed)
                         + " §7- §e" + String.format(Locale.ROOT, "%.1f", pct) + "%");
             }
-            out.add("§ePet XP§7: §b" + separators(PetTracker.totalXp()));
+            l.key("total").add("§ePet XP§7: §b" + separators(PetTracker.totalXp()));
 
             double rate = PetTracker.xpPerHour();
-            if (c.petOverlayXpRate) out.add("§eXP/h§7: §b" + (rate > 0 ? shortFormat(rate) : "-"));
+            if (c.petOverlayXpRate) l.key("rate").add("§eXP/h§7: §b" + (rate > 0 ? shortFormat(rate) : "-"));
             if (c.petOverlayEta && !PetTracker.maxed()) {
                 double toNext = PetTracker.neededLevelXp() - PetTracker.currentLevelXp();
                 String internal = PetTracker.internalName();
                 int max = PetConstants.maxLevel(internal);
                 double toMax = PetConstants.levelToXp(internal, PetTracker.rarity(), max) - PetTracker.totalXp();
-                out.add("§eUntil L" + (PetTracker.level() + 1) + "§7: §b" + eta(toNext, rate));
-                out.add("§eUntil L" + max + "§7: §b" + eta(toMax, rate));
+                l.key("eta").add("§eUntil L" + (PetTracker.level() + 1) + "§7: §b" + eta(toNext, rate));
+                l.add("§eUntil L" + max + "§7: §b" + eta(toMax, rate));
             }
         }
 
         String held = PetTracker.heldItem();
-        if (held != null && !held.isEmpty()) out.add("§ePet Item§7: §9" + held);
+        if (held != null && !held.isEmpty()) l.key("item").add("§ePet Item§7: §9" + held);
+        if (c.petOverlayExpShare) {
+            PetStore.Pet[] share = PetStore.expShareSlots();
+            int active = com.teslamaps.api.ElectionApi.hasPerk("Sharing is Caring") ? 3 : 1;
+            for (int i = 0; i < share.length; i++) {
+                PetStore.Pet p = share[i];
+                if (p == null || p.type == null) continue;
+                l.key("share").add((i >= active ? "§8Share (off): §7" : "§eShare§7: ") + "[Lvl " + p.level + "] "
+                        + rarityCode(p.rarity) + PetConstants.displayName(p.type));
+            }
+        }
         String last = PetTracker.lastPetLine();
-        if (c.petOverlayLastPet && last != null) out.add("§8Last: " + last);
+        if (c.petOverlayLastPet && last != null) l.key("last").add("§8Last: " + last);
+        List<String> out = l.build();
         if (com.teslamaps.features.TabWidgetHint.on() && PetTracker.widgetMissing()) out.add("§cPet tab widget missing §7(/tab)");
         return out.toArray(new String[0]);
+    }
+
+    private static String rarityCode(String rarity) {
+        if (rarity == null) return "§7";
+        return switch (rarity) {
+            case "COMMON" -> "§f";
+            case "UNCOMMON" -> "§a";
+            case "RARE" -> "§9";
+            case "EPIC" -> "§5";
+            case "LEGENDARY" -> "§6";
+            case "MYTHIC" -> "§d";
+            default -> "§7";
+        };
     }
 
     private static String eta(double xp, double rate) {
@@ -155,7 +223,8 @@ public class PetOverlay {
         int iconBox = ring ? 24 : 18;
         int textOffset = hasIcon ? iconBox + 2 : 0;
         int w = width(mc, ls) + textOffset;
-        int h = Math.max(ls.length * 10, hasIcon ? iconBox : 0);
+        ItemStack[] share = hasIcon ? cachedShare : NO_SHARE;
+        int h = Math.max(ls.length * 10, hasIcon ? iconBox + (share.length > 0 ? 10 : 0) : 0);
 
         var pose = ctx.pose();
         pose.pushMatrix();
@@ -164,11 +233,22 @@ public class PetOverlay {
         TeslaGui.backdropRect(ctx, -4, -4, w + 8, h + 4);
         if (hasIcon) {
             int iy = Math.max(0, (h - iconBox) / 2);
+            if (share.length > 0) iy = Math.max(0, (h - iconBox - 10) / 2);
             if (ring) {
                 drawRing(ctx, 12, iy + 12, progress);
                 ctx.item(icon, 4, iy + 4);
             } else {
                 ctx.item(icon, 0, iy);
+            }
+            boolean[] off = cachedShareOff;
+            for (int i = 0; i < share.length; i++) {
+                int sx = i * 8, sy = iy + iconBox + 1;
+                pose.pushMatrix();
+                pose.translate(sx, sy);
+                pose.scale(0.5f, 0.5f);
+                ctx.item(share[i], 0, 0);
+                pose.popMatrix();
+                if (i < off.length && off[i]) ctx.fill(sx, sy, sx + 8, sy + 8, 0x99000000);
             }
         }
         for (int i = 0; i < ls.length; i++) ctx.text(mc.font, ls[i], textOffset, i * 10, 0xFFFFFFFF, true);
@@ -211,7 +291,7 @@ public class PetOverlay {
     public static int[] previewSize(Minecraft mc) {
         String[] ls = PetTracker.hasPet() && cachedLines != null ? cachedLines : PREVIEW_LINES;
         int iconBox = TeslaMapsConfig.get().petOverlayRing ? 24 : 18;
-        return new int[]{width(mc, ls) + iconBox + 2 + 8, Math.max(ls.length * 10, iconBox) + 4};
+        return new int[]{width(mc, ls) + iconBox + 2 + 8, Math.max(ls.length * 10, iconBox + (cachedShare.length > 0 ? 10 : 0)) + 4};
     }
 
     private static String separators(double v) {
