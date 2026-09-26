@@ -14,7 +14,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityNametagMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;F)V", at = @At("TAIL"))
     private void teslamaps$nametagOffset(Entity entity, EntityRenderState state, float partial, CallbackInfo ci) {
+        com.teslamaps.features.pets.VisiblePetPosition.adjust(entity, state);
         if (state.nameTagAttachment == null) return;
+        com.teslamaps.features.pets.PetNametags.adjust(entity, state);
         LowerEndermanNametags.adjust(entity, state);
         Cosmetics.adjustNametag(entity, state);
         com.teslamaps.features.FishingHookDisplay.markState(entity, state);

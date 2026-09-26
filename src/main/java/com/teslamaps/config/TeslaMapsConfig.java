@@ -2191,6 +2191,30 @@ public class TeslaMapsConfig {
     public boolean revealHiddenFels = true;
     public boolean revealHiddenShadowAssassins = true;
     public boolean revealHiddenStealthy = true;
+    // w20-05-pet
+    public boolean petItemConfirm = false;
+    public boolean petCandyOnIcon = false;
+    public boolean petCandyHideMaxed = false;
+    public boolean petCandyLore = false;
+    public boolean petItemSymbol = false;
+    public float petItemSymbolScale = 0.7f;
+    public java.util.Map<String, String> petItemSymbols = new java.util.HashMap<>();
+    public boolean georgePetPrice = false;
+    public boolean georgeTamingHelper = false;
+    public boolean georgeOtherTiers = false;
+    public boolean expShareDisabledSlots = false;
+    public boolean expSharePetHighlight = false;
+    public String expSharePetColor = "5555FF";
+    public boolean petNametagHideLevel = false;
+    public boolean petNametagHideMaxLevel = false;
+    public boolean petNametagHideOthers = false;
+    public boolean visiblePetPosition = false;
+    public boolean visiblePetStopBouncing = true;
+    public float visiblePetHeightOffset = 0f;
+    public boolean rockMilestoneHud = false;
+    public int rockMilestoneHudX = 10;
+    public int rockMilestoneHudY = 170;
+    public float rockMilestoneHudScale = 1.0f;
     // w20-04-pet
     public boolean petOverlayExpShare = false;   // exp share pets next to the icon + line
     public boolean petOverlayAnimate = false;    // xp ring eases towards the new value
@@ -6869,6 +6893,8 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.petItemSymbols == null) c.petItemSymbols = new java.util.HashMap<>();
+        c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
         if (c.petFavoriteIds == null) c.petFavoriteIds = new java.util.HashSet<>();
         c.petFavoriteIds.remove(null);
         if (c.petKeyUuids == null || c.petKeyUuids.length != 9) c.petKeyUuids = java.util.Arrays.copyOf(c.petKeyUuids == null ? new String[0] : c.petKeyUuids, 9);

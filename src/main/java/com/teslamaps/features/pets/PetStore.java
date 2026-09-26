@@ -112,6 +112,12 @@ public final class PetStore {
         return out;
     }
 
+    /** Pet uuid in exp share slot i, null for empty. */
+    static String shareUuid(int i) {
+        ensure();
+        return shareUuids[i];
+    }
+
     /** All exp share slots, null for empty; index >= active count = disabled. */
     static Pet[] expShareSlots() {
         ensure();
@@ -128,7 +134,8 @@ public final class PetStore {
     }
 
     public static void register() {
-        Feature.of("PetStore").section("Skills").when(() -> TeslaMapsConfig.get().petOverlay).tick(PetStore::tick);
+        Feature.of("PetStore").section("Skills")
+                .when(() -> TeslaMapsConfig.get().petOverlay || TeslaMapsConfig.get().expSharePetHighlight).tick(PetStore::tick);
     }
 
     private static void ensure() {

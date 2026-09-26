@@ -39,7 +39,17 @@ public final class PetValue {
     public static int version() { return version; }
 
     public static void ensureFresh() {
-        if (!enabled() || loading) return;
+        if (enabled()) load();
+    }
+
+    /** Lowest BIN of a level 1 pet, fetched even while Pet Value is off. */
+    public static Double lvl1Price(String tier, String type) {
+        load();
+        return prices.get("LVL_1_" + tier + "_" + type);
+    }
+
+    private static void load() {
+        if (loading) return;
         long now = System.currentTimeMillis();
         if (now - fetched < REFRESH_MS) return;
         loading = true;

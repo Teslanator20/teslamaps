@@ -1051,6 +1051,14 @@ final class Features {
         com.teslamaps.features.FlareExtras.register();
         com.teslamaps.features.MobHealthBars.register();
         com.teslamaps.features.HiddenMobReveal.register();
+        // w20-05-pet
+        com.teslamaps.features.pets.PetItemGuard.register();
+        com.teslamaps.features.pets.PetSlotIcons.register();
+        com.teslamaps.features.pets.GeorgeHelper.register();
+        com.teslamaps.features.pets.ExpShareSlots.register();
+        com.teslamaps.features.pets.PetNametags.register();
+        com.teslamaps.features.pets.VisiblePetPosition.register();
+        com.teslamaps.features.pets.RockMilestone.register();
         // w20-04-pet
         com.teslamaps.features.pets.PetTitles.register();
         com.teslamaps.features.pets.PetMenus.register();

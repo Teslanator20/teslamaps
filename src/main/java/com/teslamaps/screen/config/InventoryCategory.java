@@ -281,6 +281,8 @@ public final class InventoryCategory {
                 .desc("Max 7 drops per 3 server ticks, spammed Q during lag can't throw the whole stack later");
         b.toggle("Protect Evolving Consumables", () -> config.protectEvolvingConsumables, v -> config.protectEvolvingConsumables = v)
                 .desc("Blocks right-click and placing for Bottle of Jyrre, Dark Cacao Truffle, Discrite, Moby Duck, Rosewater Flask");
+        b.toggle("Confirm Pet Item Use", () -> config.petItemConfirm, v -> config.petItemConfirm = v)
+                .desc("Right-click with a pet item, pet candy or pet skin is blocked. Click the chat line to allow it for 5s");
         b.label("Prevent Placing");
         b.toggle("Prevent Placing Weapons", () -> config.preventPlacingWeapons, v -> config.preventPlacingWeapons = v)
                 .desc("Flower of Truth, Bouquet, Grappleshot, Bat Wand, Tuba, Pumpkin Launcher, Fire Freeze, Gauntlet");
