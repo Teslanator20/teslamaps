@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.world.item.FishingRodItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,7 +140,7 @@ public final class TrophyFishHud {
     private static boolean shown(Minecraft mc) {
         if (!SkyblockUtils.getArea().equalsIgnoreCase("Crimson Isle")) return false;
         return switch (cfg().trophyFishHudWhen) {
-            case "Rod In Hand" -> mc.player != null && mc.player.getMainHandItem().getItem() instanceof FishingRodItem;
+            case "Rod In Hand" -> com.teslamaps.features.FishingHelpers.holdingRod();
             case "Inventory Open" -> mc.screen instanceof InventoryScreen;
             default -> true;
         };

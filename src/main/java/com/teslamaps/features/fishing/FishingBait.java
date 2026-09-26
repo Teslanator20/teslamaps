@@ -13,7 +13,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.projectile.FishingHook;
-import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -73,7 +72,7 @@ public final class FishingBait {
             lines = List.of();
             return;
         }
-        holding = mc.player.getMainHandItem().getItem() instanceof FishingRodItem;
+        holding = com.teslamaps.features.FishingHelpers.holdingRod();
         if (!holding) {
             lines = List.of();
             lastHook = null;

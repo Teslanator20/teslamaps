@@ -22,6 +22,7 @@ public class ContainerKeyMixin {
         if (mc.gameMode == null || mc.player == null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (com.teslamaps.features.HoppityHelpers.blockClose(cs, event)) { cir.setReturnValue(true); return; }
 
         if (com.teslamaps.features.RadialMenus.key(cs, event) || com.teslamaps.features.bazaar.PurchaseGuard.onKey(event.key())) {
             cir.setReturnValue(true);

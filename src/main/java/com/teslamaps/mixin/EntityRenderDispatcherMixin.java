@@ -54,6 +54,7 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.CommonSeaCreatureHider.shouldHide(entity)
                 || com.teslamaps.features.ChumBucketHider.shouldHide(entity)
                 || com.teslamaps.features.ArachneTagHider.shouldHide(entity)
+                || com.teslamaps.features.GiftNametagCleaner.shouldHide(entity)
                 || com.teslamaps.features.WitherCloakShields.shouldHide(entity)
                 || com.teslamaps.features.VisualTweaks.shouldHide(entity)
                 || com.teslamaps.features.ZeroHpNametags.shouldHide(entity)

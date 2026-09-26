@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
 
-/** Small shared checks for the w17-08 fishing features. */
+/** Shared rod / bobber / sub-area checks for fishing features. */
 public final class FishingHelpers {
 
     private static final Set<String> LAVA_RODS = Set.of(

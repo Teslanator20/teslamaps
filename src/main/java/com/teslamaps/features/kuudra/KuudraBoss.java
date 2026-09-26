@@ -41,7 +41,7 @@ public final class KuudraBoss {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Kuudra Boss");
-                    b.toggle("Highlight Kuudra", () -> c.kuuBossHighlight, v -> c.kuuBossHighlight = v)
+                    b.toggle("Highlight Kuudra", () -> c.kuuBossHighlight, v -> c.kuuBossHighlight = v).legit()
                             .desc("Box or glow on Kuudra's hitbox (the size 30 magma cube)");
                     b.espStyle("Kuudra", () -> c.kuuBossStyle);
                     b.toggle("Kuudra HP", () -> c.kuuBossHp, v -> c.kuuBossHp = v)
@@ -63,7 +63,7 @@ public final class KuudraBoss {
             hpPos = null;
             return;
         }
-        if (c.kuuBossHighlight) EspStyle.of(c.kuuBossStyle).tickEntity(boss);
+        if (c.kuuBossHighlight && !com.teslamaps.features.LegitMode.blocksCheats()) EspStyle.of(c.kuuBossStyle).tickEntity(boss);
         if (c.kuuBossHp) {
             hpText = format(boss.getHealth(), c.kuuBossHpMode);
             hpPos = boss.position().add(boss.getLookAngle().scale(13)).add(0, 10, 0);
@@ -85,7 +85,7 @@ public final class KuudraBoss {
         TeslaMapsConfig c = cfg();
         MagmaCube boss = Kuudra.boss();
         if (boss == null || boss.isRemoved()) return;
-        if (c.kuuBossHighlight) EspStyle.of(c.kuuBossStyle).drawEntity(pose, boss, cam, 1f);
+        if (c.kuuBossHighlight && !com.teslamaps.features.LegitMode.blocksCheats()) EspStyle.of(c.kuuBossStyle).drawEntity(pose, boss, cam, 1f);
         String t = hpText;
         Vec3 p = hpPos;
         if (c.kuuBossHp && c.kuuBossHpWorld && t != null && p != null) ESPRenderer.drawText(pose, t, p, c.kuuBossHpSize, cam);

@@ -275,6 +275,13 @@ public class ChatMixin {
             return;
         }
 
+        if (fromServer && (com.teslamaps.features.events.FrozenTreasureTracker.hide(text)
+                || com.teslamaps.features.events.GiftProfitTracker.hide(text))) {
+            teslamaps$reason = "eventChat";
+            ci.cancel();
+            return;
+        }
+
         if (fromServer && cfg.section("Score & Splits") && com.teslamaps.dungeon.ExtraStats.hide(text)) {
             teslamaps$reason = "extraStats";
             ci.cancel();
@@ -318,6 +325,7 @@ public class ChatMixin {
     private Component teslamaps$filterRewrite(Component message) {
         Component split = com.teslamaps.dungeon.TerminalSplits.rewrite(message);
         if (split != message) com.teslamaps.features.ChatLog.noteRewrite("terminalSplits");
+        split = com.teslamaps.features.SphinxHelper.rewrite(split);
         // pending rewrites first, they match on the unchanged text
         Component out = com.teslamaps.features.ChatFilter.rewrite(com.teslamaps.features.BazaarChatSummary.rewrite(com.teslamaps.features.ChatCompacts.rewrite(split)));
         out = com.teslamaps.features.ChatExtras.rewrite(com.teslamaps.features.ChatCompactsMore.rewrite(out));

@@ -92,6 +92,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.mining.PrecisionMiningHighlight.onParticle(packet);
         com.teslamaps.features.theend.EnderNodeFinder.onParticle(packet);
         com.teslamaps.features.GeyserBox.onParticle(packet);
+        com.teslamaps.features.diana.DianaBurrows.onParticle(packet);
     }
 
     @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
@@ -118,6 +119,7 @@ public class ClientPlayNetworkHandlerMixin {
                     || com.teslamaps.slayer.InfernoHelper.hideParticle()
                     || com.teslamaps.slayer.SlayerSpawnHiders.hideParticle(packet)
                     || com.teslamaps.features.fishing.FishingTweaks.hideParticle(packet)
+                    || com.teslamaps.features.fishing.Wormholes.onParticle(packet)
                     || com.teslamaps.features.fishing.HotspotCircles.onParticle(packet)
                     || com.teslamaps.features.GeyserBox.hideParticle(packet))) ci.cancel();
     }
@@ -210,6 +212,8 @@ public class ClientPlayNetworkHandlerMixin {
             if (com.teslamaps.features.kuudra.KuudraSounds.onSoundPacket(packet)) { ci.cancel(); return; }
             com.teslamaps.features.SecretWaypoints.onSound(packet);
             com.teslamaps.features.mining.TreasureChestHelper.onSound(packet);
+            com.teslamaps.features.GaiaConstructHits.onSound(packet);
+            if (com.teslamaps.features.HoppityHelpers.onSoundPacket(packet)) { ci.cancel(); return; }
             if (com.teslamaps.features.SecretSounds.onSoundPacket(packet)
                     | com.teslamaps.features.SecretChime.onSoundPacket(packet)) ci.cancel();
         }
@@ -241,7 +245,7 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)
     private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
-        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text().getString());
+        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text());
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
         if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())
@@ -254,7 +258,7 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setSubtitleText", at = @At("HEAD"), cancellable = true)
     private void onSetSubtitle(ClientboundSetSubtitleTextPacket packet, CallbackInfo ci) {
-        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text().getString());
+        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text());
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
                 && (com.teslamaps.features.FarmingRngTitles.hideSubtitle(packet.text().getString())

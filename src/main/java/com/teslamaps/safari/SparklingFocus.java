@@ -60,7 +60,7 @@ public final class SparklingFocus {
 
     /** Queue only, evaluated in the tick. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
-        if (!Minecraft.getInstance().isSameThread() || !enabled()) return;
+        if (!enabled() || !Minecraft.getInstance().isSameThread()) return;
         if (packet.getParticle().getType() != ParticleTypes.WAX_ON.getType()) return;
         hits.add(new Hit(packet.getX(), packet.getY(), packet.getZ(), ticks));
         if (hits.size() > MAX_HITS) hits.poll();

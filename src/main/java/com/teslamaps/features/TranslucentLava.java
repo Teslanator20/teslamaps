@@ -71,7 +71,8 @@ public class TranslucentLava {
 
     public static void tick() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        boolean desired = cfg.section("Fishing") && cfg.translucentLava;
+        boolean desired = cfg.section("Fishing") && cfg.translucentLava
+                && (!cfg.translucentLavaCrimsonOnly || com.teslamaps.utils.SkyblockUtils.isInArea("Crimson Isle"));
         int desiredTint = tint();
         if (desired != currentState) {
             lastTintColor = desiredTint;

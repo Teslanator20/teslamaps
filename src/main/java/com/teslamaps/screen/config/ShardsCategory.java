@@ -37,12 +37,12 @@ public final class ShardsCategory {
         b.toggle("Option Buttons In Panel", () -> config.shardPanelButtons, v -> config.shardPanelButtons = v);
         b.toggle("Track Fusions", () -> config.shardFusionTracking, v -> config.shardFusionTracking = v)
                 .desc("Open Confirm Fusion: the FUSION! line takes the inputs off and adds the output.");
-        b.toggle("  Fusion Display", () -> config.fusionDisplay, v -> config.fusionDisplay = v)
+        b.toggle("Fusion Display", () -> config.fusionDisplay, v -> config.fusionDisplay = v)
                 .desc("In the Fusion Machine: last fused shard with its Hunting Box amount and PURE REPTILE procs. Position in /tmap gui.");
-        b.toggle("  Fusion Keybinds", () -> config.fusionKeybinds, v -> config.fusionKeybinds = v).cheat()
+        b.toggle("Fusion Keybinds", () -> config.fusionKeybinds, v -> config.fusionKeybinds = v).cheat()
                 .desc("Repeat key clicks Repeat in the Fusion Box, Confirm key clicks Confirm. One click per press.");
-        b.keybind("    Repeat Fusion Key", () -> config.fusionRepeatKey, v -> config.fusionRepeatKey = v);
-        b.keybind("    Confirm Fusion Key", () -> config.fusionConfirmKey, v -> config.fusionConfirmKey = v);
+        b.keybind("  Repeat Fusion Key", () -> config.fusionRepeatKey, v -> config.fusionRepeatKey = v);
+        b.keybind("  Confirm Fusion Key", () -> config.fusionConfirmKey, v -> config.fusionConfirmKey = v);
         b.toggle("Syphon Overflow Hint", () -> config.shardSyphonHint, v -> config.shardSyphonHint = v)
                 .desc("Clickable /attributemenu line when a syphon says \"and N more...\"");
         b.toggle("Tier As Stack Size", () -> config.shardTierStack, v -> config.shardTierStack = v);
