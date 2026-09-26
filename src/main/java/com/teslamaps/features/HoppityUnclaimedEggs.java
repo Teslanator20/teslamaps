@@ -104,6 +104,41 @@ public final class HoppityUnclaimedEggs {
         return -1;
     }
 
+    /** Latest spawn of either meal on this texture (Breakfast/Brunch …), -1 outside the event. */
+    static long lastSpawnFor(String base, long now) {
+        long best = -1;
+        for (Meal m : MEALS) if (m.hour == hourOf(base)) best = Math.max(best, lastSpawn(m, now));
+        return best;
+    }
+
+    static long nextSpawnFor(String base, long now) {
+        long best = -1;
+        for (Meal m : MEALS) {
+            if (m.hour != hourOf(base)) continue;
+            long t = nextSpawn(m, now);
+            if (t > 0 && (best < 0 || t < best)) best = t;
+        }
+        return best;
+    }
+
+    /** The meal an egg with this texture is right now: Brunch on alternate days etc. */
+    static String currentMeal(String base, long now) {
+        long best = -1;
+        String name = base;
+        for (Meal m : MEALS) {
+            if (m.hour != hourOf(base)) continue;
+            long t = lastSpawn(m, now);
+            if (t > best) { best = t; name = m.name; }
+        }
+        return name;
+    }
+
+    private static int hourOf(String base) {
+        return switch (base) { case "Breakfast" -> 7; case "Lunch" -> 14; default -> 21; };
+    }
+
+    static String fmtLeft(long ms) { return fmt(ms); }
+
     private static boolean claimed(Meal m, long now) {
         long last = lastSpawn(m, now);
         if (last < 0) return true;

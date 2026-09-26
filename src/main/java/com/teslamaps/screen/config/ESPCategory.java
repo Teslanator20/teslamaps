@@ -133,6 +133,10 @@ public final class ESPCategory {
         b.toggle("Invisible Armor Stand ESP", () -> config.invisibleArmorStandESP, v -> config.invisibleArmorStandESP = v);
         b.toggle("Hoppity Egg ESP", () -> config.hoppityEggESP, v -> config.hoppityEggESP = v);
         b.toggle("  Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v);
+        b.toggle("  Exact Meals & Respawn Timer", () -> config.hoppityEggMealTimer, v -> config.hoppityEggMealTimer = v)
+                .desc("Labels show the real meal (Brunch, Déjeuner, Supper on alternate days). Collected eggs keep a grey label with the time until they respawn and come back on their own at the next spawn. Only during spring");
+        b.toggle("  Mark Clicked Egg Exactly", () -> config.hoppityEggClickMark, v -> config.hoppityEggClickMark = v)
+                .desc("Right-clicking an egg marks exactly that egg as collected, instead of the nearest one on the chat message");
         b.label("Head ESP");
         b.info("/tmap head add <name> while looking at a head");
         b.info("/tmap head list | remove <name> | probe [radius]");

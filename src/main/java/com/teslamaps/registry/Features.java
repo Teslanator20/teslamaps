@@ -977,5 +977,64 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-07-rif
+        com.teslamaps.features.rift.WoodenButtonsHelper.register();
+        com.teslamaps.features.rift.VerminTracker.register();
+        com.teslamaps.features.rift.VerminHighlighter.register();
+        com.teslamaps.features.rift.TimiteTracker.register();
+        com.teslamaps.features.rift.UbikQuickClose.register();
+        // w19-09-cri
+        com.teslamaps.features.crimson.CrimsonNpcHelper.register();
+        com.teslamaps.features.crimson.AshfangHider.register();
+        com.teslamaps.features.crimson.MagmaBossStage.register();
+        com.teslamaps.features.crimson.AtomHitboxes.register();
+        com.teslamaps.features.crimson.DojoRankDisplay.register();
+        // w19-01-evt
+        com.teslamaps.features.HoppityEggESP.registerHooks();
+        com.teslamaps.features.HoppityEggLocator.register();
+        com.teslamaps.features.events.UpcomingEvents.register();
+        com.teslamaps.features.diana.NoGrassRaycast.register();
+        // w19-00-evt
+        com.teslamaps.features.events.BeachBall.register();
+        com.teslamaps.features.events.FishyTreatProfit.register();
+        com.teslamaps.features.events.StewHelper.register();
+        com.teslamaps.features.events.ShinyOrbs.register();
+        // w19-04-rif
+        com.teslamaps.features.rift.LivingMetalSuitProgress.register();
+        com.teslamaps.features.rift.TimiteHelper.register();
+        com.teslamaps.features.rift.SunGeckoHelper.register();
+        com.teslamaps.features.rift.BacteHelper.register();
+        com.teslamaps.features.rift.WiltedBerberisHelper.register();
+        // w19-06-rif
+        com.teslamaps.features.rift.CraftRoomHolograms.register();
+        com.teslamaps.features.rift.EnigmaRoseDrop.register();
+        com.teslamaps.features.rift.RiftMotesSession.register();
+        com.teslamaps.features.rift.HorsezookaHider.register();
+        com.teslamaps.features.rift.CoherentRodRadius.register();
+        com.teslamaps.features.rift.UbikCubeReminder.register();
+        com.teslamaps.features.rift.VoltCrux.register();
+        // w19-02-rif
+        com.teslamaps.features.rift.RiftZone.register();
+        com.teslamaps.features.rift.EnigmaSouls.register();
+        com.teslamaps.features.rift.RiftTimer.register();
+        com.teslamaps.features.rift.MotesPrice.register();
+        com.teslamaps.features.rift.RiftInventoryValue.register();
+        com.teslamaps.features.rift.BloodEffigies.register();
+        com.teslamaps.features.rift.DanceRoomHelper.register();
+        // w19-03-rif
+        com.teslamaps.features.rift.KloonHacking.register();
+        com.teslamaps.features.rift.CruxTalismanDisplay.register();
+        com.teslamaps.features.rift.PunchcardHighlight.register();
+        com.teslamaps.features.rift.MotesOrbHighlight.register();
+        com.teslamaps.features.rift.LivingMetalHelper.register();
+        com.teslamaps.features.rift.LivingCaveDefenseBlocks.register();
+        com.teslamaps.features.rift.LivingCaveSnakes.register();
+        // w19-05-rif
+        com.teslamaps.features.rift.RiftAgaricusCap.register();
+        com.teslamaps.features.rift.RiftCreatureHighlight.register();
+        com.teslamaps.features.rift.RiftLarvaSilk.register();
+        com.teslamaps.features.rift.RiftShyCrux.register();
+        com.teslamaps.features.rift.RiftSplatterHearts.register();
+        com.teslamaps.features.rift.RiftGuntherRace.register();
     }
 }
