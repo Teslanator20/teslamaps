@@ -23,6 +23,9 @@ public class ContainerOverlays {
         if (com.teslamaps.features.ContainerValue.shouldRender()) {
             com.teslamaps.features.ContainerValue.render(context, mouseX, mouseY);
         }
+        if (com.teslamaps.features.rift.RiftInventoryValue.shouldRender()) {
+            com.teslamaps.features.rift.RiftInventoryValue.render(context, mouseX, mouseY);
+        }
         if (com.teslamaps.features.SackTable.shouldRender()) {
             com.teslamaps.debug.Perf.begin("SackTable.render");
             com.teslamaps.features.SackTable.render(context, mouseX, mouseY);

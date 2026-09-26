@@ -53,6 +53,11 @@ public class SoundPlayMixin {
                 com.teslamaps.features.fishing.Wormholes.onSound(instance.getIdentifier().toString(), instance.getPitch());
             } catch (Throwable ignored) {}
         }
+        if (com.teslamaps.features.rift.DanceRoomHelper.listening()) {
+            try {
+                com.teslamaps.features.rift.DanceRoomHelper.onSound(instance.getIdentifier().toString(), instance.getPitch(), instance.getVolume());
+            } catch (Throwable ignored) {}
+        }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.phantomleafSolver) {
             try {

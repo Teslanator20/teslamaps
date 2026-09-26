@@ -43,7 +43,14 @@ public final class ParkourGuides {
                     b.toggle("  Rainbow Colors", () -> c.parkourRainbow, v -> c.parkourRainbow = v);
                     b.color("  Single Color", () -> c.parkourColor, v -> c.parkourColor = v);
                     b.toggle("  Show Shortcuts", () -> c.parkourShortcuts, v -> c.parkourShortcuts = v);
+                    b.toggle("  Hide Players in Mirrorverse", () -> c.parkourHidePlayers, v -> c.parkourHidePlayers = v);
                 });
+    }
+
+    public static boolean hidePlayers() {
+        TeslaMapsConfig c = cfg();
+        return c.parkourGuides && c.parkourHidePlayers && c.section("Ordered Waypoints")
+                && com.teslamaps.features.rift.RiftZone.inMirrorverse();
     }
 
     private static void tick() {
