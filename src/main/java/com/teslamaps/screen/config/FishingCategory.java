@@ -25,6 +25,10 @@ public final class FishingCategory {
                 () -> config.rareCatchSound, v -> config.rareCatchSound = v);
         b.slider("  Volume", 0f, 4f,
                 () -> config.rareCatchVolume, v -> config.rareCatchVolume = v, 2);
+        b.toggle("  Other Players' Catches",
+                () -> config.rareCatchAlertOthers, v -> config.rareCatchAlertOthers = v)
+                .desc("\"<Name> NEARBY!\" once when someone else's rare sea creature first shows up near you")
+                .tags("nearby", "other", "jawbus", "thunder", "lobby");
         b.toggle("Announce Rare Catch",
                 () -> config.rareCatchAnnounce, v -> config.rareCatchAnnounce = v);
         b.info("Sends /pc I caught a <creature>! (double hook noted)");
@@ -45,6 +49,10 @@ public final class FishingCategory {
         b.info("Hypixel's 3.0 / 2.0 / !!! over the bobber, big");
         b.toggle("  Hide Hypixel's Label",
                 () -> config.hookHideArmorStand, v -> config.hookHideArmorStand = v);
+        b.slider("  World Label Scale", 1f, 4f,
+                () -> config.hookWorldLabelScale, v -> config.hookWorldLabelScale = v, 1)
+                .desc("Enlarges Hypixel's countdown over your own bobber. 1 = vanilla size, other bobbers stay as they are")
+                .tags("hook", "bobber", "label", "scale", "countdown");
         b.soundDropdown("  Alert Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.hookAlertSound, v -> config.hookAlertSound = v);
@@ -187,6 +195,10 @@ public final class FishingCategory {
                 () -> config.translucentLava, v -> config.translucentLava = v);
         b.color("  Lava Tint",
                 () -> config.colorTranslucentLava, v -> config.colorTranslucentLava = v);
+        b.toggle("  Crimson Isle Only",
+                () -> config.translucentLavaCrimsonOnly, v -> config.translucentLavaCrimsonOnly = v)
+                .desc("Lava stays normal everywhere else (Dungeons, Kuudra). /tmap lava toggles the feature")
+                .tags("lava", "crimson", "area", "command");
         b.toggle("Tinted Water",
                 () -> config.tintedWater, v -> config.tintedWater = v);
         b.color("  Water Tint",
