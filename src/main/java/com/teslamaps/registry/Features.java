@@ -862,6 +862,12 @@ final class Features {
         com.teslamaps.features.mobvisuals.MobVisualExtras.register();
         com.teslamaps.features.foraging.HotfWhisperGoal.register();
         com.teslamaps.features.hunting.HuntingBoxSlots.register();
+        // w17-00-kuu
+        com.teslamaps.features.kuudra.KuudraEtherwarp.register();
+        com.teslamaps.features.kuudra.KuudraSounds.register();
+        com.teslamaps.features.kuudra.KuudraPerkMenu.register();
+        com.teslamaps.features.kuudra.KuudraBoss.register();
+        com.teslamaps.features.kuudra.KuudraPearls.register();
         // w17-07-fis
         com.teslamaps.features.fishing.FishingTweaks.register();
         com.teslamaps.features.fishing.HotspotCircles.register();

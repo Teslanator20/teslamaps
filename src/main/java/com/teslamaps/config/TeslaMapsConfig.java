@@ -2251,6 +2251,34 @@ public class TeslaMapsConfig {
     public java.util.Map<String, String> hotfWhisperGoals = new java.util.HashMap<>();
     public boolean huntingBoxSlotCount = false;
     public boolean huntingBoxPriceTooltip = false;
+    // w17-00-kuu
+    public boolean kuuEtherSpots = false;
+    public java.util.Set<String> kuuEtherHidden = new java.util.HashSet<>();
+    public boolean kuuBallistaSounds = false;
+    public String kuuBallistaSoundMode = "Mute Anvil";
+    public String kuuBallistaSoundType = "NOTE_PLING";
+    public float kuuBallistaSoundVolume = 0.8f;
+    public boolean kuuCannonClose = false;
+    public boolean kuuPerkMiddleClick = false;
+    public boolean kuuBossHighlight = false;
+    public com.teslamaps.render.EspStyle kuuBossStyle = new com.teslamaps.render.EspStyle("FFFF5555", com.teslamaps.render.EspStyle.OUTLINE);
+    public boolean kuuBossHp = false;
+    public boolean kuuBossHpWorld = true;
+    public boolean kuuBossHpHud = true;
+    public String kuuBossHpMode = "Scaled";
+    public float kuuBossHpSize = 4f;
+    public int kuuBossHpX = 10;
+    public int kuuBossHpY = 250;
+    public float kuuBossHpScale = 1.0f;
+    public boolean kuuPearlSpots = false;
+    public boolean kuuPearlPresets = true;
+    public boolean kuuPearlClosest = true;
+    public boolean kuuPearlDynamic = false;
+    public String kuuPearlDynamicColor = "AA00AA";
+    public boolean kuuPearlTimer = true;
+    public float kuuPearlTimerOffset = 0f;
+    public boolean kuuPearlInteract = false;
+    public boolean kuuPearlInteractEverywhere = false;
     // w17-07-fis
     public boolean hotspotRadarUnknown = false;
     public boolean hideOtherBobbers = false;
@@ -6302,6 +6330,7 @@ public class TeslaMapsConfig {
         if (c.bestFriendNames == null) c.bestFriendNames = new ArrayList<>();
         if (c.splitPbs == null) c.splitPbs = new java.util.HashMap<>();
         if (c.kuudraSplitPbs == null) c.kuudraSplitPbs = new java.util.HashMap<>();
+        if (c.kuuEtherHidden == null) c.kuuEtherHidden = new java.util.HashSet<>();
         if (c.kuudraTentacleColor == null) c.kuudraTentacleColor = "FFFFFF";
         if (c.customSplitDefs == null) c.customSplitDefs = new java.util.HashMap<>();
         if (c.lockedSlots == null) c.lockedSlots = new java.util.ArrayList<>();
