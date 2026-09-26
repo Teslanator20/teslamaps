@@ -22,6 +22,14 @@ public class DeadMobHider {
     private static final int HEALTH_ID = 9;   // LivingEntity.DATA_HEALTH_ID
     private static final long HIDE_MS = 4000L;
     private static final Map<Integer, Long> stripped = new ConcurrentHashMap<>();
+    public static boolean pickGuard;
+
+    public static void register() {
+        com.teslamaps.registry.Feature.of("DeadMobPick").tickAlways(() -> {
+            TeslaMapsConfig c = TeslaMapsConfig.get();
+            pickGuard = c.hideDeadMobs && c.deadMobsUnpickable && !LegitMode.blocksCheats();
+        });
+    }
 
     // netty thread
     public static void onSetEquipment(ClientboundSetEquipmentPacket packet) {
@@ -190,8 +198,7 @@ public class DeadMobHider {
 
     /** No Mob Leftover: corpses stop catching clicks and hits. */
     public static boolean unpickable(LivingEntity le) {
-        if (!le.level().isClientSide() || !TeslaMapsConfig.get().hideDeadMobs) return false;
-        if (com.teslamaps.features.LegitMode.blocksCheats()) return false;
+        if (!le.level().isClientSide()) return false;
         if (le == net.minecraft.client.Minecraft.getInstance().player || isRealPlayer(le)) return false;
         return le.isDeadOrDying() || le.deathTime > 0 || isStripped(le.getId());
     }

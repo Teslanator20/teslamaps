@@ -67,7 +67,7 @@ public final class ZealotHelper {
                 .enabled(() -> cfg().zealotCounter)
                 .size(() -> panelWidth(SAMPLE), () -> SAMPLE.size() * 10 + 6)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, SAMPLE, panelWidth(SAMPLE)));
-        Feature.of("SpecialZealotHighlight").section("The End").when(() -> cfg().specialZealotHighlight)
+        Feature.of("SpecialZealotHighlight").section("The End").legit().when(() -> cfg().specialZealotHighlight)
                 .tick(ZealotHelper::highlightTick)
                 .world(ZealotHelper::renderHighlight);
         Feature.of("ZealotCounter").section("The End").when(() -> cfg().zealotCounter)
@@ -77,7 +77,7 @@ public final class ZealotHelper {
                 .config("The End", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Zealots");
-                    b.toggle("Special Zealot Highlight", () -> c.specialZealotHighlight, v -> c.specialZealotHighlight = v)
+                    b.toggle("Special Zealot Highlight", () -> c.specialZealotHighlight, v -> c.specialZealotHighlight = v).legit()
                             .desc("Highlights the Special Zealot (carries an end portal frame, drops the Summoning Eye).")
                             .tags("zealot", "special", "summoning eye", "highlight", "glow");
                     b.espStyle("Special Zealot", () -> c.specialZealotEsp);

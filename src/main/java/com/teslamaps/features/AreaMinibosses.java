@@ -56,10 +56,10 @@ public final class AreaMinibosses {
                 .config("Combat", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Area Minibosses");
-                    b.toggle("Area Miniboss Highlight", () -> c.areaMinibossHighlight, v -> c.areaMinibossHighlight = v)
+                    b.toggle("Area Miniboss Highlight", () -> c.areaMinibossHighlight, v -> c.areaMinibossHighlight = v).legit()
                             .desc("Glow on Golden Ghoul, Old Wolf, Soul of the Alpha, Voidling Extremist and Millennia-Aged Blaze.")
                             .tags("miniboss", "golden ghoul", "old wolf", "alpha", "voidling", "blaze", "slayer");
-                    b.toggle("  Respawn Timer", () -> c.areaMinibossTimer, v -> c.areaMinibossTimer = v)
+                    b.toggle("Area Miniboss Respawn Timer", () -> c.areaMinibossTimer, v -> c.areaMinibossTimer = v)
                             .desc("Countdown at every known spawn point within 15 blocks, from the measured respawn time.");
                 });
     }
@@ -79,7 +79,7 @@ public final class AreaMinibosses {
         }
         TeslaMapsConfig c = cfg();
         if (++ticks % 5 == 0) scan(mc);
-        if (c.areaMinibossHighlight) {
+        if (c.areaMinibossHighlight && !LegitMode.blocksCheats()) {
             for (var e : bosses.entrySet()) EntityGlow.mark(e.getKey(), e.getValue().rgb);
         }
         labelPos.clear();

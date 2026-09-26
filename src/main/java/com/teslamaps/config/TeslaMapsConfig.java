@@ -2157,7 +2157,6 @@ public class TeslaMapsConfig {
     public boolean bestiaryMenuArabic = false;
     public boolean bestiaryMenuShortNumbers = true;
     public boolean mobHighlights = false;
-    public boolean mobHighlightSpecialZealot = true;
     public boolean mobHighlightChestZealot = true;
     public boolean mobHighlightZealot = false;
     public boolean mobHighlightRunic = true;
@@ -7006,6 +7005,8 @@ public class TeslaMapsConfig {
         if (c.dragonTrackLast == null) c.dragonTrackLast = new java.util.ArrayList<>();
         if (c.mobHealthHudMobs == null) c.mobHealthHudMobs = new java.util.ArrayList<>();
         if (c.damageSplashHide == null) c.damageSplashHide = "Off";
+        if (c.bestiaryMenuSort == null) c.bestiaryMenuSort = "Kills To Next (low)";
+        if (c.deployableFlareRange == null) c.deployableFlareRange = "Ring At Feet";
         if (c.petFavoriteIds == null) c.petFavoriteIds = new java.util.HashSet<>();
         c.petFavoriteIds.remove(null);
         if (c.petKeyUuids == null || c.petKeyUuids.length != 9) c.petKeyUuids = java.util.Arrays.copyOf(c.petKeyUuids == null ? new String[0] : c.petKeyUuids, 9);

@@ -26,6 +26,7 @@ public final class HiddenMobReveal {
 
     private static Feature feature;
     private static Set<Entity> revealed = Set.of();
+    private static boolean any;
     private static int ticks;
 
     private HiddenMobReveal() {}
@@ -51,6 +52,7 @@ public final class HiddenMobReveal {
         if (ticks++ % 5 != 0) return;
         if (LegitMode.blocksCheats() || !DungeonManager.isInDungeon()) {
             revealed = Set.of();
+            any = false;
             return;
         }
         TeslaMapsConfig c = cfg();
@@ -60,6 +62,7 @@ public final class HiddenMobReveal {
             if (matches(c, e)) out.add(e);
         }
         revealed = out;
+        any = !out.isEmpty();
     }
 
     private static boolean matches(TeslaMapsConfig c, Entity e) {
@@ -72,7 +75,12 @@ public final class HiddenMobReveal {
     }
 
     public static void onExtract(LivingEntity entity, LivingEntityRenderState state) {
-        if (revealed.isEmpty() || !revealed.contains(entity) || feature == null || !feature.active()) return;
+        if (!any || !revealed.contains(entity)) return;
+        if (feature == null || !feature.active()) {
+            any = false;
+            revealed = Set.of();
+            return;
+        }
         state.isInvisible = false;
         state.isInvisibleToPlayer = false;
     }

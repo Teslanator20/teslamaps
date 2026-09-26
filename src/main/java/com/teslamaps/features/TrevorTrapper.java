@@ -141,8 +141,10 @@ public final class TrevorTrapper {
             return;
         }
         if (acceptCmd != null && now >= acceptAt) {
-            if (c.trevorAutoAccept && now - acceptAt < 10_000 && !questActive) mc.getConnection().sendCommand(acceptCmd);
+            boolean send = c.trevorAutoAccept && now - acceptAt < 10_000 && !questActive;
+            if (send) mc.getConnection().sendCommand(acceptCmd);
             acceptCmd = null;
+            if (send) return;
         }
         if (!callPending || !c.trevorAutoCall || questActive || now < nextReady) {
             callAt = 0;

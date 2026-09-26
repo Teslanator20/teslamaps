@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class DeadMobPickMixin {
     @Inject(method = "isPickable", at = @At("HEAD"), cancellable = true)
     private void teslamaps$deadNotPickable(CallbackInfoReturnable<Boolean> cir) {
-        if (com.teslamaps.config.TeslaMapsConfig.get().deadMobsUnpickable
+        if (com.teslamaps.features.DeadMobHider.pickGuard
                 && com.teslamaps.features.DeadMobHider.unpickable((LivingEntity) (Object) this)) {
             cir.setReturnValue(false);
         }
