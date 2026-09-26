@@ -29,7 +29,6 @@ public final class HoppityNextEgg {
         Feature.of("HoppityNextEgg").section(ChocoData.CATEGORY).when(() -> cfg().hoppityNextEggChat)
                 .serverChat(HoppityNextEgg::onChat)
                 .config(ChocoData.CATEGORY, b -> {
-                    b.label("Hoppity's Hunt");
                     b.toggle("Egglocator: Next Egg Time", () -> cfg().hoppityNextEggChat, v -> cfg().hoppityNextEggChat = v)
                             .desc("When the Egglocator finds no egg, a chat line tells when the next one spawns (or when the next Hunt starts). The line replaces itself.");
                 });

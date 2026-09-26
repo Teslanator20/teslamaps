@@ -43,6 +43,9 @@ public class GuideHighlight {
     private static final Pattern INCOMPLETE = Pattern.compile("INCOMPLETE");
 
     private static final List<Entry> ENTRIES = new ArrayList<>();
+    // Rift Guide pages carry no title pattern, found by the "To Rift Guide" back button in slot 40
+    private static final Entry RIFT = new Entry(() -> cfg().guideRiftGuide, null,
+            Pattern.compile("✖ Not completed yet!"), false, false);
 
     private static void add(BooleanSupplier on, String menu, Pattern condition) {
         add(on, menu, condition, false);
@@ -87,6 +90,7 @@ public class GuideHighlight {
     private static final IdentityHashMap<ItemStack, Boolean> cache = new IdentityHashMap<>();
     private static Object lastScreen;
     private static Entry active;
+    private static long screenAt;
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
@@ -175,9 +179,13 @@ public class GuideHighlight {
 
     private static Entry entryFor(AbstractContainerScreen<?> cs) {
         if (!cfg().guideHighlight) return null;
-        if (cs == lastScreen) return active;
+        if (cs == lastScreen) {
+            if (active == null && cfg().guideRiftGuide && System.currentTimeMillis() - screenAt < 3000 && riftGuide(cs)) active = RIFT;
+            return active;
+        }
 
         lastScreen = cs;
+        screenAt = System.currentTimeMillis();
         cache.clear();
         active = null;
 
@@ -187,6 +195,14 @@ public class GuideHighlight {
             if (e.menu().matcher(title).find()) { active = e; break; }
         }
         return active;
+    }
+
+    private static boolean riftGuide(AbstractContainerScreen<?> cs) {
+        var slots = cs.getMenu().slots;
+        if (slots.size() <= 40) return false;
+        ItemLore lore = slots.get(40).getItem().get(DataComponents.LORE);
+        return lore != null && lore.lines().size() == 1
+                && StringUtil.stripTrim(lore.lines().get(0).getString()).startsWith("To Rift Guide");
     }
 
     private static boolean isMissing(Entry entry, ItemStack item) {

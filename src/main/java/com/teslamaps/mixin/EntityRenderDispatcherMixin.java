@@ -71,7 +71,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.SummoningMobs.shouldHide(entity)
                 || com.teslamaps.features.rift.CraftRoomHolograms.shouldHide(entity)
                 || com.teslamaps.features.kuudra.KuudraQol.shouldHide(entity)
-                || com.teslamaps.features.events.JerryPresentHider.shouldHide(entity)) {
+                || com.teslamaps.features.events.JerryPresentHider.shouldHide(entity)
+                || com.teslamaps.features.crimson.AshfangHider.shouldHide(entity)) {
             cir.setReturnValue(false);
         }
     }
