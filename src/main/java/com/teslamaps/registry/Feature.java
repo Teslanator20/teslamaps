@@ -25,6 +25,11 @@ public final class Feature {
     boolean always;
     int condStamp = -1;
     boolean condOk = true;
+    /** Has tick/world/hud callbacks, so the registry caches its gate. */
+    boolean gated;
+    /** Gate as of the last refresh (FeatureRegistry.refresh); pre-filter only, callbacks re-check live. */
+    boolean on;
+    int sec = -1;
 
     private Feature(String name) {
         this.name = name;
@@ -39,6 +44,7 @@ public final class Feature {
     /** Section master gate, one of {@link TeslaMapsConfig#SECTIONS}. */
     public Feature section(String section) {
         this.section = section;
+        this.sec = section == null ? -1 : FeatureRegistry.sectionIndex(section);
         return this;
     }
 
@@ -62,8 +68,18 @@ public final class Feature {
         return !FeatureConditions.on || FeatureConditions.allows(this);
     }
 
+    /** Same as active(), with section / legit / outside-SkyBlock resolved once per refresh. */
+    boolean activeCached(boolean[] secOn, boolean legitBlocks, boolean outsideSb) {
+        if (section != null && !secOn[sec]) return false;
+        if (legit && legitBlocks) return false;
+        if (outsideSb && section != null && !always && FeatureRegistry.blockedOutsideSb(name)) return false;
+        if (when != null && !when.getAsBoolean()) return false;
+        return !FeatureConditions.on || FeatureConditions.allows(this);
+    }
+
     /** End of client tick, only while a player and level exist. Perf name {@code <name>.tick}. */
     public Feature tick(Runnable r) {
+        gated = true;
         FeatureRegistry.TICKS.add(new FeatureRegistry.Tick(this, name + ".tick", r, false));
         return this;
     }
@@ -71,18 +87,21 @@ public final class Feature {
     /** End of client tick, also on the title screen. */
     public Feature tickAlways(Runnable r) {
         always = true;
+        gated = true;
         FeatureRegistry.TICKS.add(new FeatureRegistry.Tick(this, name + ".tick", r, true));
         return this;
     }
 
     /** World pass after translucent terrain. Perf name {@code <name>}. */
     public Feature world(BiConsumer<PoseStack, Vec3> r) {
+        gated = true;
         FeatureRegistry.WORLD.add(new FeatureRegistry.World(this, name, w -> r.accept(w.pose(), w.cam())));
         return this;
     }
 
     /** World pass with the buffer source as well. */
     public Feature worldCtx(Consumer<FeatureRegistry.WorldCtx> r) {
+        gated = true;
         FeatureRegistry.WORLD.add(new FeatureRegistry.World(this, name, r));
         return this;
     }

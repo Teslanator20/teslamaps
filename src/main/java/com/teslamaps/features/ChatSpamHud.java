@@ -48,10 +48,19 @@ public final class ChatSpamHud {
     }
 
     /** Only while some action is set to Redirect. */
+    private static TeslaMapsConfig usedCfg;
+    private static int usedVersion;
+    private static boolean usedGroups;
+
     private static boolean used() {
         TeslaMapsConfig c = cfg();
         if ("Redirect".equals(c.chatFilterAction) || "Redirect".equals(c.chatUserFilterAction)) return true;
-        return c.chatFilterGroupActions != null && c.chatFilterGroupActions.containsValue("Redirect");
+        if (c != usedCfg || usedVersion != TeslaMapsConfig.version()) {
+            usedCfg = c;
+            usedVersion = TeslaMapsConfig.version();
+            usedGroups = c.chatFilterGroupActions != null && c.chatFilterGroupActions.containsValue("Redirect");
+        }
+        return usedGroups;
     }
 
     public static void push(Component line) {
