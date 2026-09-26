@@ -976,6 +976,12 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-07-rif
+        com.teslamaps.features.rift.WoodenButtonsHelper.register();
+        com.teslamaps.features.rift.VerminTracker.register();
+        com.teslamaps.features.rift.VerminHighlighter.register();
+        com.teslamaps.features.rift.TimiteTracker.register();
+        com.teslamaps.features.rift.UbikQuickClose.register();
         // w19-00-evt
         com.teslamaps.features.events.BeachBall.register();
         com.teslamaps.features.events.FishyTreatProfit.register();
