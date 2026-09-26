@@ -31,6 +31,7 @@ public final class QolStore {
         public Map<String, Long> cakes = new HashMap<>();
         public Map<String, Set<String>> fairyFound = new HashMap<>();
         public Map<String, Long> dailyTimers = new HashMap<>();
+        public Set<String> enigmaFound = new HashSet<>();
     }
 
     public static class Account {
@@ -61,6 +62,7 @@ public final class QolStore {
             if (data.cakes == null) data.cakes = new HashMap<>();
             if (data.fairyFound == null) data.fairyFound = new HashMap<>();
             if (data.dailyTimers == null) data.dailyTimers = new HashMap<>();
+            if (data.enigmaFound == null) data.enigmaFound = new HashSet<>();
         }
         return data;
     }

@@ -61,6 +61,7 @@ public class SkyblockItems {
     private static final Map<String, ItemData> items = new ConcurrentHashMap<>();
     private static final Map<String, String> nameToId = new ConcurrentHashMap<>();
     private static final Map<String, Double> npcPrices = new ConcurrentHashMap<>();
+    private static final Map<String, Double> motesPrices = new ConcurrentHashMap<>();
     private static final Map<String, ItemStack> stacks = new ConcurrentHashMap<>();
     private static final Set<String> neuTried = ConcurrentHashMap.newKeySet();
 
@@ -339,6 +340,9 @@ public class SkyblockItems {
                     if (item.has("npc_sell_price")) {
                         npcPrices.put(id, item.get("npc_sell_price").getAsDouble());
                     }
+                    if (item.has("motes_sell_price")) {
+                        motesPrices.put(id, item.get("motes_sell_price").getAsDouble());
+                    }
                 }
                 loaded = true;
                 TeslaMaps.LOGGER.info("Loaded {} skyblock items", items.size());
@@ -525,6 +529,11 @@ public class SkyblockItems {
 
     public static double npcPrice(String id) {
         return npcPrices.getOrDefault(id, 0.0);
+    }
+
+    /** Base Rift motes sell price, 0 if the item has none. */
+    public static double motesPrice(String id) {
+        return motesPrices.getOrDefault(id, 0.0);
     }
 
     public static boolean hasNpcPrice(String id) {

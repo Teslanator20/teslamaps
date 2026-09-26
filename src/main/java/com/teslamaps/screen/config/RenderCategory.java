@@ -108,6 +108,9 @@ public final class RenderCategory {
                 () -> config.burrowingSporesAlarm, v -> config.burrowingSporesAlarm = v)
                 .desc("VERY RARE CROP! Burrowing Spores: title and/or the big item pop. Works on its own, Rare Drops can stay off")
                 .tags("garden", "rare crop", "spores");
+        b.toggle("  Snow Minion Gift Alert", () -> config.snowMinionGiftAlert, v -> config.snowMinionGiftAlert = v)
+                .desc("Big aqua \"Snow Minion!\" title and a beep when a gift gives a Snow Minion (SWEET! line)")
+                .tags("gift", "jerry", "winter", "snow minion");
         b.toggle("Dungeon Chest Rewards", () -> config.rareDungeonDropEffects, v -> config.rareDungeonDropEffects = v);
         b.toggle("Dye Drops", () -> config.rareDyeDropEffects, v -> config.rareDyeDropEffects = v);
         b.toggle("Dungeon Ground Drops", () -> config.rareGroundDrops, v -> config.rareGroundDrops = v)

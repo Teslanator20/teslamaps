@@ -90,7 +90,8 @@ public class GuideHighlight {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { lastScreen = null; return; }
+        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { lastScreen = null; raffleScreen = null; return; }
+        if (raffle(ctx, cs)) return;
 
         Entry entry = entryFor(cs);
         if (entry == null) return;
@@ -110,6 +111,48 @@ public class GuideHighlight {
             ctx.fill(sx, sy, sx + 1, sy + 16, 0xFF000000 | col);
             ctx.fill(sx + 15, sy, sx + 16, sy + 16, 0xFF000000 | col);
         }
+    }
+
+    // Ported from Skyblocker's RaffleRewardHighlight + RaffleTaskHighlight
+    private static final IdentityHashMap<ItemStack, Integer> raffleCache = new IdentityHashMap<>();
+    private static Object raffleScreen;
+    private static boolean raffleMenu;
+
+    private static boolean raffle(GuiGraphicsExtractor ctx, AbstractContainerScreen<?> cs) {
+        if (!cfg().guideHighlight || !cfg().raffleHighlight) return false;
+        if (cs != raffleScreen) {
+            raffleScreen = cs;
+            raffleCache.clear();
+            String title = StringUtil.stripTrim(cs.getTitle().getString());
+            raffleMenu = title.equals("Previous Raffles") || title.equals("Raffle Tasks");
+        }
+        if (!raffleMenu) return false;
+        HandledScreenAccessor acc = (HandledScreenAccessor) cs;
+        for (Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            ItemStack item = slot.getItem();
+            if (item.isEmpty()) continue;
+            Integer col = raffleCache.get(item);
+            if (col == null) {
+                if (raffleCache.size() > 256) raffleCache.clear();
+                col = raffleColor(item);
+                raffleCache.put(item, col);
+            }
+            if (col == 0) continue;
+            int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
+            ctx.fill(sx, sy, sx + 16, sy + 16, col);
+        }
+        return true;
+    }
+
+    private static int raffleColor(ItemStack item) {
+        List<String> lore = ItemUtil.loreLines(item);
+        if (lore.isEmpty()) return 0;
+        return switch (StringUtil.stripTrim(lore.get(lore.size() - 1))) {
+            case "COMPLETE", "You claimed your prize!", "You've claimed this raffle!" -> 0x8055FF55;
+            case "INCOMPLETE", "Click to reveal your prize!" -> 0x80FF5555;
+            default -> 0;
+        };
     }
 
     /** The wiki link SkyHanni puts on the unreachable travel scrolls and consumables. */
