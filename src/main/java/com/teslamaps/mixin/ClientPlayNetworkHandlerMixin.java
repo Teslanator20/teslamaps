@@ -78,6 +78,7 @@ public class ClientPlayNetworkHandlerMixin {
     private void onParticle(ClientboundLevelParticlesPacket packet, CallbackInfo ci) {
         WitherDragons.onParticlePacket(packet);
         com.teslamaps.safari.SafariTracker.onParticlePacket(packet);
+        com.teslamaps.safari.SparklingFocus.onParticlePacket(packet);
         com.teslamaps.features.HotspotRadar.onParticlePacket(packet);
         com.teslamaps.features.SecretTrackerLocator.onParticle(packet);
         com.teslamaps.features.HotspotWatcher.onParticlePacket(packet);
