@@ -4,7 +4,6 @@ package com.teslamaps.features.rift;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.ChatText;
 import com.teslamaps.utils.StringUtil;
@@ -55,7 +54,6 @@ public final class BloodEffigies {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("BloodEffigies").section("Rift").when(() -> cfg().riftEffigies)
                 .tick(BloodEffigies::tick)
                 .world(BloodEffigies::render)
@@ -82,7 +80,7 @@ public final class BloodEffigies {
             lastLevel = mc.level;
             reset();
         }
-        active = RiftZone.inStillgore();
+        active = RiftSpot.inStillgore();
         if (!active || ticks++ % 10 != 0) return;
         readScoreboard(mc);
         if (ticks % 20 == 1) readStands(mc);

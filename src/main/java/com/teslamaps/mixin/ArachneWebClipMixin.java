@@ -17,6 +17,6 @@ public class ArachneWebClipMixin {
 
     @Inject(method = "getBlockShape", at = @At("HEAD"), cancellable = true)
     private void teslamaps$webClick(BlockState state, BlockGetter level, BlockPos pos, CallbackInfoReturnable<VoxelShape> cir) {
-        if (state.is(Blocks.COBWEB) && com.teslamaps.features.ArachneQol.webClickThrough()) cir.setReturnValue(Shapes.empty());
+        if (com.teslamaps.features.ArachneQol.webClickThrough() && state.is(Blocks.COBWEB)) cir.setReturnValue(Shapes.empty());
     }
 }

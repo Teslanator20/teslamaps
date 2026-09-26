@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.SoulweaverHider;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.render.EntityGlow;
 import net.minecraft.client.Minecraft;
@@ -38,17 +37,15 @@ public final class VoltCrux {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("VoltCrux").section("Rift").when(() -> cfg().voltCrux)
                 .tick(VoltCrux::tick)
                 .world(VoltCrux::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Dreadfarm");
                     b.toggle("Volt Crux Helper", () -> c.voltCrux, v -> c.voltCrux = v)
                             .desc("Volts in the Dreadfarm: mood colours, lightning range and a countdown to the strike.");
                     b.toggle("  Mood Meter", () -> c.voltMoodMeter, v -> c.voltMoodMeter = v)
-                            .desc("Outline: green = friendly, red = hostile, blue = discharging.");
+                            .desc("Outline: green = friendly, red = hostile, blue = discharging.").legit();
                     b.toggle("  Lightning Range", () -> c.voltRange, v -> c.voltRange = v)
                             .desc("7 block cylinder around a discharging Volt plus a 'Lightning: x.xs' countdown.");
                     b.color("  Range Color", () -> c.voltRangeColor, v -> c.voltRangeColor = v);
@@ -92,7 +89,7 @@ public final class VoltCrux {
             } else {
                 CHARGING_SINCE.remove(s.getId());
             }
-            if (c.voltMoodMeter) EntityGlow.mark(s, st == FRIEND ? 0x00FF00 : st == HOSTILE_STATE ? 0xFF0000 : 0x0000FF);
+            if (c.voltMoodMeter && !com.teslamaps.features.LegitMode.blocksCheats()) EntityGlow.mark(s, st == FRIEND ? 0x00FF00 : st == HOSTILE_STATE ? 0xFF0000 : 0x0000FF);
         }
         if (STATE.size() > 256) STATE.clear();
         discharging = out;

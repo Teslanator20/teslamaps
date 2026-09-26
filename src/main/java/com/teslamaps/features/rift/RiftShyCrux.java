@@ -3,9 +3,7 @@ package com.teslamaps.features.rift;
 // After SkyHanni's rift/area/wyldwoods/ShyCruxWarnings.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.EntityCache;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -27,7 +25,6 @@ public final class RiftShyCrux {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         Feature.of("RiftShyCrux").section("Rift").when(() -> cfg().riftShyCruxWarning)
                 .tick(RiftShyCrux::tick)
                 .config("Rift", b -> {
@@ -41,7 +38,7 @@ public final class RiftShyCrux {
     private static void tick() {
         if (ticks++ % 2 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!SkyblockUtils.getArea().contains("Rift")) return;
+        if (!RiftSpot.inRift()) return;
         List<ArmorStand> stands = EntityCache.namedArmorStands();
         for (int i = 0; i < stands.size(); i++) {
             ArmorStand as = stands.get(i);

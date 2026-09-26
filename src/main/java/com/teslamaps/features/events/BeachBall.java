@@ -6,7 +6,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.features.tracker.Tracker;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.ESPRenderer;
 import com.teslamaps.utils.EntityCache;
@@ -53,7 +52,6 @@ public final class BeachBall {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Events", "Skyblock", true);
         tracker = Tracker.create("beach_ball", "§6§lBeach Ball Tracker");
         hud = HudEditElement.of("beachBallTracker", "Beach Ball Tracker").section("Events")
                 .enabled(() -> cfg().beachBallTracker)

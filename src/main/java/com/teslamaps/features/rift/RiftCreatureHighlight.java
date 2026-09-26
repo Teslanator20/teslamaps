@@ -4,11 +4,9 @@ package com.teslamaps.features.rift;
 import com.mojang.authlib.properties.Property;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.render.EntityGlow;
 import com.teslamaps.utils.EntityCache;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -39,18 +37,17 @@ public final class RiftCreatureHighlight {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
-        Feature.of("RiftCreatureHighlight").section("Rift").when(() -> cfg().riftLarvaHighlight || cfg().riftOdonataHighlight)
+        Feature.of("RiftCreatureHighlight").section("Rift").legit().when(() -> cfg().riftLarvaHighlight || cfg().riftOdonataHighlight)
                 .tick(RiftCreatureHighlight::tick)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
                     b.toggle("Larva Highlight", () -> c.riftLarvaHighlight, v -> c.riftLarvaHighlight = v)
                             .desc("Wyld Woods: while holding the Larva Hook, larvae on the trees glow.")
-                            .tags("rift", "larva", "larva hook", "wyld woods");
+                            .tags("rift", "larva", "larva hook", "wyld woods").legit();
                     b.color("  Larva Color", () -> c.riftLarvaColor, v -> c.riftLarvaColor = v);
                     b.toggle("Odonata Highlight", () -> c.riftOdonataHighlight, v -> c.riftOdonataHighlight = v)
                             .desc("Wyld Woods: while holding an empty Odonata Bottle, Odonatas glow.")
-                            .tags("rift", "odonata", "bottle", "wyld woods");
+                            .tags("rift", "odonata", "bottle", "wyld woods").legit();
                     b.color("  Odonata Color", () -> c.riftOdonataColor, v -> c.riftOdonataColor = v);
                 });
     }
@@ -67,7 +64,7 @@ public final class RiftCreatureHighlight {
 
     private static void scan(Minecraft mc) {
         marked = List.of();
-        if (mc.player == null || !SkyblockUtils.getArea().contains("Rift")) return;
+        if (mc.player == null || !RiftSpot.inRift()) return;
         TeslaMapsConfig c = cfg();
         String held = ItemUtil.skyblockId(mc.player.getMainHandItem());
         String want;

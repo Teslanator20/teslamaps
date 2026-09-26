@@ -34,6 +34,14 @@ public final class RiftSpot {
         return sub;
     }
 
+    public static boolean inMirrorverse() {
+        return sub().equals("Mirrorverse");
+    }
+
+    public static boolean inStillgore() {
+        return sub().startsWith("Stillgore Ch");
+    }
+
     public static boolean inMountaintop() {
         return switch (sub()) {
             case "Continuum", "The Mountaintop", "Trial Grounds", "Time-Torn Isles", "Wizardman Bureau",

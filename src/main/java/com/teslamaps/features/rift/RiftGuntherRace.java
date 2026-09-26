@@ -7,12 +7,9 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.features.waypoints.ParkourHelper;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.RepoCache;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.Vec3;
@@ -36,7 +33,6 @@ public final class RiftGuntherRace {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         feature = Feature.of("RiftGuntherRace").section("Rift").when(() -> cfg().riftGuntherRace)
                 .tick(RiftGuntherRace::tick)
                 .world(RiftGuntherRace::render)
@@ -66,7 +62,7 @@ public final class RiftGuntherRace {
             if (helper != null) helper.reset();
         }
         if (ticks++ % 20 == 0) {
-            inArea = SkyblockUtils.getArea().contains("Rift") && FishingHelpers.subArea().equals("West Village");
+            inArea = RiftSpot.inRift() && RiftSpot.sub().equals("West Village");
         }
         if (!inArea) return;
         if (!loading) load();

@@ -2,13 +2,10 @@ package com.teslamaps.features.rift;
 
 // After SkyHanni's VerminTracker.kt
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.FishingHelpers;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.ItemUtil;
-import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -45,7 +42,6 @@ public final class VerminTracker {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         HudEditElement.of("riftVerminTracker", "Vermin Tracker").ctx(HudEditElement.HudCtx.ANY).section("Rift")
                 .enabled(() -> cfg().riftVerminTracker)
                 .size(() -> Math.max(80, width()), () -> 4 * (Minecraft.getInstance().font.lineHeight + 1))
@@ -56,7 +52,6 @@ public final class VerminTracker {
                 .serverChat(VerminTracker::onChat)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("West Village");
                     b.toggle("Vermin Tracker", () -> c.riftVerminTracker, v -> c.riftVerminTracker = v)
                             .desc("Counts vacuumed Silverfish, Spiders and Flies; opening the Vermin Bin syncs the totals. Move it in /tmap gui.")
                             .tags("vermin", "vacuum", "turbomax", "west village", "silverfish", "fly", "spider");
@@ -87,7 +82,7 @@ public final class VerminTracker {
     }
 
     private static void onChat(String raw) {
-        if (!SkyblockUtils.isInArea("The Rift")) return;
+        if (!RiftSpot.inRift()) return;
         int i = type(StringUtil.stripTrim(raw));
         if (i < 0) return;
         session[i]++;
@@ -98,7 +93,7 @@ public final class VerminTracker {
     public static boolean hide(String text) {
         TeslaMapsConfig c = cfg();
         if (!c.riftVerminTracker || !c.riftVerminHideChat || !c.section("Rift")) return false;
-        return type(StringUtil.stripTrim(text)) >= 0 && SkyblockUtils.isInArea("The Rift");
+        return type(StringUtil.stripTrim(text)) >= 0 && RiftSpot.inRift();
     }
 
     private static int total(int i) {
@@ -128,7 +123,7 @@ public final class VerminTracker {
             lineWidth = w;
             lines = List.of(out);
         }
-        boolean rift = SkyblockUtils.isInArea("The Rift");
+        boolean rift = RiftSpot.inRift();
         if (!rift) {
             show = false;
             return;
@@ -138,7 +133,7 @@ public final class VerminTracker {
             hasVacuum = vacuum(mc) != null;
             boolean village = cfg().riftVerminOutsideVillage;
             if (!village) {
-                String a = FishingHelpers.subArea();
+                String a = RiftSpot.sub();
                 village = a.equals("West Village") || a.equals("Infested House");
             }
             show = village && (cfg().riftVerminWithoutVacuum || hasVacuum);

@@ -6,7 +6,6 @@ import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.hud.TextHud;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.RepoCache;
 import net.minecraft.client.DeltaTracker;
@@ -35,7 +34,6 @@ public final class DanceRoomHelper {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        FeatureRegistry.category("Rift", "Skyblock", true);
         hud = HudEditElement.of("riftDance", "Dance Room Helper").section("Rift")
                 .enabled(() -> cfg().riftDanceRoom)
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))
@@ -95,7 +93,7 @@ public final class DanceRoomHelper {
             index = 0;
             countdown = 0;
         }
-        if (ticks++ % 10 == 0) inRoom = RiftZone.inMirrorverse() && mc.player != null && ROOM.contains(mc.player.position());
+        if (ticks++ % 10 == 0) inRoom = RiftSpot.inMirrorverse() && mc.player != null && ROOM.contains(mc.player.position());
         if (!inRoom) {
             index = 0;
             countdown = 0;
