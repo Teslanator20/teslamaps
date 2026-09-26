@@ -53,6 +53,8 @@ public final class MayorOverlay {
                     b.toggle("  Show Minister", () -> c.mayorOverlayMinister, v -> c.mayorOverlayMinister = v);
                     b.toggle("  Show Candidates", () -> c.mayorOverlayCandidates, v -> c.mayorOverlayCandidates = v);
                     b.toggle("  New Mayor Countdown", () -> c.mayorOverlayNewMayor, v -> c.mayorOverlayNewMayor = v);
+                    b.toggle("  Jerry Perkpocalypse Mayor", () -> c.mayorOverlayJerry, v -> c.mayorOverlayJerry = v)
+                            .desc("While Jerry is mayor: the current Perkpocalypse mayor and the time until it changes. Open /calendar once to read it");
                 });
     }
 
@@ -67,6 +69,7 @@ public final class MayorOverlay {
             return;
         }
         TeslaMapsConfig c = cfg();
+        if (c.mayorOverlayJerry) scanCalendar();
         List<String> out = new ArrayList<>();
         out.add("§6§lMAYOR OVERLAY");
         if (!ElectionApi.isLoaded()) {
@@ -74,6 +77,7 @@ public final class MayorOverlay {
         } else {
             person(out, "Mayor", ElectionApi.mayorFull(), c);
             if (c.mayorOverlayMinister) person(out, "Minister", ElectionApi.ministerFull(), c);
+            if (c.mayorOverlayJerry && "Jerry".equals(ElectionApi.mayor())) jerry(out, c);
             if (c.mayorOverlayCandidates) for (ElectionApi.Person p : ElectionApi.candidates()) person(out, "Candidate", p, c);
         }
         if (c.mayorOverlayNewMayor) {
@@ -82,6 +86,75 @@ public final class MayorOverlay {
         }
         lines = out;
         width = TextHud.width(out);
+    }
+
+    private static final long SIX_HOURS = 6 * 3_600_000L;
+    private static final long YEAR_MS = 446400000L;
+    private static final Map<String, String> PERK_MAYOR = perkMayors();
+
+    private static Map<String, String> perkMayors() {
+        Map<String, String> m = new java.util.HashMap<>();
+        String[][] t = {
+                {"Aatrox", "SLASHED Pricing", "Slayer XP Buff", "Pathfinder"},
+                {"Cole", "Prospection", "Mining XP Buff", "Mining Fiesta", "Molten Forge"},
+                {"Diana", "Huntress' Intuition", "Mythological Ritual", "Pet XP Buff", "Sharing is Caring"},
+                {"Diaz", "Volume Trading", "Shopping Spree", "Stock Exchange", "Long Term Investment"},
+                {"Finnegan", "Pelt-pocalypse", "Grand Feast", "GOATed", "Blooming Business", "Pest Eradicator"},
+                {"Foxy", "Sweet Benevolence", "A Time for Giving", "Chivalrous Carnival", "Extra Event"},
+                {"Marina", "Fishing XP Buff", "Luck of the Sea 2.0", "Fishing Festival", "Double Trouble"},
+                {"Paul", "Marauder", "EZPZ", "Benediction"},
+                {"Scorpius", "Bribe", "Darker Auctions"},
+                {"Derpy", "TURBO MINIONS!!!", "QUAD TAXES!!!", "DOUBLE MOBS HP!!!", "MOAR SKILLZ!!!"},
+                {"Aura", "Fundraising", "Minion Union", "Universal Income", "Work Better", "Work Harder", "Work Smarter"}};
+        for (String[] row : t) for (int i = 1; i < row.length; i++) m.put(row[i], row[0]);
+        return m;
+    }
+
+    private static void jerry(List<String> out, TeslaMapsConfig c) {
+        long now = System.currentTimeMillis();
+        if (c.jerryMayorName.isEmpty() || c.jerryMayorUntil <= now) {
+            out.add("§dPerkpocalypse §cunknown §7(open /calendar)");
+            return;
+        }
+        out.add(color(c.jerryMayorName) + "Perkpocalypse " + c.jerryMayorName + " §7(§6" + format(c.jerryMayorUntil - now) + "§7)");
+    }
+
+    // calendar: "Mayor Jerry" item, first perk a couple of lines under "Perkpocalypse Perks:"
+    private static void scanCalendar() {
+        Minecraft mc = Minecraft.getInstance();
+        if (!(mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
+        if (!com.teslamaps.utils.StringUtil.stripTrim(cs.getTitle().getString()).equals("Calendar and Events")) return;
+        for (net.minecraft.world.inventory.Slot slot : cs.getMenu().slots) {
+            if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+            net.minecraft.world.item.ItemStack st = slot.getItem();
+            if (st.isEmpty() || !com.teslamaps.utils.StringUtil.stripTrim(st.getHoverName().getString()).equals("Mayor Jerry")) continue;
+            List<String> lore = com.teslamaps.utils.ItemUtil.loreLines(st);
+            for (int i = 0; i < lore.size(); i++) {
+                if (!com.teslamaps.utils.StringUtil.stripTrim(lore.get(i)).equals("Perkpocalypse Perks:")) continue;
+                for (int j = i + 1; j < Math.min(lore.size(), i + 5); j++) {
+                    String mayor = mayorForPerk(com.teslamaps.utils.StringUtil.stripTrim(lore.get(j)));
+                    if (mayor == null) continue;
+                    long next = ElectionApi.nextMayorAt();
+                    long until = next - YEAR_MS;
+                    long now = System.currentTimeMillis();
+                    while (until <= now) until += SIX_HOURS;
+                    TeslaMapsConfig c = cfg();
+                    if (!mayor.equals(c.jerryMayorName) || c.jerryMayorUntil != Math.min(until, next)) {
+                        c.jerryMayorName = mayor;
+                        c.jerryMayorUntil = Math.min(until, next);
+                        TeslaMapsConfig.save();
+                    }
+                    return;
+                }
+                return;
+            }
+        }
+    }
+
+    private static String mayorForPerk(String line) {
+        String m = PERK_MAYOR.get(line);
+        if (m != null) return m;
+        return line.startsWith("Extra Event") ? "Foxy" : null;
     }
 
     private static void person(List<String> out, String title, ElectionApi.Person p, TeslaMapsConfig c) {

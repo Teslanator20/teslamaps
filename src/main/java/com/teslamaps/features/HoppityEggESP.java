@@ -89,6 +89,22 @@ public class HoppityEggESP {
         return best;
     }
 
+    public record Egg(int id, Vec3 pos, String meal) {}
+
+    /** Every uncollected egg stand within range. Independent of the ESP toggle. */
+    public static List<Egg> nearbyEggs(double range) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return List.of();
+        List<Egg> out = new ArrayList<>();
+        for (ArmorStand stand : mc.level.getEntitiesOfClass(ArmorStand.class, mc.player.getBoundingBox().inflate(range))) {
+            if (!stand.isInvisible()) continue;
+            EggType type = matchEgg(stand.getItemBySlot(EquipmentSlot.HEAD));
+            if (type == null || isCollected(stand.position())) continue;
+            out.add(new Egg(stand.getId(), stand.position(), type.name));
+        }
+        return out;
+    }
+
     private static EggType matchEgg(ItemStack head) {
         if (head == null || head.isEmpty()) return null;
         ResolvableProfile rp = head.get(DataComponents.PROFILE);
