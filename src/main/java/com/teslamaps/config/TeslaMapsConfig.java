@@ -2174,6 +2174,18 @@ public class TeslaMapsConfig {
     public boolean trophyFilletTooltip = true;
     public boolean trophyFilletPanel = true;
     public boolean trophyDiamondEffect = false;
+    // w18-01-fis
+    public boolean translucentLavaCrimsonOnly = false;
+    public float hookWorldLabelScale = 1.0f;
+    public boolean rareCatchAlertOthers = false;
+    public boolean seaCreatureHealthHud = false;
+    public boolean seaCreatureHealthRareOnly = true;
+    public int seaCreatureHealthLimit = 5;
+    public int seaCreatureHealthHudX = 10;
+    public int seaCreatureHealthHudY = 250;
+    public float seaCreatureHealthHudScale = 1.0f;
+    public boolean muteBanshee = false;
+    public boolean muteCastSound = false;
     // w17-09-fis
     public boolean coralFishHelper = false;
     public boolean fishingProgressHud = false;

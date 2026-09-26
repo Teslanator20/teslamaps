@@ -923,5 +923,7 @@ final class Features {
         com.teslamaps.features.fishing.OdgerHelper.register();
         com.teslamaps.features.fishing.SulphurSkitterBox.register();
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
+        // w18-01-fis
+        com.teslamaps.features.fishing.NearbySeaCreatures.register();
     }
 }

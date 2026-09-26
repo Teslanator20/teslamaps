@@ -84,7 +84,22 @@ public class FishingHookDisplay {
         return c.hookDisplay && c.hookHideArmorStand && text != null && entity.getId() == entityId;
     }
 
+    private static net.minecraft.client.renderer.entity.state.EntityRenderState scaledState;
+
+    /** EntityNametagMixin: remember the render state of our own countdown label. */
+    public static void markState(Entity entity, net.minecraft.client.renderer.entity.state.EntityRenderState state) {
+        if (entityId != -1 && entity.getId() == entityId && TeslaMapsConfig.get().hookWorldLabelScale > 1.01f) scaledState = state;
+    }
+
+    /** Scale for the nametag of this state, 1 = untouched. */
+    public static float labelScale(net.minecraft.client.renderer.entity.state.EntityRenderState state) {
+        if (state != scaledState || state == null) return 1f;
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return c.hookDisplay ? c.hookWorldLabelScale : 1f;
+    }
+
     private static void reset() {
+        scaledState = null;
         text = null;
         entityId = -1;
         alerting = false;
