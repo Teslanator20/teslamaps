@@ -58,7 +58,6 @@ public final class HoppityUnclaimedEggs {
                 .hudHiddenInInventory("hoppityunclaimed", HoppityUnclaimedEggs::render)
                 .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Hoppity's Hunt");
                     b.toggle("Hoppity Unclaimed Eggs", () -> c.hoppityUnclaimedEggs, v -> c.hoppityUnclaimedEggs = v)
                             .desc("During Hoppity's Hunt: all six meal eggs with the time until they spawn or 'Ready', plus the egg spots found on this island (/tmap gui).");
                     b.toggle("  Warn When All Six Are Ready", () -> c.hoppityUnclaimedWarn, v -> c.hoppityUnclaimedWarn = v);

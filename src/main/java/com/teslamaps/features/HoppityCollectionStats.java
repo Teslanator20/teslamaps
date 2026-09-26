@@ -51,10 +51,10 @@ public final class HoppityCollectionStats {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("HoppityCollectionStats").section("Inventory")
+        Feature.of("HoppityCollectionStats").section("Events")
                 .when(() -> cfg().hoppityCollectionStats)
                 .tick(HoppityCollectionStats::tick)
-                .config("Inventory", b -> {
+                .config("Events", b -> {
                     b.label("Hoppity");
                     b.toggle("Hoppity Collection Stats", () -> cfg().hoppityCollectionStats, v -> cfg().hoppityCollectionStats = v)
                             .desc("Panel in Hoppity's Collection: found rabbits per rarity, duplicates, missing egg locations.");
@@ -66,7 +66,7 @@ public final class HoppityCollectionStats {
 
     public static boolean shouldRender() {
         TeslaMapsConfig c = cfg();
-        return c.hoppityCollectionStats && c.section("Inventory") && !lines.isEmpty()
+        return c.hoppityCollectionStats && c.section("Events") && !lines.isEmpty()
                 && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
     }
 
