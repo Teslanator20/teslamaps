@@ -52,6 +52,36 @@ public final class SkillsCategory {
         b.toggle("  XP/h Line", () -> config.petOverlayXpRate, v -> config.petOverlayXpRate = v);
         b.toggle("  Time to Next / Max Level", () -> config.petOverlayEta, v -> config.petOverlayEta = v);
         b.toggle("  Show Last Pet", () -> config.petOverlayLastPet, v -> config.petOverlayLastPet = v);
+        b.toggle("  Exp Share Pets", () -> config.petOverlayExpShare, v -> config.petOverlayExpShare = v)
+                .desc("Small icons and lines for your Exp Share pets, dimmed when the slot is off. Open the Exp Sharing menu once");
+        b.toggle("  Animate XP Ring", () -> config.petOverlayAnimate, v -> config.petOverlayAnimate = v);
+        b.lineOrder("  Lines (drag to sort, click to hide)", com.teslamaps.features.pets.PetOverlay.LINES_ID);
+        b.info("Pet XP estimate counts Diana, Beastmaster Crest, Battle Experience and Exp Share");
+        b.toggle("  Pet Panel In Inventory", () -> config.petInventoryPanel, v -> config.petInventoryPanel = v)
+                .desc("Active pet above your inventory. Click it to open /pets");
+        b.toggle("  Kat: Level After Upgrade", () -> config.petKatLevel, v -> config.petKatLevel = v)
+                .desc("Kat's menu: the pet's level at the next rarity, next to the menu");
+        b.toggle("  Pet Swap Title", () -> config.petSwapTitle, v -> config.petSwapTitle = v)
+                .desc("Big title with the new pet when Autopet swaps it. Move it in /tmap gui")
+                .tags("autopet", "title");
+        b.toggle("    Also On Summon", () -> config.petSwapTitleSummon, v -> config.petSwapTitleSummon = v);
+        b.toggle("    Only In Dungeons", () -> config.petSwapTitleDungeonOnly, v -> config.petSwapTitleDungeonOnly = v);
+        b.toggle("    Sound", () -> config.petSwapTitleSound, v -> config.petSwapTitleSound = v);
+        b.slider("    Duration (s)", 0.5f, 5f, () -> config.petSwapTitleSeconds, v -> config.petSwapTitleSeconds = v, 1);
+        b.toggle("  Pet Maxed Title", () -> config.petMaxedTitle, v -> config.petMaxedTitle = v)
+                .desc("\"Pet is Maxed!\" title and a sound when a pet reaches level 100 (200 for dragons)");
+        b.toggle("Pet Level On Slots", () -> config.petSlotLevel, v -> config.petSlotLevel = v)
+                .desc("Level in the corner of every pet item, also in Autopet's Choose Pet menu");
+        b.toggle("  Hide At Max Level", () -> config.petSlotLevelHideMax, v -> config.petSlotLevelHideMax = v);
+        b.toggle("  Level Progress %", () -> config.petSlotLevelPercent, v -> config.petSlotLevelPercent = v);
+        b.toggle("Pet XP Tooltip", () -> config.petExpTooltip, v -> config.petExpTooltip = v)
+                .desc("Pet tooltips: progress to max level with a bar and the total pet XP. Hold Shift");
+        b.toggle("  Without Shift", () -> config.petExpTooltipAlways, v -> config.petExpTooltipAlways = v);
+        b.toggle("Favorite Pets", () -> config.petFavorites, v -> config.petFavorites = v)
+                .desc("Pets menu: press the key over a pet to mark it, marked pets get a colored background");
+        b.keybind("  Favorite Key", () -> config.petFavoriteKey, v -> config.petFavoriteKey = v);
+        b.color("  Favorite Color", () -> config.petFavoriteColor, v -> config.petFavoriteColor = v);
+        b.toggle("  Pets Radial Menu: Favorites Only", () -> config.petWheelFavoritesOnly, v -> config.petWheelFavoritesOnly = v);
         b.label("Skill XP Display");
         b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
         b.info("Cuts the +XP out of the action bar into its own HUD element");
@@ -114,9 +144,36 @@ public final class SkillsCategory {
                 () -> config.deployableBlackHole, v -> config.deployableBlackHole = v);
         b.toggle("  Flares",
                 () -> config.deployableFlare, v -> config.deployableFlare = v);
+        b.toggle("    Flare Extras", () -> config.deployableFlareExtras, v -> config.deployableFlareExtras = v)
+                .desc("40 block flare range, timer text at the flare, expiry warning, flame hide")
+                .tags("flare", "sos", "alert", "warning", "range", "mana");
+        b.dropdown("      Range Display", com.teslamaps.features.FlareExtras.RANGE_MODES,
+                () -> config.deployableFlareRange, v -> config.deployableFlareRange = v);
+        b.color("      Warning Flare Color", () -> config.colorFlareWarning, v -> config.colorFlareWarning = v);
+        b.color("      Alert Flare Color", () -> config.colorFlareAlert, v -> config.colorFlareAlert = v);
+        b.color("      SOS Flare Color", () -> config.colorFlareSos, v -> config.colorFlareSos = v);
+        b.toggle("      Timer At Flare", () -> config.deployableFlareWorldText, v -> config.deployableFlareWorldText = v);
+        b.toggle("      Mana Regen Buff In Overlay", () -> config.deployableFlareManaBuff, v -> config.deployableFlareManaBuff = v);
+        b.slider("      Expiry Warning (s, 0 = off)", 0, 60,
+                () -> (float) config.deployableFlareWarn, v -> config.deployableFlareWarn = Math.round(v), 0);
+        b.toggle("      Screen Flash While Expiring", () -> config.deployableFlareFlash, v -> config.deployableFlareFlash = v);
+        b.color("        Flash Color", () -> config.deployableFlareFlashColor, v -> config.deployableFlareFlashColor = v);
+        b.toggle("      Hide Flame Particles", () -> config.deployableFlareHideParticles, v -> config.deployableFlareHideParticles = v);
         b.info("Flares have no nametag, the timer starts when you see them");
         b.toggle("  Other Deployables (flares, ...)",
                 () -> config.deployableOthers, v -> config.deployableOthers = v);
+        b.toggle("  Reminder: Nothing Placed",
+                () -> config.deployableReminder, v -> config.deployableReminder = v)
+                .desc("Big title + error sound when no matching deployable is up: power orb in a slayer boss fight, lantern in a Glacite Mineshaft, Umberella while trophy fishing")
+                .tags("power orb", "lantern", "umberella", "reminder", "forgot");
+        b.toggle("    Power Orb in Slayer Boss",
+                () -> config.deployableReminderSlayer, v -> config.deployableReminderSlayer = v);
+        b.toggle("    Lantern in Mineshaft",
+                () -> config.deployableReminderMineshaft, v -> config.deployableReminderMineshaft = v);
+        b.toggle("    Umberella on Trophy Fish",
+                () -> config.deployableReminderTrophy, v -> config.deployableReminderTrophy = v);
+        b.slider("    Delay (s)", 0f, 30f,
+                () -> config.deployableReminderDelay, v -> config.deployableReminderDelay = v, 0);
         b.toggle("  Totem of Corruption",
                 () -> config.deployableTotem, v -> config.deployableTotem = v)
                 .desc("Time left and owner of your own or the nearest Totem of Corruption, plus its 16 block range")

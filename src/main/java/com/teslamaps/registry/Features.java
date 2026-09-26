@@ -1046,6 +1046,49 @@ final class Features {
         com.teslamaps.features.rift.EnigmaRoseDrop.register();
         com.teslamaps.features.rift.UbikCubeReminder.register();
         com.teslamaps.features.rift.UbikQuickClose.register();
+        com.teslamaps.features.rift.RiftGuntherRace.register();
+        // w20-03-com
+        com.teslamaps.features.BestiaryMenuData.register();
+        com.teslamaps.features.mobvisuals.MobHighlights.register();
+        com.teslamaps.features.FlareExtras.register();
+        com.teslamaps.features.MobHealthBars.register();
+        com.teslamaps.features.HiddenMobReveal.register();
+        // w20-05-pet
+        com.teslamaps.features.pets.PetItemGuard.register();
+        com.teslamaps.features.pets.PetSlotIcons.register();
+        com.teslamaps.features.pets.GeorgeHelper.register();
+        com.teslamaps.features.pets.ExpShareSlots.register();
+        com.teslamaps.features.pets.PetNametags.register();
+        com.teslamaps.features.pets.VisiblePetPosition.register();
+        com.teslamaps.features.pets.RockMilestone.register();
+        // w20-00-com
+        com.teslamaps.features.DamageIndicator.register();
+        com.teslamaps.features.theend.DragonFight.register();
+        com.teslamaps.features.DamageSplash.register();
+        com.teslamaps.features.ArachneTimers.register();
+        com.teslamaps.features.BroodmotherTracker.register();
+        com.teslamaps.features.mobvisuals.MobHealthHud.register();
+        com.teslamaps.features.DeployableReminder.register();
+        // w20-02-com
+        com.teslamaps.features.DamageTracker.register();
+        com.teslamaps.features.HealingPoolMarker.register();
+        com.teslamaps.features.RagnarockAlerts.register();
+        com.teslamaps.features.theend.ZealotHelper.register();
+        com.teslamaps.features.SummoningMobs.register();
+        com.teslamaps.features.SpiderRainTimer.register();
+        com.teslamaps.features.ScorpionFoilTicker.register();
+        // w20-04-pet
+        com.teslamaps.features.pets.PetTitles.register();
+        com.teslamaps.features.pets.PetMenus.register();
+        com.teslamaps.features.pets.PetKeybinds.register();
+        // w20-01-com
+        com.teslamaps.features.BrokenHypeWarning.register();
+        com.teslamaps.features.AreaMinibosses.register();
+        com.teslamaps.features.GhostTracker.register();
+        com.teslamaps.features.CocoonOverlay.register();
+        com.teslamaps.features.BetterShurikens.register();
+        com.teslamaps.features.FireFreezeVisual.register();
+        com.teslamaps.features.ImplosionDisplay.register();
         // w20-06-cheat
         com.teslamaps.features.hunting.AutoReelLasso.register();
         com.teslamaps.features.AutoSprint.register();

@@ -174,6 +174,17 @@ public final class EquipmentDisplay {
         return st[1].isEmpty() ? "" : com.teslamaps.utils.ItemUtil.skyblockId(st[1]);
     }
 
+    /** Belt is The Primordial or blood shot; null when /equipment was never opened. */
+    public static Boolean beltCanCocoon() {
+        ItemStack[] st = stacks();
+        if (snbt.isEmpty()) return null;
+        ItemStack belt = st[2];
+        if (belt.isEmpty()) return false;
+        if ("THE_PRIMORDIAL".equals(com.teslamaps.utils.ItemUtil.skyblockId(belt))) return true;
+        var d = belt.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        return d != null && "blood_shot".equals(d.copyTag().getStringOr("modifier", ""));
+    }
+
     private static ItemStack[] stacks() {
         ensure();
         if (stacks == null) {

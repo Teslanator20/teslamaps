@@ -213,6 +213,8 @@
     "NoReloadScreenMixin",
     "NoSoundsMixin",
     "NoStuckArrowsMixin",
+    "DeadMobPickMixin",
+    "HiddenMobRenderMixin",
     "NoVignetteMixin",
     "NoWaterOverlayMixin",
     "AbstractArrowInvoker",

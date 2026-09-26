@@ -2148,6 +2148,256 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w20-03-com
+    public boolean bestiaryMenuData = false;
+    public String bestiaryMenuSort = "Kills To Next (low)";
+    public boolean bestiaryMenuPercent = true;
+    public boolean bestiaryMenuPercentMax = false;
+    public boolean bestiaryMenuHideMaxed = false;
+    public boolean bestiaryMenuArabic = false;
+    public boolean bestiaryMenuShortNumbers = true;
+    public boolean mobHighlights = false;
+    public boolean mobHighlightSpecialZealot = true;
+    public boolean mobHighlightChestZealot = true;
+    public boolean mobHighlightZealot = false;
+    public boolean mobHighlightRunic = true;
+    public boolean mobHighlightCorrupted = false;
+    public boolean mobHighlightArachneKeeper = false;
+    public boolean deployableFlareExtras = false;
+    public String deployableFlareRange = "Ring At Feet";
+    public boolean deployableFlareWorldText = true;
+    public int deployableFlareWarn = 10;
+    public boolean deployableFlareFlash = false;
+    public String deployableFlareFlashColor = "FF5555";
+    public boolean deployableFlareHideParticles = false;
+    public boolean deployableFlareManaBuff = false;
+    public String colorFlareWarning = "55FF55";
+    public String colorFlareAlert = "5555FF";
+    public String colorFlareSos = "AA00AA";
+    public boolean mobHealthBars = false;
+    public boolean mobHealthBarsHideFull = false;
+    public boolean mobHealthBarsHealthOnly = false;
+    public float mobHealthBarsScale = 1.0f;
+    public String colorHealthBarFull = "55FF55";
+    public String colorHealthBarHalf = "FFFF55";
+    public String colorHealthBarEmpty = "FF5555";
+    public boolean endProtectorDay30Warning = false;
+    public boolean endProtectorTracer = false;
+    public boolean endProtectorIgnoreTbc = false;
+    public boolean endProtectorIgnoreLegPet = false;
+    public boolean endProtectorIgnoreEpicPet = false;
+    public boolean deadMobsUnpickable = false;
+    public boolean revealHiddenMobs = false;
+    public boolean revealHiddenFels = true;
+    public boolean revealHiddenShadowAssassins = true;
+    public boolean revealHiddenStealthy = true;
+    // w20-05-pet
+    public boolean petItemConfirm = false;
+    public boolean petCandyOnIcon = false;
+    public boolean petCandyHideMaxed = false;
+    public boolean petCandyLore = false;
+    public boolean petItemSymbol = false;
+    public float petItemSymbolScale = 0.7f;
+    public java.util.Map<String, String> petItemSymbols = new java.util.HashMap<>();
+    public boolean georgePetPrice = false;
+    public boolean georgeTamingHelper = false;
+    public boolean georgeOtherTiers = false;
+    public boolean expShareDisabledSlots = false;
+    public boolean expSharePetHighlight = false;
+    public String expSharePetColor = "5555FF";
+    public boolean petNametagHideLevel = false;
+    public boolean petNametagHideMaxLevel = false;
+    public boolean petNametagHideOthers = false;
+    public boolean visiblePetPosition = false;
+    public boolean visiblePetStopBouncing = true;
+    public float visiblePetHeightOffset = 0f;
+    public boolean rockMilestoneHud = false;
+    public int rockMilestoneHudX = 10;
+    public int rockMilestoneHudY = 170;
+    public float rockMilestoneHudScale = 1.0f;
+    // w20-00-com
+    public boolean damageIndicator = false;
+    public boolean damageIndicatorDps = true;
+    public boolean damageIndicatorHideTag = false;
+    public float damageIndicatorScale = 1.5f;
+    public boolean dragonTracker = false;
+    public boolean dragonStatusHud = true;
+    public boolean dragonWeightLine = true;
+    public boolean dragonSpawnTitle = true;
+    public java.util.List<String> dragonAlertTypes = new java.util.ArrayList<>(java.util.List.of(
+            "Protector", "Old", "Unstable", "Young", "Strong", "Wise", "Superior"));
+    public boolean dragonSuperiorSound = true;
+    public boolean dragonDpsChat = true;
+    public boolean dragonLootQualityChat = true;
+    public boolean dragonDropTracker = false;
+    public boolean dragonDropAlert = true;
+    public int dragonTrackSinceSuperior = 0;
+    public int dragonTrackSinceAotd = 0;
+    public int dragonTrackSincePet = 0;
+    public int dragonTrackEyes = 0;
+    public int dragonLegendaryPets = 0;
+    public int dragonEpicPets = 0;
+    public int dragonAotds = 0;
+    public java.util.List<String> dragonTrackLast = new java.util.ArrayList<>();
+    public int dragonStatusX = 10;
+    public int dragonStatusY = 120;
+    public float dragonStatusScale = 1.0f;
+    public int dragonDropsX = 10;
+    public int dragonDropsY = 190;
+    public float dragonDropsScale = 1.0f;
+    public boolean damageSplash = false;
+    public boolean damageSplashCompact = true;
+    public int damageSplashPrecision = 4;
+    public String damageSplashNormalColor = "FFFFFF";
+    public String damageSplashCritStart = "FFFF55";
+    public String damageSplashCritEnd = "FF5555";
+    public String damageSplashHide = "Off";
+    public boolean damageSplashHideNonCrit = false;
+    public boolean arachneTimers = false;
+    public boolean arachneStatusHud = true;
+    public boolean arachneAltarText = true;
+    public boolean arachneKillTimer = true;
+    public boolean arachneHideBroodTags = false;
+    public int arachneStatusX = 10;
+    public int arachneStatusY = 120;
+    public float arachneStatusScale = 1.0f;
+    public boolean broodmotherTracker = false;
+    public boolean broodmotherHud = true;
+    public boolean broodmotherChat = true;
+    public boolean broodmotherImminent = true;
+    public boolean broodmotherSpawnAlert = true;
+    public boolean balAlert = false;
+    public int broodmotherX = 10;
+    public int broodmotherY = 100;
+    public float broodmotherScale = 1.0f;
+    public boolean mobHealthHud = false;
+    public java.util.List<String> mobHealthHudMobs = new java.util.ArrayList<>(java.util.List.of(
+            "Inquisitor", "Jawbus", "Plhlegblast", "Ragnarok", "Thunder", "Titanoboa", "Wiki Tiki", "King Minos", "Sphinx", "Manticore"));
+    public int mobHealthHudX = 10;
+    public int mobHealthHudY = 150;
+    public float mobHealthHudScale = 1.0f;
+    public boolean deployableReminder = false;
+    public boolean deployableReminderSlayer = true;
+    public boolean deployableReminderMineshaft = true;
+    public boolean deployableReminderTrophy = true;
+    public float deployableReminderDelay = 5f;
+    // w20-02-com
+    public boolean damageTracker = false;
+    public boolean damageTrackerChat = false;
+    public boolean healingPoolMarker = false;
+    public boolean healingPoolText = true;
+    public String healingPoolColor = "55FF55";
+    public boolean ragnarockAlerts = false;
+    public boolean ragnarockCastTitle = true;
+    public boolean ragnarockCancelTitle = true;
+    public boolean ragnarockStrengthMessage = true;
+    public String ragnarockStrengthChannel = "Nobody";
+    public boolean specialZealotHighlight = false;
+    public com.teslamaps.render.EspStyle specialZealotEsp = new com.teslamaps.render.EspStyle("FFFF5555", com.teslamaps.render.EspStyle.GLOW);
+    public boolean zealotCounter = false;
+    public boolean zealotCounterOnlyInArea = true;
+    public boolean zealotAlerts = true;
+    public boolean zealotAlertAppendCount = true;
+    public int zealotCounterX = 10;
+    public int zealotCounterY = 220;
+    public float zealotCounterScale = 1.0f;
+    public int zealotKillsTotal = 0;
+    public int zealotKillsSinceEye = 0;
+    public int zealotEyes = 0;
+    public int zealotKillsForEyes = 0;
+    public boolean summoningMobs = false;
+    public boolean summoningMobsHud = true;
+    public boolean summoningMobsHighlight = true;
+    public boolean summoningMobsHideTags = false;
+    public boolean summoningMobsChat = true;
+    public boolean summoningSoulNames = false;
+    public int summoningMobsX = 10;
+    public int summoningMobsY = 240;
+    public float summoningMobsScale = 1.0f;
+    public boolean spiderRainTimer = false;
+    public int spiderRainTimerX = 10;
+    public int spiderRainTimerY = 260;
+    public float spiderRainTimerScale = 1.0f;
+    public boolean scorpionFoilTicker = false;
+    public int scorpionFoilTickerX = 10;
+    public int scorpionFoilTickerY = 280;
+    public float scorpionFoilTickerScale = 1.0f;
+    // w20-04-pet
+    public boolean petOverlayExpShare = false;   // exp share pets next to the icon + line
+    public boolean petOverlayAnimate = false;    // xp ring eases towards the new value
+    public boolean petInventoryPanel = false;    // active pet panel beside the inventory, click = /pets
+    public boolean petKatLevel = false;          // Kat menu: level after the rarity upgrade
+    public boolean petSwapTitle = false;         // title on autopet swap
+    public boolean petSwapTitleSummon = false;
+    public boolean petSwapTitleDungeonOnly = false;
+    public boolean petSwapTitleSound = false;
+    public float petSwapTitleSeconds = 2f;
+    public int petSwapTitleX = -1;
+    public int petSwapTitleY = 70;
+    public float petSwapTitleScale = 2.5f;
+    public boolean petMaxedTitle = false;        // title + sound when a pet hits max level
+    public boolean petSlotLevel = false;         // level on pet slots in the Pets / Choose Pet menu
+    public boolean petSlotLevelHideMax = false;
+    public boolean petSlotLevelPercent = false;
+    public boolean petExpTooltip = false;        // tooltip: progress to max + total xp
+    public boolean petExpTooltipAlways = false;
+    public boolean petFavorites = false;
+    public int petFavoriteKey = -1;
+    public String petFavoriteColor = "80FFAA00";
+    public java.util.Set<String> petFavoriteIds = new java.util.HashSet<>();
+    public boolean petWheelFavoritesOnly = false;
+    public boolean petKeybinds = false;
+    public int[] petKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
+    public String[] petKeyUuids = new String[9];
+    public int petUnequipKey = -1;
+    public int petNextPageKey = -1;
+    public int petPrevPageKey = -1;
+    public boolean petKeysNoUnequip = false;
+    public boolean petKeysCloseIfEquipped = false;
+    // w20-01-com
+    public boolean brokenHypeWarning = false;
+    public boolean brokenHypeSound = true;
+    public boolean areaMinibossHighlight = false;
+    public boolean areaMinibossTimer = false;
+    public boolean ghostTracker = false;
+    public int ghostTrackerPriceSource = 0;
+    public boolean ghostTrackerWidgetWarn = true;
+    public int ghostTrackerX = 10;
+    public int ghostTrackerY = 200;
+    public float ghostTrackerScale = 1.0f;
+    @Global
+    public long ghostBestiaryKills = 0;
+    @Global
+    public long ghostsSinceSorrow = 0;
+    @Global
+    public long ghostMaxCombo = 0;
+    @Global
+    public long ghostCombatXp = 0;
+    @Global
+    public long ghostMfTotal = 0;
+    @Global
+    public long ghostMfDrops = 0;
+    public boolean cocoonOverlay = false;
+    public boolean cocoonOverlayName = true;
+    public boolean cocoonOverlayTimer = true;
+    public boolean cocoonOverlayBeltOnly = false;
+    public boolean betterShurikens = false;
+    public boolean betterShurikensHideMarker = true;
+    public java.util.List<String> betterShurikensReminder = new java.util.ArrayList<>();
+    public boolean fireFreezeVisual = false;
+    public boolean fireFreezeCircle = true;
+    public boolean fireFreezeCountdown = true;
+    public boolean fireFreezeMobBox = true;
+    public boolean fireFreezeMobTimer = true;
+    public String fireFreezeCircleColor = "55FFFF";
+    public boolean implosionDisplay = false;
+    public boolean implosionDisplayHideChat = true;
+    public int implosionDisplayX = 10;
+    public int implosionDisplayY = 240;
+    public float implosionDisplayScale = 1.0f;
+    public boolean bestiaryAlarms = false;
+    public String bestiaryAlarmColor = "Red";
+    public float bestiaryAlarmVolume = 1.0f;
     // w20-06-cheat
     public boolean trevorAuto = false;
     public boolean trevorAutoCall = true;
@@ -6750,6 +7000,15 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.petItemSymbols == null) c.petItemSymbols = new java.util.HashMap<>();
+        c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
+        if (c.dragonAlertTypes == null) c.dragonAlertTypes = new java.util.ArrayList<>();
+        if (c.dragonTrackLast == null) c.dragonTrackLast = new java.util.ArrayList<>();
+        if (c.mobHealthHudMobs == null) c.mobHealthHudMobs = new java.util.ArrayList<>();
+        if (c.damageSplashHide == null) c.damageSplashHide = "Off";
+        if (c.petFavoriteIds == null) c.petFavoriteIds = new java.util.HashSet<>();
+        c.petFavoriteIds.remove(null);
+        if (c.petKeyUuids == null || c.petKeyUuids.length != 9) c.petKeyUuids = java.util.Arrays.copyOf(c.petKeyUuids == null ? new String[0] : c.petKeyUuids, 9);
         if (c.ubikReadyAt == null) c.ubikReadyAt = new java.util.HashMap<>();
         c.ubikReadyAt.values().removeIf(java.util.Objects::isNull);
         if (c.carnivalShopProgress == null) c.carnivalShopProgress = new java.util.HashMap<>();
@@ -6929,6 +7188,8 @@ public class TeslaMapsConfig {
         if (c.hotfPlanTarget == null) c.hotfPlanTarget = new java.util.HashMap<>();
         if (c.superprotectronEsp == null) c.superprotectronEsp = new com.teslamaps.render.EspStyle("FFFF55FF", com.teslamaps.render.EspStyle.GLOW);
         if (c.blockEspBlocks == null) c.blockEspBlocks = new java.util.LinkedHashMap<>();
+        if (c.healingPoolColor == null) c.healingPoolColor = "55FF55";
+        if (c.ragnarockStrengthChannel == null) c.ragnarockStrengthChannel = "Nobody";
         if (c.chestEspWhere == null) c.chestEspWhere = "Everywhere";
         if (c.seaCreatureAlert == null) c.seaCreatureAlert = new java.util.HashMap<>();
         if (c.seaCreatureAnnounce == null) c.seaCreatureAnnounce = new java.util.HashMap<>();
@@ -6937,6 +7198,7 @@ public class TeslaMapsConfig {
         if (c.kuudraFaction == null) c.kuudraFaction = "";
         migratePestEsp(c);
         if (c.customESPMobs == null) c.customESPMobs = new ArrayList<>();
+        if (c.betterShurikensReminder == null) c.betterShurikensReminder = new ArrayList<>();
         if (c.islandAlertRules == null) c.islandAlertRules = new ArrayList<>();
         if (c.enchantColorRules == null) c.enchantColorRules = new ArrayList<>();
         if (c.protectedItems == null) c.protectedItems = new java.util.HashSet<>();
@@ -7095,6 +7357,7 @@ public class TeslaMapsConfig {
         if (c.shardPriceSource == null || c.shardPriceSource.isBlank()) c.shardPriceSource = "Instant Buy";
         // indexed straight through, so a short array out of an older config would throw
         c.wardrobeKeys = fitKeys(c.wardrobeKeys, 9);
+        c.petKeys = fitKeys(c.petKeys, 9);
         c.loadoutKeys = fitKeys(c.loadoutKeys, 12);
         c.instaLoadoutKeys = fitKeys(c.instaLoadoutKeys, 9);
         if (c.trashFilters == null) c.trashFilters = com.teslamaps.features.TrashHighlighter.defaults();

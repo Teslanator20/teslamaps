@@ -110,6 +110,7 @@ public class EndProtector {
 
     public static void reset() {
         stage = STAGE_RESTING;
+        day30Warned = false;
         scanning = true;
         hasRisen = false;
         stage4StartMillis = 0;
@@ -321,6 +322,7 @@ public class EndProtector {
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
         if (STAGE_AWAKENING.equals(newStage)) {
+            day30Warned = false;
             stage4StartMillis = System.currentTimeMillis();
             if (c.endProtectorStage4Title) {
                 mc.gui.setTitle(Component.literal("PROTECTOR STAGE 4")
@@ -381,6 +383,19 @@ public class EndProtector {
 
         scanLocation(mc);
         scanLoot(mc, c);
+        checkDay30(mc, c);
+    }
+
+    private static boolean day30Warned = false;
+
+    // GanKura: a lobby past day 30 tends to reboot before the golem spawns
+    private static void checkDay30(Minecraft mc, TeslaMapsConfig c) {
+        if (!c.endProtectorDay30Warning || day30Warned || !STAGE_AWAKENING.equals(stage)) return;
+        long day = Math.max(mc.level.getDefaultClockTime(), mc.level.getOverworldClockTime()) / 24000L;
+        if (day < 30) return;
+        day30Warned = true;
+        mc.player.sendSystemMessage(Component.literal(
+                "§b[TeslaMaps] §cThis server might restart before the golem spawns (Day " + day + ")"));
     }
 
     private static void readTabList(Minecraft mc) {
@@ -497,19 +512,19 @@ public class EndProtector {
             if (text.contains("Tier Boost Core") && hasColor(name, ChatFormatting.GOLD)) {
                 c.protectorTierBoostCores++;
                 notifyDrop(mc, c, Component.literal("Tier Boost Core").withStyle(ChatFormatting.GOLD),
-                        c.protectorTierBoostCores);
+                        c.protectorTierBoostCores, c.endProtectorIgnoreTbc);
                 return;
             }
 
             if (text.contains("[Lvl 1] Golem")) {
                 if (hasColor(name, ChatFormatting.GOLD)) {
                     c.protectorLegendaryPets++;
-                    notifyDrop(mc, c, pet(ChatFormatting.GOLD), c.protectorLegendaryPets);
+                    notifyDrop(mc, c, pet(ChatFormatting.GOLD), c.protectorLegendaryPets, c.endProtectorIgnoreLegPet);
                     return;
                 }
                 if (hasColor(name, ChatFormatting.DARK_PURPLE)) {
                     c.protectorEpicPets++;
-                    notifyDrop(mc, c, pet(ChatFormatting.DARK_PURPLE), c.protectorEpicPets);
+                    notifyDrop(mc, c, pet(ChatFormatting.DARK_PURPLE), c.protectorEpicPets, c.endProtectorIgnoreEpicPet);
                     return;
                 }
             }
@@ -521,12 +536,12 @@ public class EndProtector {
                 .append(Component.literal("Golem").withStyle(rarity));
     }
 
-    private static void notifyDrop(Minecraft mc, TeslaMapsConfig c, Component item, int count) {
+    private static void notifyDrop(Minecraft mc, TeslaMapsConfig c, Component item, int count, boolean ignored) {
         dropAlerted = true;
         lootScanning = false;
         TeslaMapsConfig.save();
 
-        if (!c.endProtectorDropAlert) return;
+        if (!c.endProtectorDropAlert || ignored) return;
 
         mc.gui.setTitle(Component.literal("DROP!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         mc.gui.setSubtitle(Component.empty().append(item)
@@ -567,7 +582,7 @@ public class EndProtector {
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.endProtector) return;
-        if (!c.endProtectorBeacon && !c.endProtectorWorldText) return;
+        if (!c.endProtectorBeacon && !c.endProtectorWorldText && !c.endProtectorTracer) return;
         if (!inArea()) return;
 
         BlockPos pos = anchor();
@@ -575,6 +590,8 @@ public class EndProtector {
         int color = anchorColor();
 
         if (c.endProtectorBeacon) ESPRenderer.drawBeaconBeam(matrices, pos, color, cameraPos);
+        if (c.endProtectorTracer) ESPRenderer.drawTracerFromCamera(matrices,
+                new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5), color, cameraPos);
 
         if (c.endProtectorWorldText) {
             Vec3 label = new Vec3(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5);

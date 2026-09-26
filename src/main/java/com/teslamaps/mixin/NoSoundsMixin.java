@@ -24,6 +24,7 @@ public class NoSoundsMixin {
         process(packet.getSound().value(), packet.getVolume(), packet.getPitch(), ci);
         com.teslamaps.features.SecretClickHighlight.onSound(packet.getSound().value(), packet.getVolume(), packet.getX(), packet.getY(), packet.getZ());
         if (TeslaMapsConfig.get().dragonHitCounter) com.teslamaps.dungeon.DragonHitCount.onSound(packet.getSound().value(), packet.getSource(), packet.getVolume());
+        com.teslamaps.features.RagnarockAlerts.onSound(packet);
     }
 
     @Inject(method = "handleSoundEntityEvent", at = @At("HEAD"), cancellable = true)

@@ -48,6 +48,7 @@ public class InGameHudMixin {
         }
         com.teslamaps.features.SkyblockXpChat.onActionBar(message);
         com.teslamaps.features.rift.SunGeckoHelper.onActionBar(message);
+        com.teslamaps.features.ScorpionFoilTicker.onActionBar(message);
         return com.teslamaps.features.ActionBarFilter.filter(com.teslamaps.features.kuudra.KuudraSupplyProgress.onActionBar(message));
     }
 

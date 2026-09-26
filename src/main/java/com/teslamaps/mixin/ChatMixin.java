@@ -278,6 +278,7 @@ public class ChatMixin {
 
         if (fromServer && (com.teslamaps.features.events.FrozenTreasureTracker.hide(text)
                 || com.teslamaps.features.events.GiftProfitTracker.hide(text)
+                || com.teslamaps.features.ImplosionDisplay.hide(text)
                 || com.teslamaps.features.rift.VerminTracker.hide(text))) {
             teslamaps$reason = "eventChat";
             ci.cancel();
