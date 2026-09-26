@@ -916,5 +916,13 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
+        // w18-04-evt
+        com.teslamaps.features.events.Carnival.register();
+        com.teslamaps.features.events.CarnivalShootout.register();
+        com.teslamaps.features.events.CarnivalShopHelper.register();
+        com.teslamaps.features.events.CarnivalGoals.register();
+        com.teslamaps.features.events.FruitDigging.register();
+        com.teslamaps.features.events.CenturyHighlights.register();
+        com.teslamaps.features.events.JerryPresentHider.register();
     }
 }
