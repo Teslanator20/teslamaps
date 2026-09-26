@@ -2186,6 +2186,45 @@ public class TeslaMapsConfig {
     public int jerryTrackerX = 10;
     public int jerryTrackerY = 80;
     public float jerryTrackerScale = 1f;
+    // w18-04-evt
+    public boolean carnivalZombieShootout = false;
+    public boolean carnivalShootoutHighestOnly = false;
+    public boolean carnivalShootoutTimers = true;
+    public boolean carnivalShootoutLampLine = false;
+    public boolean carnivalShootoutLampTimer = false;
+    public int carnivalLampTimerX = 10;
+    public int carnivalLampTimerY = 180;
+    public float carnivalLampTimerScale = 1.0f;
+    public boolean carnivalCatchAFish = false;
+    public boolean carnivalShopHelper = false;
+    @Global
+    public java.util.Map<String, java.util.Map<String, Integer>> carnivalShopProgress = new java.util.HashMap<>();
+    public boolean carnivalGoals = false;
+    public int carnivalGoalsX = 10;
+    public int carnivalGoalsY = 120;
+    public float carnivalGoalsScale = 1.0f;
+    @Global
+    public java.util.Map<String, java.util.List<String>> carnivalGoalsDone = new java.util.HashMap<>();
+    public boolean carnivalTicketReminder = false;
+    @Global
+    public java.util.Map<String, String> carnivalTicketsClaimed = new java.util.HashMap<>();
+    public boolean carnivalQuickStart = false;
+    public boolean carnivalFruitDigging = false;
+    public boolean fruitDiggingFound = false;
+    public boolean fruitDiggingClues = true;
+    public boolean fruitDiggingGuesses = true;
+    public boolean fruitDiggingBestDig = true;
+    public boolean fruitDiggingRemaining = true;
+    public String colorFruitDiggingBest = "55FF55";
+    public int fruitDiggingHudX = 200;
+    public int fruitDiggingHudY = 20;
+    public float fruitDiggingHudScale = 1.0f;
+    public boolean centuryTeamFinder = false;
+    public String colorCenturyTeamWrong = "555555";
+    public boolean centuryPartyInvite = false;
+    public String colorCenturyInviteYes = "55FF55";
+    public String colorCenturyInviteNo = "FF5555";
+    public boolean hideOtherJerryPresents = false;
     // w18-06-evt
     public boolean griffinPetWarning = false;
     public boolean hoppityCallWarning = false;
@@ -6371,6 +6410,11 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.carnivalShopProgress == null) c.carnivalShopProgress = new java.util.HashMap<>();
+        c.carnivalShopProgress.values().removeIf(java.util.Objects::isNull);
+        if (c.carnivalGoalsDone == null) c.carnivalGoalsDone = new java.util.HashMap<>();
+        c.carnivalGoalsDone.values().removeIf(java.util.Objects::isNull);
+        if (c.carnivalTicketsClaimed == null) c.carnivalTicketsClaimed = new java.util.HashMap<>();
         if (c.dianaWarpIgnored == null) c.dianaWarpIgnored = new java.util.ArrayList<>();
         if (c.dianaRareNoShare == null) c.dianaRareNoShare = new java.util.ArrayList<>();
         if (c.dianaRareNoShow == null) c.dianaRareNoShow = new java.util.ArrayList<>();

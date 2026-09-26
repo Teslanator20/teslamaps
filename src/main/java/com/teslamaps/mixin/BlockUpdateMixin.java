@@ -43,6 +43,9 @@ public class BlockUpdateMixin {
             if (com.teslamaps.slayer.VoidgloomBeacon.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.slayer.VoidgloomBeacon.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }
+            if (com.teslamaps.features.events.Carnival.listening() && ((Level) (Object) this).isClientSide()) {
+                com.teslamaps.features.events.Carnival.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
+            }
             if (com.teslamaps.features.mining.MiningNotifications.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.mining.MiningNotifications.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }

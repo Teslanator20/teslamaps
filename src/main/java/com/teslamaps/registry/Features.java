@@ -922,6 +922,14 @@ final class Features {
         com.teslamaps.features.events.MythologicalTracker.register();
         com.teslamaps.features.events.RareDianaMobs.register();
         com.teslamaps.features.events.HiddenJerry.register();
+        // w18-04-evt
+        com.teslamaps.features.events.Carnival.register();
+        com.teslamaps.features.events.CarnivalShootout.register();
+        com.teslamaps.features.events.CarnivalShopHelper.register();
+        com.teslamaps.features.events.CarnivalGoals.register();
+        com.teslamaps.features.events.FruitDigging.register();
+        com.teslamaps.features.events.CenturyHighlights.register();
+        com.teslamaps.features.events.JerryPresentHider.register();
         // w18-06-evt
         com.teslamaps.features.events.GriffinPetWarning.register();
         com.teslamaps.features.events.HoppityCallWarning.register();
