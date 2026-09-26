@@ -14,7 +14,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.world.item.FishingRodItem;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -177,7 +176,7 @@ public final class SeaCreatureTracker {
 
     private static boolean fishing(Minecraft mc) {
         if (mc.player == null) return false;
-        return mc.player.getMainHandItem().getItem() instanceof FishingRodItem
+        return com.teslamaps.features.FishingHelpers.holdingRod()
                 || System.currentTimeMillis() - lastCatchAt < 120_000;
     }
 

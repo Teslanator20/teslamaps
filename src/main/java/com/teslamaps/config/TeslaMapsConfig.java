@@ -2237,7 +2237,6 @@ public class TeslaMapsConfig {
     public int parkRainTimerX = 10;
     public int parkRainTimerY = 200;
     public float parkRainTimerScale = 1.0f;
-    public boolean theodoliteCircles = false;
     public boolean mobVisualInvisibugBox = false;
     public String colorInvisibugBox = "80FF55FF";
     public boolean mobVisualHideCaught = false;

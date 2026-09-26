@@ -95,7 +95,9 @@ public final class TrevorTrapper {
                     b.espStyle("Animal", () -> c.trevorMobEsp);
                     b.toggle("  Area Waypoint", () -> c.trevorAreaWaypoint, v -> c.trevorAreaWaypoint = v)
                             .desc("Beam at the area Trevor names, height narrowed by Talbot's Theodolite");
-                    b.toggle("  Talbot Circles", () -> c.trevorTalbotCircles, v -> c.trevorTalbotCircles = v);
+                    b.toggle("  Talbot Circles", () -> c.trevorTalbotCircles, v -> c.trevorTalbotCircles = v)
+                            .desc("Ring from each Talbot's Theodolite reading, the animal sits on it")
+                            .tags("theodolite", "talbot");
                     b.toggle("  Mob Died Title", () -> c.trevorMobDiedTitle, v -> c.trevorMobDiedTitle = v);
                     b.toggle("  Trapper Ready Title", () -> c.trevorReadyTitle, v -> c.trevorReadyTitle = v);
                     b.toggle("  Cooldown Above Trevor", () -> c.trevorCooldownLabel, v -> c.trevorCooldownLabel = v);
@@ -143,7 +145,7 @@ public final class TrevorTrapper {
 
         if (target != null) {
             if (!target.isAlive() || target.isRemoved()) target = null;
-            else c.trevorMobEsp.tickEntity(target);
+            else EspStyle.of(c.trevorMobEsp).tickEntity(target);
         }
         if (ticks++ % 10 != 0) return;
         readTab();

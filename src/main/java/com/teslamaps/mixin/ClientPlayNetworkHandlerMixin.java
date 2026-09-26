@@ -241,7 +241,7 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setTitleText", at = @At("HEAD"), cancellable = true)
     private void onSetTitle(ClientboundSetTitleTextPacket packet, CallbackInfo ci) {
-        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text().getString());
+        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text());
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
         if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())
@@ -254,7 +254,7 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "setSubtitleText", at = @At("HEAD"), cancellable = true)
     private void onSetSubtitle(ClientboundSetSubtitleTextPacket packet, CallbackInfo ci) {
-        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text().getString());
+        com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text());
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()
                 && (com.teslamaps.features.FarmingRngTitles.hideSubtitle(packet.text().getString())

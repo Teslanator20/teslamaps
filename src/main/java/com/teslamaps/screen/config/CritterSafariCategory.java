@@ -76,7 +76,7 @@ public final class CritterSafariCategory {
                 .desc("WUMPA SPAWNED! / Icy Biome as a title when the footsteps message comes");
         b.toggle("  Re-enter Waypoint", () -> config.safariWumpaReenter, v -> config.safariWumpaReenter = v)
                 .desc("Marks the hole back into the Wumpa arena while Wumpa is up");
-        b.toggle("  Capsules Used On Catch", () -> config.safariLegendCapsules, v -> config.safariLegendCapsules = v)
+        b.toggle("Capsules Used On Catch", () -> config.safariLegendCapsules, v -> config.safariLegendCapsules = v)
                 .desc("Wumpa / Doomspiral caught: chat line with how many capsules you threw at it");
         b.toggle("Sparkling Alert", () -> config.safariSparklingAlert, v -> config.safariSparklingAlert = v);
         b.channel("  Sparkling Announce", () -> config.safariSparklingChannel, v -> config.safariSparklingChannel = v);
