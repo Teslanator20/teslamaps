@@ -39,7 +39,7 @@ public final class PriceDebug {
             boolean ok = bz > 0 && bin > 0;
             p.sendSystemMessage(Component.literal("§b[TeslaMaps] " + (ok ? "§aPrices reloaded" : "§cSome prices failed to load")
                     + " §7in " + (System.currentTimeMillis() - start) / 100 / 10.0 + "s: §f" + bz + " §7bazaar, §f" + bin
-                    + " §7BIN, §f" + PriceManager.averageCount() + " §77-day avg, §f" + PriceManager.avgBinCount() + " §7avg BIN"));
+                    + " §7BIN"));
         });
         return 1;
     }

@@ -316,7 +316,7 @@ public class CroesusProfit {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         int stamp = java.util.Objects.hash(System.identityHashCode(cfg), TeslaMapsConfig.version(), PriceManager.version(),
                 cfg.croesusPriceSource, cfg.croesusKismetCost, cfg.croesusKuudraPetBonus, cfg.croesusKuudraSalvage, cfg.kuudraFaction,
-                cfg.croesusKeyCost, cfg.croesusNoEssence, cfg.croesusAvgPrices);
+                cfg.croesusKeyCost, cfg.croesusNoEssence);
         if (stamp != parsedStamp || parsedCache.size() > 256) {
             parsedStamp = stamp;
             parsedCache.clear();
@@ -478,10 +478,6 @@ public class CroesusProfit {
     }
 
     private static double price(String id) {
-        if (TeslaMapsConfig.get().croesusAvgPrices) {
-            Double avg = PriceManager.averageOrNull(id);
-            if (avg != null && avg > 0) return avg;
-        }
         int src = TeslaMapsConfig.get().croesusPriceSource;
         if (src == PriceManager.SOURCE_BAZAAR_BUY) return PriceManager.getPrice(id);
         Double p = PriceManager.getPriceOrNull(id, src);

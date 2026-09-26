@@ -61,17 +61,6 @@ public class PriceLine {
             Double bin = PriceManager.lowestBinOrNull(id);
             if (bin != null && bin > 0) rows.add(new Row("Lowest BIN", bin));
         }
-        String avg = c.priceLineAvgBin;
-        if (!onBazaar && avg != null && !avg.equals("Off")) {
-            if (!avg.equals("3 Day")) {
-                Double a1 = PriceManager.avgBinOrNull(id, 1);
-                if (a1 != null && a1 > 0) rows.add(new Row("1 Day Avg. BIN", a1));
-            }
-            if (!avg.equals("1 Day")) {
-                Double a3 = PriceManager.avgBinOrNull(id, 3);
-                if (a3 != null && a3 > 0) rows.add(new Row("3 Day Avg. BIN", a3));
-            }
-        }
         if (c.priceLineOrders) {
             Double order = PriceManager.bazaarBuyOrderOrNull(id);
             Double offer = PriceManager.bazaarSellOfferOrNull(id);

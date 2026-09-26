@@ -6,7 +6,6 @@ import com.google.gson.JsonParser;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.profileviewer.PvExtras;
 import com.teslamaps.profileviewer.data.CollectionRepo;
-import com.teslamaps.profileviewer.data.EliteRanks;
 import com.teslamaps.profileviewer.data.SbLevels;
 import com.teslamaps.profileviewer.data.SkyblockProfile;
 import com.teslamaps.profileviewer.data.SkyblockProfiles;
@@ -55,10 +54,6 @@ public class LevelPage extends ProfileViewerPage {
     public void init(com.teslamaps.profileviewer.screen.ProfileViewerScreen parent, SkyblockProfiles profiles) {
         super.init(parent, profiles);
         tree = null;
-        SkyblockProfile profile = getProfile();
-        if (profile != null && profiles != null && PvExtras.levelPage()) {
-            EliteRanks.request(profiles.getUuid(), profile.getProfileId());
-        }
     }
 
     @Override
@@ -112,7 +107,7 @@ public class LevelPage extends ProfileViewerPage {
         hoppityTab = new int[]{bx - 5, top + 2, tr.width(b) + 10, 14};
 
         int contentWidth = width;
-        int version = EliteRanks.version() + (CollectionRepo.isLoaded() ? 1 << 20 : 0);
+        int version = CollectionRepo.isLoaded() ? 1 : 0;
         if (tree == null || treeProfile != profile || treeWidth != contentWidth || treeVersion != version || treeHoppity != hoppity) {
             treeProfile = profile;
             treeWidth = contentWidth;
@@ -147,8 +142,6 @@ public class LevelPage extends ProfileViewerPage {
         int whole = (int) level;
         List<String> headTip = new ArrayList<>(List.of("§bSkyBlock Level " + whole,
                 "§7Total XP: §f" + Kit.dots(Math.round(level * 100))));
-        String rank = PvExtras.rankLine("skyblockxp");
-        if (rank != null) headTip.add(rank);
 
         Ui header = new Ui.Tip(Ui.col(3,
                 new Ui.SpaceBetween(width,
@@ -217,14 +210,12 @@ public class LevelPage extends ProfileViewerPage {
         loadRabbits();
 
         int barnLevel = asInt(easter.get("rabbit_barn_capacity_level"));
-        int rank = EliteRanks.rank("chocolate");
         List<Kit.TileData> tiles = new ArrayList<>(List.of(
                 new Kit.TileData("Chocolate", Kit.compact(asLong(easter.get("chocolate"))), NeuStyle.TEXT_GOLD),
                 new Kit.TileData("Since Prestige", Kit.compact(asLong(easter.get("chocolate_since_prestige"))), NeuStyle.TEXT_GOLD),
                 new Kit.TileData("All-Time", Kit.compact(asLong(easter.get("total_chocolate"))), NeuStyle.TEXT_GOLD),
                 new Kit.TileData("Spent", Kit.compact(asLong(obj(easter, "shop") == null ? null : obj(easter, "shop").get("chocolate_spent"))), NeuStyle.TEXT),
-                new Kit.TileData("Prestige", String.valueOf(Math.max(1, asInt(easter.get("chocolate_level")))), NeuStyle.TEXT_LIGHT_PURPLE),
-                new Kit.TileData("Leaderboard", rank > 0 ? "#" + Kit.dots(rank) : "-", NeuStyle.TEXT_AQUA)));
+                new Kit.TileData("Prestige", String.valueOf(Math.max(1, asInt(easter.get("chocolate_level")))), NeuStyle.TEXT_LIGHT_PURPLE)));
 
         // rabbits per rarity: uniques / all, duplicates in the tooltip
         JsonObject rabbits = obj(easter, "rabbits");

@@ -334,7 +334,7 @@ public class ChatMixin {
         out = com.teslamaps.features.mining.ScathaAlerts.rewrite(out);
         out = com.teslamaps.features.fishing.TrophyFishMessages.rewrite(out);
         // before channel compaction, the parser needs "Party > "
-        out = com.teslamaps.features.PlayerChatFormat.rewrite(com.teslamaps.features.ChatTranslator.rewrite(out));
+        out = com.teslamaps.features.PlayerChatFormat.rewrite(out);
         out = com.teslamaps.features.MarkedPlayers.rewrite(out);
         out = com.teslamaps.features.ChatCompact.rewrite(out);
         com.teslamaps.features.ChatLog.shown(out);

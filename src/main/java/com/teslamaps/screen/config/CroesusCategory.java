@@ -22,8 +22,6 @@ public final class CroesusCategory {
                 .desc("Chests that need a Dungeon Chest Key get its bazaar price added to the cost");
         b.toggle("  Exclude Essence", () -> config.croesusNoEssence, v -> config.croesusNoEssence = v)
                 .desc("Essence is still listed, but not counted in the profit");
-        b.toggle("  7-Day Average Prices", () -> config.croesusAvgPrices, v -> config.croesusAvgPrices = v)
-                .desc("Uses 7-day average prices (Odin's price API), falls back to the price source above");
         b.toggle("  Highlight 2nd Best (yellow)", () -> config.croesusHighlightSecond, v -> config.croesusHighlightSecond = v);
         b.toggle("  Derpy Warning", () -> config.croesusDerpyWarn, v -> config.croesusDerpyWarn = v)
                 .desc("Note in the panel while Derpy is mayor, essence values are unreliable then");

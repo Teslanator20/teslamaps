@@ -1,11 +1,10 @@
 package com.teslamaps.features;
 
-// NEU's price graph key (GuiPriceGraph.kt) + SkyHanni's price website links, Coflnet history
+// NEU's price graph key (GuiPriceGraph.kt) + SkyHanni's price website links
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.PriceManager;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.screen.PriceGraphScreen;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.StringUtil;
@@ -35,12 +34,10 @@ public final class PriceHistory {
                 .config("Inventory", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Price History");
-                    b.toggle("Price History Graph", () -> c.priceHistory, v -> c.priceHistory = v)
-                            .desc("Key over an item: price graph (1 day to all time) with bazaar buy/sell or auction average/lowest, from Coflnet. /tmap pricegraph <item>")
+                    b.toggle("Price History Website", () -> c.priceHistory, v -> c.priceHistory = v)
+                            .desc("Key over an item opens its price history on skyblock.bz (bazaar) or sky.coflnet.com (auction) in the browser. /tmap pricegraph <item>")
                             .tags("price graph", "history", "coflnet", "skyblock.bz", "trend");
-                    b.keybind("  Graph Key", () -> c.priceHistoryKey, v -> c.priceHistoryKey = v);
-                    b.toggle("  Open Website Instead", () -> c.priceHistoryBrowser, v -> c.priceHistoryBrowser = v)
-                            .desc("The key opens skyblock.bz (bazaar) or sky.coflnet.com (auction) in the browser instead of the graph.");
+                    b.keybind("  Website Key", () -> c.priceHistoryKey, v -> c.priceHistoryKey = v);
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
                 .then(ClientCommands.literal("pricegraph")
@@ -73,15 +70,16 @@ public final class PriceHistory {
     }
 
     private static void open(Minecraft mc, String id, String name) {
-        if (cfg().priceHistoryBrowser) {
-            try {
-                net.minecraft.util.Util.getPlatform().openUri(PriceGraphScreen.websiteUrl(id));
-            } catch (Exception e) {
-                if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cCould not open the browser"));
-            }
-            return;
+        try {
+            net.minecraft.util.Util.getPlatform().openUri(websiteUrl(id));
+        } catch (Exception e) {
+            if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cCould not open the browser"));
         }
-        mc.setScreen(new PriceGraphScreen(mc.screen, id, name));
+    }
+
+    private static String websiteUrl(String id) {
+        if (PriceManager.hasBazaar(id)) return "https://www.skyblock.bz/product/" + id;
+        return "https://sky.coflnet.com/item/" + id;
     }
 
     static String priceId(ItemStack st) {

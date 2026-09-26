@@ -116,7 +116,6 @@ public class HypixelNodes {
             case "joininstance" -> word(name, "instance", () -> ExtraSuggestions.instances(null));
             case "joindungeon" -> word(name, "instance", () -> ExtraSuggestions.instances("Catacombs"));
             case "joinkuudra" -> word(name, "instance", () -> ExtraSuggestions.instances("Kuudra"));
-            case "chapter", "chapters" -> greedy(name, () -> ExtraSuggestions.enabled() ? ExtraSuggestions.chapters() : List.of());
             case "viewstash" -> word(name, "stash", () -> ExtraSuggestions.VIEWSTASH);
             case "setmaxspeed" -> literal(name)
                     .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("speed", StringArgumentType.word())
@@ -129,25 +128,8 @@ public class HypixelNodes {
                     .build();
             case "ahs", "ahsearch" -> items(name, com.teslamaps.features.SearchOverlay.Location.AUCTION);
             case "bz", "bazaar" -> items(name, com.teslamaps.features.SearchOverlay.Location.BAZAAR);
-            case "rngmeter", "rng" -> literal(name)
-                    .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("type", StringArgumentType.string())
-                            .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
-                                    ? suggest(quoted(ExtraSuggestions.rngTypes()), builder) : builder.buildFuture())
-                            .executes(NOOP)
-                            .then(RequiredArgumentBuilder.<SharedSuggestionProvider, String>argument("subtype", StringArgumentType.string())
-                                    .suggests((context, builder) -> ExtraSuggestions.enabled() && SkyblockUtils.isInSkyblock()
-                                            ? suggest(quoted(ExtraSuggestions.rngSubtypes(StringArgumentType.getString(context, "type"))), builder)
-                                            : builder.buildFuture())
-                                    .executes(NOOP)))
-                    .build();
             default -> null;
         };
-    }
-
-    private static List<String> quoted(List<String> in) {
-        List<String> out = new java.util.ArrayList<>(in.size());
-        for (String s : in) out.add(s.indexOf(' ') >= 0 ? "\"" + s + "\"" : s);
-        return out;
     }
 
     private static CommandNode<SharedSuggestionProvider> word(

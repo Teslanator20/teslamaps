@@ -220,14 +220,11 @@ public class CollectionsPage extends ProfileViewerPage {
     private Object cellProfile;
     private List<CollectionRepo.Category> cellRepo;
     private int cellCacheWidth = -1;
-    private int cellRankVersion = -1;
 
     private Ui cell(CollectionRepo.Entry entry, long amount, int cellWidth) {
         SkyblockProfile profile = getProfile();
         List<CollectionRepo.Category> repo = CollectionRepo.categories();
-        int rankVersion = com.teslamaps.profileviewer.PvExtras.ranks() ? com.teslamaps.profileviewer.data.EliteRanks.version() : -1;
-        if (profile != cellProfile || repo != cellRepo || cellWidth != cellCacheWidth || rankVersion != cellRankVersion) {
-            cellRankVersion = rankVersion;
+        if (profile != cellProfile || repo != cellRepo || cellWidth != cellCacheWidth) {
             cellCache.clear();
             cellProfile = profile;
             cellRepo = repo;
@@ -266,11 +263,6 @@ public class CollectionsPage extends ProfileViewerPage {
         } else {
             tooltip.add("§7Next: §f" + Kit.compact(amount) + "§7/§f" + Kit.compact(next));
             tooltip.add("§7To max: §e" + Kit.dots(CollectionRepo.toMax(entry, amount)));
-        }
-        if (com.teslamaps.profileviewer.PvExtras.ranks()) {
-            String rank = com.teslamaps.profileviewer.data.EliteRanks.line(
-                    com.teslamaps.profileviewer.data.EliteRanks.collectionRank(entry.id()));
-            if (rank != null) tooltip.add(rank);
         }
 
         return new Ui.Tip(Ui.row(5, Ui.V.CENTER, new Ui.Icon(icon(entry.id()), 16, false, null), body), tooltip);

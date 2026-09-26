@@ -54,9 +54,6 @@ public class BasicPage extends ProfileViewerPage {
         armor = profile == null ? java.util.List.of() : armorSlots(profile);
         board = profile == null ? java.util.List.of() : buildBoard(profile);
         hypixelExp = Double.NaN;
-        if (profile != null && profiles != null && com.teslamaps.profileviewer.PvExtras.ranks()) {
-            com.teslamaps.profileviewer.data.EliteRanks.request(profiles.getUuid(), profile.getProfileId());
-        }
     }
 
     private record BoardRow(String key, String value, int color) {}
@@ -286,10 +283,9 @@ public class BasicPage extends ProfileViewerPage {
         boolean levelLink = com.teslamaps.profileviewer.PvExtras.levelPage();
         link(ctx, sbX - 36, sbY - 27, 90, 26, mouseX, mouseY, levelLink ? LevelPage.class : null);
         boolean sbHover = mouseX >= sbX - 36 && mouseX < sbX + 54 && mouseY >= sbY - 27 && mouseY < sbY - 1;
-        String sbRank = sbHover ? com.teslamaps.profileviewer.PvExtras.rankLine("skyblockxp") : null;
         boolean sbClick = levelLink && com.teslamaps.profileviewer.PvExtras.deepLinks();
-        if (sbHover && (sbRank != null || sbClick)) {
-            tooltip = withExtra(new String[]{"SkyBlock Level"}, sbRank, sbClick ? "§eClick to open the level page" : null);
+        if (sbHover && sbClick) {
+            tooltip = withExtra(new String[]{"SkyBlock Level"}, null, sbClick ? "§eClick to open the level page" : null);
             tooltipX = mouseX;
             tooltipY = mouseY;
         }
@@ -311,7 +307,7 @@ public class BasicPage extends ProfileViewerPage {
             link(ctx, left + 129, cataY - 2, 70, 22, mouseX, mouseY, DungeonPage.class);
             if (mouseX >= left + 129 && mouseX < left + 199 && mouseY >= cataY - 2 && mouseY < cataY + 20) {
                 tooltip = withExtra(new String[]{"Catacombs " + profile.getDungeonData().getCatacombsLevel()},
-                        com.teslamaps.profileviewer.PvExtras.rankLine("catacombs"), "§eClick to open Dungeons");
+                        null, "§eClick to open Dungeons");
                 tooltipX = mouseX;
                 tooltipY = mouseY;
             }
@@ -352,7 +348,7 @@ public class BasicPage extends ProfileViewerPage {
                         skill.getDisplayName(),
                         "Progress: " + (overflow ? skill.getFormattedOverflowProgress() : skill.getFormattedProgress()),
                         "Total XP: " + skill.getFormattedTotalXp(),
-                }, com.teslamaps.profileviewer.PvExtras.rankLine(entry.getKey()),
+                }, null,
                         target != null && com.teslamaps.profileviewer.PvExtras.deepLinks()
                                 ? "§eClick to open " + target.getSimpleName().replace("Page", "") : null);
                 tooltipX = mouseX;

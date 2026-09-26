@@ -449,14 +449,14 @@ public class HypixelApi {
         }, executor);
     }
 
-    /** uuid -> current name via Mojang's session server, cached an hour. */
+    /** uuid -> current name via Mojang's profile API, cached an hour. */
     public static String uuidToName(String uuid) {
         String cacheKey = "name:" + uuid;
         CacheEntry cached = cache.get(cacheKey);
         if (cached != null && !cached.isExpired()) return cached.data.get("name").getAsString();
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid.replace("-", "")))
+                    .uri(URI.create(MOJANG_API + "/user/profile/" + uuid.replace("-", "")))
                     .timeout(Duration.ofSeconds(10))
                     .GET()
                     .build();

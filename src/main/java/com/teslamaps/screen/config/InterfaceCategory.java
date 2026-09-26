@@ -227,8 +227,6 @@ public final class InterfaceCategory {
         b.toggle("  /peek + Lobby Leaderboards", () -> config.pvPeek, v -> config.pvPeek = v)
                 .desc("/peek <name> prints skills, cata, slayers and coins; /tmap lobbylb <purse|skills|cata> ranks the players in your lobby")
                 .tags("pv", "peek", "purselb", "skillslb", "leaderboard");
-        b.toggle("  Leaderboard Ranks", () -> config.pvEliteRanks, v -> config.pvEliteRanks = v)
-                .desc("Elite leaderboard rank in skill, catacombs, class, slayer and collection tooltips (one request to eliteskyblock.com per profile)");
         b.toggle("  Mining/Foraging Gear", () -> config.pvGearScan, v -> config.pvGearScan = v)
                 .desc("Best mining and foraging armor, equipment and tools found in all containers");
         b.toggle("  Greenhouse", () -> config.pvGreenhouse, v -> config.pvGreenhouse = v)

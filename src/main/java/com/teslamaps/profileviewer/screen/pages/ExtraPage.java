@@ -46,17 +46,14 @@ public class ExtraPage extends ProfileViewerPage {
 
         JsonObject member = profile.getMemberData();
         int available = NeuStyle.PANEL_HEIGHT - y - 6;
-        int version = com.teslamaps.profileviewer.PvExtras.ranks() ? com.teslamaps.profileviewer.data.EliteRanks.version() : -1;
-        if (member != treeMember || version != treeVersion) {
+        if (member != treeMember) {
             treeMember = member;
-            treeVersion = version;
             treeKey = new Object();
         }
         drawTree(ctx, cachedTree(treeKey, w -> fitted(member, w, available)), width, x, y, mouseX, mouseY);
     }
 
     private JsonObject treeMember;
-    private int treeVersion;
     private Object treeKey;
 
     private Ui fitted(JsonObject member, int width, int available) {
@@ -201,8 +198,6 @@ public class ExtraPage extends ProfileViewerPage {
                         + (attempts > kills ? " §8(" + com.teslamaps.profileviewer.ui.Kit.dots(attempts) + " started)" : ""));
             }
             tooltip.add("§7Bosses killed: §f" + com.teslamaps.profileviewer.ui.Kit.dots(total));
-            String rank = com.teslamaps.profileviewer.PvExtras.rankLine(SLAYER_KEYS.get(i) + "-slayer");
-            if (rank != null) tooltip.add(rank);
 
             int color = xp > 0 ? SLAYER_COLORS.get(i) : NeuStyle.TEXT_DARK;
             rows.add(new Ui.Tip(Ui.col(2,

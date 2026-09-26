@@ -2198,7 +2198,6 @@ public class TeslaMapsConfig {
     public boolean petItemSymbol = false;
     public float petItemSymbolScale = 0.7f;
     public java.util.Map<String, String> petItemSymbols = new java.util.HashMap<>();
-    public boolean georgePetPrice = false;
     public boolean georgeTamingHelper = false;
     public boolean georgeOtherTiers = false;
     public boolean expShareDisabledSlots = false;
@@ -3925,7 +3924,6 @@ public class TeslaMapsConfig {
     // w14-05-gar
     public boolean contestCrops = false;
     public boolean contestCropsPlacement = true;
-    public boolean contestCropsFetch = true;
     public boolean contestCropWarn = false;
     public int contestCropWarnSeconds = 120;
     public java.util.List<String> contestCropWarnFor = new java.util.ArrayList<>();
@@ -3974,7 +3972,6 @@ public class TeslaMapsConfig {
     public boolean pestGlowVinyl = false;
     public String pestGlowVinylId = "";
     // w13-04-pv (master pvExtras lives in w13-05-pv)
-    public boolean pvEliteRanks = true;
     public boolean pvGearScan = true;
     public boolean pvGreenhouse = true;
     public boolean pvFishingStats = true;
@@ -4275,17 +4272,6 @@ public class TeslaMapsConfig {
     public int atmosphericFilterY = 230;
     public float atmosphericFilterScale = 1.0f;
     public boolean mhCropDiagnostics = false;
-    public boolean eliteLeaderboards = false;
-    public boolean eliteLbWeight = true;
-    public boolean eliteLbCrop = false;
-    public boolean eliteLbPest = false;
-    public boolean eliteLbMonthly = false;
-    public String eliteLbGamemode = "All";
-    public boolean eliteLbOvertake = true;
-    public boolean eliteLbEverywhere = false;
-    public int eliteLbX = 10;
-    public int eliteLbY = 150;
-    public float eliteLbScale = 1.0f;
     public boolean cropSpeedMeter = false;
     public int cropSpeedMeterX = 10;
     public int cropSpeedMeterY = 90;
@@ -4465,7 +4451,6 @@ public class TeslaMapsConfig {
     public String colorInstaSell = "55FF55";
     public boolean priceHistory = false;
     public int priceHistoryKey = -1;
-    public boolean priceHistoryBrowser = false;
     public boolean auctionSortWarning = false;
     public boolean dragonProfitTracker = false;
     public boolean dragonProfitLeeched = false;
@@ -4502,7 +4487,6 @@ public class TeslaMapsConfig {
     public int bazaarFillX = 10;
     public int bazaarFillY = 120;
     public float bazaarFillScale = 1.0f;
-    public String priceLineAvgBin = "Off";
     public boolean priceLineVolume = false;
     public boolean priceLookup = false;
     public int priceLookupKey = 295;
@@ -4622,8 +4606,6 @@ public class TeslaMapsConfig {
     public boolean markedPlayersJoinLeave = false;
     public com.teslamaps.render.EspStyle markedPlayersStyle = new com.teslamaps.render.EspStyle("FFFFFF55");
     public boolean socialHideFakePlayers = false;
-    public boolean scamCheck = false;
-    public boolean scamCheckClose = true;
     public boolean modChat = false;
     public boolean modChatJoinMessage = false;
     // w11-08-gui
@@ -4834,8 +4816,6 @@ public class TeslaMapsConfig {
     public int chatSendQueueGap = 200;
     public boolean terminatorCooldownMute = false;
     public boolean terminatorCooldownMuteChat = true;
-    public boolean imageLinkPreview = false;
-    public int imageLinkPreviewKey = -1;
     // w10-08-chat
     public boolean chatFilterSeparators = false;
     public boolean playerChatFormat = false;
@@ -4850,11 +4830,7 @@ public class TeslaMapsConfig {
     public int smoothChatOpenMs = 200;
     public boolean chatHideMessageIndicator = false;
     public boolean reportAutoConfirm = false;
-    public boolean chatTranslator = false;
-    public String chatTranslatorLanguage = "en";
     public boolean commandSuggestionsExtra = false;
-    @Global
-    public String ownHypixelRank = "";
     // w10-01-chat
     public String chatAutopetMode = "Show";          // Show / Hide / Action Bar / Toast
     public float chatAutopetToastSeconds = 3f;
@@ -5817,7 +5793,6 @@ public class TeslaMapsConfig {
     public int queueEstimateY = -1;
     public float queueEstimateScale = 1.0f;
     public boolean calcXpCommand = false;
-    public boolean clockOffsetWarning = false;
     // w06-00-qol
     public boolean commandHelpers = false;
     public boolean cmdWarpIs = true;
@@ -5849,7 +5824,6 @@ public class TeslaMapsConfig {
     public boolean seeThroughWindow = false;
     public int seeThroughWindowKey = -1;
     public int seeThroughWindowOpacity = 50;
-    public boolean soopyCommands = false;
     public boolean spyMode = false;
     // w06-04-qol
     public boolean reminders = false;
@@ -6252,7 +6226,6 @@ public class TeslaMapsConfig {
     // w04-00-dun
     public boolean croesusKeyCost = false;             // subtract the Dungeon Chest Key when a chest needs one
     public boolean croesusNoEssence = false;           // leave essence out of the profit
-    public boolean croesusAvgPrices = false;           // 7-day average prices, current price as fallback
     public boolean croesusHighlightSecond = false;     // second best chest in yellow
     public boolean croesusDerpyWarn = false;
     public boolean croesusRerollProtect = false;
@@ -7054,7 +7027,6 @@ public class TeslaMapsConfig {
         c.cropLatestBps.values().removeIf(java.util.Objects::isNull);
         c.cropLatestFortune.values().removeIf(java.util.Objects::isNull);
         c.cropMeasuredPerBlock.values().removeIf(java.util.Objects::isNull);
-        if (c.eliteLbGamemode == null) c.eliteLbGamemode = "All";
         if (c.farmToolColor == null) c.farmToolColor = "66B22222";
         if (c.contestCropWarnFor == null) c.contestCropWarnFor = new java.util.ArrayList<>();
         if (c.pestGlowVinylId == null) c.pestGlowVinylId = "";
@@ -7141,7 +7113,6 @@ public class TeslaMapsConfig {
             if (t.time == null) t.time = "1h";
         }
         if (c.cakeTrackerShow == null) c.cakeTrackerShow = "Missing";
-        if (c.priceLineAvgBin == null) c.priceLineAvgBin = "Off";
         c.containerTriggerList.removeIf(java.util.Objects::isNull);
         if (c.islandAlertMode == null) c.islandAlertMode = "Title + Sound";
         if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};

@@ -53,7 +53,7 @@ public final class TooltipsValueCategory {
         b.label("Item Value");
         b.toggle("Estimated Item Value", () -> config.estimatedValue, v -> config.estimatedValue = v);
         b.toggle("  Value Pets", () -> config.petValue, v -> config.petValue = v)
-                .desc("Pets get a value from level (lowest BIN of Lvl 1/100/200 scaled by xp), held item and skin. Also counts in container value and item protection.");
+                .desc("Pets get a value from their lowest BIN (type and rarity), held item and skin. Also counts in container value and item protection.");
         b.toggle("  List Gemstones", () -> config.gemstoneList, v -> config.gemstoneList = v)
                 .desc("Every applied gemstone with its quality, e.g. Perfect Ruby.");
         b.toggle("Wardrobe Set Value", () -> config.wardrobeValue, v -> config.wardrobeValue = v)
@@ -88,9 +88,6 @@ public final class TooltipsValueCategory {
         b.toggle("  Buy Order / Sell Offer", () -> config.priceLineOrders, v -> config.priceLineOrders = v);
         b.toggle("  NPC Sell Price", () -> config.priceLineNpc, v -> config.priceLineNpc = v);
         b.toggle("  Raw Craft Cost", () -> config.priceLineCraft, v -> config.priceLineCraft = v);
-        b.dropdown("  Average BIN", new String[]{"Off", "1 Day", "3 Day", "Both"},
-                () -> config.priceLineAvgBin, v -> config.priceLineAvgBin = v)
-                .desc("1 / 3 day average lowest BIN for auction items, harder to fake than the current lowest BIN.");
         b.toggle("  Bazaar Weekly Volume", () -> config.priceLineVolume, v -> config.priceLineVolume = v)
                 .desc("Insta-buys and insta-sells of the last 7 days, shows how liquid a bazaar item is.");
         b.toggle("    Cheaper Of Buy / Craft", () -> config.priceLineCraftCheapest, v -> config.priceLineCraftCheapest = v)

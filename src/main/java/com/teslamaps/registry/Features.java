@@ -269,7 +269,6 @@ final class Features {
         com.teslamaps.features.TeleportPads.register();
         com.teslamaps.features.SkyblockTimeReminder.register();
         com.teslamaps.features.SeeThroughWindow.register();
-        com.teslamaps.features.SoopyCommand.register();
         com.teslamaps.features.SpyMode.register();
         // w06-04-qol
         com.teslamaps.features.Reminders.register();
@@ -382,7 +381,6 @@ final class Features {
         com.teslamaps.features.qol.TiaRelayHelper.register();
         com.teslamaps.features.qol.QueueEstimate.register();
         com.teslamaps.features.qol.CalcXp.register();
-        com.teslamaps.features.qol.ClockOffset.register();
         // w08-06-hud
         com.teslamaps.features.AbilityCooldowns.register();
         com.teslamaps.features.TabWidgetHint.register();
@@ -429,7 +427,6 @@ final class Features {
         com.teslamaps.features.ChatCompactRulesIslands.register();
         com.teslamaps.features.ChatQueue.register();
         com.teslamaps.features.TerminatorCooldownMute.register();
-        com.teslamaps.features.ImageLinkPreview.register();
         // w10-03-chat
         com.teslamaps.features.ChatCompacts.register();
         // w10-05-chat
@@ -462,7 +459,6 @@ final class Features {
         com.teslamaps.features.VisualFixes.register();
         // w10-08-chat
         com.teslamaps.features.PlayerChatFormat.register();
-        com.teslamaps.features.ChatTranslator.register();
         com.teslamaps.features.SmoothChat.register();
         com.teslamaps.features.ReportAutoConfirm.register();
         com.teslamaps.command.ExtraSuggestions.register();
@@ -536,7 +532,6 @@ final class Features {
         com.teslamaps.features.PartyCheck.register();
         com.teslamaps.features.MarkedPlayers.register();
         com.teslamaps.features.SocialScreenFilter.register();
-        com.teslamaps.features.ScamCheck.register();
         com.teslamaps.features.ModChat.register();
         // w11-08-gui
         com.teslamaps.config.ConfigBackups.register();
@@ -677,7 +672,6 @@ final class Features {
         // w13-08-gar
         com.teslamaps.features.CropStats.register();
         com.teslamaps.features.AtmosphericFilter.register();
-        com.teslamaps.features.EliteLeaderboards.register();
         com.teslamaps.features.CropSpeedMeter.register();
         com.teslamaps.features.CropCalcCommands.register();
         com.teslamaps.features.FortuneGuide.register();

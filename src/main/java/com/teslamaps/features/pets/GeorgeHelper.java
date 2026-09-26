@@ -1,9 +1,6 @@
 package com.teslamaps.features.pets;
 
-// Sell price after Skyblocker's GeorgePriceTooltip (hysky.de/api/georgeprices), Taming 60 list after SkyHanni's GeorgeHelper.kt
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.teslamaps.TeslaMaps;
+// Taming 60 list after SkyHanni's GeorgeHelper.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.EstimatedValue;
 import com.teslamaps.features.PetValue;
@@ -12,37 +9,23 @@ import com.teslamaps.registry.Feature;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.StringUtil;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class GeorgeHelper {
 
-    private static final String URL = "https://hysky.de/api/georgeprices";
-    private static final long REFRESH_MS = 60 * 60_000L;
     private static final String[] TIERS = {"COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC"};
     private static final String[] TIER_NAMES = {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"};
     private static final String[] TIER_COLORS = {"§f", "§a", "§9", "§5", "§6", "§d"};
@@ -52,17 +35,12 @@ public final class GeorgeHelper {
 
     private record Row(String text, String search, double price) {}
 
-    private static final Map<String, Double> prices = new ConcurrentHashMap<>();
-    private static volatile long fetched;
-    private static volatile boolean loading;
 
     private static Feature feature;
     private static List<Row> rows = List.of();
     private static String total = "";
     private static long builtAt, lastClick;
     private static int listX, listY, listW;
-    private static CustomData tipData;
-    private static Component tipLine;
 
     private GeorgeHelper() {}
 
@@ -70,13 +48,9 @@ public final class GeorgeHelper {
 
     public static void register() {
         feature = Feature.of("GeorgeHelper").section("Skills")
-                .when(() -> cfg().georgePetPrice || cfg().georgeTamingHelper)
+                .when(() -> cfg().georgeTamingHelper)
                 .config("Skills", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.toggle("George Pet Sell Price", () -> c.georgePetPrice, v -> c.georgePetPrice = v)
-                            .desc("Level 1 pets (0 XP) get a \"Pet Sell Price\" line with what George pays for them. "
-                                    + "Prices from hysky.de (Skyblocker's API)")
-                            .tags("george", "pet", "sell", "price");
                     b.toggle("George Taming 60 Helper", () -> c.georgeTamingHelper, v -> c.georgeTamingHelper = v)
                             .desc("George's \"Offer Pets\" menu: the pets still needed for Taming 60 with the cheapest lowest BIN "
                                     + "and the total. Click a row to search it in the AH")
@@ -84,11 +58,6 @@ public final class GeorgeHelper {
                     b.toggle("  Check Rarity Above / Below", () -> c.georgeOtherTiers, v -> c.georgeOtherTiers = v)
                             .desc("Also looks one rarity lower and higher, upgrading through Kat is not counted");
                 });
-        ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (!cfg().georgePetPrice || stack.isEmpty() || lines.isEmpty() || feature == null || !feature.active()) return;
-            Component line = sellLine(stack);
-            if (line != null) lines.add(line);
-        });
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> {
             if (!(screen instanceof AbstractContainerScreen<?> cs)) return;
             if (!StringUtil.stripTrim(screen.getTitle().getString()).equals("Offer Pets")) return;
@@ -107,52 +76,9 @@ public final class GeorgeHelper {
         return cfg().georgeTamingHelper && feature != null && feature.active();
     }
 
-    // ---------------------------------------------------------------- sell price
-
-    private static Component sellLine(ItemStack stack) {
-        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
-        if (d == null || !"PET".equals(ItemUtil.skyblockId(stack))) return null;
-        if (d != tipData) {
-            tipData = d;
-            tipLine = null;
-            PetValue.Pet pet = PetValue.parse(d.copyTag().getStringOr("petInfo", ""));
-            if (pet != null && pet.exp() <= 0) {
-                ensurePrices();
-                Double p = prices.get(pet.type() + ";" + tierIndex(pet.tier()));
-                if (p != null) tipLine = Component.literal("§ePet Sell Price: §6" + EstimatedValue.fmt(p) + " coins");
-                else if (prices.isEmpty()) tipData = null;
-            }
-        }
-        return tipLine;
-    }
-
     private static int tierIndex(String tier) {
         for (int i = 0; i < TIERS.length; i++) if (TIERS[i].equalsIgnoreCase(tier)) return i;
         return 0;
-    }
-
-    private static void ensurePrices() {
-        if (loading || System.currentTimeMillis() - fetched < REFRESH_MS) return;
-        loading = true;
-        fetched = System.currentTimeMillis();
-        CompletableFuture.runAsync(() -> {
-            try {
-                HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL)
-                        .connectTimeout(Duration.ofSeconds(10)).build();
-                HttpRequest req = HttpRequest.newBuilder(URI.create(URL)).timeout(Duration.ofSeconds(20)).GET().build();
-                HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
-                if (res.statusCode() == 200) {
-                    JsonObject json = JsonParser.parseString(res.body()).getAsJsonObject();
-                    for (var e : json.entrySet()) {
-                        try { prices.put(e.getKey(), e.getValue().getAsDouble()); } catch (Exception ignored) {}
-                    }
-                }
-            } catch (Exception e) {
-                TeslaMaps.LOGGER.warn("George price fetch failed: {}", e.toString());
-            } finally {
-                loading = false;
-            }
-        });
     }
 
     // ---------------------------------------------------------------- taming 60
