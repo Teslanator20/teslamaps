@@ -1944,6 +1944,15 @@ public class TMapCommand {
                                     return 1;
                                 })))
                 .then(com.teslamaps.features.ChatUserFilters.command())
+                .then(ClientCommands.literal("lava")
+                        .executes(context -> {
+                            TeslaMapsConfig c = TeslaMapsConfig.get();
+                            c.translucentLava = !c.translucentLava;
+                            TeslaMapsConfig.save();
+                            context.getSource().sendFeedback(Component.literal("Translucent Lava: "
+                                    + (c.translucentLava ? "§aon" : "§coff")));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("mutesound")
                         .executes(context -> {
                             TeslaMapsConfig c = TeslaMapsConfig.get();

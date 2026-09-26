@@ -17,5 +17,6 @@ public class EntityNametagMixin {
         if (state.nameTagAttachment == null) return;
         LowerEndermanNametags.adjust(entity, state);
         Cosmetics.adjustNametag(entity, state);
+        com.teslamaps.features.FishingHookDisplay.markState(entity, state);
     }
 }
