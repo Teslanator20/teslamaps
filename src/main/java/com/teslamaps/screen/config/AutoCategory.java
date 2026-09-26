@@ -81,5 +81,9 @@ public final class AutoCategory {
         b.toggle("Close Chest On Input", () -> config.closeChestOnInput, v -> config.closeChestOnInput = v);
         b.label("Movement");
         b.toggle("Auto Sprint", () -> config.autoSprint, v -> config.autoSprint = v);
+        b.toggle("  In Garden", () -> config.autoSprintGarden, v -> config.autoSprintGarden = v)
+                .desc("Off = no auto sprint on the Garden, most crops don't need it");
+        b.toggle("  Pause With Farming Tool", () -> config.autoSprintFarmTool, v -> config.autoSprintFarmTool = v)
+                .desc("No auto sprint while a hoe, dicer or other farming tool is in your hand");
     }
 }

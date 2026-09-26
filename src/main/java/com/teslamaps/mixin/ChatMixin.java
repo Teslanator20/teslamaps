@@ -143,6 +143,7 @@ public class ChatMixin {
         if (fromServer) com.teslamaps.features.SackApi.onChatComponent(message);
         if (fromServer && cfg.gemstoneMoney && cfg.section("Mining")) com.teslamaps.features.mining.GemstoneMoneyPerHour.onChatComponent(message);
         if (fromServer) com.teslamaps.features.AbiphoneAccept.onChatComponent(message);
+        if (fromServer && cfg.trevorAuto && cfg.section("Garden")) com.teslamaps.features.TrevorTrapper.onChatComponent(message);
         if (fromServer && cfg.customTrackers) com.teslamaps.features.tracker.CustomTrackers.onChatComponent(message);
         if (fromServer) com.teslamaps.features.ItemPickupLog.onChatComponent(message);
         if (fromServer && cfg.profitTracker) com.teslamaps.features.tracker.ProfitTracker.onChatComponent(message);

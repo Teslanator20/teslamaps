@@ -2148,6 +2148,17 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w20-06-cheat
+    public boolean trevorAuto = false;
+    public boolean trevorAutoCall = true;
+    public boolean trevorAutoAccept = true;
+    public int trevorAutoDelay = 800;                // ms fixed
+    public int trevorAutoRandom = 1200;              // ms random extra
+    public boolean autoReelLasso = false;
+    public int autoReelLassoDelay = 150;             // ms fixed
+    public int autoReelLassoRandom = 150;            // ms random extra
+    public boolean autoSprintGarden = false;         // auto sprint also in the Garden
+    public boolean autoSprintFarmTool = false;       // pause auto sprint with a farming tool in hand
     // w19-07-rif
     public boolean riftWoodenButtons = false;
     public String riftWoodenButtonsColor = "FF55FF";
