@@ -2148,6 +2148,24 @@ public class TeslaMapsConfig {
     public String colorESPCustom = "00FFFF";         // Custom entries without their own colour (cyan)
 
     // feature gaps, waves 2+
+    // w19-01-evt
+    public boolean hoppityEggMealTimer = false;
+    public boolean hoppityEggClickMark = false;
+    public boolean hoppityEggGuess = false;
+    public boolean hoppityEggGuessLine = true;
+    public boolean hoppityEggGuessDupes = true;
+    public boolean hoppityEggSpots = false;
+    public boolean hoppityEggSpotsHideFound = false;
+    public boolean upcomingEvents = false;
+    public int upcomingEventsCount = 6;
+    public boolean upcomingEventsReminder = false;
+    public int upcomingEventsLeadMin = 5;
+    public boolean upcomingEventsInventory = false;
+    public int upcomingEventsX = 10;
+    public int upcomingEventsY = 120;
+    public float upcomingEventsScale = 1.0f;
+    public boolean contestTabEvent = false;
+    public boolean noGrassRaycast = false;
     // w18-05-evt
     public boolean frozenTreasureHighlight = false;
     public com.teslamaps.render.EspStyle frozenTreasureStyle = new com.teslamaps.render.EspStyle("6655FFFF", com.teslamaps.render.EspStyle.BOTH);

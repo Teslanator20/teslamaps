@@ -960,5 +960,10 @@ final class Features {
         com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
+        // w19-01-evt
+        com.teslamaps.features.HoppityEggESP.registerHooks();
+        com.teslamaps.features.HoppityEggLocator.register();
+        com.teslamaps.features.events.UpcomingEvents.register();
+        com.teslamaps.features.diana.NoGrassRaycast.register();
     }
 }

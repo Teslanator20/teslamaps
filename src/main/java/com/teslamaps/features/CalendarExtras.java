@@ -115,9 +115,13 @@ public final class CalendarExtras {
 
     private static void addZoo(List<Component> lines, int year, int month) {
         if (month < 0) return;
-        int idx = year * 2 + (month < 6 ? 0 : 1);
         lines.add(Component.empty());
-        lines.add(Component.literal("§7Pet available: §6" + ZOO_PETS[Math.floorMod(idx, ZOO_PETS.length)]));
+        lines.add(Component.literal("§7Pet available: §6" + zooPet(year, month)));
+    }
+
+    /** Legendary pet of the Traveling Zoo in that year (1-based) and month (0-based). */
+    public static String zooPet(int year, int month) {
+        return ZOO_PETS[Math.floorMod(year * 2 + (month < 6 ? 0 : 1), ZOO_PETS.length)];
     }
 
     private static List<Component> minister() {
