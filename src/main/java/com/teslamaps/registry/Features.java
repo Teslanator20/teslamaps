@@ -995,6 +995,14 @@ final class Features {
         com.teslamaps.features.rift.CoherentRodRadius.register();
         com.teslamaps.features.rift.UbikCubeReminder.register();
         com.teslamaps.features.rift.VoltCrux.register();
+        // w19-02-rif
+        com.teslamaps.features.rift.RiftZone.register();
+        com.teslamaps.features.rift.EnigmaSouls.register();
+        com.teslamaps.features.rift.RiftTimer.register();
+        com.teslamaps.features.rift.MotesPrice.register();
+        com.teslamaps.features.rift.RiftInventoryValue.register();
+        com.teslamaps.features.rift.BloodEffigies.register();
+        com.teslamaps.features.rift.DanceRoomHelper.register();
         // w19-03-rif
         com.teslamaps.features.rift.KloonHacking.register();
         com.teslamaps.features.rift.CruxTalismanDisplay.register();

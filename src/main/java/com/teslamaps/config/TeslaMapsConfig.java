@@ -2221,6 +2221,36 @@ public class TeslaMapsConfig {
     public boolean voltMoodMeter = true;
     public boolean voltRange = true;
     public String voltRangeColor = "6000AAFF";
+    // w19-02-rif
+    public boolean riftEnigmaSouls = false;
+    public boolean riftEnigmaShowFound = false;
+    public boolean riftEnigmaBeams = false;
+    public String riftEnigmaMissingColor = "FFAA00AA";
+    public String riftEnigmaFoundColor = "FF55FF55";
+    public boolean riftTimer = false;
+    public boolean riftTimerMax = true;
+    public boolean riftTimerPercent = true;
+    public boolean riftTimerNametag = false;
+    public int riftTimerX = 10;
+    public int riftTimerY = 120;
+    public float riftTimerScale = 1.0f;
+    public boolean riftMotesPrice = false;
+    public int riftMcGrubberStacks = 0;
+    public boolean riftMcGrubberAuto = true;
+    public boolean riftInvValue = false;
+    public boolean riftInvValueLong = false;
+    public boolean riftEffigies = false;
+    public int riftEffigiesSoonMin = 3;
+    public boolean riftEffigiesUnknown = true;
+    public boolean riftEffigiesChat = true;
+    public boolean parkourHidePlayers = false;
+    public boolean riftDanceRoom = false;
+    public int riftDanceLines = 3;
+    public boolean riftDanceHideTitle = false;
+    public boolean riftDanceHidePlayers = false;
+    public int riftDanceX = 10;
+    public int riftDanceY = 160;
+    public float riftDanceScale = 1.0f;
     // w19-03-rif
     public boolean kloonHackingSolver = false;
     public boolean kloonColorHelper = true;

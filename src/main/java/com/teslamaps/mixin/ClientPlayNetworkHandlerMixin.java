@@ -258,6 +258,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.kuudra.KuudraPearls.onTitle(packet.text());
         if (CustomTitles.shouldHideDefaultTitle()) { ci.cancel(); return; }
         if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) return;
+        if (com.teslamaps.features.rift.DanceRoomHelper.hideTitle()) { ci.cancel(); return; }
         if (com.teslamaps.features.FarmingRngTitles.hideTitle(packet.text().getString())
                 || com.teslamaps.features.kuudra.KuudraMisc.hideTitle(packet.text().getString())) { ci.cancel(); return; }
         if (com.teslamaps.features.kuudra.KuudraSupplyProgress.onText(packet.text().getString())) { ci.cancel(); return; }
