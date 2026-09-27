@@ -40,7 +40,7 @@ public final class SkeletonHelmet {
         Feature.of("SkeletonHelmet").when(() -> cfg().skeletonHelmetHideBones || cfg().skeletonHelmetBar)
                 .tick(SkeletonHelmet::tick)
                 .hudHiddenInInventory("skeletonbar", SkeletonHelmet::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     b.label("Skeleton's Helmet");
                     b.toggle("Hide Orbiting Bones", () -> cfg().skeletonHelmetHideBones, v -> cfg().skeletonHelmetHideBones = v)
                             .desc("Hides the bones circling you while you wear a Skeleton's Helmet").tags("bone", "skeleton");

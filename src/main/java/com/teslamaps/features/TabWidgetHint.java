@@ -13,7 +13,7 @@ public final class TabWidgetHint {
 
     public static void register() {
         Feature.of("TabWidgetHint")
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = TeslaMapsConfig.get();
                     b.label("Tab Widgets");
                     b.toggle("Missing Tab Widget Hint", () -> c.tabWidgetHint, v -> c.tabWidgetHint = v)

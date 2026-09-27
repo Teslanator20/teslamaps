@@ -93,7 +93,7 @@ public final class Tracker {
 
     /** Config rows for the timed history shared by every tracker. */
     public static void register() {
-        com.teslamaps.registry.Feature.of("TrackerHistory").config("Interface", b -> {
+        com.teslamaps.registry.Feature.of("TrackerHistory").config("Trackers", b -> {
             var c = com.teslamaps.config.TeslaMapsConfig.get();
             b.label("Tracker History");
             b.toggle("Tracker History", () -> c.trackerHistory, v -> c.trackerHistory = v)

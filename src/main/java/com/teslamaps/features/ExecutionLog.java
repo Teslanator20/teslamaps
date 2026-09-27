@@ -28,7 +28,7 @@ public final class ExecutionLog {
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, SAMPLE, 0xFF));
         Feature.of("ExecutionLog").when(() -> cfg().executionLog)
                 .hud("executionlog", ExecutionLog::render)
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     b.label("Debug");
                     b.toggle("Last Fired Trigger", () -> cfg().executionLog, v -> cfg().executionLog = v)
                             .desc("Shows for 3s which hotkey, reminder, custom todo or container trigger just fired (/tmap gui)");

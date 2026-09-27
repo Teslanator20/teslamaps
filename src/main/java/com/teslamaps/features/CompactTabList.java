@@ -53,7 +53,7 @@ public final class CompactTabList {
     public static void register() {
         Feature.of("CompactTabList").when(() -> cfg().compactTabList)
                 .tick(CompactTabList::tick)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Tab List");
                     b.toggle("Compact Tab List", () -> c.compactTabList, v -> c.compactTabList = v)

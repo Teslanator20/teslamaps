@@ -45,7 +45,7 @@ public final class MusicOverlay {
         Feature.of("MusicOverlay").when(() -> cfg().musicOverlay)
                 .tickAlways(MusicOverlay::tick)
                 .hud("musicoverlay", MusicOverlay::render)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Music");
                     b.toggle("Music Overlay", () -> c.musicOverlay, v -> c.musicOverlay = v)

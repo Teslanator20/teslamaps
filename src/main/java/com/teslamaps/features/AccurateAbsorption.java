@@ -25,7 +25,7 @@ public final class AccurateAbsorption {
 
     public static void register() {
         Feature.of("AccurateAbsorption").when(() -> cfg().accurateAbsorption)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Absorption Hearts");
                     b.toggle("Accurate Absorption Hearts", () -> c.accurateAbsorption, v -> c.accurateAbsorption = v)

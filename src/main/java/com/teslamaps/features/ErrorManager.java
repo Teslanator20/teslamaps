@@ -32,7 +32,7 @@ public final class ErrorManager {
         com.teslamaps.registry.Feature.of("ErrorManager")
                 .when(() -> !queued.isEmpty())
                 .tick(ErrorManager::flush)
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     b.label("Errors");
                     b.toggle("Catch Feature Errors", () -> cfg().catchFeatureErrors, v -> cfg().catchFeatureErrors = v)
                             .desc("An exception in a feature's tick, HUD, world render or chat handler is caught and the game keeps running."

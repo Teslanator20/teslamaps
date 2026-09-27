@@ -37,7 +37,7 @@ public final class WindowTweaks {
 
     public static void register() {
         Feature.of("WindowTweaks").tickAlways(WindowTweaks::tick)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Window");
                     b.toggle("Borderless Window", () -> c.borderlessWindow, v -> c.borderlessWindow = v)

@@ -57,7 +57,7 @@ public final class CustomScoreboard {
         Feature.of("CustomScoreboard").when(CustomScoreboard::on)
                 .tick(CustomScoreboard::tick)
                 .hud("customscoreboard", CustomScoreboard::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Custom Scoreboard");
                     b.toggle("Custom Scoreboard", () -> c.customScoreboard, v -> { c.customScoreboard = v; timer = 0; })

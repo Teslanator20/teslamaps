@@ -42,7 +42,7 @@ public final class LimboTracker {
                 .tick(LimboTracker::tick)
                 .serverChat(LimboTracker::onChat)
                 .hud("limbotracker", LimboTracker::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Limbo");
                     b.toggle("Limbo Time Tracker", () -> c.limboTracker, v -> c.limboTracker = v)

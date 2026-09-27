@@ -41,7 +41,7 @@ public final class ScoreboardLogger {
     public static void register() {
         Feature.of("ScoreboardLogger").when(() -> cfg().scoreboardLogger)
                 .tick(ScoreboardLogger::tick)
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     b.toggle("Scoreboard Change Logger", () -> cfg().scoreboardLogger, v -> {
                         cfg().scoreboardLogger = v;
                         if (!v) reset();

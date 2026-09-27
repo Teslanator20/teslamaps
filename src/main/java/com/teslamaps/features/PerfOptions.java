@@ -18,7 +18,7 @@ public final class PerfOptions {
         HypixelModApi.register();
 
         Feature.of("PerfOptions")
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Performance & Compat");
                     b.button("Toggle All Rendering (temporary)", GlobalRender::toggle)

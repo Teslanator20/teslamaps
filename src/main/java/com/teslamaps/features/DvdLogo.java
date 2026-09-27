@@ -32,7 +32,7 @@ public final class DvdLogo {
     public static void register() {
         Feature.of("DvdLogo").when(() -> cfg().dvdLogo)
                 .hud("dvdlogo", DvdLogo::render)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("DVD");
                     b.toggle("DVD Logo", () -> c.dvdLogo, v -> c.dvdLogo = v)

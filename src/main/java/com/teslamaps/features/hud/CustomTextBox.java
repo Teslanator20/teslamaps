@@ -30,7 +30,7 @@ public final class CustomTextBox {
                 .preview((g, mc, x, y, s) -> { parse(); TextHud.draw(g, mc, x, y, s, lines, width); });
         Feature.of("CustomTextBox").when(() -> cfg().customTextBox)
                 .hudForeground("customtextbox", CustomTextBox::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Custom Text Box");
                     b.toggle("Custom Text Box", () -> c.customTextBox, v -> c.customTextBox = v)

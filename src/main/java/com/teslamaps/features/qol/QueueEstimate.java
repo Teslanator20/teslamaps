@@ -50,7 +50,7 @@ public final class QueueEstimate {
         Feature.of("QueueEstimate").when(() -> cfg().queueEstimate)
                 .tick(QueueEstimate::tick)
                 .hud("queueestimate", QueueEstimate::render)
-                .config("Interface", b -> b.toggle("Queue Estimate", () -> cfg().queueEstimate, v -> cfg().queueEstimate = v)
+                .config("QoL & Misc", b -> b.toggle("Queue Estimate", () -> cfg().queueEstimate, v -> cfg().queueEstimate = v)
                         .desc("Reads \"You are #n in the queue!\" and estimates when you get in. Position in /tmap gui."));
     }
 

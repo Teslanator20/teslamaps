@@ -47,7 +47,7 @@ public final class BitsWarning {
         Feature.of("BitsWarning").when(() -> cfg().noBitsWarning || cfg().bitsGainMessage)
                 .tick(BitsWarning::tick)
                 .serverChat(BitsWarning::onChat)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Bits");
                     b.toggle("No Bits Warning", () -> c.noBitsWarning, v -> c.noBitsWarning = v)

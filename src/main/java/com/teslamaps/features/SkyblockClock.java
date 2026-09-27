@@ -37,7 +37,7 @@ public final class SkyblockClock {
         Feature.of("SkyblockClock").when(() -> cfg().sbClock)
                 .tick(SkyblockClock::tick)
                 .hudHiddenInInventory("sbclock", SkyblockClock::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("SkyBlock Clock");
                     b.toggle("SkyBlock Clock", () -> c.sbClock, v -> c.sbClock = v)

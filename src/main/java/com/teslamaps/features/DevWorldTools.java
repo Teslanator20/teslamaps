@@ -86,7 +86,7 @@ public final class DevWorldTools {
 
     public static void register() {
         FEATURE.tick(DevWorldTools::tick).world(DevWorldTools::render)
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     b.toggle("Dev World Tools", () -> cfg().devWorldTools, v -> cfg().devWorldTools = v)
                             .desc("Region selection, parkour recorder and a path graph editor for collecting coordinates");
                     b.toggle("  Region Select (wooden axe)", () -> cfg().devRegionSelect, v -> cfg().devRegionSelect = v)

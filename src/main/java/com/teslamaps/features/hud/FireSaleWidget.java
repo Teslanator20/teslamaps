@@ -44,7 +44,7 @@ public final class FireSaleWidget {
         Feature.of("FireSaleWidget").when(() -> cfg().fireSaleWidget)
                 .tick(FireSaleWidget::tick)
                 .hudHiddenInInventory("firesalewidget", FireSaleWidget::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     b.label("Fire Sale Widget");
                     b.toggle("Fire Sale Widget", () -> cfg().fireSaleWidget, v -> cfg().fireSaleWidget = v)
                             .desc("Running Fire Sales from the tab list with an available/total bar, or when the next one starts. Needs the Fire Sales tab widget. Position in /tmap gui")

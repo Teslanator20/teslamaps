@@ -19,7 +19,7 @@ public final class ScreenFlash {
     public static void register() {
         Feature.of("ScreenFlash").when(() -> cfg().screenFlash || end > System.currentTimeMillis())
                 .hud("screenflash", ScreenFlash::render)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Screen Flash");
                     b.toggle("Screen Flash on Alerts", () -> c.screenFlash, v -> c.screenFlash = v)

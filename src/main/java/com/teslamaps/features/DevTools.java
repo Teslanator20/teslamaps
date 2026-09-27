@@ -25,7 +25,7 @@ public final class DevTools {
 
     public static void register() {
         com.teslamaps.registry.Feature.of("DevTools")
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     b.label("Dev Tools");
                     b.toggle("Dev Item Info", () -> cfg().devItemInfo, v -> cfg().devItemInfo = v)
                             .desc("Tooltip lines: internal name, rarity, category, NPC / Bazaar / BIN / craft price, uuid");

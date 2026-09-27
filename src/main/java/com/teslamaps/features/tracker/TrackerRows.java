@@ -21,7 +21,7 @@ public final class TrackerRows {
 
     public static void register() {
         Feature.of("TrackerRows")
-                .config("Interface", b -> {
+                .config("Trackers", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Trackers");
                     b.toggle("Interactive Tracker Rows", () -> c.trackerInteractive, v -> c.trackerInteractive = v)

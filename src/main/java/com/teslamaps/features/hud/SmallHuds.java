@@ -40,7 +40,7 @@ public final class SmallHuds {
         Feature.of("VanillaHpHud").when(() -> cfg().vanillaHpHud)
                 .tick(SmallHuds::tickHp)
                 .hudHiddenInInventory("vanillahp", (g, d) -> draw(g, hpHud, hp, hpWidth))
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     b.label("Vanilla HP");
                     b.toggle("Vanilla HP Number", () -> cfg().vanillaHpHud, v -> cfg().vanillaHpHud = v)
                             .desc("Your vanilla hearts as a number, e.g. 20 ❤. Handy in the Rift. Position in /tmap gui.")
@@ -54,7 +54,7 @@ public final class SmallHuds {
         Feature.of("InWaterDisplay").when(() -> cfg().inWaterDisplay)
                 .tick(SmallHuds::tickWater)
                 .hudHiddenInInventory("inwater", (g, d) -> draw(g, waterHud, water, waterWidth))
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("In Water");
                     b.toggle("In Water Display", () -> c.inWaterDisplay, v -> c.inWaterDisplay = v)

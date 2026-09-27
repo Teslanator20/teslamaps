@@ -152,7 +152,7 @@ public final class MovableVanillaHud {
 
         Feature.of("MovableVanillaHud").when(() -> cfg().moveVanillaHud && cfg().moveTabList)
                 .tick(MovableVanillaHud::tick);
-        Feature.of("MovableVanillaHudConfig").config("Interface", b -> {
+        Feature.of("MovableVanillaHudConfig").config("HUD Widgets", b -> {
             TeslaMapsConfig c = cfg();
             b.label("Movable Vanilla HUD");
             b.toggle("Movable Vanilla HUD", () -> c.moveVanillaHud, v -> c.moveVanillaHud = v)

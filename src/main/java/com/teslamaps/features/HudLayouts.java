@@ -30,7 +30,7 @@ public final class HudLayouts {
 
     public static void register() {
         Feature.of("HudLayouts").tickAlways(HudLayouts::tick)
-                .config("Interface", b -> b.toggle("HUD Layout Per Location", () -> cfg().hudLayoutsPerLocation, v -> cfg().hudLayoutsPerLocation = v)
+                .config("HUD Widgets", b -> b.toggle("HUD Layout Per Location", () -> cfg().hudLayoutsPerLocation, v -> cfg().hudLayoutsPerLocation = v)
                         .desc("Every /tmap gui element keeps its own position and scale in Dungeons, Garden, Safari, Foraging, Mining and The End. /tmap gui gets Copy To / Reset buttons.")
                         .tags("hud", "layout", "location", "position", "copy"));
     }

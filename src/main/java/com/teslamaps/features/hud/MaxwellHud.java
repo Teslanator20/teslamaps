@@ -59,7 +59,7 @@ public final class MaxwellHud {
                 .tick(MaxwellHud::tick)
                 .serverChat(MaxwellHud::onChat)
                 .hudHiddenInInventory("maxwellhud", MaxwellHud::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Maxwell Power");
                     b.toggle("Maxwell Power HUD", () -> c.maxwellHud, v -> { c.maxwellHud = v; timer = 0; })

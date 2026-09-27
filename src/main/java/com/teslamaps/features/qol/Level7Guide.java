@@ -64,7 +64,7 @@ public final class Level7Guide {
                 .tick(Level7Guide::tick)
                 .serverChat(Level7Guide::onChat)
                 .hud("level7guide", Level7Guide::render)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("SkyBlock Level 7 Guide");
                     b.toggle("SkyBlock Level 7 Guide", () -> c.level7Guide, v -> c.level7Guide = v)

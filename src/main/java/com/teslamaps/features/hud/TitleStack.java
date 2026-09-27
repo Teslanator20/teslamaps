@@ -51,7 +51,7 @@ public final class TitleStack {
         Feature.of("TitleStack").when(TitleStack::enabled)
                 .tickAlways(TitleStack::tick)
                 .hudForeground("titlestack", TitleStack::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Title Stack");
                     b.toggle("Title Stack", () -> c.titleStack, v -> { c.titleStack = v; ENTRIES.clear(); })

@@ -93,7 +93,7 @@ public final class CustomTrackers {
                 .tick(CustomTrackers::tick)
                 .serverChat(CustomTrackers::onChat)
                 .hudHiddenInInventory("customtracker", CustomTrackers::render)
-                .config("Interface", b -> {
+                .config("Trackers", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Custom Trackers");
                     b.toggle("Custom Profit Trackers", () -> c.customTrackers, v -> c.customTrackers = v)

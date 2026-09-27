@@ -71,7 +71,7 @@ public final class Achievements {
     public static void register() {
         Feature.of("Achievements").when(() -> cfg().achievements)
                 .chat(Achievements::onChat)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     b.label("Achievements");
                     b.toggle("Achievements", () -> cfg().achievements, v -> cfg().achievements = v)
                             .desc("Just for fun: unlockable, tiered and secret achievements with a chat message");

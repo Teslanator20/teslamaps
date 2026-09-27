@@ -42,7 +42,7 @@ public final class FeatureConditions {
     public static void register() {
         Feature.of(SELF)
                 .tickAlways(FeatureConditions::tick)
-                .config("Interface", b -> {
+                .config("Dev & Debug", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Feature Conditions");
                     b.toggle("Feature Conditions", () -> c.featureConditions, v -> { c.featureConditions = v; changed(); })

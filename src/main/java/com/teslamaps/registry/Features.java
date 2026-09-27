@@ -6,6 +6,10 @@ final class Features {
     private Features() {}
 
     static void register() {
+        FeatureRegistry.category("HUD Widgets", "General", false);
+        FeatureRegistry.category("QoL & Misc", "General", false);
+        FeatureRegistry.category("Trackers", "General", false);
+        FeatureRegistry.category("Dev & Debug", "General", false);
         // wave 1a dungeon-a
         com.teslamaps.dungeon.DungeonManager.register();
         com.teslamaps.api.ElectionApi.register();

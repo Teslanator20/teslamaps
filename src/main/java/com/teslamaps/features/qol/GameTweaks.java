@@ -7,7 +7,7 @@ import com.teslamaps.registry.Feature;
 public class GameTweaks {
 
     public static void register() {
-        Feature.of("GameTweaks").config("Interface", b -> {
+        Feature.of("GameTweaks").config("QoL & Misc", b -> {
             TeslaMapsConfig c = b.config();
             b.label("Game Tweaks");
             b.toggle("Focus Loss Prevention", () -> c.focusLossPrevention, v -> c.focusLossPrevention = v)

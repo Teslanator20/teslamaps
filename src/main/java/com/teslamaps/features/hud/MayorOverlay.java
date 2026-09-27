@@ -43,7 +43,7 @@ public final class MayorOverlay {
         Feature.of("MayorOverlay").when(() -> cfg().mayorOverlay)
                 .tick(MayorOverlay::tick)
                 .hudHiddenInInventory("mayoroverlay", MayorOverlay::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Mayor Overlay");
                     b.toggle("Mayor Overlay", () -> c.mayorOverlay, v -> c.mayorOverlay = v)

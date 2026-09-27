@@ -54,7 +54,7 @@ public final class JoinTips {
         for (int i = 0; i < TIPS.length; i++) ORDER.add(i);
         Collections.shuffle(ORDER);
         FEATURE.tick(JoinTips::tick)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     b.label("Tips");
                     b.toggle("Tip On SkyBlock Join", () -> TeslaMapsConfig.get().joinTips, v -> TeslaMapsConfig.get().joinTips = v)
                             .desc("Once per session a random feature tip with a clickable command, plus [Previous] [Next] [Disable]")

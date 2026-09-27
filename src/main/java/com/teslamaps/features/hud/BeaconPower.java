@@ -40,7 +40,7 @@ public final class BeaconPower {
         Feature.of("BeaconPower").when(() -> cfg().beaconPower)
                 .tick(BeaconPower::tick)
                 .hudHiddenInInventory("beaconpower", BeaconPower::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Beacon Power");
                     b.toggle("Beacon Power", () -> c.beaconPower, v -> c.beaconPower = v)

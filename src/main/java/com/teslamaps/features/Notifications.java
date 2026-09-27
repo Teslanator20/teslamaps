@@ -41,7 +41,7 @@ public final class Notifications {
         Feature.of("Notifications").when(() -> cfg().notificationPopups)
                 .tickAlways(Notifications::tick)
                 .hudForeground("notifications", Notifications::render)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Notification Popups");
                     b.toggle("Notification Popups", () -> c.notificationPopups, v -> c.notificationPopups = v)

@@ -48,7 +48,7 @@ public final class MiscQol {
                 });
         Feature.of("MiscQol.Crash").when(() -> cfg().crashOnDeath || cfg().crashOnTttFail)
                 .serverChat(MiscQol::onChat)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     b.label("Misc");
                     b.toggle("Copy /playtime Stats", () -> cfg().copyPlaytime, v -> cfg().copyPlaytime = v)
                             .desc("Click the summary item in Detailed /playtime to copy it without color codes");

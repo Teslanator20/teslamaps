@@ -50,7 +50,7 @@ public final class QuiverHud {
         Feature.of("QuiverHud").when(() -> cfg().quiverHud || cfg().quiverLowWarning)
                 .tick(QuiverHud::tick)
                 .hudHiddenInInventory("quiverhud", QuiverHud::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Quiver");
                     b.toggle("Quiver Display", () -> c.quiverHud, v -> c.quiverHud = v)

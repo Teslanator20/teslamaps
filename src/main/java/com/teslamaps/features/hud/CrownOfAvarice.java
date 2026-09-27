@@ -47,7 +47,7 @@ public final class CrownOfAvarice {
         Feature.of("CrownOfAvarice").when(() -> cfg().crownOfAvarice)
                 .tick(CrownOfAvarice::tick)
                 .hudForeground("crownofavarice", CrownOfAvarice::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Crown of Avarice");
                     b.toggle("Crown of Avarice Counter", () -> c.crownOfAvarice, v -> c.crownOfAvarice = v)

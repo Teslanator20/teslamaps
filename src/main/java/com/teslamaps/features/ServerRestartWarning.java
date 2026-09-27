@@ -39,7 +39,7 @@ public final class ServerRestartWarning {
                 .tick(ServerRestartWarning::tick)
                 .serverChat(ServerRestartWarning::onChat)
                 .hud("serverrestart", ServerRestartWarning::render)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Server Restart");
                     b.toggle("Server Restart Warning", () -> c.serverRestartWarning, v -> c.serverRestartWarning = v)

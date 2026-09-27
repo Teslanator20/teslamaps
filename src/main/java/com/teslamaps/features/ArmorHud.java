@@ -31,7 +31,7 @@ public final class ArmorHud {
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, true));
         Feature.of("ArmorHud").when(() -> cfg().armorHud)
                 .hudHiddenInInventory("armorhud", ArmorHud::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Armor HUD");
                     b.toggle("Armor HUD", () -> c.armorHud, v -> c.armorHud = v)

@@ -130,7 +130,7 @@ public final class EffectTimers {
                 .tick(EffectTimers::tick)
                 .serverChat(EffectTimers::onChat)
                 .hudHiddenInInventory("effecttimers", EffectTimers::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Effect Timers");
                     b.toggle("Effect Timers", () -> c.effectTimers, v -> c.effectTimers = v)

@@ -45,7 +45,7 @@ public final class ProfileInfo {
         Feature.of("ProfileInfo").when(() -> cfg().profileInfoHud || cfg().sbLevelXpBar)
                 .tick(ProfileInfo::tick)
                 .hudHiddenInInventory("profileinfo", ProfileInfo::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Profile Info");
                     b.toggle("Profile Info HUD", () -> c.profileInfoHud, v -> c.profileInfoHud = v)

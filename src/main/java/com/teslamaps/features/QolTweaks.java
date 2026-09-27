@@ -22,7 +22,7 @@ public final class QolTweaks {
                     b.slider("  Minimum Level", 1f, 500f, () -> (float) c.chatFilterSbLevelMin,
                             v -> c.chatFilterSbLevelMin = Math.round(v), 0);
                 })
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = TeslaMapsConfig.get();
                     b.label("Text Fields");
                     b.toggle("Text Field Undo", () -> c.textFieldUndo, v -> c.textFieldUndo = v)

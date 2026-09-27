@@ -50,7 +50,7 @@ public final class FancyTabHud {
     public static void register() {
         Feature.of("FancyTabHud").when(() -> cfg().fancyTabHud)
                 .tick(FancyTabHud::tick)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Fancy Tab List");
                     b.toggle("Fancy Tab HUD", () -> c.fancyTabHud, v -> c.fancyTabHud = v)

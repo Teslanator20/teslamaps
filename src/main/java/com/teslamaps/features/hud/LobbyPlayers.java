@@ -45,7 +45,7 @@ public final class LobbyPlayers {
         Feature.of("LobbyPlayers").when(() -> cfg().lobbyPlayers)
                 .tick(LobbyPlayers::tick)
                 .hudHiddenInInventory("lobbyplayers", LobbyPlayers::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Lobby Players");
                     b.toggle("Lobby Player Count", () -> c.lobbyPlayers, v -> { c.lobbyPlayers = v; timer = 0; })

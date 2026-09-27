@@ -47,7 +47,7 @@ public final class TabWidgetsMenuHelper {
 
     public static void register() {
         Feature.of("TabWidgetsMenuHelper")
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.toggle("/widgets Menu Helper", () -> c.widgetsHelper, v -> c.widgetsHelper = v)
                             .desc("In Hypixel's Tablist Widgets menu: live preview of the three tab columns next to the chest, "

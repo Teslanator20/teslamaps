@@ -69,7 +69,7 @@ public final class PlayerStats {
 
         Feature.of("PlayerStats").when(PlayerStats::on)
                 .tick(PlayerStats::tick)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Player Stats");
                     b.toggle("Player Stat HUDs", () -> c.playerStatHuds, v -> c.playerStatHuds = v)

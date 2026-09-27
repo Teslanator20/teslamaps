@@ -133,7 +133,7 @@ public final class TabWidgetHud {
         Feature.of("TabWidgetHud").when(() -> cfg().tabWidgetHud)
                 .tick(TabWidgetHud::tick)
                 .hudHiddenInInventory("tabwidgethud", TabWidgetHud::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Tab Widgets HUD");
                     b.toggle("Tab Widgets HUD", () -> c.tabWidgetHud, v -> c.tabWidgetHud = v)

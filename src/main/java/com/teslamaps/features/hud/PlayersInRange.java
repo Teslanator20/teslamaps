@@ -32,7 +32,7 @@ public final class PlayersInRange {
         Feature.of("PlayersInRange").when(() -> cfg().playersInRange)
                 .tick(PlayersInRange::tick)
                 .hudHiddenInInventory("playersinrange", PlayersInRange::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     b.label("Players In Range");
                     b.toggle("Players In Range", () -> cfg().playersInRange, v -> cfg().playersInRange = v)
                             .desc("Real players within 30 blocks (enchanting / experiment bonus). Position in /tmap gui.")

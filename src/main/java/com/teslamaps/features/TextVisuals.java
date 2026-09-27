@@ -53,7 +53,7 @@ public final class TextVisuals {
     public static void register() {
         Feature.of("TextVisuals")
                 .tickAlways(TextVisuals::refresh)
-                .config("Interface", b -> {
+                .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Text");
                     b.toggle("Full Text Shadow", () -> c.fullTextShadow, v -> c.fullTextShadow = v)

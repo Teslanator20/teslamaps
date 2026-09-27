@@ -48,7 +48,7 @@ public final class MinionWidget {
         Feature.of("MinionWidget").when(() -> cfg().minionWidget)
                 .tick(MinionWidget::tick)
                 .hudHiddenInInventory("minionwidget", MinionWidget::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Minions Widget");
                     b.toggle("Minions Widget", () -> c.minionWidget, v -> c.minionWidget = v)

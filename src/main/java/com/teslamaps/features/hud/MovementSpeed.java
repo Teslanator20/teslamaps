@@ -31,7 +31,7 @@ public final class MovementSpeed {
         Feature.of("MovementSpeed").when(() -> cfg().movementSpeed)
                 .tick(MovementSpeed::tick)
                 .hudHiddenInInventory("movementspeed", MovementSpeed::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     b.label("Movement Speed");
                     b.toggle("Movement Speed", () -> cfg().movementSpeed, v -> cfg().movementSpeed = v)
                             .desc("Your speed in blocks per second (not the Speed stat). Position in /tmap gui.");

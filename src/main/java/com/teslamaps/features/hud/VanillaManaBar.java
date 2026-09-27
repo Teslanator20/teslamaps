@@ -54,7 +54,7 @@ public final class VanillaManaBar {
     public static void register() {
         Feature.of("VanillaManaBar").when(VanillaManaBar::active)
                 .hud("vanillamanabar", VanillaManaBar::render)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Vanilla Mana Bar");
                     b.toggle("Vanilla Style Mana Bar", () -> c.vanillaManaBar, v -> c.vanillaManaBar = v)

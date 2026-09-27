@@ -47,7 +47,7 @@ public final class SpringBootsHeight {
                 .tick(SpringBootsHeight::tick)
                 .hudHiddenInInventory("springboots", SpringBootsHeight::render)
                 .world(SpringBootsHeight::renderWorld)
-                .config("Interface", b -> {
+                .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Spring Boots");
                     b.toggle("Spring Boots Height", () -> c.springBootsHeight, v -> c.springBootsHeight = v)

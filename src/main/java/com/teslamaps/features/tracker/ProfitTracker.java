@@ -114,7 +114,7 @@ public final class ProfitTracker {
                 .tick(ProfitTracker::tick)
                 .serverChat(ProfitTracker::onChat)
                 .hudHiddenInInventory("profittracker", ProfitTracker::render)
-                .config("Interface", b -> {
+                .config("Trackers", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Profit Tracker");
                     b.toggle("Profit Tracker", () -> c.profitTracker, v -> c.profitTracker = v)
