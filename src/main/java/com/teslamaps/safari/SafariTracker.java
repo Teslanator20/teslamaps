@@ -1093,32 +1093,42 @@ public class SafariTracker {
      * put on the component, so nothing is guessed or typed.
      */
     public static void onChatComponent(Component message) {
-        if (!TeslaMapsConfig.get().safariAutoHideyho || !SafariData.inSafari()) return;
+        if (!TeslaMapsConfig.get().safariAutoHideyho) return;
         if (!message.getString().contains("Select an option:")) return;
-
-        for (Component sibling : message.getSiblings()) {
-            String plain = COLORS.matcher(sibling.getString()).replaceAll("").trim();
-            if (!plain.equals("[Sure]")) continue;
-            if (!(sibling.getStyle().getClickEvent() instanceof ClickEvent.RunCommand run)) continue;
-
-            Minecraft mc = Minecraft.getInstance();
-            String cmd = run.command();
-            if (cmd.startsWith("/")) cmd = cmd.substring(1);
-            String finalCmd = cmd;
-
-            TeslaMapsConfig c = TeslaMapsConfig.get();
-            long now = System.currentTimeMillis();
-            // Hypixel repeats the prompt, and answering every copy is a command-spam block.
-            if (now - lastHideyhoAnswer < c.safariAutoHideyhoMinMs) return;
-            lastHideyhoAnswer = now;
-
-            int jitter = Math.max(0, c.safariAutoHideyhoJitterMs);
-            int delay = Math.max(0, c.safariAutoHideyhoMinMs) + (jitter == 0 ? 0 : RANDOM.nextInt(jitter + 1));
-            com.teslamaps.utils.TickScheduler.schedule(Math.max(1, delay / 50), () -> {
-                if (mc.getConnection() != null) mc.getConnection().sendCommand(finalCmd);
-            });
+        if (!SafariData.inSafari()) {
+            com.teslamaps.TeslaMaps.LOGGER.info("[Hideyho] prompt outside safari, area '{}'", com.teslamaps.utils.SkyblockUtils.getArea());
             return;
         }
+
+        // the buttons can sit nested, so walk the whole tree
+        java.util.Optional<String> found = message.visit((style, text) -> {
+            String plain = COLORS.matcher(text).replaceAll("").trim();
+            if (plain.equals("[Sure]") && style.getClickEvent() instanceof ClickEvent.RunCommand run) {
+                return java.util.Optional.of(run.command());
+            }
+            return java.util.Optional.empty();
+        }, net.minecraft.network.chat.Style.EMPTY);
+        if (found.isEmpty()) {
+            com.teslamaps.TeslaMaps.LOGGER.info("[Hideyho] prompt without [Sure] button: {}", message);
+            return;
+        }
+
+        Minecraft mc = Minecraft.getInstance();
+        String cmd = found.get();
+        if (cmd.startsWith("/")) cmd = cmd.substring(1);
+        String finalCmd = cmd;
+
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        long now = System.currentTimeMillis();
+        // Hypixel repeats the prompt, and answering every copy is a command-spam block.
+        if (now - lastHideyhoAnswer < c.safariAutoHideyhoMinMs) return;
+        lastHideyhoAnswer = now;
+
+        int jitter = Math.max(0, c.safariAutoHideyhoJitterMs);
+        int delay = Math.max(0, c.safariAutoHideyhoMinMs) + (jitter == 0 ? 0 : RANDOM.nextInt(jitter + 1));
+        com.teslamaps.utils.TickScheduler.schedule(Math.max(1, delay / 50), () -> {
+            if (mc.getConnection() != null) mc.getConnection().sendCommand(finalCmd);
+        });
     }
 
     private static int wumpaMissing() {
