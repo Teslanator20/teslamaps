@@ -1,174 +1,2836 @@
-# TeslaMaps 2.0 is here
+# Feature-Gaps Build-out — Changelog (Wellen 2–20)
 
-This is the biggest update the mod has ever had. 1.7 was a dungeons mod with a few extras — 2.0 is a
-full SkyBlock mod. Garden, Foraging, Fishing, Critter Safari, Skills and Mining all got proper
-support, the terminal solver was rebuilt from scratch, and the entire interface was redesigned.
 
-**300+ new settings. 160+ new features and systems.**
 
-Everything is off-by-default where it should be, and every category has a master switch so you can
-turn whole sections off at once.
+## Welle 2 (10 Gruppen)
 
-Open the settings with **Right Shift** or `/tmap`.
+### Neu
+- **Opened Door Colors** — wither and blood doors change color on the map once they are opened (Settings: Map)
+- **Scan Chat Info** — once the dungeon is scanned, chat lists puzzles, trap, wither doors, crypts, secrets and the minimum secrets for S+ (Settings: Map)
+- **Blaze Done From Party** — a teammate's "Blaze Done" in party chat marks the Blaze puzzle solved on the map and in the score (Settings: Map)
+- **Smooth Player Markers** — markers of far teammates glide between map updates instead of jumping (Settings: Map)
+- **Map Background Image** — put your own png/jpg behind the dungeon map, with opacity and inset (Settings: Map)
+- **Room Cleared / Secrets Done Alert** — title and sound when your room gets its white or green checkmark, optional blood-rush-only mode (Settings: Score & Splits)
+- **Secret HUD** — movable "Secrets: x/y" display for the room you are in (Settings: Secrets & Waypoints)
+- **Manual Secret Marking** — /tmap secret found|missing <n|all> fixes wrongly hidden or shown secret waypoints
+- **Blood Watcher Check** — Blood gets a white check on the map as soon as the Watcher is done (Settings: Map)
+- **Rush Splits** — HUD with clear, key and door times for each rush room, with a class filter (Settings: Score & Splits)
+- **Leap Hover Link** — hovering a leap button enlarges that player's map head and vice versa; overlay can close on death (Settings: Leap)
+- **Room Learning** — /tmap newcore and /tmap newroom teach unknown rooms in-game, /tmap roomdata copies the room's cores
+- **Rare Room Color** — rare rooms can get their own map color (Settings: Map)
+- **Secret Waypoint Labels & Routes** — names and distance above secret waypoints, styles, skull-sized boxes and route helpers per category (Settings: Secrets & Waypoints)
+- **Secret Sound Options** — bat kill sound, separate lever sound, custom locked-chest sound, only real secrets (Settings: Sounds)
+- **Map Peek Key** — hold or toggle a key to show every room name and secret count (Settings: Map / Legit Mode)
+- **Map Style Presets** — one-click Doc/Leg/Default map styles plus export/import of your whole map style as a clipboard string, with adjustable room size, door width, text shadow, room-name and checkmark position, class names and name colour (Settings: Map)
+- **Map Border** — solid or animated chroma border for the dungeon map, with your own colour, thickness and speed (Settings: Map)
+- **Self As Vanilla Arrow** — show yourself as the green vanilla map arrow while teammates stay heads, with a separate player-name scale (Settings: Map)
+- **Star Mob Radar** — shows loaded starred mobs and minibosses on the dungeon map as heads or dots; toggle with /tmap radar (Settings: Map)
+- **Typed Map Fallback** — rooms not loaded yet are filled in from Hypixel's map in proper room colours, with doors (Settings: Map)
+- **Puzzle HUD** — movable panel listing every puzzle in the run with its ✦/✔/✖ state, the player who solved or failed it, and optional failed/missing counts (Settings: Puzzles & Terminals)
+- **Quiz Timer** — countdown until Oruo asks the next quiz question (Settings: Puzzles & Terminals)
+- **Draft Announce** — says "Used Draft to Reset <puzzle>" in party chat after you use an Architect's First Draft (Settings: Auto)
+- **Quiz Splits** — times each quiz question and posts all three times in chat at the end (Settings: Puzzles & Terminals)
+- **Water Flow Preview** — draws where the water flows through the water board, and previews what the lever you look at would change (Settings: Puzzles & Terminals)
+- **Blaze Standing Spot** — marks the block you can shoot every blaze from, plus the etherwarp spots to get there (Settings: Puzzles & Terminals)
+- **Tic Tac Toe Solver** — can mark every equally good move, turns orange when no safe move is left, predicts your next move and can post "Tic Tac Toe done" to party (Settings: Puzzles & Terminals)
+- **Creeper Beams Ding** — pick your own ding sound and mute creeper hurt/explosion sounds only in the Creeper Beams room (Settings: Puzzles & Terminals)
+- **Puzzle colors & styles** — Three Weirdos, Tic Tac Toe, Creeper Beams and Quiz get their own colors, box style and depth option (Settings: Puzzles & Terminals)
+- **Architect's Draft** — choose between the automatic /gfs and a clickable chat line, optionally also on teammates' fails (Settings: Auto)
+- **Misclick protection** — wrong Quiz answers, wrong Tic Tac Toe buttons and lying Weirdos' chests can't be clicked by accident, sneak to override (Settings: Puzzles & Terminals)
+- **Puzzle solver reset** — `/tmap puzzle reset [solver]` or a button restarts a solver that missed the room (Settings: Puzzles & Terminals)
+- **Terminal Titles** — replaces the big "<name> activated a terminal! (n/7)" titles in P3 with a short custom format, or hides them (Settings: F7 / M7)
+- **Term Info HUD** — shows Terms/Levers/Device/Gate of the current P3 section, or a compact n/7 counter (Settings: F7 / M7)
+- **Terminal Breakdown** — when the core opens, posts how many terminals, levers and devices each player did (Settings: F7 / M7)
+- **Terminal Sounds** — replaces Hypixel's terminal pling with your own click sound and an optional completion sound (Settings: Puzzles & Terminals)
+- **Reset Terminal PBs** — button that clears your terminal personal bests (Settings: Puzzles & Terminals)
+- **Melody Display** — shows "<name> has 2/4 melody" on screen when a party member posts melody progress in P3 (Settings: Puzzles & Terminals)
+- **Melody Keys** — keys 1-4 click the button of that row in the melody terminal, no aiming needed (Settings: Puzzles & Terminals)
+- **Terminal Click Key** — bind any key or mouse button that clicks the hovered terminal slot, in every render mode (Settings: Puzzles & Terminals)
+- **Terminal Splits** — every terminal/device/lever line in P3 gets section and total P3 time appended, and a per-section summary shows when the core opens (Settings: Score & Splits)
+- **Melody Message editor** — change the melody open message and progress prefix in the GUI and pick "25%" or "1/4" progress (Settings: Puzzles & Terminals)
+- **Hide clutter in terminals** — chat, boss bar, titles, carried item and slot highlights are hidden while a terminal is open (Settings: Puzzles & Terminals)
+- **Per-terminal solver toggles + slot styles** — turn the solver off per terminal type, and choose Rect, Bordered Rect or Button slots in the custom GUI (Settings: Puzzles & Terminals)
+- **Livid Skin Detection** — finds the real Livid by its skin and remembers skins across runs (Settings: ESP)
+- **Inactive Terminal Waypoints** — marks open terminals, devices and levers in F7 P3 with box, label and beacon (Settings: F7 / M7)
+- **Fire Freeze Timer** — counts down to the right Fire Freeze moment in F3/M3, then shows NOW (Settings: Timers)
+- **Guardian HP Labels** — each F3 Guardian's and the Professor's HP in big text above the mob (Settings: Timers)
+- **Dimensional Slash Alert** — title when you stand inside a Dimensional Slash zone in M7 P5 (Settings: F7 / M7)
+- **F7 Titles** — short titles for crystal progress, stuns, boss deaths and enrages, hides the laser spam (Settings: F7 / M7)
+- **Quiet F7 Boss Sounds** — mutes or caps the ear-splitting F7 boss sounds (Settings: Sounds)
+- **Dragon Visuals** — tints M7 dragons in their color, hides the hurt flash, warns on perch, hides non-priority dragon boss bars (Settings: F7 / M7)
+- **Guardian Respawn Timer** — shows when each dead guardian in the F3 boss comes back, in the timer HUD (Settings: Timers)
+- **Giant HP** — lists Sadan and the F6 giants' health in a movable HUD, optionally as a label at their feet (Settings: Timers)
+- **Arrows Device Solver** — marks hit blocks and the current target on the P3 sharp shooter device, with optional aim points and a completion alert (Settings: F7 / M7)
+- **Lights Device Levers** — highlights every unpowered lever of the P3 lights device (Settings: F7 / M7)
+- **Maxor Energy Crystals** — crystal respawn timer, pickup-to-place time with PB, and a warning while you still hold an unplaced crystal (Settings: F7 / M7)
+- **Gate Highlight** — draws a box around your P3 section's gate while it still stands (Settings: F7 / M7)
+- **Dragon Arrow Hit Counter** — posts how many arrows you hit on the priority dragon, and how fast (Settings: F7 / M7)
+- **Simon Says Time** — posts how long Simon Says took, with PB (Settings: F7 / M7)
+- **Sadan Terracotta Hider** — hides all particles in the F6/M6 terracotta phase, optionally also the loud hurt/eat sounds and damage splashes (Settings: Hide)
+- **Sadan's Interest Countdown** — turns Sadan's interest bossbar into a real countdown of the terracotta phase (Settings: Timers)
+- **Spirit Bow ESP** — highlights the dropped Spirit Bow in the Thorn fight (Settings: F4 / M4)
+- **Scarf Spawn Timer** — timer line until Scarf's undeads and Scarf himself spawn in F2/M2 (Settings: Timers)
+- **Spring Boots Ready Alert** — title and beep when your Spring Boots are fully charged in the F7/M7 boss (Settings: F7 / M7)
+- **Hide Wither King** — removes the Wither King model and his particles in M7 P5 so the dragons stay visible (Settings: Hide)
+- **King Relics** — beacon at your relic's cauldron, place time per color with PB, and relic spawn time in M7 P5 (Settings: F7 / M7)
+- **Last Breath Charge HUD** — movable "LB: n" charge counter plus optional target ticks per dragon (Settings: Auto)
 
-## Terminals — rebuilt from scratch
+### Teilweise
+- MAP-028: /tmap newcore, newroom, roomdata gebaut; kein Auto-Redownload von rooms.json
+- PUZ-019: TTT: alle besten Züge, Gamble, Prediction, Done-Message gebaut; Map-Feld-Highlight fehlt
+- PUZ-018: Draft Mode Auto/Click + Party-Fails gebaut; Restmengen-Anzeige fehlt (keine Sack-API)
+- TERM-006: nur Chat-Variante, kein Websocket
+- BOSS-036: Timerzeile gebaut, 3D-Text an Spawnpunkten fehlt (Zen-Quelle nicht lokal, Koordinaten unbekannt)
+- BOSS-045: Charge HUD + Soll pro Drache gebaut; Soll pro Phase P1-P3 fehlt (shizo-Quelle nicht lokal)
 
-- **Three display modes**: Odin-style highlight, vanilla highlight, or a **custom terminal GUI** with
-  its own size, corner roundness and slot spacing
-- **Click prediction** — clicked slots disappear instantly instead of waiting for the server
-- **First-click protection** so you stop failing terminals by clicking too early, with a ping setting
-- **Lag protection** — optionally hold clicks until the server has actually ticked
-- **Rubix**: pick *Fewest Clicks* or *Left Clicks Only*
-- **Solve times with personal bests** for every terminal type
-- Full colour customisation for every terminal state
+### Übersprungen
+- MAP-013: User-Antwort: "erstmal nicht, benutzt glaub kaum jemand"
+- MAP-019: Antwort ist offene Frage; bräuchte eigenes Realtime-Backend (Infrastruktur-Entscheidung)
 
-## Terminal practice mode
+### Live auf Hypixel prüfen
+- opened-door air check at y=69; scan-complete timing; party blaze line format; checkmark alert timing; secret numbering differs from Skyblocker
+- rush key/door chat formats; watcher line; room learning flood-fill; route data from Skyblocker (new resource secret_routes.json); bat sound detection
+- map must look identical with all options off (ROOM_SIZE/DOOR_SIZE now variables); Odin map colours for fallback; radar detection; vanilla arrow direction
+- Puzzle HUD tab format from Devonian/Odin; Quiz timer Oruo lines from Odin; Draft message from NoammAddons
+- Water Flow Preview coordinate mapping (Skyblocker board coords through our corner/rotation)
+- Blaze spots Y values from Devonian
+- TTT button positions / AI=X assumption (fail-open); quiz click radius; weirdos chest-NPC mapping; creeper mutes; draft click mode
+- Title packets order (title vs subtitle), Odin/Devonian formats; P3 section logic; pling filter values from Odin
+- Terminal Splits chat formats from Odin, suffix injected late in ChatMixin (before ChatFilter.rewrite)
+- Melody Keys / Click Key: CLONE click with solver off, term.click with solver on — Hypixel acceptance unverified
+- Hide-clutter mixins javap-checked, never loaded in a running client
+- new mixins EnderDragonRenderer/RenderState/OverlayTexture/BossBarHealth Map.values wrap; dragon bossbar names; perch heuristic; Odin stand names; NoammAddons subtitles; skin URL stability
+- F3 guardian stand format guessed (Skytils not local); giant nametag matching; P3 coordinates/section from position; Maxor crystal chat lines from NoammAddons; arrow hit via sound; SS end detection needs player loaded
+- Sadan chat lines from SkyHanni/Skytils; new WrapOperation on BossHealthOverlay.extractBar; Spring Boots sounds; Wither King stand bounds from Devonian; relic ids/cauldrons from Odin
 
-`/termsim <panes|rubix|numbers|starts_with|select|melody>`
+## Welle 3 (10 Gruppen)
 
-All six terminals, practiceable anywhere, with **simulated ping** so you can train at your real
-connection instead of a perfect one. Separate PBs from your live runs.
+### Neu
+- **Bossbar Percent** — every boss without a known max HP (and Kuudra) now shows " - 25.0%" on its bar (Settings: Timers)
+- **Dragon Label Extras** — the live dragon label can show the colour name and an "R" while the dragon sits in its statue (Settings: F7 / M7)
+- **Last Breath Spots** — beams at each spawning dragon's last-breath spot, plus an adjustable spawn box line width (Settings: F7 / M7)
+- **Dragon Glow & Center Countdown** — live dragons glow in their colour, the priority tracer width is adjustable, and a big spawn countdown can sit in the middle of the screen (Settings: F7 / M7)
+- **Dragon Part Hitboxes** — draws each part of the dragon as its own box instead of one big outline (Settings: F7 / M7)
+- **Camp Mob Sound** — a cowbell once per blood mob when it should be hittable (Settings: Blood Camp)
+- **Livid Announce & HP** — title and optional party message with the Livid colour, plus the real Livid's HP as a 3D label or movable HUD (Settings: ESP)
+- **Watcher Splits for Everyone** — the Watcher HUD works for every class, can use server ticks, posts splits in chat, and the Watcher bar shows blood kills and can hide outside the blood room (Settings: Blood Camp)
+- **Storm Pillars as Glass** — in F7/M7 P2 the diorite of Storm's four pillars turns into glass on your side only, colored per pad, in one fixed color or random (Settings: F7 / M7)
+- **Arrow Align: Block Wrong Clicks** — clicks on frames that already point the right way are thrown away so you can't overshoot; sneak or your own key clicks anyway, optionally inverted (Settings: Puzzles & Terminals)
+- **Hide Players only at Devices** — hides other players only while you stand at the Simon Says or 4th device stand in P3 (Settings: Hide)
+- **Livid Highlight Options** — glow, box, tracer and a "Livid" label can each be switched on or off, with a free color or the Livid's own color and adjustable line widths (Settings: ESP)
+- **Dragon Stack Aimer** — in M7 P5 shows where to aim your arrows for the stack on your priority dragon, plus a countdown in ms until you release (Settings: F7 / M7)
+- **Dungeon Waypoint Packs & Editor** — several waypoint packs at once with one edit pack (create, rename, delete, import from clipboard, export, reset room), plus an edit mode where right-click places/removes waypoints (even mid-air) and sneak + right-click sets a title (Settings: Secrets & Waypoints)
+- **Blessings HUD** — movable HUD with the active Power/Time/Stone/Life/Wisdom blessings, each switchable, optional roman numerals (Settings: Score & Splits)
+- **Croesus Chest Counter** — shows your unclaimed Croesus chests as n/60 in the Dungeon Hub and in runs, with a title + sound warning near the limit (Settings: Croesus)
+- **Bat Bonus Score** — counts the +1 bat bonus in the dungeon score, shows Bat ✔ next to the score and can announce it (Settings: Map)
+- **Dungeon Death Counter** — HUD with this run's deaths plus an "N. DEATH!" chat line (Settings: Score & Splits)
+- **/visited** — lists how long every party member stood in a room this run (Settings: Score & Splits)
+- **Dungeon Ground Drop Alert** — title + sound when an Ice Spray Wand or Skeleton Master Chestplate drops on the ground (Settings: Render)
+- **Dungeon Clean End**: once the run is over, hides every entity except you, your party and the reward chests, and drops particles, so looting stays clean and lag-free (Settings: Hide)
+- **Death Tick Timer: Show During Clear**: the 40-tick death cycle can now stay up for the whole clear, not only at the start (Settings: Timers)
+- **Dungeon Breaker Charges**: movable HUD with the charges left on your Dungeon Breaker, coloured gold/green/red (Settings: Timers)
+- **Copy Fails To Clipboard**: deaths, puzzle fails, wrong Oruo answers and missed Thorn shots are copied automatically, with a click-to-copy line (Settings: Chat)
+- **Box Ice Sprayed Mobs**: mobs hit by an Ice Spray get a coloured box for the 5 seconds they stay frozen (Settings: Mob Visuals)
+- **Party Finder Helper**: floor as stack size, colour-marked groups (carries, non-pugs, ineligible, low class level, your class missing) and a tooltip with coloured class levels and the missing classes (Settings: Party)
+- **Run Logger**: saves every finished run; /tmap runs shows the S+ rate, secrets per run, fastest, average and total time and runs per hour (Settings: Score & Splits)
+- **Loot Logger** — saves every dungeon chest you buy (items, cost, key, kismet) and `/tmap loot [floor] [days]` shows spent coins and profit with and without essence (Settings: Croesus)
+- **Hide Useless Bossbars** — hides Hypixel's ad and event bossbars; in the dungeon clear only the Watcher bar stays, boss, Kuudra and End bars are untouched (Settings: Timers)
+- **Class Level Colors in Tab** — in dungeons teammate tab lines show level, rank, name and class with the class level colored by tier (Settings: Party)
+- **Custom Mage Beam** — draws the mage beam as one clean colored line and can drop the firework particles (Settings: Render)
+- **Room Preview** — `/tmap roompreview <room>` builds any dungeon room in an empty singleplayer world with its secrets marked, for practicing routes offline (Settings: Secrets & Waypoints)
+- **Team Stats at Run End** — chat summary per teammate after the run with secrets found, rooms cleared (solo/stacked) and deaths (Settings: Score & Splits)
+- **Shadow Assassin Jump Alert** — title and sound when a Shadow Assassin teleports, even when you can't see it (Settings: Score & Splits)
+- **Secret Tracker Locator** — marks where the Secret Tracker points with a SECRET label and distance, and blocks accidental double clicks (Settings: Secrets & Waypoints)
+- **Server Lag Line** — at the end of a run, prints how long the server lagged since Mort's "Good luck." (Settings: Score & Splits)
+- **Dungeon Menu Levels** — Catacombs and class levels as slot text in Dungeoneering, Dungeon Classes and Ready Up, SkyBlock level on the profile head (Settings: Skills)
+- **Swap Sound** — plays a sound when a pickaxe swap-stonk click goes through (Settings: Sounds)
+- **Treasure Talisman Alert** — title, chat line and sound when a Treasure Talisman drops in a dungeon (Settings: Secrets & Waypoints)
+- **Assume No Spirit Pet** — score counts the first death as -2 unless the spirit pet check says otherwise (Settings: Map)
+- **Auto GFS extras** — Spirit Leaps, M7 Twilight Arrow Poison per class, Kuudra, skip while dead, a minimum-missing threshold, a pearl refill key and /tmap jerry, /tmap leap (Settings: Auto)
+- **Score Titles** — optional big title at 270/300 score and your own text for the score message and party announce (Settings: Score & Splits)
+- **Chest Profit HUD** — movable list of every dungeon chest sorted by profit, in the dungeon after opening them and near Croesus (Settings: Croesus)
+- **Teammate Health Warning** — "[M] Name" labels over teammates plus a LOW/CRITICAL warning, outline and map ring when their scoreboard hearts turn yellow or red (Settings: ESP)
+- **Warp Cooldown Block** — blocks /joininstance during your 30s dungeon creation cooldown and tells you when it is over (Settings: Timers)
+- **Watcher Grade to Party** — sends Fast/Normal/Slow with the time to party chat; blood spawn countdown decimals are adjustable (Settings: Blood Camp)
+- **Custom Splits** — define your own split points per floor by chat message (Settings: Score & Splits)
+- **Faster Death Detection** — the "became a ghost" message marks a teammate dead instantly for map heads and the leap overlay (Settings: none)
+- **Score HUD** — movable score panel with rank letter, deaths, missing puzzles, secrets vs. needed, crypts, mimic/prince and the skill/explore/speed/bonus split, optional 270/300 title (Settings: Score & Splits)
+- **Compact Extra Stats** — replaces Hypixel's ~20-line end-of-run block with a short centered summary, EXP/combat/team details on hover (Settings: Score & Splits)
+- **Dungeon Info HUD** — teammates with class, level, ult cooldown and revives, the downed player and active blessings (Settings: Score & Splits)
+- **Key Picker Title** — the key title now says "You" or the picker's class in class colour (Settings: Sounds)
+- **Secret Chime Triggers + Mutes** — chime on secret bat kills and secret item pickups, and mute Hypixel's own chest/lever secret sounds (Settings: Sounds)
+- **Party Finder Marks** — groups in the Party Finder are tinted green/orange/red by joinability and your class minimum, member count on the icon; join line can show class and a gear hover (Settings: Party)
+- **Dungeon Session Counter** — runs per floor with average time, Cata XP and XP/h, fragment counter and an optional one-line run overview (Settings: Score & Splits)
+- **Kismet Feather Count** — shows how many Kismet Feathers you own (inventory + Dungeon Sack) on the Reroll Chest button (Settings: Croesus)
+- **Leap Overlay Styles** — class-colored or custom box backgrounds, key hints on each box, class level, offline players grayed out and a highlight for the last door opener (Settings: Leap)
+- **Leap On Release + Fixed Quadrants** — leap when you let go of the mouse or key, and keep every class in the same quadrant even with a smaller party (Settings: Leap)
+- **Custom Leap Announce** — write your own party message for leaps, with {name} for the player (Settings: Leap)
+- **Leap Map After Blood** — class boxes until blood opens, then the leap menu becomes the clickable map with its own scale (Settings: Leap)
+- **Hide Non-Starred Nametags** — hides the name tags of dungeon mobs without a star so starred ones stand out (Settings: ESP)
+- **Needed Secrets Options** — count needed secrets with max bonus, show the needed total instead of what is missing, and estimate the total from tab until every room is scanned (Settings: Map)
+- **Split Tick Time / Boss Entry / Current Split HUD**: splits can show server-tick time, add a Boss Entry row with PB, and a small HUD for the running split in ticks (Settings: Score & Splits)
+- **Key HUD**: movable "Wither/Blood Key Obtained" display while your party holds a key (Settings: ESP)
+- **Secret Pickup Timer**: HUD with the ticks until each nearby secret item can be picked up, plus the 20-tick spawn cycle and optional colored boxes that replace the items (Settings: Timers)
+- **Spirit Pet Party Check**: warns before the run starts when someone in your party shows a Spirit pet (Settings: Timers)
+- **Dungeon Chest Gambling**: CSGO-style case opening on Obsidian/Bedrock chests that lands on the most valuable item, Esc skips it (Settings: Croesus)
+- **Totem Animation on Procs**: totem particles, sound and item pop when Bonzo/Spirit Mask, Phoenix or Remnant of the Eye save you (Settings: Timers)
+- **Easy Superboom**: middle click on a block in dungeons selects Superboom TNT from the hotbar and uses it after a fixed + random delay (Settings: Auto)
 
-## Garden & Farming
+### Teilweise
+- DUN-025: Hide > Clean End > Dungeon Clean End (+ "F3 Guardians While Sneaking"). Löst beim Run-Ende aus ("☠ Defeated", Catacombs-Stats-Header, EXTRA STATS, auf F7 Necrons "All this, for nothing..."), nicht bei 0 HP des Bosses: wir haben keinen Final-Boss-HP-Tracker wie SkyHanni
+- DUN-047: Score & Splits > Run Logger > Run Logger, Befehl /tmap runs [floor] [today|all]. Statt Devonians kodierter Map speichern wir die Liste der Raumnamen (unser Scanner hat ein anderes Format)
+- DUN-052: Secrets & Waypoints > Room Preview (Info-Zeilen) + /tmap roompreview <room>. Raumdaten (16 MB) NICHT gebündelt (Jar-Größe), sondern pro Raum einmal von Skyblockers GitHub (auf Commit gepinnt) nach config/teslamaps/room_preview/ geladen; nur kleiner Index (138 Räume) gebündelt. Secret-Marker (Boxen + Namen + Kisten/Hebel/TNT-Blöcke wie Skyblocker) aus deren JSON. Fehlt: unsere eigenen Dungeon-Waypoints (Odin-Datei) im Preview anzeigen
+- DUN-059: Sounds > Swap Sound (Stonk Swap) + Only on Blocks/Sound/Volume/Pitch/Test; kein freier Soundname (Config-Screen hat keine Texteingabe), nur die Soundliste
 
-- **Contest timers & alerts** — live countdowns for Agatha's 20-minute Foraging contests and
-  Jacob's hourly Farming contests, with configurable advance/start titles and sounds
-- **Pest routine** — a keybind-driven loop that swaps your loadouts, warps you around and walks you
-  through a full pest round step by step, with an on-screen next-step display
-- **Pest overlay** — cooldown, alive pests and infested plots at a glance, with its own cooldown timer
-  for when tab is wrong, plus early warnings, titles and sounds
-- **Pest timer** with a personal best per round
-- **Pest ESP** with tracers — see the invisible silverfish
-- **Farm profit panel** — what your farming and pests are actually earning, with break detection
-- **Lane bar** — set two points, get a progress bar and a warning before you overshoot the end
-- **Farming sensitivity** — automatically lower mouse sensitivity while holding a farming tool
-- **Plot grid** next to your inventory for instant plot teleports
-- Reminders for pest gear, pests on another plot, Philip buff and fortune buff expiry
-- Garden panels can be dragged and resized straight from the inventory
+### Live auf Hypixel prüfen
+- BOSS-046: the Kuudra check is area name containing "Kuudra" (tab "Area:"). Not seen live.
+- BOSS-047: chin positions (smooth slab, y18/19) come from Devonian's M7Dragon. The "R" needs the dragon position inside the statue box AND the chin block present.
+- BOSS-048: LB spot coordinates come from Devonian. Beams only show while the dragon is spawning or alive (same rule as the spawn boxes).
+- BOSS-049: glow uses EntityGlow on dragons in state ALIVE (UUID from the spawn packet). The center countdown uses the priority dragon while it is SPAWNING, so it needs a priority dragon.
+- BOSS-050: part boxes come from EnderDragon.getSubEntities() + lerpBox. Not verified that the client updates part positions on Hypixel's dragons.
+- BOSS-051: hangs on the still-untuned stage-2 spawn prediction. The threshold is measured against the same countdown the text shows (including Tick Offset).
+- BOSS-055: HP comes from the nametag stand "§X﴾ §X§lLivid ... ❤ §X﴿" of the correct colour, nearest to the real Livid. The /pc announce goes out once the colour message fires (end of blindness) through the Announce queue. Everything is blocked in Legit Mode, because the LividSolver tick is .legit().
+- BOSS-056: kill counter = round(bar progress × (12 + floor)), same as Devonian. Not verified whether the Watcher bar fills or drains on Hypixel. The fallback Watcher detection (no Blood Camp Assist needed) finds the " The Watcher " nametag stand and takes the zombie at id-1 or the nearest one within 2 blocks.
+- Alles nur live prüfbar (kein Hypixel im Dev-Client).
+- BOSS-022: Pillar-Koordinaten und Pad-Farben kommen 1:1 aus OdinClient; setBlock auf dem Client kann von Server-Blockupdates wieder überschrieben werden (wird jeden Tick in P2 erneut ersetzt).
+- BOSS-043: Die Klicksperre sitzt auf MultiPlayerGameMode.interact (einziger Entity-Rechtsklick-Weg in 26.1.2). Vorhersage bleibt jetzt bis zur Server-Bestätigung bzw. höchstens 2,5 s stehen (vorher fest 1 s), damit hoher Ping kein Überklicken erlaubt. Ohne erkannte Lösung, ohne frischen Scan (>1 s) oder weit weg vom Gerät wird nie blockiert (fail-open).
+- BOSS-052: Standpunkte SS (108.63,120,94) und i4 (63.5,127,35.5), Radius 1,8, aus Odin Forge. P3 über F7Devices.phase() (y-Bereich 100-155).
+- BOSS-004: "Use Livid's Own Color" nimmt die Chat-Farbe der Livid (Crossed = hellviolett). Die Wolle wird weiterhin pro Tick gelesen, kein Umbau auf BlockUpdate.
+- BOSS-017: Die Flugpfade und Physik (Drag 0,99, Gravitation 0,05, v 3) stammen aus Devonian. Die Lambert-W-Funktion ist eine eigene Halley-Iteration statt Devonians Näherung. Die Zeitbasis sind Client-Ticks von WitherDragons (Devonian rechnet mit Server-Ticks). Ping kommt aus der Tab-Latenz. Die HIGH-Erkennung läuft jetzt auch, wenn "Show HIGH" aus ist und der Aimer an. Beim ersten Drachen gibt es kein Ziel (wie bei Devonian).
+- DUN-007: Import-Format aus Odins Export (base64+gzip oder JSON) nur nach Odin-Code gebaut; Odin-Farbfeld als String angenommen wie in der bestehenden Datei. Default-Pack = weiterhin dungeon_waypoints.json, weitere Packs in config/teslamaps/waypoint_packs/<name>.json; Löschen benennt nur in .json.deleted um. Rechtsklick im Edit-Mode wird in Dungeons komplett abgefangen (keine Item-Nutzung/Kisten solange an). Wiederholte Rechtsklicks unter 260 ms zählen als Halten.
+- DUN-019: Tab-Footer-Format "Blessing of <Name> <röm.>" von Odin übernommen; Stone/Life/Wisdom nie live gesehen.
+- DUN-020: Tab-Zeile "Unclaimed chests: n" (Devonian) und "Team Score: ..."-Zeile/Wipe-Zeile nie live gesehen; Zähler bleibt "?" bis die Tab-Zeile einmal gelesen wurde (Wert wird global gespeichert). Warnung kommt einmal pro Session bis der Stand unter die Schwelle fällt.
+- DUN-021: Hypixel-Zeile "A Bat has been slain. +1 Bonus Score" aus Odin/NoammAddons; ob Hypixel sie aktuell noch schickt, ungeprüft. Announce geht über den Announce-Kanal (Default Nobody), wie beim Crypt Reminder — kein .cheat().
+- DUN-022: Regex von SkyHanni, Todeszeilen live prüfen.
+- DUN-023: nur Spieler in Entity-Reichweite werden erfasst (keine Map-Marker-Zuordnung); Boss-Raum wird nicht gezählt.
+- DUN-024: Erkennung über ArmorStand-Namen und ItemEntity-Namen, Hypixel-Nametag-Format ungeprüft.
+- Clean End: trigger lines ("☠ Defeated", "The Catacombs - ..." header) and the Guardian-while-sneaking case; RemotePlayer also lets NPC fake players through, same as in SkyHanni
+- Death Tick: only checked in code, not live against Hypixel's 40-tick cycle
+- Breaker: the lore format "Charges: x/y" comes from Zen, the damage fallback (20 - damage/78) from Devonian
+- Copy Fails: the Oruo line and the [CROWD] keywords for Thorn come from memory of Skytils (source not available locally)
+- Iced Mobs: detection = a new ICE item entity (tickCount <= 5) while someone holds an Ice Spray; cone of 90°/8 blocks approximated by angle instead of Devonian's frustum planes
+- Party Finder: all container titles and lore formats (member line " Name: Class (Level)", "Note:", "Dungeon:", "Floor:", "Currently Selected: X" in the gate) taken from SkyHanni's regexes. Your own class is only known after the Catacombs Gate was opened once per session
+- Run Logger: header/score/defeated/deaths/secrets lines from Devonian; deaths and secrets only arrive with the extra stats (autoExtraStats). Without the "Secrets Found" line the run is saved 20s after the header, as long as the time was read
+- Loot Logger: Chat-Zeile "<TYPE> CHEST REWARDS", Kisten-GUI-Titel "<Typ> Chest", Croesus-Run-Titel "(Master )Catacombs - Floor VII" und Lore-Zeilen "Contents"/"Cost"/"Dungeon Chest Key"/"You already rerolled a chest!" stammen aus Devonian bzw. CroesusProfit, live nicht gesehen. Floor kommt im Dungeon aus DungeonManager, bei Croesus aus dem zuletzt geöffneten Run-Titel.
+- Hide Useless Bossbars: Watcher-Erkennung über Namen "The Watcher"; außerhalb Dungeon/Kuudra/The End werden in SkyBlock ALLE Bossbars versteckt (wie Devonian) — falls irgendwo eine echte Boss-Bar verschwindet, Ausnahme ergänzen.
+- Tab Class Colors: SkyHanni-Regex auf die Tab-Zeile; Rang-Farbe nur, wenn Hypixel literale §-Codes in der Tab-Zeile mitschickt, sonst grau.
+- Mage Beam: Gruppierung der FIREWORK-Partikel pro Client-Tick (Odin nimmt Server-Ticks); Strahl-Erkennung live prüfen.
+- Room Preview: Weltanlage/Void-Generator/Struktur-Platzierung nur kompiliert, nicht gestartet (kein runClient). Download-URL raw.githubusercontent.com/SkyblockerMod/Skyblocker/087e122…/…/catacombs/<shape>/<room>.skeleton|.json. "double_stone_slab" aus deren Palette auf smooth_stone gemappt. Spawnt im Spectator (Befehle an, /gamemode geht), Teleport in die Raummitte y=80 + Nachtsicht.
+- Team Stats: Secret-Delta hängt davon ab, wie frisch Hypixel/PV-API die Profildaten liefert (Profil-Cache wird vorher invalidiert, API-seitiger Cache kann Delta 0 ergeben). Räume nur für Mitspieler, deren Entity geladen ist. Run-Ende-Zeile "Catacombs - Floor …" nach Odins Regex.
+- Shadow Assassin: warningTime == 10000 im InitializeBorder-Paket (SkyHanni), live nicht gesehen.
+- Secret Tracker: Chatformat "There's a secret N blocks …" und HAPPY_VILLAGER-Partikel (count 1, speed 0) aus SkyHanni übernommen; Hochrechnung t = Distanz*2 setzt 0.5 Blöcke Partikelabstand voraus
+- Server Lag: setzt voraus, dass Hypixel im Dungeon ein Ping-Paket pro Server-Tick schickt (ohne Pings keine Zeile)
+- Slot-Text: Slot-IDs (12, 29–33 / 11–15 / 29–33 / 22) und das SB-Level-Loreformat im SkyBlock Menu (Regex "Level: [n]") nie live gesehen
+- Swap Sound: Pickaxe-Erkennung über ItemTags.PICKAXES (Drills/Gauntlets zählen nicht); Vergleich mit dem zuletzt gesendeten Slot (MultiPlayerGameMode.carriedIndex) bei Minecraft.startAttack
+- Treasure Talisman: ob gedroppte ItemEntities im Dungeon den Namen "Treasure Talisman" tragen
+- Auto GFS Twilight: Boss-Zeilen aus NoammAddons, Sack-ID twilight_arrow_poison; Totencheck nutzt PlayerTracker (Tab "(DEAD)"); Kuudra über Area-Name mit "kuudra"
+- DUN-070: scoreboard teammate format + colour (e = low, c = critical) taken from SkyHanni's teammatesPattern, never seen live here; label/outline through walls and map ring need a real run
+- DUN-068: chest GUI capture relies on the same "Contents" lore CroesusProfit already uses; Croesus position (-28,119,35, ~12 blocks) from NoammAddons; hub area name "Dungeon Hub"
+- DUN-071: which name the "entered The Catacombs" line gives for yourself (own cooldown falls back to the global warp timer); shortcuts expanded through MODIFY_COMMAND are not caught (ALLOW runs first)
+- DUN-074: ghost line format "☠ <Name> ... became a ghost." from Skyblocker; map head reassignment after a death
+- DUN-072/067: party message text; announces are plain chat like the existing 270/300 announce, so no cheat marker
+- DUN-073: custom split matching against live boss lines
+- Alles nur live prüfbar, Singleplayer hat keine Hypixel-Daten.
+- DUN-076: Endblock-Formate aus Odins Regexen übernommen (Team Score, ☠ Defeated, EXP, Bits, Damage, Healing, Kills, Deaths, Secrets, ▬-Trenner). Die Zusammenfassung kommt bei "Secrets Found: n" oder 5 s nach "> EXTRA STATS <". Trenner werden nur im Boss/nach Run-Ende versteckt. Ohne Auto Extra Stats bleibt die "> EXTRA STATS <"-Zeile klickbar sichtbar.
+- DUN-077: Tab-Indizes wie bei Skyblocker (Spieler 1/5/9/13/17, Ult +1, Revives +2, Downed 21-23) über PlayerTracker.strAt; Blessings aus dem Tab-Footer ("Blessing of X <röm>").
+- DUN-078: Chatformat "<name> has obtained Wither/Blood Key!" (Devonian). "A Wither Key was picked up!" behält den alten Titel.
+- DUN-079: Sound-Signaturen von SkyHanni (chest.open vol 0.5, harp vol 1 mit 5 Pitches, anvil.break 1.698, lever.click 0.492); Bat-Chime auf BAT_DEATH vol 0.1 (dieselbe Signatur wie der vorhandene Bat-Sound). 300 ms Sperre zwischen Bat-/Item-Chimes.
+- DUN-080: PF-Lore-Muster von SkyHanni (" Name: Class (lvl)", "Requires ...", "You don't meet the requirement!", "Complete previous floor first!"), Titel "Party Finder". Join-Klasse aus "(Mage Level 42)" am Zeilenende. Waffen-Erkennung nur Inventar (nicht Ender Chest/Backpacks), aktives Pet aus pets_data.
+- DUN-081: Run zählt bei "Team Score: n (R)", Zeit aus "☠ Defeated ... in 05m 20s" (sonst Timer seit Start), XP aus "+n Catacombs Experience" (braucht /showextrastats). Fragmente = Inventar-Zuwachs von Items mit "Fragment" am Namensende, nur im Dungeon.
+- DUN-082: Name "Reroll Chest" und letzte Lore-Zeile "You already rerolled a chest!" aus SkyHannis Regex; Sack-Anzahl kommt aus dem ItemIndex-Snapshot (nur mit "Index Opened Containers" an und nachdem der Dungeon Sack einmal offen war), Inventar per SkyBlock-ID KISMET_FEATHER
+- DUN-083: OFFLINE kommt aus der Kopf-Lore (enthält "offline", wie Skyblocker); Klassenlevel aus der Tab-Zeile (römisch -> Zahl); Key-Badge-Position bei kleinen Scales
+- DUN-084: Release-Modus mit Maus und Tasten, eine beim Öffnen schon gedrückte Taste feuert absichtlich nicht; feste Quadranten brauchen die eigene Klasse aus Tab und keine doppelten Klassen
+- DUN-085: Leap-Erkennung jetzt nur auf Zeilen, die mit "You have teleported to" beginnen (vorher reichte ein Treffer irgendwo in der Zeile; verhindert, dass eigene Party-Nachrichten die Ansage erneut auslösen)
+- DUN-086: Blood gilt als offen bei "opened a BLOOD door!", "The BLOOD DOOR has been opened!" oder einer Watcher-Zeile; im Boss kommen wieder die Boxen
+- DUN-087: Tag-Regex + Ausnahmeliste von Devonian (Blood-Mobs, Prince, Mimic, Blaze, Shadow Assassins usw.); nur im Dungeon, Neuscan alle 5 Ticks
+- DUN-088: "alle Räume bekannt" = alle 36 Grid-Positionen geladen + jeder Raum identifiziert (im Legit Mode immer Schätzung aus Tab); Prince zählt bei Max-Bonus nur, wenn die Karte einen Prince-Raum kennt
+- Alles nur gebaut, nichts im Spiel getestet.
+- DUN-090: Tick-Zeit nutzt ServerTickTimer (Ping-Pakete). Boss Entry = Split-Index 3 minus Run-Start (Mort), gilt auch für F4/F5.
+- DUN-091: die Chat-Formate stammen aus dem vorhandenen ChatMixin ("A Wither Key was picked up!", "has obtained Wither Key", "opened a WITHER door!"). Wird beim Boss oder beim Verlassen zurückgesetzt.
+- DUN-092: die Aufhebeschwelle ist 11 Ticks wie bei legitcatmod, nicht der Slider "Item Pickup Delay" (Default 50) der Readiness-ESP. Der Spawntakt zählt ab der Mort-Nachricht. Ende bei "☠ Defeated"/"EXTRA STATS".
+- DUN-093: die zwei Spirit-Pet-Texturhashes kommen von Skytils. Gescannt wird jede Sekunde vor "Starting in 1 second."/Mort, nur wenn Spirit Pet Reminder an ist.
+- DUN-044: Titel "Obsidian/Bedrock (Chest)". Start, sobald eine Barriere (Dungeon) bzw. ein Pfeil mit "To …"-Lore (Croesus) im GUI liegt. Gewinner = teuerstes Item mit Skyblock-ID über PriceManager, Bücher über custom_data enchantments. Klicks/Tasten gesperrt, der Vanilla-Screen wird währenddessen nicht gezeichnet.
+- DUN-094: Chat-Regexe von SkyOcean. Remnant nutzt ein Ender-Eye-Icon (kein Skull-Hash vorhanden).
+- DUN-043: nutzt Minecraft.startUseItem per Invoker, nachdem der Hotbar-Slot gewechselt ist. Prüft vor dem Use nochmal Slot, Item und Block im Fadenkreuz.
 
-## Foraging & Torrhus Canyon
+## Welle 4 (10 Gruppen)
 
-- **Heart of the Forest** — perks colour-coded by state, perk level shown as the stack size, unused
-  tokens on the heart itself, plus a HUD for your current Lottery/Beekeeper perk
-- **Lather overlay & reminder** — per-tree lather time and a warning when it runs out
-- **Honeyhive reminder** with a Queen Bee instant-refill alert
-- **Clean tree view** — hide the floating blocks from chopping and rune effects
-- **Compact tree gifts** — the whole gift block squashed into one line
-- Mute the annoying stuff: Phantoms, Fusion Machine, tree-break sound, Sweep Details spam
+### Neu
+- **Croesus Profit upgrades** — optionally subtract the Dungeon Chest Key, leave essence out, use 7-day average prices, mark the second-best chest in yellow and warn while Derpy is mayor (Settings: Croesus)
+- **Reroll Protection** — blocks the Reroll Chest click on chests worth at least a set amount (default 4M); hold CTRL to reroll anyway (Settings: Croesus)
+- **Diamante Giant Alert** — three anvil sounds when the Diamante Giant shows up in the F7/M7 blood room (Settings: Blood Camp)
+- **Starred mob linking** — Starred Mob ESP can pair each ✯ nametag with its mob by entity id and colour mob types (chunky mobs, Fels, Skeleton Master, minibosses, Shadow Assassins) differently (Settings: ESP)
+- **Backpack Preview extras**: choose a Compact or Chest look, tint previews and opened backpacks in their dye colour, and preview the New Year Cake Bag (Settings: Inventory)
+- **Rarity Silhouette**: a new "Silhouette" shape for rarity backgrounds that outlines the item's own pixels in its rarity colour (Settings: Inventory)
+- **Accessory Helper**: a panel next to the Accessory Bag lists missing and upgradable accessories, cheapest coins per Magical Power first, including recombobulating (Settings: Inventory)
+- **Accessory Status**: every accessory tooltip says Collected, Upgrade, Upgradable, Downgrade or Missing, optionally as a symbol in the slot (Settings: Inventory)
+- **Anvil Helper**: marks inventory items that combine with the one in the anvil and warns in red when two books don't match (Settings: Inventory)
+- **Animated Dye Armor Fix**: worn armour with an animated dye keeps its tooltip, rarity background and value (Settings: Inventory)
+- **Craft Helper**: /tmap craft <item> [amount] shows the full recipe tree with progress from inventory, sacks and storage, and tells you when you have everything (Settings: Inventory)
+- **Custom Wardrobe** — replaces the wardrobe menu with cards that show a 3D preview of each set, its value and favorites (right-click); click to equip (Settings: Inventory)
+- **Countdown End Time** — tooltip lines like "Ends in:" or "Starts in:" also show the local clock time they finish (Settings: Tooltips & Value)
+- **Broken Fragment Warning** — broken dragon fragments get a red BROKEN FRAGMENT line at the top of the tooltip (Settings: Tooltips & Value)
+- **Backpack Slot** — an extra slot next to the hotbar: select it with a key or by scrolling past the hotbar, arrow keys switch backpacks, Enter opens one, and the contents show above the hotbar (Settings: Inventory)
+- **Attribute Overlay** — items with legacy attributes show both attribute short names and levels in the slot, with good rolls in yellow (Settings: Inventory)
+- **Item Model Migration** — model overrides from the customize screen are updated on their own when Hypixel renames or removes a model (Settings: Inventory > Customization)
+- **Brewing Stand Overlay** — shows the names of the ingredient, progress and output next to the brewing stand slots (Settings: Inventory)
+- **Move Insert Into Sack** — sack menus show the Insert Into Sack button three slots further left, clicks still hit the real slot (Settings: Inventory)
+- **Arrow Poison On Bow** — hotbar bows show a small Toxic/Twilight Arrow Poison icon with how many are left (Settings: Combat)
+- **Axes In 1.8 Look** — Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe (Settings: Inventory)
+- **Bingo Card Tips** — Bingo Card goals are tinted by difficulty and the tooltip shows a guide and who found it (Settings: Inventory)
+- **Mark Disabled Potion Effects** — disabled effects in the Toggle Potion Effects menu get a red background (Settings: Inventory)
+- **Dungeon Item Quality** — dungeon drops show "Item Quality: 42/50 (Floor 7)" and optionally their tier in the tooltip (Settings: Tooltips & Value)
+- **Armor Dye Hex Code** — dyed armor shows its colour as #RRGGBB and flags Exotic, Crystal, Fairy, Spook and Glitched pieces (Settings: Tooltips & Value)
+- **Equipment In Inventory** — shows your necklace, cloak, belt and gloves in a small column beside the inventory; click a slot to open /equipment (Settings: Inventory)
+- **Missing Enchants** — hold Shift on an item to see which enchants its type can still get (Settings: Tooltips & Value)
+- **Remove Gear Score** — hides the "Gear Score" line on dungeon item tooltips (Settings: Tooltips & Value)
+- **Compact Drill Parts** — drill tooltips show Fuel Tank / Drill Engine / Upgrade Module as three short lines, red when missing (Settings: Tooltips & Value)
+- **Evolving Item Age** — Dark Cacao Truffle, Moby Duck, Rosewater Flask, Jyrre, Discrite and Training Weights show their age and progress, optionally the current bonus in the slot (Settings: Tooltips & Value)
+- **List Gemstones** — lists every applied gemstone with its quality in the tooltip (Settings: Tooltips & Value)
+- **Experimentation Table Helper** — highlights the next and following click in Chronomatron and Ultrasequencer and keeps revealed Superpairs cards visible; visual only (Settings: Inventory)
+- **Experimentation Alerts** — beep + chat line once Chronomatron/Ultrasequencer hit the rounds for max Superpairs clicks, dragon growl + title on an Ultra-Rare book, and the XP value shown on Superpairs dye slots (Settings: Inventory)
+- **Full Inventory Warning** — big red "Inventory Full" title (optional sound) when your free slots drop to the set limit, SkyBlock only (Settings: Inventory)
+- **Focus Mode** — tooltips show only the item name, via toggle key or always on; Auction House keeps price and seller (Settings: Tooltips & Value)
+- **Your XP in Cost Tooltips** — anvil and enchanting tooltips show your XP level, green or red depending on whether it is enough (Settings: Tooltips & Value)
+- **Mark Duplicate Items** — highlights items whose Hypixel UUID appears more than once, optionally in every GUI and against your stored containers (Settings: Inventory)
+- **Hide Ex-Coop Members** — removes former co-op members from collection contribution tooltips, learned from Historic Members or /tmap excoop (Settings: Tooltips & Value)
+- **Hoppity Uniques in Warp Menu** — Fast Travel tooltips show how many unique Hoppity egg spots you found per island during Hoppity's Hunt (Settings: Tooltips & Value)
+- **Ophelia Potion Lock** — at Ophelia only the Dungeon Potion level you picked can be clicked, other shop items are blocked (Settings: Inventory)
+- **Remove Duplicate Enchant Lines** — drops the vanilla enchant line when Hypixel's lore already shows it (Settings: Tooltips & Value)
+- **Rename Enchants** — give enchants your own names in tooltips, level and colour stay (Settings: Tooltips & Value)
+- **Forge Recipe Viewer** — /viewforgerecipe <item> shows the forge inputs, result and time in a forge-style window (Settings: Inventory)
+- **Enchant Table & Hex Panel** — side panel in the enchanting and Hex menus listing every enchant with cost and current level, plus what is already on the item (Settings: Inventory)
+- **Fancy Crafting Table** — the Craft Item menu looks like a real crafting table, filler panes hidden (Settings: Inventory)
+- **Hoppity Collection Stats** — panel in Hoppity's Collection with rabbits per rarity, duplicates and missing egg locations, obtainable rabbits highlighted (Settings: Inventory)
+- **Next Star Cost** — tooltips show the essence cost of the next star (or the dungeonize cost), hold Ctrl for master stars, coins and other required items (Settings: Tooltips & Value)
+- **Syphon-Ready Shards** — the Hunting Box marks shards you own enough of to level up in green, yellow when the attribute is still locked (Settings: Shards)
+- **Item Data Preview** — New Year Cake Bags, the Builder's Wand and backpack items show their contents in the tooltip, even if never opened (Settings: Inventory)
+- **Fix Broken Tooltip Frames** — without the Hypixel resource pack, custom tooltip frames fall back to vanilla instead of the purple missing texture (Settings: Tooltips & Value)
+- **Ignore Filler Items** — blank glass panes show no tooltip, and clicks on fillers and locked backpack slots are ignored (off in dungeons and experiments) (Settings: Inventory)
+- **Magical Power As Stack Size** — the Accessory Bag and auction house show each accessory's MP on its slot, optionally in rarity color (Settings: Inventory)
+- **Hover Item Search & Highlight** — the search key over an item opens the search for it, and a highlight key marks that item in every menu for 30s plus waypoints on chests holding it (Settings: Inventory)
+- **Limit Dropping Items** — at most 7 drops per 3 server ticks, so spamming Q during lag can't throw away a whole stack (Settings: Inventory)
+- **Compact Level Bars** — Ways to Level Up / Skill Related Tasks tooltips show one "▶ Task (x/y XP)" line per task (Settings: Tooltips & Value)
+- **Legacy Attribute Background** — red slot background behind items that still carry old Kuudra attributes (Settings: Inventory)
+- **Item Pickup Alert** — title, sound and chat line when a watched item lands in your inventory, even without a drop message (Settings: Inventory)
+- **Museum Donations** — tooltip line shows whether an item is donated to your museum, optional outline on undonated items in menus (Settings: Tooltips & Value)
+- **Reforge Stop** — the reforge button stops working once the item has one of your wanted reforges, optionally protects stone reforges (Settings: Inventory)
+- **Prevent Placing** — placeable weapons and ability heads use their ability instead of being placed as a block (Settings: Inventory)
+- **Menu Highlights** — colours slots in the Beacon, Hub Selector, RNG Meter, Museum, Loadouts, Power Stones Guide, Thaumaturgy and Stats Tuning menus (Settings: Inventory)
+- **Museum Donation Helper** — lists your missing museum donations sorted by price, craft cost or coins per XP, and colours the grey "not donated" slots by whether you own, can craft or have materials for them (Settings: Inventory)
+- **Price Key For Estimated Value** — the "Only While Key Held" option of the price line now hides the estimated value line too (Settings: Tooltips & Value)
+- **Obtained Date** — shows when an item was created in its tooltip (Settings: Inventory)
+- **Recipe Search** — the search overlay now also replaces the /recipes search sign, and /craft gets a Recipe Search button (Settings: Inventory)
+- **Minion Helper** — HUD with the materials missing for the next tier of minions in your inventory, plus a panel of the cheapest minion upgrades next to Crafted Minions (Settings: Inventory)
+- **Power Stone Stats** — power stone and Thaumaturgy tooltips show the stats at your real Magical Power (Settings: Tooltips & Value)
 
-## Fishing
+### Teilweise
+- INV-023: Inventory > Craft Helper (/tmap craft <item> [amount], HUD in /tmap gui); nur Crafting-Rezepte aus NEU (keine Forge), kein Klick-Kopieren der fehlenden Menge, keine Geister-Items im Craft-Menü
+- INV-024: Inventory > Wardrobe & Loadout Keybinds > Custom Wardrobe. Only the current page is shown (no cross-page cache like SkyHanni). No edit screen; sizes and colors are set in config
+- INV-057: Inventory > Enchant Table & Hex Panel (+ Sort by Name, Mark Conflicts); Seitenpanel statt eigenem GUI: Enchants über alle Seiten gesammelt mit Kosten + aktuellem Level, Item-Zusammenfassung (Enchants, Potato Books, Reforge, Recomb, Power Scroll, Gemstones, Sterne). Fehlt: Suchfeld, Klicken aus dem Panel, eigenes Hex-GUI
+- INV-058: Inventory > Fancy Crafting Table; Werkbank-Optik über dem Craft-Item-Menü (Füllscheiben weg, 3x3-Raster + Ergebnis-Slot). Fehlt: SkyBlock-Rezeptbuch mit Ghost-Rezept, "More Crafts"-Knopf
+- INV-075: Inventory > Reforge Stop (Wunsch-Reforges + Stein-Reforge-Schutz, SBA-Variante); SkyHannis Stat-Tabelle/Sortierung fehlt
+- INV-078: Inventory > Museum Donation Helper (Sort / Category / Rows). Fehlt: Klick auf ein grünes Feld öffnet den Fundort nicht, kein Craft-Ziel setzen, keine Status-Anzeige pro Rüstungsteil. Die Sortierung "Coins per XP" funktioniert nur, wenn die Live-NEU-museum.json itemToXp liefert (in der gebündelten Kopie fehlt das)
+- INV-082: Inventory > Minion Craft Helper (HUD, /tmap gui) + Cheapest Minion Upgrades (Panel neben Crafted Minions). Fehlt: Tier-1-Crafts (FirstMinionTier), Umrechnung auf Enchanted-Items (primitive multiplier), Klick setzt Craft-Ziel, Titel-Hinweis "can craft"
 
-- **Hook display** — the bite countdown big on your screen, with your own alert text, sound and pitch
-- **Bobber timer**
-- **Hotspot radar** — reads the radar particles and shows you where the hotspot actually is, with a
-  tracer and optional beam, plus a warning when your whirlpool disappears
-- **Umbrella warning** before and when it runs out
-- **Exploding frog ESP**
+### Übersprungen
+- DUN-069: User: "erstmal nicht"
+- DUN-062: User will Detectability erst nochmal besprechen, vor dem Bauen
 
-## Critter Safari
+### Live auf Hypixel prüfen
+- Croesus: Lore-Zeile "Dungeon Chest Key" im Cost-Block und Bazaar-ID DUNGEON_CHEST_KEY nie live gesehen
+- 7-Tage-Durchschnitt über Odins API lb.odtheking.com/averages/7day (fremde Infrastruktur); Buch-Keys werden von ENCHANTED_BOOK-X-5 auf ENCHANTMENT_X_5 umgeschrieben
+- Reroll-Schutz: Button-Name "Reroll Chest" im Kisten-GUI und die "Contents"-Lore der Kiste; Derpy-Erkennung über ElectionApi.mayor()
+- Diamante: Erkennung über Giant-Entity mit voller Diamantrüstung (wie Shizo), nur live prüfbar
+- Star-Mob-ID-Link: Offset Label-ID −1 / Withermancer −3 (Devonian) plus Positionsprüfung; Labels ohne Mob bekommen eine eigene Box
+- Alles nur gebaut, nichts im Spiel gestartet (kein runClient laut Regeln). Neue Mixins: AnimatedDyeInventoryMixin, ContainerTooltipStackMixin, RarityContourMixin, RarityContourItemMixin, RarityContourRendererMixin. Ziele per javap geprüft, Anwendung erst beim Start sichtbar.
+- Silhouette-Shader (teslamaps_rarity_contour.fsh + Pipeline RARITY_CONTOUR über das SDF-Vertexformat): Kompilierung und Optik nur im Client prüfbar. Wirkt in Container-Slots; in Storage-Overlay/Hotbar/PV über ein One-Shot-"pending" vor dem nächsten Item.
+- Backpack-Dye: Farbe wird aus custom_data "backpack_color" des Storage-Icons gelesen (Name aus SBA-Erinnerung, nie live gesehen). Opened-Backpack-Tint braucht das Icon aus dem Storage-Menü.
+- Cake Bag: Titel "New Year Cake Bag", Kuchen = skyblockId NEW_YEAR_CAKE, Tasche = NEW_YEAR_CAKE_BAG; Inhalt erst nach einmal Öffnen, nur die zuletzt offene Seite.
+- Accessories: Bag-Titel "Accessory Bag (n/m)", Recomb aus custom_data rarity_upgrades, Accessory-Liste = Hypixel items API category ACCESSORY ohne origin RIFT, Familien aus NEU misc.json talisman_upgrades (Tier = Anzahl Vorgänger), MP-Tabelle fest. Preis = BZ-Buy, sonst LBIN, sonst Craft-Kosten; Upgrade-Kosten minus Verkaufswert des alten.
+- Anvil: GUI-Titel "Anvil", Slots 29/33 und Ergebnis 13 wie SkyHanni/Skyblocker; Bücher über custom_data enchantments verglichen.
+- Animated Dye: wartet auf TOOLTIP_DISPLAY hideTooltip am getragenen Stack; Wardrobe-Titel "(n/m) Armor Sets", Auswahl-Slots 36-44 "Slot N: Ready" (aus Skysoft).
+- Craft Helper: Sack-Mengen kommen aus dem Item-Index (Sack-GUIs einmal öffnen, "Index Opened Containers" an), Name->ID über die Hypixel-Itemliste; NEU-Zutaten mit "-" werden auf ":" gemappt.
+- Custom Wardrobe: the title "(n/m) Armor Sets" / "Wardrobe", the slot layout (rows 0-3 armor, 36-44 buttons, 45/53 page arrows) and the button names "Equipped"/red dye = locked come from SkyHanni and were never seen live. Check the 3D model render and the tooltips on top of the cancelled container render
+- Backpack Slot: only works with pages already in StorageCache (opened at least once). Enter sends /bp N or /ec N. The scroll and arrow-key handling was not tested in game
+- Attribute Overlay: reads custom_data.attributes, good rolls come from SkyHanni-REPO constants/AttributeGoodRolls.json (repo path is a guess)
+- Countdown: time format "1d 2h 3m 4s" from NEU. Lines with "05:23" formats are not recognised
+- Broken Fragment: checks bossId + spawnedFor at the top level of custom_data (SBA used ExtraAttributes)
+- Model migration: NEU constants/resource_pack.json has empty removed/renamed right now, so it does nothing yet
+- Brewing Stand: title "Brewing Stand" and slots 13/21/42 come from SkyHanni
+- Bingo: goal lore markers ("Personal Goal"/"Community Goal"/"GOAL REACHED"/"Reward") and tips from SkyHanni-REPO constants/Bingo.json, never seen live
+- Insert Into Sack: sack title ending in " Sack" and chest at last slot -2 (SkyHanni layout); swap via mutable Slot.x/y
+- Arrow Poison: matched by item name "Toxic/Twilight Arrow Poison"; icon position/size on the hotbar only checked in code
+- Exotic detection relies on hysky.de/api/color (Skyblocker's data), fetched once through RepoCache; Wither glitched check reads only a numeric "timestamp"
+- Disabled potions: lore text "Currently: DISABLED" taken from Skytils
+- Revert Axes: ITEM_MODEL swap in ItemModelResolver.appendItemLayers, per-uuid Customize model still wins
+- Equipment: menu titles "Your Equipment and Stats"/"Stats & Equipment", slots 10/19/28/37, Loadouts/Equipment-Sets-Layout (von Skysoft übernommen); Panel ist schlanke Variante links/rechts neben dem Inventar statt Skysofts Offhand-Verschiebung; Speicherung pro SkyBlock-Profil in equipment.json
+- Missing Enchants: NEU enchants.json (enchants + enchant_pools) wird beim Repo-Load mitgeladen; Item-Typ aus der Rarity-Zeile ("LEGENDARY DUNGEON SWORD" -> SWORD) muss zu NEU-Keys passen
+- Drill-Kompaktierung: Blockerkennung (erste Zeile mit "Tank", dann drei Leerzeilen-Blöcke) und NBT-Keys drill_part_fuel_tank/engine/upgrade_module nur aus SkyOcean abgeleitet
+- Evolving: NBT-Keys seconds_held / rift_discrite_seconds / bottle_of_jyrre_seconds / trainingWeightsHeldTime aus Skyblocker; Bonus-Zeilen "Current Bonus:" usw.
+- Experiment Helper: Chronomatron hängt an Menü-setItem-Updates (Timing der Noten), Ultrasequencer/Superpairs werden pro Tick gepollt; Titel/Phase-Slot 49/Round-Slot 4 aus Skysoft. Falsche Klicks werden bewusst NICHT blockiert (Skysoft-Variante, rein visuell).
+- INV-046: Lore/Titel-Formate (Chain/Series of N, "Round: N" auf Slot 4, Ultrasequencer-Zahlen-Items, "XX ULTRA-RARE BOOK! XX", "<n>k Enchanting Exp" auf Dyes) aus SkyHanni übernommen, nie live gesehen.
+- INV-047: Schwelle/Übergang nur in SkyBlock live prüfbar.
+- INV-048: AH-Separatorblock ("-----------------") und Bazaar-Titel-Erkennung.
+- INV-049: Tooltip-Zeilen "N Exp Levels" / "Starting cost: N XP Levels" live prüfen.
+- INV-050: UUID wird aus dem gespeicherten SNBT per `uuid:"` gelesen; "Everywhere" kann bei veralteten Snapshots (Container seit dem Verschieben nicht wieder geöffnet) falsch-positiv markieren.
+- INV-051: Titel "Historic Members", Kopf-Namen, "Co-op Contributions:"-Block und Collection-Menütitel (endet auf "Collection(s)"); bei gemaxter Collection wird nur die Kopfzeile zu "COLLECTION MAXED OUT!", kein "Total collected: N" (wir speichern keine Collection-Zähler).
+- INV-052: zählt nur Eier, die gefunden werden, während das Feature an ist (keine Vergangenheitsdaten); Frühlings-Check über SkyBlock-Kalender-Formel; Insel-Mapping Warp-Name -> Tab-"Area:" live prüfen.
+- Ophelia: Shop-Items werden über Lore-Zeile "Cost" erkannt, Trank über Namen "Dungeon <Stufe> Potion"; Menütitel "Ophelia"
+- Duplicate Enchant Fix: ob die doppelte Zeile auf 26.1.2/Hypixel überhaupt auftritt
+- Forge Recipe: NEU-Repo-Format (recipes[type=forge], inputs "ID:count", duration) und Item-Stacks für Zutaten; Datei-Download pro Item über RepoCache
+- Enchant Panel: Menütitel "Enchant Item" / enthält "Hex", Kosten-Regex "<n> Exp Levels", Konflikt-Erkennung nur über Lore mit "conflict"; aktuelles Level über custom_data.enchantments des Items (Name->ID-Mapping kann bei Sonderfällen danebenliegen)
+- Fancy Crafting: Titel "Craft Item", 6 Reihen, Füllscheiben = graue Glasscheibe ohne SkyBlock-ID, Ergebnis-Slot 23; Mirrorverse-Layout nicht berücksichtigt
+- Hoppity: Rarität aus Lore-Zeile "<RARITY> RABBIT" bzw. Namensfarbe (keine NEU-Daten, Gesamt je Rarität = bisher gesehene Rabbits); Muster aus SkyHanni übernommen, nie live gesehen
+- INV-060: NEU-Repo-Feld "dungeonize" und "Nicht-dungeonized"-Erkennung (kein upgrade_level/dungeon_item_level + keine "DUNGEON "-Lore) nur live prüfbar
+- INV-061: Syphon-Lore — Pattern akzeptiert jetzt "Syphon N more to level up!" (Skyblocker) und "Syphon N shards to level up/unlock!" (bisher); "Requires…" als letzte Lore-Zeile für gelb aus Skyblocker übernommen
+- INV-062: Keys new_year_cake_bag_data / builder's_wand_data / *backpack_data als ByteArray im custom_data (aus SBA/Skysoft); Items über PV-ItemGrid gebaut, die können beim ersten Hover kurz fehlen bis SkyblockItems die Basis aufgelöst hat. Nur aktiv wenn Backpack/Ender Preview an ist (Shift-Option gilt auch)
+- INV-063: SkyBack-Port 1:1 — setzt jeden nicht-minecraft tooltip_style auf vanilla, auch mit angenommenem Hypixel-Pack (darum default aus)
+- INV-064: Menütitel der Experimente (Ultrasequencer/Chronomatron/Superpairs/Experiment*) als Ausnahme geraten
+- INV-065: Raritätserkennung über letzte Lore-Zeile "... ACCESSORY/HATCESSORY"; Abiphone-Kontakte aus Slot 51 "Your contacts: n/m" (SkyHanni), wird in config abiphoneContacts gespeichert; Rift nicht ausgenommen
+- INV-066: Highlight nutzt Skyblock-ID (sonst Name); Truhen-Waypoints nur für Inseltruhen aus dem ItemIndex
+- Museum: Daten kommen über getProfiles + getMuseum (PV-Backend ohne Key); Profilwahl per cute_name aus SbProfile, sonst "selected". Museum-API aus = Tooltip "API off". Nach einer Spende erst nach Verlassen des Museum-Menüs neu geholt (Museum-Cache in HypixelApi bis 5 min).
+- Compact Level Bars: Balkenzeile-Format ("x/y" hinter dem Balken) aus SkyOcean übernommen, live nie gesehen.
+- Reforge Stop: Menütitel "Reforge Item" (Slot 13/22) und "The Hex ➜ Reforges" (19/48) aus SkyHanni; Match über NBT "modifier" bzw. Namenspräfix; Stein-Erkennung über NEU reforgestones.
+- Legacy Attribute: Schlüssel "attributes" im Custom Data (Skyblocker), Attribute Shards ausgenommen.
+- Prevent Placing: Cancel vor ItemStack.useOn in performUseItemOn (interaktive Blöcke gehen weiter), Server bekommt UseItemOn trotzdem; ob die Fähigkeit auf Hypixel dann feuert, nur live prüfbar. Gemstone Gauntlet zusätzlich zur Devonian-Liste.
+- Limit Dropping Items: Zählt über ServerTickTimer (Ping-Pakete, sonst Client-Tick).
+- Item Pickup Alert: Inventory-Wipe-/Weltwechsel-Cooldown aus Bax; in offenen Container-Screens keine Alerts.
+- Neuer museum.json-Snapshot (NEU) enthält jetzt "special" und "sets_to_items"; MuseumRepo.Data um beide Felder erweitert.
+- Alle Menü-Titel und Lore-Formate kommen aus SkyHanni/SkyOcean/NEU und wurden hier nie live gesehen: "Profile Stat Upgrades"/"Active stat boost!", "Players: x/y", "Catacombs (F7)"/"SELECTED"/"You don't have an RNG drop", "Items Donated: 100%", "(n/m) Loadouts", "Learned: Not Yet ✖"/"Power stone:", "Stat has: n points"/"Currently selected!", "(n/m) Crafted Minions" (✔ zählt die Tiers)
+- Museum Helper: Spenden kommen per API (PV-API-Fallback, geht ohne Key); passende Profilwahl über den cute name von SbProfile; das Minion-Teil-Mapping (CAVESPIDER, NETHER_WARTS, COCOA) ist nur für diese drei hinterlegt
+- Obtained Date: das alte String-Format "M/d/yy h:m a" (UTC) ist aus Skyblocker übernommen
+- Recipe Search: der Sign-Container-Titel muss "Recipe" enthalten, der /craft-Titel muss "Craft Item" sein; der Button schickt nach Enter /recipe <name>
+- Power Stone Stats: Magical Power wird aus "Your Bags" bzw. dem Thaumaturgy-Menü gelesen (Zeile "Magical Power: n"), pro SkyBlock-Profil gespeichert
+- Power Stones Guide: Bazaar-Klick (Standard aus) schickt /bz <stone>; 9x-Bazaarpreis im Tooltip hängt davon ab, dass idForName den Stein findet
 
-- Full **run tracker** parsed live from chat, with a HUD and personal bests
-- **Per-biome checklist** so you always know what is still missing
-- **Critter ESP** coloured by shard rarity, with names, tracers and an "only what nobody caught yet"
-  mode
-- **Sparkling critter alert** the moment the particles appear, optionally shared to party chat
-- Bee nest highlighting, dedicated Hideyho tracer
-- Biome-complete and full-dex announcements, with optional party sharing
-- Option to remove the frost overlay in the Icy Biome
+## Welle 5 (10 Gruppen)
 
-## Skills
+### Neu
+- **Old Master Star Style** — dungeon item names show master stars as red ✪ again instead of ➊–➎ (Settings: Tooltips & Value)
+- **Sack Stitches** — sacks show their applied Pocket Sack-in-a-Sacks as a green number on the icon, and the lore can read "stitched 2/3 times" (Settings: Tooltips & Value)
+- **Midas Bid Breakdown** — Midas weapons list Original Bid and Added Coins under "Price paid:" (Settings: Tooltips & Value)
+- **Full Pet XP Numbers** — pet tooltips add an exact "EXP: current/needed" line instead of only the rounded numbers (Settings: Tooltips & Value)
+- **Reforge Stone & Gemstone Stats** — reforge stones and gemstones list their stats per rarity (left/right arrow switches the rarity), with apply or removal cost (Settings: Tooltips & Value)
+- **Prehistoric Egg & Radioactive Bonus** — the Prehistoric Egg shows Blocks Walked, the Tarantula Helmet shows its Crit Damage bonus from your Strength (Settings: Tooltips & Value)
+- **Ravengard Crown Values** — in Ravengard, each item's crown value sits small in the slot's corner (Settings: Inventory)
+- **Ravengard Item Comparison**: Ravengard armor/accessory tooltips show green/red stat deltas against your equipped piece, with the equipped item as a second tooltip next to it (Settings: Tooltips & Value)
+- **Ravengard Weapon DPS**: Ravengard weapons get a "Damage x Attack Speed DPS" line under Attack Speed (Settings: Tooltips & Value)
+- **Wizard Portal "Earned by"**: puts the missing "Earned by:" line back on bought Piece of Wizard Portal mementos (Settings: Tooltips & Value)
+- **Stacking Enchant HUD**: movable HUD showing the held item's stacking enchant progress, e.g. "Expertise IX (14.9k / 15k)" (Settings: Tooltips & Value)
+- **Evolving Consumable Protection**: blocks right-clicking or placing Bottle of Jyrre, Dark Cacao Truffle, Discrite, Moby Duck and Rosewater Flask so hours of buildup can't be wasted by a misclick (Settings: Inventory)
+- **Stars As Stack Size**: item star level shown as a number in the slot corner in containers and the hotbar, optionally with gradient colors, plus red master stars in item names (Settings: Inventory)
+- **SkyBlock ID In Tooltip**: adds a dark grey skyblock:<ID> line to item tooltips (Settings: Tooltips & Value)
+- **Menu Slot Text: Levels** — collection, bestiary, crop milestone, garden upgrade and chip levels appear as numbers on the slots, gold once maxed (Settings: Inventory)
+- **Minion Tier Slot Text** — minions show their tier as a number in every inventory, chest and the AH (Settings: Inventory)
+- **Potion Level Slot Text** — potions show their level on the slot, e.g. in the Potion Bag (Settings: Inventory)
+- **Stats Tuning Extras** — the Load button lists the template's stats, free tuning points show on the Stats Tuning item and your tuning appears in the Thaumaturgy menu (Settings: Inventory)
+- **Community Shop / Guide Slot Text** — Community Shop upgrades show level, Max, running or claimable; Power Stones Guide and SkyBlock Guide entries get a tick or cross (Settings: Inventory)
+- **Essence Slot Text** — Essence Shop perks show their bought level and Your Essence shows each amount in short form (Settings: Inventory)
+- **Stat Icons In Tooltips** — every stat value in a tooltip gets its coloured stat symbol, optionally replacing the % or s (Settings: Tooltips & Value)
+- **Item List & Recipe Book** — searchable list of every SkyBlock item; click one to see its crafting, forge or Kat recipe, click ingredients to follow the chain, send it to the Craft Helper or open /viewrecipe (Settings: Inventory)
+- **SkyShards Tree Import** — paste a SkyShards fusion tree (SkyOcean format) into the Craft Helper and track each fusion step against your Hunting Box and inventory (Settings: Inventory > Craft Helper)
+- **Wardrobe Auto Close** — wardrobe and loadouts close right after you pick a set, with optional delay, equip-only mode and a confirm sound (Settings: Inventory > Wardrobe Keybinds)
+- **Storage GUI Scale** — storage menus open at their own GUI scale and switch back when you leave, without flicker between pages (Settings: Inventory > Storage Overlay)
+- **More Item Details** — anvil uses, kill counter, recomb marker and the SkyBlock ID (with F3+H) in item tooltips (Settings: Tooltips & Value)
+- **Tooltip Helpers** — total star count in item names, evolving item time, booster cookie bits, coins per Stonk and Fann cost per XP (Settings: Tooltips & Value)
+- **Supercraft Hint** — reminds you that shift-clicking Supercraft maximizes the amount (Settings: Tooltips & Value)
+- **Hide Vanilla Enchant Lines** — on SkyBlock the duplicate vanilla enchantment lines disappear from tooltips, the Hypixel lore list stays (Settings: Tooltips & Value)
+- **Rarity Tooltip Border** — the tooltip frame takes the rarity colour of the hovered item, opacity adjustable (Settings: Tooltips & Value)
+- **Powder / Whispers Per Perk** — HotM and HotF perk tooltips show currency spent, the cost of the next 10 levels (Shift) and how much you have (Settings: Mining)
+- **Toolkit Crop Icons** — the Farming Toolkit menu shows each crop instead of look-alike tool icons, sunflower/moonflower follows the time of day (Settings: Garden)
+- **Tab Widget Highlights** — /tab widget menus mark enabled widgets green and disabled ones red (Settings: Inventory > Menu Highlights)
+- **Hide Experiment Tooltips** — no item tooltips in Chronomatron and Ultrasequencer, so nothing covers the flashing slots (Settings: Inventory)
+- **Stranded Placeable NPCs** — the Island NPCs menu marks NPCs you can place but haven't yet in green (Settings: Inventory > Menu Highlights)
+- **Customize shortcuts** — a key over any slot opens the customize screen for exactly that item, stackable items without a uuid can be customized too, and /tmap customize rename/dye/trim/glint/model/reset works on the held item; `model <SKYBLOCK_ID>` borrows another item's look, head skin included (Settings: Inventory)
+- **Bestiary tiers** — Progress Highlight can write each family's tier as a number in the slot and mark unfinished families red (Settings: Inventory)
+- **Dev Tools** — optional tooltip lines with internal name, rarity, category, prices and uuid, copy keys for internal name / NBT, hold-key slot numbers and a marker for items missing from the repo (Settings: Interface)
+- **Hide Not Clickable Items** — greys out your items that the open menu won't take (NPC sell, salvage, trade, Bazaar/AH, bags, equipment and more) with the reason in the tooltip, optional click block, ctrl bypasses (Settings: Inventory)
+- **Protect By Rarity** — blocks dropping items from a chosen rarity on, separately for hotbar and inventory, with a 3-tries confirm from the inventory, a guard against Q right after scrolling, and NPC-sell protection (Settings: Inventory)
+- **Hotbar Slot Lock** — lock the selected hotbar slot with a key in the world, see a padlock on locked slots in the hotbar, and keep locked items out of item frames (Settings: Inventory)
+- **Value Panel Hotkey Mode** — the value breakdown panel can show only while a key is held (skipping the hover delay) and can skip museum armor sets, island delivery rewards and the wardrobe slot picker (Settings: Tooltips & Value)
+- **Glint Colors** — give any item its own enchant glint color from the customize screen (Settings: Inventory > Customization)
+- **Live Sack Contents** — sack amounts are read when you open a sack and kept current from [Sacks] messages; /tmap sacks lists them with value (Settings: Inventory)
+- **Item Numbers As Stack Size** — pet level, minion tier, Kuudra key tier, potion level, master stars, dungeon quality, collection/bestiary tier and more where the stack size goes (Settings: Inventory)
+- **HotM Perk Highlight** — enabled and disabled perks are tinted in the Heart of the Mountain menu (Settings: Mining)
+- **Gemstone & Power Scroll Buffs** — tooltips sum the stats your gemstones add (Shift for one line per stat) and name the applied power scroll (Settings: Tooltips & Value)
+- **Item Cycle** — rules that swap a chosen item into a hotbar slot when you click it, per island, mouse button or clicked item (Settings: Inventory)
+- **Protect Starred Items** — starred items are always protected from dropping, selling and salvaging, even without price data (Settings: Inventory)
+- **Block Unsalvageable Items** — the salvage menu ignores clicks on items that can't be salvaged, hold ctrl to override (Settings: Inventory)
+- **Compactor Status Icon** — green ✔ or red ✖ on compactors/deletors, and the preview can be set to show only with a key or hide while a key is held (Settings: Tooltips & Value)
+- **Rarity Background options** — a "Modern" color set, a "Filled Outline" style, and a switch to hide the backgrounds on the hotbar (Settings: Inventory)
+- **Sack Table** — sack menus list every item with stored/capacity, price and total value, gemstones split by quality (Settings: Tooltips & Value)
+- **Museum Salvage Guard** — the salvage menu marks items your museum still needs in red and can block salvaging them (Settings: Inventory)
+- **Slot Lock upgrades** — locks per SkyBlock profile, a separate Rift set, bound slots count as locked, a drop delay after switching slots, and a reset button (Settings: Inventory)
+- **Roman Numerals As Numbers** — level, tier, skill, floor, collection and milestone numerals in tooltips show as digits (Settings: Tooltips & Value)
+- **Slot Text Control** — one mode (always / hold to show / press to toggle / hold to hide / off) and one key for every text drawn on slots, with per-source switches (Settings: Inventory)
+- **Bazaar Book Abbreviations** — enchanted books in the Bazaar (named like "Sharpness VII") now get the abbreviation and level too, and the table covers Turbo books and many more enchants (Settings: Tooltips & Value)
+- **Remember Last Storage Page** — /storage opens the ender chest page or backpack you used last (Settings: Inventory)
+- **Storage Settle Swaps** — WASD and clicks in the storage overlay move a local selection and send a single command once you stop, plus cached items while a page loads and an overlay width option (Settings: Inventory)
+- **Show Never Opened Pages** — the storage overlay lists every unlocked page after one /storage visit, even ones you never opened, and hides empty backpack slots (Settings: Inventory)
+- **Search Hit Highlight** — after clicking a result in /tmap search the item stays highlighted in every menu, storage icon and sack for a configurable time (Settings: Inventory)
+- **Storage Search Result List** — the storage overlay search shows a list of all hits with page names; clicking one opens the page and marks the slot (Settings: Inventory)
+- **Storage Quick Buttons** — the custom storage overlay can show Farming Toolkit, Hunting Toolkit, Home and Hide buttons, and draw its pages with the vanilla chest texture so resource packs apply (Settings: Inventory)
+- **Trash Highlighter** — marks items from your own filter list (ID, name or lore; equals, contains or regex) in every menu, with editable colour, fill or outline, and dungeon defaults (Settings: Inventory)
+- **Insta Loadout Swap** — one key press anywhere runs /loadout, clicks that loadout after a set + random delay and closes the menu again; cheat warning, off by default (Settings: Inventory)
+- **Middle Click GUI** — left-clicks on SkyBlock menu buttons are sent as middle-clicks so nothing sticks to your cursor; Ctrl keeps the normal click, a key blacklists a menu (Settings: Inventory)
 
-- **Skill tracker HUD** — XP per hour plus the rates that actually matter for that skill
-- **Overflow levels** in the skill menu and on level up
-- Skill level shown as the stack size in the skills menu
-- Overflow skill average added to the tooltip
+### Teilweise
+- INV-087: Tooltips & Value > Item Lore Extras > Full Pet XP Numbers. Den Teil mit den Stern-Materialien gibt es schon in INV-060 "Always Show Required Items" (w04-07, Branch worktree-agent-afd0e626f33aa968e, noch nicht in master). Darum hier nicht doppelt gebaut
+- INV-105: Inventory > Item List > Item List & Recipe Book (+ Keybind, /tmap items [search]). Fehlt: NPC-Shop-Rezepte (stehen nur in den NPC-Dateien des NEU-Repos, kein Voll-Download; Parser für npc_shop ist drin, greift aber nur wenn die Item-Datei sie trägt), Entities/NPCs/Mayors-Filter, REI/JEI/EMI-Integration, Varianten-Gruppen
+- INV-139: Tooltips & Value > Container Value > Sack Table. Container Value already used the Stored amounts. New: sack table with stored/capacity (red when full), value, Rough/Flawed/Fine gemstone rows, sorted by value, hover marks the slot. Missing: click to open Bazaar, /gfs on right-click (would send commands), rune sack tables, scrolling (the list is cut at the bottom of the screen)
+- INV-146: Inventory > Custom Storage Overlay > Settle Page Swaps / Show Cached Items While Loading / Overlay Width (%). Fehlt: Drag-Editor mit Zahnrad für die Ränder (stattdessen Breiten-Slider) und der kompakte Simple-Modus. Suche + Cursor über Seitenwechsel gab es schon.
+- INV-148: Inventory > Highlight Search Hit In Menus (Duration, Color, Clear). Treffer in jedem Menü + Inventar, Storage-Hub-Icons und Selector-Icons im eigenen Overlay, Säcke im Sack-Menü (Lore enthält den Namen); alle Insel-Kisten mit Treffer bekamen schon vorher Wegpunkte. Fehlt: "Warp to Island"-Option.
 
-## Dungeons
+### Übersprungen
+- INV-119: REI/JEI/EMI-Integration braucht compileOnly-Dependencies auf die Viewer-APIs (keine neuen Deps ohne Rückfrage); keine der APIs liegt im Build oder Gradle-Cache, EMI hat keinen 26.1-Build (auch Skyblocker schließt EMI aus), und keiner der Viewer ist in tmapaa/tmapaa (1) installiert. Wenn Tim REI und/oder JEI als compileOnly freigibt: Größe M, Port von Skyblocker compatibility/rei + jei
 
-- **Wither dragon suite** — spawn messages, a per-dragon timer (ms, seconds or ticks), health above
-  every live dragon, kill confirmation, time-alive messages with personal bests, ice spray messages,
-  and a priority-dragon HUD
-- **Rare room alert** — title, chat and sound when Trinity gets scanned
-- **Extra stats** — run `/showextrastats` automatically at the end of a run
-- **Invincibility timer** for Bonzo, Spirit and Phoenix, including the cooldown block
-- **Terracotta spawn timers** for F6/M6
-- **Simon Says solver**
-- The map hides itself during the boss fight
+### Live auf Hypixel prüfen
+- INV-084: Hook sitzt auf ItemStack.getCustomName (wie Devonian), wirkt also überall, wo der Name gezeigt wird. Sibling-Struktur aus Devonian übernommen. Zusätzlicher Fallback für Namen mit wörtlichen §-Codes, den Devonian nicht hat, ungetestet
+- INV-085: NBT-Key sack_pss (SkyHanni); Lore-Zeile "This sack is ..." + Folgezeile nach SkyHanni ersetzt
+- INV-086: NBT-Keys winning_bid / additional_coins (aus skyblock-api DataTypes), Zeile "Price paid: "
+- INV-087: XP kommt aus petInfo.exp + PetConstants-Tabelle (Tier aus petInfo). Eingefügt nach der Balkenzeile unter "Progress to Level". Bei MAX LEVEL keine Zeile
+- INV-088: Repo constants/reforgestones.json + gemstones.json (NEU), Cache-Namen neu-reforgestones / neu-gemstones. Pfeiltasten werden im Tooltip-Callback per GLFW abgefragt (Flanke). Die ausgeblendeten Hypixel-Zeilen reichen von "(Legendary):" bis zur Zeile "REFORGE STONE" / "Requires Mining Skill Level"
+- INV-089: blocks_walked aus custom_data. Radioactive-Bonus = min(Strength,1000)/10 % (Skytils-Konzept), Strength aus der Tab-Zeile "Strength: ❁n" (nur mit Stats-Widget), eingefügt unter der Zeile "Crit Damage:". Ob die Helm-Fähigkeit heute noch so rechnet, ist nicht geprüft
+- INV-090: Ravengard-Erkennung = auf Hypixel UND nicht in SkyBlock (wir haben keine Location-API). Lore-Format "👑n Crowns" aus Skysoft, nie live gesehen
+- Ravengard: namespace "hypixel_ravengard", model paths (item/armor/, item/accessories/<cat>/, item/weapons/), stat line format (private-use icon + value + name) and accessory slots 9-12 all come from Skysoft, never seen live here. The side tooltip hooks into ScrollableTooltipMixin (captures the main tooltip frame, then draws a second one next to it); check how it sits with TooltipFit shrinking and scroll offsets.
+- Wizard Portal: CustomData key "recipient_name" comes from SkyHanni; the line goes in at index 5 like SkyHanni does.
+- Stacking HUD: level = count of stackLevel thresholds <= counter (Devonian's approach), not the real enchant level from the enchantments tag.
+- Consumable protection: uses Fabric UseItemCallback/UseBlockCallback returning FAIL (no packet sent). Also blocks block interaction while you hold one of these items, same as Skyblocker. Throttled chat hint every 3s.
+- Stars: dungeon-vs-other color table is picked from dungeon_item_level or "DUNGEON" in the last 3 lore lines. Master-star recolor rebuilds the name component; names that carry legacy § codes may lose the color on text after the stars.
+- All menu titles, lore lines and name formats come from Skyblocker/SkyHanni regexes, none seen live here (Collections, Bestiary/Fishing ➜, Crop Milestones, Crop/Greenhouse Upgrades, Manage Chips "Level a/b", Community Shop last lore line + lime pane category detection, "Learned: Yes/Not Yet", "Guide ➜", Essence Shop "UNLOCKED" / "Your X Essence:", "You currently own").
+- Potion level reads custom_data "potion_level" only on potion/splash/lingering items.
+- Stats Tuning: "You are loading:", "Unassigned Points: n!!!", "You have: X + Y icon", Thaumaturgy slot 51 "Your tuning:" lines; tuning is kept in memory only (open Stats Tuning or Thaumaturgy once per session). Text placement/scale next to the Load button needs an eye check.
+- Stat Icons use the classic unicode glyphs (❁ ❤ ✎ …), not Hypixel's resource-pack glyphs; tooltip line styles are rebuilt around the value, check colours look right.
+- SkyShards-Export: Feldnamen (method/shard/quantity/inputs) und Shard-Kennung (C1 oder SHARD_X) aus SkyOceans Codec abgeleitet, nie ein echtes Export gesehen
+- Kat-Rezepte: NEU-Feldnamen katgrade (input/output/items/coins/time) aus dem Gedächtnis; Kat-Ein-/Ausgaben (BEE;3) haben evtl. kein Icon (Papier)
+- Storage GUI Scale: Seitenwechsel über Hypixel ohne Flackern nur live prüfbar; Override nur aktiv wenn Custom Storage Overlay an ist
+- Wardrobe Auto Close: Slot-Namen "Slot n"/"Loadout n" und Schließen direkt nach dem Klick (übernimmt der Server das Set?) live prüfen
+- Tooltip-Formate aus SkyHanni: Stonks ("▶ TOP n - Stock of Stonks xN", "Minimum Bid"), Fann-Menü (Slots 15/22/24/33), Cookie-Menüzeilen "Bits Available"/"Your rank"; Fame-Rank-Multiplikatoren hart codiert
+- NBT-Schlüssel anvil_uses/hot_potato_count/sword_kills/stats_book/rarity_upgrades/seconds_held im 26.1-Hypixel-Format
+- INV-112: alles ungetestet live; Mixin auf ItemStack.addToTooltip(ENCHANTMENTS) bricht ab, nur wenn isInSkyblock.
+- INV-113: Rahmen wird 1px auf x-3..x+w+3 über das vanilla Frame-Sprite gezeichnet; mit dem Hypixel-Resourcepack (eigene Tooltip-Sprites pro Rarity) kann die Lage leicht daneben sitzen. Farbe nur für Slot-Tooltips in Container-Screens.
+- INV-114: Kostenformeln aus SkyHanni HotmData/HotfData übernommen, aber "spent" als Summe der Kosten Level 1..n-1 gerechnet (SkyHanni summiert 2..n, das wirkt um ein Level verschoben) - gegen die "Cost"-Zeile im Menü prüfen. Aktueller Bestand wird aus der Lore des Heart-Items im Menü gelesen ("Mithril Powder: x", "Forest Whispers: x"), erst nach einem Tick im Menü da. Blue-Egg-Bonus bei HotM nicht berücksichtigt. Master-Schalter liegt in Mining, gilt auch für HotF (Foraging-Section-Gate greift für HotF).
+- INV-115: Tool-IDs (THEORETICAL_HOE_*, *_DICER, COCO_CHOPPER, CACTUS_KNIFE, FUNGI_CUTTER) und Slots 10-16/20-24 aus SkyHanni; Tooltip bleibt das Original-Tool. Nur Icon ersetzt (Wrap auf GuiGraphicsExtractor.item in extractSlot).
+- INV-116: Titel-/Lore-Muster ("Widgets in/on ...", "Currently: ...ENABLED", "Click to ...disable!") aus SkyHanni, live nicht gesehen.
+- INV-118: kein Stranded-Profil-Check (nur Menütitel "Island NPCs" + Lore-Muster aus SkyHanni).
+- INV-117: Titel-Check startsWith "Chronomatron"/"Ultrasequencer".
+- Alles nur gebaut, kein Client-Start (Regeln).
+- INV-120: Hypixel-"timestamp"-Feld in custom_data als Key-Bestandteil für uuid-lose Items (Format aus SkyOcean übernommen, nie live gesehen). Hover-Taste in fremden Containern schließt den Container (closeContainer) und öffnet dann das Customize-Fenster; nach "Done" landet man in der Welt. `model` mit Kopf-Skin setzt ITEM_MODEL=player_head + PROFILE auch auf Nicht-Kopf-Items (CustomComponentMixin-Bedingung erweitert) — prüfen, ob der Skin rendert. Custom-Name über der Hotbar lief schon vorher über getHoverName, dort nichts geändert.
+- INV-121: Bestiary-Lore "Overall Progress: …%" und "You haven't unlocked this Family yet!" aus GanKura; Tier aus römischer Zahl am Namensende. Rot gilt in allen Menüs, wo Progress Highlight aktiv ist (auch Ways to Level Up).
+- INV-123: Kategorie kommt neu aus Hypixels items-API ("category"); Missing-Repo = ID nicht in Hypixels Item-Tabelle (Pets/Runen o. ä. können dabei rot werden). Copy-Tasten nur per Tastatur (nicht Maustasten).
+- INV-124: Menütitel ("You    ", "Salvage Item", "Bazaar…", Bags, "Your Equipment…", "Research Center", "Birdfeeder", "Fossil Excavator", "Rift Transfer Chest"), custom_data-Felder donated_museum / rarity_upgrades / attributes und Lore "Fishing Bait", "* Soulbound *", "Rift-Transferable" aus SkyHanni übernommen. Ohne SkyHannis Repo-Listen: Salvage erlaubt nur Items mit "DUNGEON" in der Lore, NPC-Verkauf nach NPC-Preis aus der Item-Tabelle bzw. "Click to sell!", Storage/AH-Taschenfilter fehlen, Composter/Motes Grubber nicht portiert.
+- INV-125: Rarität über RarityBackground.rarityRank (Tooltip-Style bzw. Lore). Slotwechsel-Guard 200 ms, Erkennung beim Q-Druck + pro Tick.
+- INV-126: Item-Frame-Schutz nur auf Private Island / Garden (gleiche Area-Namen wie der bestehende uuid-Schutz). Hotbar-Schloss sitzt oben rechts im Slot, damit es nicht mit dem Schloss von "Protect Single Items" (oben links) kollidiert.
+- Alles nur gebaut, nicht im Spiel gestartet. Neue Mixins (ItemNumbersMixin, Glint*Mixin x4, geändertes NoGlintMixin) greifen erst zur Laufzeit — beim ersten Start auf Mixin-Fehler im latest.log achten.
+- INV-128: Glint-Farbe läuft über ItemModelResolver -> LayerRenderState -> SubmitNodeCollection -> ItemFeatureRenderer.getFoilRenderType; eigene RenderTypes mit getönter Kopie von enchanted_glint_item.png (DynamicTexture, Repeat-Sampler). Rüstung am Körper (armor glint) wird NICHT eingefärbt, nur Items (Hand, GUI, Boden). Eine Farbe erzwingt Glint auf dem Item (auch mit "Remove Enchant Glint"), außer Glint ist im Customize auf Off. Cancel im Customize-Screen stellt die Farbe nicht zurück.
+- INV-130: [Sacks]-Hover "Added"/"Removed" und Menü-Lore "Stored: x/y" sowie Gemstone-Sack-Zeilen "Rough: n" nach SkyHanni-Regex, nie live gesehen. Mengen per Item-Name (klein geschrieben) pro SkyBlock-Profil in sbprofiles/<uuid>/<profil>/sacks.json. AutoGFS/Visitor/Compost fragen die API noch nicht ab.
+- INV-131: Lore-/Namensformate (Vacuum Bag, Larva Hook, Bestiary "Progress to Tier", SkyBlock Level) aus SkyHanni übernommen; Pet-Level aus "[Lvl N]" im Namen, max = 100 (Dragons 200). Skill Level ausgelassen (gibt es schon als SkillLevelStack).
+- INV-132: HotM-Lore (ENABLED/DISABLED/SELECTED, "Requires...") wie bei HotF angenommen. Gemstone-Buffs werden aus den pinken "(+x)"-Teilen der Stat-Zeilen summiert (§d-Farbe im Style) — prüfen, ob Hypixel die Gem-Boni wirklich so färbt. Power Scroll zeigt nur Gem + Stat-Typ, keine Zahlen (keine Datenquelle für die Werte).
+- INV-134: Nur normaler Klick (PICKUP) ohne Item am Cursor auf einen Hotbar-Slot im Inventar; ein Klick = ein SWAP-Paket wie Slot Binds, kein .cheat() (ToS legit laut Eintrag). Insel-Match = Teilstring des Tab-Areas.
+- INV-127: Hotkey default Left Shift (nur relevant, wenn "Only While Key Held" an ist).
+- Salvage menu title "Salvage Items" and the "can be salvaged" rule (baseStatBoostPercentage / attributes / DUNGEON lore / Essence in the name) were not checked against current Hypixel. Some items may get blocked even though they can be salvaged
+- Museum guard only works once MuseumDonations has loaded the museum API data (API setting on). Before that nothing is marked
+- Sack lore formats "Stored: 28,183/60.5k" and " Rough: 78,999 (78,999)" come from SkyHanni regexes. Gem prices use the ids ROUGH_/FLAWED_/FINE_<GEM>_GEM
+- Rift detection = tab area "The Rift" (same as Devonian)
+- Compactor status reads PERSONAL_DELETOR_ACTIVE, the same tag the tooltip already uses. It is only drawn in container menus, not on the HUD hotbar
+- Roman numerals: only numerals inside a single styled text segment get replaced (same limit as SkyHanni). Enchant lines stay on the existing "Levels as Numbers" option
+- Hub-Itemnamen "Ender Chest Page N" / "Backpack Slot N" / "Empty Backpack Slot N" und Slot-Positionen 9-17 / 27-44 nur aus Bax übernommen.
+- Bazaar-Buchnamen (Format "<Name> <Römisch>", Ultimates ohne "Ultimate"-Präfix, Turbo-Namen mit Bindestrich) nicht live gesehen; unbekannte Namen zeigen bewusst nichts.
+- /storage-Umschreibung: dass Hypixel /ec n und /bp n annimmt, und das Zusammenspiel mit eigenen Shortcuts.
+- Settle-Logik (175 ms) und Pfeil-Klick bei Nachbarseiten nur im Kopf durchgespielt; Scroll-zur-Auswahl im Masonry-Layout prüfen.
+- Sack-Highlight über Lore-Text im "Sack"-Menü ist eine Heuristik.
+- Slot Text Key Default Left Alt (nur aktiv mit Hauptschalter).
+- INV-150: Befehle /farmingtoolkit und /huntingtoolkit (von Skyblocker übernommen); generic_54-Zerschnitt der Page-Boxen mit Resourcepacks
+- INV-151: Zens Original war lokal nicht auffindbar; die ~20 Dungeon-Defaults (IDs) sind selbst gewählt; Trash-Highlighter hängt als Unteroption am Sellable Items Highlighter (beide müssen an sein)
+- INV-133: Titel "Loadouts" nach /loadout, Treffer über den Namen "Loadout N" (WardrobeKeys.findTarget), sonst Floyds feste Slots 14,15,16,23,24,25,32,33,34; Auto-Close nach 5 Ticks
+- INV-073: ob Hypixel CLONE-Klicks in allen Menüs als Klick annimmt; Ausschlussliste (Devonian + Ender Chest/Backpack/Personal Vault/Trade) und "-click"-Lore-Ausschluss live prüfen
 
-## Items & economy
+## Welle 6 (10 Gruppen)
 
-- **Estimated item value** — a full breakdown of what an item is worth, with a selectable price
-  source (bazaar instant buy/sell, lowest BIN, NPC), caps on how many enchants and star materials get
-  listed, exact or compact totals, and switches to ignore skins, dyes or runes
-- **Item protection** — block dropping, salvaging and shift-click selling anything above a coin
-  threshold you set
-- **Slot binds** — bind slots together for instant swapping, with multiple profiles
-- **Get from sacks** — `/gfs` commands are queued so Hypixel stops eating them, tab-completes from
-  your actual sack contents, has a keybind over a slot, can top up the rest from the bazaar, and adds
-  a clickable grab line after supercrafting
-- **Auction price input** — the starting-bid sign replaced with a real textbox, with an undercut mode
-- **Rare drop effects** — animation, particles, the drop name and what it is worth on screen
-- **Progress highlight** for menu items at 100%, **commission highlight** for finished commissions
-- **Wardrobe keys**, **page keybinds** (A/D for pages, W/S to scroll in any GUI)
-- **Double-click fix** for blaze daggers and autopet rods
+### Neu
+- **Coop & Guild Confirm** — the first /coopadd or /g leave is blocked with a warning, the repeat within 10s goes through, and the Co-op Request button in profile menus is swallowed (Settings: Chat)
+- **/warp is Alias** — /warp is is sent as /is on SkyBlock (Settings: Chat > Command Fixes)
+- **/viewrecipe Fix** — /viewrecipe hyperion 2 becomes /viewrecipe HYPERION 2, with item id tab-complete (Settings: Chat > Command Fixes)
+- **Stop Moving On Death** — releases every held key when you die, so you don't walk on after respawning (Settings: Combat)
+- **Color Codes & Clear Chat** — /tmap colors lists every & code in its colour, /tmap clearchat empties the chat
+- **Always Show Item Name** — the held item's name above the hotbar never fades out (Settings: Interface)
+- **Builder's Wand Preview** — shows where the Builder's Wand will place blocks, the Builder's Ruler line (red boxes while sneaking) and what the Block Zapper would remove; optional left-click /undozap (Settings: Garden)
+- **Borderless Window & Window Title** — borderless fullscreen on the monitor the game is on, a custom window title and an optional custom taskbar icon (Settings: Interface)
+- **Color Brewing Stands** — on your Private Island, brewing stands turn red while brewing and green when done (Settings: Inventory)
+- **Bingo Card Display** — HUD with your open personal and community Bingo goals, community % and the next hint timer (Settings: Inventory)
+- **Bingo Next Step Helper** — breaks Bingo goals into concrete next steps like islands to visit, skill levels and items to collect (Settings: Inventory)
+- **Hotkey Conditions** — hotkeys can depend on the held item, inventory, sneaking or SkyBlock, can be limited to islands and can send a different message when the condition fails (Settings: Chat)
+- **Custom Arrow Hit Sound** — replaces the arrow hit ding with a sound, volume and pitch of your choice (Settings: Sounds)
+- **Copy Playtime** — click the summary item in Detailed /playtime to copy your playtime stats without color codes (Settings: Interface)
+- **Auto Join SkyBlock** — sends /skyblock 1s after you join Hypixel, at most every 30s (Settings: Auto)
+- **Safari Test Alerts** — plays every Safari banner stage, milestone alert and the sparkling screen once so you can check them anywhere (Settings: Critter Safari)
+- **Auto Jump Outside SkyBlock** — vanilla auto jump on in lobbies and off on SkyBlock, your old setting comes back when you turn it off (Settings: Interface)
+- **Achievements** — just-for-fun unlockable, tiered and secret achievements with a chat message, list with /tmap achievements (Settings: Interface)
+- **Crash On Death / Tic Tac Toe Fail** — joke option that really crashes the game when you die or lose Tic Tac Toe (Settings: Interface)
+- **Chat Simulator** — /tmap debug chat <line> pushes a fake line through every chat feature (&-codes, JSON, clipboard, silent mode) (Settings: /tmap debug)
+- **Fairy Soul Waypoints** — boxes on every fairy soul of the island, picked souls are remembered per profile, /tmap fairysouls found|missing marks a whole island (Settings: Secrets & Waypoints)
+- **Focus Loss Prevention** — alt-tabbing no longer opens the pause menu, your Minecraft option stays untouched (Settings: Interface)
+- **Confirm Disconnect** — the Disconnect button needs a second click, so a stray click never kicks you out of a run (Settings: Interface)
+- **Enchanted Time Clock Reminder** — chat and pling when a Time Clock boost is off its 48h cooldown (Settings: Timers)
+- **Community Shop Upgrade Reminder** — clickable reminder once a profile or account upgrade is ready to claim (Settings: Timers)
+- **City Project Helper** — daily reminder when you can contribute again, materials panel with prices and a frame on contributable components (Settings: Timers)
+- **Century Cake Timer** — HUD countdown until your first cake buff runs out, and expired cakes glow on your Private Island (Settings: Timers)
+- **Reminders**: `/tmap remind 2h Forge` sets a reminder that survives restarts. It fires with chat buttons to dismiss or move it, an optional title and an optional countdown HUD (Settings: Timers)
+- **Damage Taken Alert**: sound, screen flash, title or chat line when your SkyBlock health drops, kept quiet after warps and island swaps (Settings: Combat)
+- **Container Open Triggers**: your own sound, title, chat line or auto-close when a menu whose title contains your text opens (Settings: Inventory)
+- **Piggy Bank Grab Link**: clickable /gfs for 8 Enchanted Pork when your piggy bank cracks or breaks (Settings: Auto)
+- **Harp Helper**: play Melody's Harp with 7 keys, with key names on the buttons, auto GUI scale, quick song restart and hidden note tooltips (Settings: Inventory)
+- **Dungeon Hub Selector colours**: the Dungeon Hub lobby selector is coloured by player count too (Settings: Inventory > Menu Highlights)
+- **Discord Rich Presence**: shows SkyBlock, your island and your dungeon floor in your Discord status (Settings: Interface)
+- **Fancy Warp Menu** — the Fast Travel menu becomes a clickable island map; left click warps, right click opens that island's warps (Settings: Inventory)
+- **Dev World Tools** — wooden-axe region selection, a parkour position recorder and a small path-graph editor with JSON export (Settings: Interface)
+- **Death Sound** — plays a sound when you die, and a special one after 10 deaths in 5 minutes (Settings: Sounds)
+- **Island Override** — /tmap debug island <name> fakes the current island so island features can be tested anywhere; /tmap debug whereami shows it (Settings: Interface)
+- **No Front View** — F5 skips the front-facing camera, with an optional toggle key (Settings: Hide)
+- **Inferno Minion Helper** — blocks taking out expensive Inferno fuel or picking up a fuelled minion (hold Ctrl to bypass) and tracks collection profit minus fuel and eyedrops (Settings: Inventory)
+- **Camera Fixes** — Double Sneak Fix, riding mouse-lag fix, custom FOV up to 179, 1.8 sneak height and no swim/crawl camera (Settings: Hide)
+- **Minion Overlay** — shows each minion's name + tier and how long ago its hopper was emptied on your Private Island, highlights the last opened minion and adds coins/day to the hopper tooltip (Settings: Inventory)
+- **Minion Warnings** — title + sound when a minion's storage is full or it can't reach its mobs, and an option to hide the "location isn't perfect" nametags (Settings: Inventory)
+- **Only Collect Enchanted Items** — blocks clicks on raw items in a minion that already holds enchanted items (Settings: Inventory)
+- **Minion XP in Tooltips** — shows the skill XP you get for collecting minion items, per item and in total on Collect All (Settings: Inventory)
+- **Click Fixes** — blocks clicks on empty traps in the Hunting Toolkit, lets you steer Abiphone Snake with WASD/arrow keys, and makes middle click work in menus in survival (Settings: Shards / Inventory)
+- **Mob Spawn Alert** — title, sound and optional coords in chat when a mob from your Custom ESP list appears (Settings: ESP)
+- **Island Change Alerts** — your own reminders when you enter an island, set with /tmap islandalert (Settings: Chat)
+- **Clickable /call Links** — after a finished commission, a bad-signal Fred call or a Trevor hunt, a chat line lets you call Mismyla, Fred or Trevor with one click (Settings: Chat)
+- **SkyBlock Clock** — small HUD with the lobby code, SkyBlock date and exact SkyBlock time, optional 24h format and day/night symbol (Settings: Interface)
+- **Island Navigation** — path lines over SkyHanni's island graphs: /tmap navigate <place>, /tmap navigate areas, /tmap navigateall <type> (Hoppity eggs, hotspots, safari bells, honeyhives …) and /tmap navclipboard, plus an optional area list HUD (Settings: Ordered Waypoints)
+- **Mono Audio** — plays every sound centred, distance still makes it quieter; for one-sided hearing or a single earbud (Settings: Sounds)
+- **Small QoL** — stop the regeneration heart wave, Ctrl+Z / Ctrl+Y in every text field, and hide public chat from low SkyBlock levels (Settings: Hide / Interface / Chat)
+- **More Hiders** — force enchant glint, hide durability bars, mage beam particles, Witherborn withers and armor on armor stands; middle-click the SkyBlock Menu item to open it (Settings: Hide / Inventory)
+- **Server Restart Warning** — sound on Hypixel's restart announcement plus a countdown title and HUD from the "Server closing" scoreboard line (Settings: Interface)
+- **Previous Lobby Alert** — tells you "You were already on this server Xm ago" when a server switch puts you back on a recent lobby (Settings: Chat)
+- **Quick Craft Confirmation** — greys out quick-craft results in Craft Item / Quick Crafting that are off the safe list; those need ctrl+click (Settings: Inventory)
+- **Auto Shift-Click** — a normal click acts as a shift-click in NPC shops (own items), the Brewing Stand and Stats & Equipment (Settings: Inventory)
+- **Hide Server ID** — streamer mode: replaces Hypixel server ids (mini123A, the id after the scoreboard date) in all text, with "hidden", "???" or random ids (Settings: Hide)
+- **Hide Profile ID** — streamer mode: replaces your profile UUID in menus, tooltips and chat (Settings: Hide)
+- **Screenshot Capture Preview** — after F2 the shot flies into the top right corner with Share, Delete and Close; clicking it opens the screenshot browser (Settings: Screenshots)
+- **Screenshot Editor** — crop, draw (8 colours, 3 brush sizes), zoom 0.25-8x with pan and 32 undo steps, then save as a copy or replace the original (Settings: Screenshots)
+- **Spider's Den Relics** — waypoints for all 28 relics, found ones remembered per profile, plus a line to the next missing relic with progress (Settings: Combat)
+- **Ravengard Loot Bag Checkmarks** — a green ✔ over loot bags you already opened (Settings: Render)
+- **Teleport Pads** — shortens "Warp To X" pad tags on your island, hides "No Destination" and shows pad numbers in the Set Destination menu (Settings: Render)
+- **Day / Night Reminder** — title and sound an hour before and at SkyBlock night and day (Settings: Timers)
+- **See-Through Window** — a key makes the game window see-through at an adjustable opacity (Settings: Garden)
+- **Soopy Commands** — /spcmd nw, rtca, bestiary, skills and more, answered by the soopy.dev bot (Settings: Chat)
+- **Spy Mode** — remembers the gear of players you see; /spy <player> opens it in a read-only chest with full tooltips (Settings: Inventory)
 
-## Screenshots & image sharing
+### Teilweise
+- QOL-017: Interface > Window > Borderless Window / Custom Window Title (+ Edit Title) / Custom Taskbar Icon. Das Icon kommt aus config/teslamaps/window_icon.png, weil die Mod kein eigenes Icon-Asset hat. Zurück zum Standard-Icon nur per Neustart
+- QOL-020: Inventory > Bingo Card Display > Next Step Helper. Ketten für Inseln, Skills, Items, Crafts und Crystal wie bei SkyHanni. Collection-Fortschritt fehlt (keine Collection-Daten, der Schritt ist erledigt, sobald das Goal erledigt ist). Skill-Level kommen nur aus der Tab-Liste und aus dem Level-up-Chat
+- QOL-021: Chat > Hotkey Conditions (Unteroption unter Hotkey Delay). Pro Hotkey ein ?-Button im Hotkeys-Screen: Bedingung (Holding Item / Inventory Contains mit Match nach Name, Lore oder SkyBlock-ID, Sneaking, On SkyBlock), Insel-Liste und Fail-Nachricht (getrennter Ausgang). Die Bedingung "In GUI" fehlt, weil Hotkeys bei offenem Screen nie feuern. Gilt nur für die Hotkey-Nachrichten, es gibt keine allgemeine Automations-Engine
+- QOL-048: Inventory > Fast Travel > Fancy Warp Menu. Fehlt: echte Insel-Bilder (gezeichnete Kacheln auf einer Kartenfläche statt Bildern), SBA "Warp Twice" und "Advanced Mode" (Sub-Warps als Marker). Rechtsklick auf eine Insel reicht den Rechtsklick an Hypixel weiter (öffnet deren Warp-Liste), "Vanilla"-Knopf schaltet für das offene Menü zurück
+- QOL-049: Interface > Dev World Tools (Unteroptionen Region Select / Parkour Recorder / Graph Editor + Keybinds). Graph-Editor ist eine schlanke Kernversion: Knoten setzen/verbinden/löschen, Namen, Undo, Export/Import im SkyHanni-Graph-JSON. Fehlt: Tags, Richtungskanten, Error-Finder, Netzwerk-Analyse, Insel-Graph laden
+- QOL-064: Ordered Waypoints > Island Navigation (Graph aus SkyHanni-REPO, Dijkstra-Pfadlinie, /tmap navigate <ort>|stop|areas, /tmap navigateall <typ>|skip|undo|stop, /tmap navclipboard, Area-Listen-HUD, Titel beim Betreten einer Area, Area-Namen in der Welt). Fehlt: klickbare Area-Liste im Inventar-Screen (stattdessen klickbare Chatliste über /tmap navigate areas + nicht klickbares HUD) sowie SkyHannis NavigationFeedback-/Report-Location-Werkzeuge
+- QOL-075: Screenshots > Capture Preview (+ Fly-In Animation, Shutter Sound); the vanilla chat line is not rewritten to "Screenshot captured." (the existing Chat Actions / Hide Vanilla Message cover that); the preview buttons can only be clicked while a screen (e.g. chat) is open
 
-- **Screenshot manager** with an in-game browser and viewer
-- Clickable **Copy / Browse / Delete** right under the save message
-- **Share an image into chat** — upload with one click (1h to permanent), and anyone else running
-  TeslaMaps sees the picture inline in their chat instead of a link
-- Hold a key to blow the newest image up full screen
-- Per-sender block list, and only one trusted host is ever loaded
+### Übersprungen
+- QOL-007: Rest ist nur Skytils V2, das braucht die Dependency org.brotli:dec (Skysoft bündelt 0.1.2). Neue Dependencies nur mit User-OK; alles andere wurde schon in 2.1.74 gebaut
 
-## Mining
+### Live auf Hypixel prüfen
+- Co-op Request button: title "<name>'s Profile" + diamond named "Co-op Request" taken from NEU/Skytils (1.8 era), not seen live
+- Death detection: chat lines starting with "☠ You " (plus vanilla isDeadOrDying); Hypixel death message wording not verified live
+- /viewrecipe tab-complete replaces Hypixel's viewrecipe node on tree arrival: only active if switched on at join (rejoin after toggling); Hypixel must accept the underscored uppercase id
+- KeyMapping.releaseAll with a physically still-held key: vanilla does not re-press until the key is pressed again (intended)
+- Nichts davon lief im Client, geprüft ist nur der grüne Build.
+- Builder's Wand, Ruler und Zapper: Item-IDs BUILDERS_WAND / BUILDERS_RULER / BLOCK_ZAPPER und die Inselerkennung ("Private Island" aus der Tab-Liste, Garden). Die Zapper-Regeln (164 Blöcke, keine Crops und Block Entities) sind aus NEU übernommen, der Zapper selbst ist ungeprüft.
+- /undozap: der Befehl geht bei jedem Linksklick mit dem Zapper raus, höchstens einmal pro Sekunde.
+- Borderless unter Multi-Monitor und HiDPI, das Zusammenspiel mit F11 und das Wiederherstellen der alten Größe. Den Titel setzt ein Mixin auf Minecraft.createTitle.
+- Brewing Stand: die Restzeit wird aus Slot 22 gelesen, Format "12.3s" wie bei Skytils, sonst aus irgendeinem Slot mit genau diesem Format. Den Klick liefert ClientPlayerInteractionManagerMixin.
+- Bingo: Erkennung des Bingo-Profils über "Ⓑ" in der Profile-Zeile der Tab-Liste oder im Scoreboard. Die Lore-Formate der Karte (Personal/Community Goal, "Top x%", "The next hint will unlock in ...", "This goal will be revealed when it hits Tier IV.") und die Chatzeilen "BINGO GOAL COMPLETE!", "SKILL LEVEL UP" und "✦ CRYSTAL FOUND" stammen aus SkyHanni. Die Tab-Skill-Zeilen haben das Format "Mining 12:".
+- Bingo-Daten werden pro Profil in sbprofiles/<uuid>/<profil>/bingo.json gespeichert.
+- Arrow Hit Sound: Last Breath spielt den Vanilla-Arrow-Sound absichtlich selbst und wird deshalb ausgenommen (bypass-Flag).
+- Copy Playtime: Menütitel "Detailed /playtime" und Slot 4 aus SkyHanni übernommen, nie live gesehen.
+- Auto Join SkyBlock: Join-Erkennung über neue Connection + isOnHypixel; 1s Delay, 30s Cooldown, sendet nicht wenn schon in SkyBlock.
+- Auto Jump: Wechsel wird alle 20 Ticks über Scoreboard-Check (isInSkyblock) gesetzt; Originalwert als @Global autoJumpOriginal in der Config gemerkt.
+- Crash On Death: Todeszeile " ☠ You ..." / " ☠ <name> ..." (SkyHanni-Regex), TTT: "PUZZLE FAIL! <name> lost Tic Tac Toe! Yikes!" nur im Dungeon.
+- Achievements: Chat-Formate (SLAYER QUEST COMPLETE, > EXTRA STATS <, CRAZY RARE DROP!, PRAY TO RNGESUS DROP!, RNG Meter - x Stored XP, RNG METER! Reselected ... Floor 1, To X: Boop!) aus SkyHanni/bestehendem Code; Boop-Zählung liest bewusst auch Player-Chat (eigene DM-Bestätigung). Speicher: config/teslamaps/achievements.json.
+- Safari Test Alerts: respektiert die Banner-Schalter (Gemzie/Wumpa/Doomspiral, Encounter Banners, Full Screen Alert), hebt nur Biome-Filter und Cooldown auf; Banner brauchen Track Run an (Hinweis im Chat). Trader-/Birdfeeder-Alerts aus critterMod gibt es bei uns nicht, daher nicht im Test.
+- Chat Simulator: silent-Modus cancelt die Zeile nach allen Handlern in ChatMixin; JSON-Zeilen per ComponentSerialization.CODEC (JsonOps, ohne Registry-Kontext).
+- Alles nur im Build geprüft, kein runClient.
+- Confirm Disconnect: Mixin auf PauseScreen.lambda$createPauseMenu$6 (per javap = onPress des Disconnect-Buttons); nach dem ersten Klick zeigt der Button "Click again to disconnect".
+- Focus Loss: @Redirect auf das Lesen von Options.pauseOnLostFocus in Minecraft.pauseIfInactive, die Option selbst wird nie geändert.
+- Fairy Souls: Tab-"Area:"-Namen -> NEU-Schlüssel gemappt (Hub, Spider's Den, The Park, Galatea/Moonglade Marsh, Torrhus Canyon, Critter Safari, Lotus Atoll ...), Namen für Galatea/Safari/Lotus Atoll nicht live gesehen. Chat "SOUL! You found a Fairy Soul!" / "You have already found that Fairy Soul!" markiert die nächste Soul im 4-Block-Radius. Souls, die vor dem Einschalten gefunden wurden, bleiben "missing", bis man sie erneut anklickt oder /tmap fairysouls found nutzt.
+- Enchanted Clock: Menütitel "Enchanted Time Clock", Lore "Status: READY/CHARGING/PROBLEM", "On cooldown: N hours/minutes", Chat "TIME WARP! You have successfully warped time for your ...!" aus SkyHanni-Regexen.
+- Upgrade Reminder: Community Shop mit Lime-Pane in Slot 11, Profil-Upgrades Slots 27-35, Account 36-44, Lore "Currently upgrading!" / "Click to claim!" / "Duration: ..." (SkyHanni). Wenn das Upgrade vor dem Mod gestartet wurde, ist die Restzeit nur geschätzt (Öffnen + volle Duration). Account-Upgrade liegt accountweit in config/teslamaps/qol_account.json.
+- City Project: Slot 4 Lore "City Project", "Contribute again: ...", Items "Contribute this component!", Cost-Block-Format der Materialien.
+- Century Cake: Chat "Yum! You gain +N<sym> <Stat> for 48 hours!" / "Big Yum! You refresh ...". Glow erkennt Kuchen-ArmorStands an WpcMods Kopf-Texturen (Main-Hand).
+- Zustand pro SkyBlock-Profil in sbprofiles/<uuid>/<profil>/qol_state.json; ohne bekanntes Profil nur im Speicher.
+- Alles live nicht getestet (nur Build). Neue Mixins QolContainerMixin (AbstractContainerScreen keyPressed/slotClicked/extractTooltip/extractContents) und QolMinecraftMixin (setScreen TAIL + resizeGui-GUI-Scale, verkettet mit TerminalScaleMixin) brauchen einen Client-Neustart.
+- Discord RPC nutzt die Discord-App-ID von Skyblocker (934607927837356052, Feld discordRpcAppId in config.json, ohne GUI-Eintrag), Discord zeigt dadurch wahrscheinlich "Skyblocker" als App-Namen. Für einen eigenen Namen/ein eigenes Icon müsste Tim im Discord Developer Portal eine App anlegen und die ID eintragen. IPC ist reines Java (Windows Named Pipe / Unix Socket), keine Dependency.
+- Harp: Titel "Harp - …" / "Melody", Tasten-Slots 37–43 per Mittelklick, Close-Slot 40 und Lore "Song is selected!" kommen aus den SkyHanni-Regexen. Default-Tasten sind 1–7 (belegen im Harp-Menü die Hotbar-Tasten). Auto GUI Scale nimmt den größten Maßstab (Optionswert 0).
+- Piggy-Bank-Texte aus SkyHanni: "You died and your piggy bank cracked!" / "You died, lost X coins and your piggy bank broke!".
+- Titel "Dungeon Hub Selector" ist geraten, nicht live gesehen.
+- Damage Alert liest HP aus der letzten Actionbar ("x/y❤"). Unterdrückt 5 s nach Sending/Warping/Evacuating und 2,5 s nach Welt- oder Area-Wechsel.
+- Container Trigger: dasselbe Menü löst innerhalb von 1,5 s nicht erneut aus (Seitenwechsel). Close schließt einen Tick später.
+- QOL-048: Fast-Travel-Titel "Fast Travel", Namensformat "Insel - Warp", Locked-Erkennung (Bedrock bzw. Lore mit "not unlocked"/"haven't unlocked"/"requires") und Rechtsklick-Verhalten nur aus Beschreibung/SkyHanni-Regex; Insel-Zuordnung über Namens-Teilstrings, unbekannte Inseln landen in freien Kartenzellen
+- QOL-053: Fuel-Erkennung in Slot 19 per id "INFERNO_FUEL*" oder Name mit "Inferno Minion Fuel"/"Gabagool" (SkyHanni nimmt die Liste aus dem Repo, die lokal nicht vorliegt); Einsammel-Zählung über Inventar-Differenz für Items, die im Minion lagen (während offen + 5 s danach) — Items, die direkt in Sacks gehen, werden nicht gezählt; Eyedrops-Chatzeile "You applied the eyedrops on the minion and ran out!"
+- QOL-050: Chat-Präfix "☠ You " live auf Hypixel prüfen
+- QOL-054: Double Sneak Fix entfernt Entity-Data-Index 6 (Pose) für den eigenen Spieler; 1.8 Sneak ändert die eigene Crouch-Hitbox (1.8 hoch, Augenhöhe 1.54) wie legitcatmod, aus auf Galatea/The Park; Riding-Fix = Debugify MC-206540
+- QOL-051: Features, die zusätzlich isOnHypixel() prüfen, laufen in Singleplayer trotz Override nicht
+- QOL-049: Region-Auswahl bricht den Links-/Rechtsklick mit Holzaxt ab (in Singleplayer kein Block-Abbau), nur solange Dev World Tools + Region Select an sind
+- Minion-Menü-Erkennung: Titel "<Name> Minion <römisch>" + Slot 48 "Collect All" (SkyHanni); Minion-Position = Armor Stand unter dem Fadenkreuz beim Öffnen (kein Entity-Click-Hook) — live prüfen, ob die Position zuverlässig gefunden wird.
+- Chatzeilen aus SkyHanni übernommen, nie live gesehen: "You received X coins!" (Hopper geleert), "You picked up a minion!", "You have upgraded your Minion to Tier X".
+- Coins/Day liest "Held Coins: X" aus der Lore von Slot 28; braucht einmal geleerten Hopper als Zeitbasis.
+- Minion-Storage-Erkennung (für XP): Kistenklick <3 s vorher + Titel enthält "Minion" oder endet auf "Storage" — Titelformat der Minion-Kisten unbekannt. Storage-XP wird bei angrenzender Kiste addiert, wenn die Kiste in den letzten 20 min geöffnet wurde.
+- Storage-Slots des Minion-Menüs (21-26, 30-35, 39-44) aus SkyHanni übernommen, gelten für XP und Only-Enchanted.
+- Nametag-Texte (SkyblockAddons): "My storage is full!", "I can't reach any", "This location isn't perfect!", Warnzeichen "/!\" (nur ausgeblendet, wenn neben einem "location isn't perfect"-Stand).
+- XP-Tabelle = SkyHanni-Repo MinionXP.json, gebündelt als data/minion_xp.json; Moar Skillz über ElectionApi.hasPerk("Moar Skillz").
+- Huntrap: Titel "Hunting Toolkit", Lore "Status: EMPTY". Snake: Titel "Snake" / "Eat 8 apples to win!", Slots 16/24/26/34 per Mittelklick (CLONE) wie SkyHanni.
+- Middle Click Fix: ModifyExpressionValue auf hasInfiniteMaterials in AbstractContainerScreen.mouseClicked (per javap geprüft); Copy Item Name (Mittelklick) hat weiterhin Vorrang, wenn aktiv.
+- Mob Spawn Alert prüft alle 5 Ticks die Custom Names aller Entities gegen die Custom-ESP-Liste (Teilstring, ohne Groß/Klein), einmal pro Entity-ID.
+- Island Alerts nutzen die "Area:"-Tabzeile; die erste Area nach dem Login feuert auch (from = none).
+- Chat-Formate aus Skyblocker ("Commission Complete! Visit the King…", "[NPC] Fred: ✆" mit literalem §k, Trevor-Zeile), GanKura ("[Important] This server will restart soon") und SkyHanni (Sidebar "Server closing: mm:ss") hier nie live gesehen.
+- Lobby-Code-Erkennung setzt die Sidebar-Zeile "MM/DD/YY <codes>" voraus; Dungeon-/Mineshaft-Raum-IDs erscheinen nur, wenn sie in derselben Zeile stehen.
+- Island Navigation: Graph-Dateinamen (HUB, GALATEA, TORRHUS_CANYON, SAFARI, GLACITE_TUNNELS …) und die Zuordnung Tab-"Area:"-Name → Datei sind aus SkyHannis IslandType abgeleitet; Insel ohne Graph meldet nur "No navigation graph". Routenoptimierung ist greedy nächster-per-Pfad, nicht exakt SkyHannis Algorithmus.
+- Hide Low SkyBlock Levels läuft als Chatfilter-Regel (braucht den Chatfilter-Hauptschalter, nutzt die Spam-Filter-Aktion) und verlässt sich auf PlayerChats "[level] name: msg"-Parse.
+- Force Enchant Glint liest "enchantments" aus den ExtraAttributes (custom_data); Hide Witherborn Withers blendet jeden WitherBoss außerhalb eines Dungeon-Bossraums aus (Witherborn lässt sich sonst nicht unterscheiden).
+- Middle Click SkyBlock Menu sendet /sbmenu bei Mittelklick (Button 2) auf das SKYBLOCK_MENU-Item im Spielerinventar.
+- Alle neuen Mixins (Channel, SoundEngine, Gui-Herzen, EditBox, GuiGraphicsExtractor.itemBar, ArmorStandRenderer, CustomData-Accessor) nur kompiliert, nicht gestartet (kein runClient laut Regeln).
+- Nothing ran in-game (no runClient): the Font mixin (StreamerFontMixin, ModifyVariable on Font.prepareText/width, signatures checked with javap) has to be confirmed at startup
+- Server-id formats (mini/mega + digits, the short id after the scoreboard date, "Server: ..." in tab) come from FloydAddons regexes and were never seen live
+- "Profile ID: <uuid>" lore/chat format taken from FloydAddons
+- Quick Craft: the menu titles "Craft Item" / "Quick Crafting", slots 16/25/34 and 10-44, "Click to craft!" and the whitelist (bundled SkyHanni repo QuickCraftableItems.json) come from SkyHanni
+- Auto Shift-Click: the Brewing Stand close slot 49 and the "Stats & Equipment" title come from SkyHanni; NPC shops are detected through the existing ItemProtection.isNpcSellMenu
+- Previous Lobby needs the "Sending to server X..." line (it is still read while ChatFilter hides it)
+- Screenshot preview animation/layout and the editor (painting straight onto the texture, crop overlay, save via temp file + move) need a visual check
+- Relics: chat lines "+10,000 Coins! (n/28 Relics)" / "You've already found this relic!" taken from Skyblocker/SkyHanni; area check uses tab "Area: Spider's Den". Route is greedy nearest-neighbour (no island-graph pathfinding like SkyHanni), the line is a straight tracer.
+- Ravengard: loot-bag model ids (hypixel_ravengard:item/gameplay/lootbags/lootbag_*, "_open" suffix) and "Dead Body" title from Skysoft; relies on Fabric UseEntityCallback firing for the Interaction entity. Like Skysoft, the ✔ only shows on bags whose model is the "_open" variant.
+- Teleport pads: stripped name formats "✦ Warp To X" / "✦ No Destination" and item names "<number> teleport pad" from SkyHanni; area check "Private Island". Hiding uses setCustomNameVisible(false) client side.
+- Day/Night: scoreboard clock format "h:mmam/pm" from Bax.
+- See-Through Window: glfwSetWindowOpacity may do nothing on some drivers / in fullscreen.
+- Soopy: response format of soopy.dev botcommand (printed as-is); third-party service.
+- Spy Mode: only items with a SkyBlock id are recorded, deduped by Hypixel uuid (fallback id+name); up to 54 per player, 300 players, session only. /spy may shadow a server command of the same name.
 
-- **Corpse ESP** for unlooted Glacite Mineshaft corpses, coloured per type
-- **Tiki ESP** with name labels
-- **Commission highlighting**
+## Welle 7 (10 Gruppen)
 
-## Interface — completely redesigned
+### Neu
+- **Music Overlay** — shows the song playing in Spotify or any other Windows media player with cover, progress, optional synced lyrics and hotkeys for play/pause/next/previous (Settings: Interface)
+- **SkyBlock Level 7 Guide** — a movable panel that walks a fresh profile through 119 steps to SkyBlock Level 7 and ticks steps off on its own (Settings: Interface)
+- **Wait Out Transfer Cooldown** — a /warp, /is, /hub or /warpforge typed during the 3s transfer cooldown is held back and sent as soon as it ends (Settings: Timers)
+- **Tia Relay Helper** — solves the Network Relay sound puzzle by numbering the slots #1-#4 and puts a waypoint on the next relay (Settings: Inventory)
+- **Queue Estimate** — estimates when you get out of a server queue from the "You are #n in the queue!" title (Settings: Interface)
+- **/calcxp** — prints the xp needed between two skill, Catacombs or slayer levels (Settings: Skills)
+- **Wrong PC Clock Warning** — warns in chat when your PC clock is 5s or more off, since contest and feast timers depend on it (Settings: Interface)
+- **Lowercase Commands** — /Warp hub is sent as /warp hub instead of failing as an unknown command (Settings: Chat > Command Shortcuts)
+- **/tmap sendcoords [text]** — adds a note to your shared coordinates and can send to party, current, all, guild or coop chat; chat waypoints show the note (Settings: Render > Chat Waypoints)
+- **Shortcut Tab Completion** — your command shortcuts get the tab completion of the command they stand for, /tmap shortcut list shows them all, and one button adds more defaults like /pa, /v, /ca (Settings: Chat > Command Shortcuts)
+- **/tmap debug dump** — copies a full debug report (versions, mods, location, dungeon, config, repo, scoreboard) to the clipboard; "all" shows normal sections too, any other word filters sections (Settings: command only)
+- **Accept Abiphone Call Key** — picks up a ringing Abiphone call with one key press, no chat needed (Settings: Chat > Abiphone)
+- **Abiphone Helper**: shift-click contacts to favourite them, switch to favourites only, see each NPC's requirements in the Contacts Directory, and confirm before removing a contact (Settings: Inventory)
+- **Waypoint Groups**: named waypoint sets per island, shown all at once or as an ordered route that advances on arrival, managed with /tmap wpgroup (Settings: Ordered Waypoints)
+- **Mute Error Sound**: silences Hypixel's enderman "wrong click / out of mana" sound (Settings: Sounds)
+- **Debug Copy Commands**: /tmap debug copy puts the scoreboard, boss bars, tab list, held item, position or nearby entities on the clipboard, and /tmap debug giveitem gives test items in singleplayer (Settings: Interface)
+- **Shortcut Command Chains**: a command shortcut can run several commands in a row with "a; wait 1000; b", and /cmdstop stops it (Settings: Chat)
+- **Seamless Server Switch**: hides the Reconfiguring screen and keeps the cursor captured, so a /warp feels like a teleport (Settings: Render)
+- **Hovered Item To Chat**: the dump key over a slot prints that item's id, model and custom data to chat (Settings: Interface)
+- **Packet Logger** — /tmap debug packets logs incoming and outgoing packets to latest.log, filterable by name, direction, entity id and range (Settings: none, debug command)
+- **Update Changelog** — the update popup and a "What's new" chat line after updating show the release's changelog, also via /tmap update changelog (Settings: Interface)
+- **Item Search Island Warp** — clicking an island chest hit away from your island warps you there and marks the chest, the tooltip shows coords and what the click does (Settings: Inventory)
+- **Mouse Wheel Pages** — the mouse wheel flips Next/Previous Page and Scroll Up/Down in menus, optional inverted, off in plain chests, Shift over an item (Settings: Inventory)
+- **Advanced Hotkey Rules** — hotkeys get dungeon/class/garden plot/mayor conditions, NOT, two-key sequences, cooldown, delay and local sound/title/note actions (Settings: Chat)
+- **Safari Missing List** — copy the per-biome missing list to the clipboard or share it line by line to a chosen channel, also /tmap safari missing|copy|share (Settings: Critter Safari)
+- **Old SkyBlock Menu Shortcuts** — empty glass slots in the SkyBlock Menu become Trades, Accessory Bag with Magical Power, Potion Bag, Quiver, Fishing Bag, Sack of Sacks and Chocolate Factory (Settings: Inventory)
+- **Sign Calculator** — Bazaar/AH/craft amount signs show math like 1.5k*3 = 4,500 live and put the result in on confirm; supports k/m/b/t, s=64, e=160, x and purse (Settings: Inventory)
+- **Sack Refill Commands** — /tmap ep, ij, sl, sb, dd, tap, twap [amount] top up pearls, jerries, leaps, superbooms, decoys and arrow poisons from sacks to the given amount (Settings: Auto)
+- **/calc** — Quick math in chat with history, click to copy, plus skill XP lookups (xpforlevel / levelwithxp) (Settings: Chat)
+- **Hotkey Combos** — Hotkeys can require a second held key, with duplicate highlighting and a 200 ms cooldown (Settings: Chat)
+- **Remember Uploads** — Sharing the same screenshot again reuses the previous upload and gives a clickable public link (Settings: Screenshots)
+- **Rat Pet & Backpack Mutes** — Silences the rat pet squeak/steps and the backpack opening chest sound without touching real bats, chickens or chests (Settings: Sounds)
+- **Shift+Enter in Signs** — With Sign Enter Key on, Shift+Enter still makes a new line (Settings: Inventory)
+- **Tab-Complete Extras** — /show, /showitem and /showoff suggest the slots, player suggestions can be limited to best friends, and /trade can suggest only players on your island (Settings: Chat)
+- **Scoreboard Change Logger** — writes every scoreboard change with a timestamp to config/teslamaps/logs, changed lines or full snapshots (Settings: Interface)
+- **Warp Shortcuts** — every warp name works as a command, /crimson is sent as /warp crimson (Settings: Chat)
+- **Wiki Lookup Key** — press F1 over any item in a menu to open its Hypixel wiki page, including pets, enchanted books, Garden visitors and calendar events (Settings: Inventory)
+- **Temporary Waypoints** — /tmap wp addtemp [name] [x y z] sets a 60s beam, /tmap wp share [x y z] posts coords for your party (Settings: Render)
+- **Route Editor Extras** — Ctrl+Z/Ctrl+Y, drag to reorder, add at crosshair, plus keys to place points and pause/skip/stop a route (Settings: Ordered Waypoints)
+- **Ability Menu Fix** — holds back the hotbar switch while an item menu like the Royal Pigeon opens, so Hypixel no longer closes it (Settings: Inventory)
+- **Spinning 3D Orb** — the big deployable icon can show the orb/lantern itself, rotating (Settings: Skills)
+- **Custom Scoreboard** — replaces the sidebar with a movable panel in your HUD style, server/date line and footer hideable (Settings: Interface)
+- **Armor HUD** — your worn armor as icons, horizontal or vertical (Settings: Interface)
+- **Armor Stack HUD** — Crimson/Terror/Hollow/Fervor/Aurora stacks as their own HUD, bold at max (Settings: Combat)
+- **Accurate Absorption Hearts** — yellow hearts show your real absorption from the action bar HP (Settings: Interface)
+- **All Skills Display** — every skill's level, progress and xp in one panel, active skill highlighted (Settings: Skills)
+- **Custom Skill Goals** — set a target level per skill and see progress + ETA, with an alert when reached (Settings: Skills)
+- **Custom Profit Trackers** — build up to three of your own trackers from any items, islands and coins, and share them as a code (Settings: Interface)
+- **Beacon Power** — HUD with the time left on your island Beacon and its boosted stat (Settings: Interface)
+- **Arrow Poison HUD** — movable HUD with your Twilight and Toxic Arrow Poison counts (Settings: Combat)
+- **Custom Text Box** — put your own colored notes on screen, optionally only in chest menus (Settings: Interface)
+- **CPS in Performance HUD** — the Performance HUD can show your left and right clicks per second (Settings: Interface)
+- **Movement Speed** — HUD with your speed in blocks per second (Settings: Interface)
+- **Crown of Avarice Counter** — coins in the Crown, coins per hour, time until 1B and session stats (Settings: Interface)
+- **Chicken Head Timer** — shows the 5s egg cooldown while you wear a Chicken Head, with an option to hide the egg message (Settings: Timers)
+- **New Year Cake Tracker** — remembers which cake years you own and lists missing or owned years with prices; marks cakes green/red in the Auction House (Settings: Inventory)
+- **Draconic Sacrifice Tracker** — counts sacrificed items, Dragon Essence and bonus loot with profit while in The End (Settings: The End)
+- **Last Fired Trigger** — briefly shows which hotkey, reminder, todo or container trigger just fired (Settings: Interface)
+- **Item Pickup Log** — a HUD list of +N/-N items entering or leaving your inventory, sacks and purse, with optional coin value (Settings: Inventory)
+- **Custom Todos** — create your own timers that start when a chat line you choose appears, and share them via clipboard (Settings: Timers)
+- **Equipment HUD** — shows your necklace, cloak, belt and gloves as a movable HUD (Settings: Inventory)
+- **Item Cooldowns** — Spirit Leap, Shadow Fury, Giant's Sword, Treecapitator, Grappling Hook and more show the vanilla cooldown shading on the icon and in the attack indicator (Settings: Inventory)
+- **Inventory HUD** — your main inventory as a movable 9x3 panel on screen, optionally with your armor (Settings: Inventory)
+- **Lag Display** — the Performance HUD shows "zzz for 1.23s" while the server freezes (Settings: Interface)
+- **Eyes Placed HUD** — summoning eyes placed in the Dragon's Nest, or dragon spawned / egg respawning (Settings: The End)
+- **End Stats HUD** — Soulflow, Final Destination stacks, Overflow Mana and Legion player count in one small panel (Settings: The End)
+- **Explosive Shot Timer** — Archer's Explosive Shot cooldown in the timer block (Settings: Timers)
+- **Fatal Tempo HUD** — current Fatal Tempo buff from your hits in the last 3 seconds (Settings: Combat)
 
-- **4 HUD styles**: Modern, Glass, Vanilla, Tooltip — every panel in the mod changes at once
-- **4 GUI styles** for the mod's own screens
-- **Menu sound themes**: Clicky, Chime, Soft, Digital, with hover ticks and a volume slider
-- **Custom main menu** with 10 animated backgrounds (Liquid Metal, Nebula, Starfield, Deep Space,
-  Waves, Shimmer, Snow, Surge, Mesh, Liquid), your own tint, speed and accent colour — or use your own
-  image as the background
-- **Custom skybox** — the same animated shaders applied to the in-game sky
-- **Chroma** — moving rainbow on max-level enchants and menu text
-- **Motion blur**, world-only or everywhere
-- **Smoother entities** — less stuttery movement of other players and mobs
-- **Rarity backgrounds** — Square, Rounded, Circle, Diamond, Corners or Underline, in Filled, Outline
-  or Gradient
-- The settings menu is now **one searchable screen** instead of five
+### Teilweise
+- QOL-099: Ordered Waypoints > Waypoint Groups (+ Beam, Distance In Label), /tmap wpgroup. Groups per island (or any island), free or ordered with loop/skip/back/arrival radius, colour per group and per point, at feet / at crosshair, undo of the last point, scope "all profiles" (file) or "visit" (not saved, cleared on world change). Missing: per-profile scope, an in-game panel with drag reorder and undo/redo (commands only)
+- QOL-111: Chat > Hotkey Conditions > Advanced Hotkey Rules; neue Bedingungen In Dungeon / Dungeon Class / Garden Plot / Mayor-Perk, NOT, Zwei-Tasten-Folge mit Fenster, Cooldown, Delay, lokale Aktionen (sound, title:, note:). Fehlt: verschachteltes UND/ODER, Priorität, Kategorien, Repo-Presets
+- QOL-117: Chat > Calculator > /calc Command — /calc <expr> (click = copy), /calc = History (10), /calc xpforlevel|levelwithxp, auch /tmap calc; kein Tasten-Screen und kein Skill-Goal (schlank gehalten)
+- QOL-119: Screenshots > Upload Lifetime > Remember Uploads — Link pro Datei gemerkt (verfällt bei Änderung/Ablauf), klickbarer öffentlicher Link + Copy Link; kein Bestätigungsdialog vor Upload (Upload läuft ohnehin nur per Klick)
+- QOL-122: Chat > Command Suggestions > "Only Best Friends", "/trade: Only Island Players", "Suggest /show Slots" — VIP-Visits (Cake-Soul-Spieler) fehlt: keine Datenquelle lokal
+- QOL-127: Ordered Waypoints > Editor & Keys > Route Editor Extras — Undo/Redo 64, Drag-Reorder mit Auto-Scroll, Add At Crosshair, Tasten (Edit Looked-At, Place, Pause, Next, Prev, Stop) gebaut; fehlt: Klick-Auswahl direkt in der Welt (stattdessen Taste "Edit Looked-At Point"), Farbe/Radius/Stil/An-Aus pro Punkt, Chroma, Vorschau beim Platzieren, einstellbare Upcoming-Points-Anzahl
+- HUD-014: Skills > All Skills Display (+ XP Numbers / Overflow Levels / Hidden Skills); kein Hover-Detail, kein Klick-/skills
+- HUD-016: Interface > Custom Profit Trackers (3 Slots über "Edit"-Dropdown; Name/Inseln/Items, Coins, Preisquelle, Pause, Share-Code TMCT1: kopieren/importieren). Fehlt ggü. Skysoft: Icons, Summary-Zeilen-Auswahl, Preisquelle je Item, Unterbereiche (nur Insel-Namen)
+- HUD-024: Inventory > New Year Cake Tracker (Show Missing/Owned, Mark Cakes In AH, Reset). Fehlt ggü. SkyHanni: Scroll-Liste, Hover-Tooltip mit Preisen pro Bereich, Klick = AH-Suche, Pfeiltasten-Auswahl. Preise stehen stattdessen direkt im Panel (Einzeljahre + "Missing cost")
+- HUD-027: Inventory > Item Pickup Log (Sacks, Purse Coins, Compact, Icons, Expire, Coin Value + Price Source). Fehlt: Hunting-Box-Shards, frei wählbares Layout (nur Icons an/aus), Fade-Animation
+- HUD-028: Timers > Custom Todos (Edit-Screen: Match Contains/Starts With/Equals/Regex, Name, Chatzeile, Zeit, Restart; Copy All/Import über Zwischenablage; Sound When Ready, Only Show Ready). Fehlt: Cron, Anti-Trigger, Mehrfach-Trigger, Icon, eigene HUD-Position pro Todo (ein gemeinsames Panel), Trigger aus Actionbar/Tab/Sidebar, Import von SkyHanni/NEU-Codes
 
-## Quality of life
+### Übersprungen
+- QOL-092: existiert schon komplett: MinionFeatures "Hide Mob Nametags Near Minions" (minionHideMobNametags)
+- QOL-093: existiert schon komplett: IslandNavigation "Title On New Area" + "Area Names In World" (Ordered Waypoints > Island Navigation, SkyHanni-Graphen)
 
-- **Config profiles** — save whole setups and switch between them. Presets: *Recommended*, *Minimal*,
-  *All off*. Your keybinds and personal bests follow you across profiles
-- **Master switches** per category — turn off everything dungeon-related with one click
-- **Command suggestions** for Hypixel's own commands, including player names pulled from your guild
-  and friends list
-- **Deployables overlay** — time left on power orbs, lanterns, umbrellas, black holes and flares
-- **Sprinting overlay** and **auto sprint**
-- **Smooth zoom**
-- Hide clouds, skip the resource-reload overlay, hide decorative entities at packet level for extra
-  FPS, and hide the bodies of dead mobs
+### Live auf Hypixel prüfen
+- Music Overlay: PowerShell/WinRT-Skript (config/teslamaps/cache/media-session.ps1) und JNA SendInput nie live gelaufen; Lyrics-Abgleich mit lrclib; Cover-Textur-Laden.
+- Level 7 Guide: alle 119 Schritt-Erkennungen (Chat/Menü/Inventar/NPC-Namen aus FloydAddons übernommen), nie auf Hypixel gesehen.
+- Transfer-Cooldown: Erkennung über Weltwechsel + "Warping..."/"Unknown destination"-Chat; zurückgehaltener Befehl wird per sendCommand nachgeschickt.
+- Tia Relay: Menü-Titel "Network Relay", Lore "Hear!"/"Done!", Tia-Chattexte und Relay-Koordinaten aus SkyHanni; Pitch-Messung über SoundPlayMixin; Wolf-Whine-Sound-ID.
+- Queue Estimate: Untertitel-Format "You are #n in the queue!" (SkyOcean), Lesen über GuiAccessor subtitle.
+- Clock Warning: NTP über UDP 123 (time.google.com / pool.ntp.org / time.windows.com) — Firewall kann blocken, dann still.
+- /calcxp: Slayer-/Cata-Tabellen hart kodiert, Werte gegen Wiki gegenprüfen.
+- QOL-097: RING-Zeile und /cb-ClickEvent aus SkyHanni-Regex übernommen, live nie gesehen (sucht /cb <uuid> in allen Teilen der Nachricht)
+- QOL-095: Tab-Completion hängt Alias-Knoten an Hypixels Command-Tree (Redirect auf z. B. party > kick). Geänderte/gelöschte Aliase bleiben bis zum nächsten Weltwechsel im Tree; Aliase, die Hypixel selbst als Befehl kennt, werden nicht überschrieben
+- QOL-091: greift über MODIFY_COMMAND; ob Fabric den Client-Command-Dispatch vor oder nach MODIFY_COMMAND macht, ist ungeprüft (bei /Tmap relevant, Server-Befehle gehen sicher)
+- QOL-094: Format mit Gebiet + Text ist "x: .., y: .., z: .. | Gebiet | Text"; Notiz im Wegpunkt-Label nur mit "Show Sender, Area, Note & Distance" (umbenannter Toggle)
+- QOL-098: contact detection through the lore lines "Left-click to call!" / "Click to call!" and the titles "Abiphone …" / "Contacts Directory" come from NEU (1.8), never seen live here. The favourites toggle icon only appears if slot 4 is a glass pane. The remove confirmation assumes right-click = remove
+- QOL-098: the requirements come from NEU-REPO constants/abiphone.json (fetched async through RepoCache on the first Contacts Directory open)
+- QOL-100: the match is id entity.enderman.teleport with volume >= 7.9 and pitch < 0.05 (Devonian: vol 8, pitch 0). Needs checking that the pitch really reaches SoundInstance as 0 (soundDebug)
+- QOL-105: whole feature (Skyblocker port) is only testable on Hypixel with /warp. Background of the Reconfiguring screen is still drawn, same as in Skyblocker
+- QOL-104: the first part goes out on the next tick, then one part per delay (minimum 250 ms). Arguments typed after the alias go to the first part, or wherever {args} appears. A chain alias with the same name as a client command (pd/pk/pt) is caught by the client command first
+- QOL-099: island names are SkyblockUtils.getArea() strings. The ordered route advances when you come within the radius (default 3)
+- QOL-114: Slot-Positionen (40/53/52/44/43/35/16) aus NEU/SkyHanni übernommen, Cookie-Erkennung über Tab-Footer "Cookie Buff ... Not active"; Kopf-Texturen live prüfen
+- QOL-110: Item-Namen der Page-Items (Next Page, Scroll Up, Levels 26 - 50 ...) nicht live gesehen; 1s-Spamschutz bzw. State-Id-Wechsel prüfen
+- QOL-108: Manifest-Feld "changelog" braucht beim Publish CHANGELOG_FILE; ohne das bleibt der Changelog leer (Popup zeigt nichts extra)
+- QOL-109: /warp island wird nur gesendet, wenn die Kiste vom Island Chest Tracker als Insel-Kiste gespeichert ist
+- QOL-111: Garden-Plot-/Mayor-/Klassen-Werte (PestData.currentPlot, ElectionApi, PlayerTracker.getLocalClass) live prüfen
+- QOL-107: Rausch-Filter-Liste grob; Ausgabe landet in latest.log, nicht im Chat
+- Sign-Marker (^^^^^^^^^^^^^^^ / ^^^^^^ / ^^Flipping^^, "price" in Zeile 3) aus Skyblocker übernommen, nie live gesehen; Ergebnis wird im onDone-HEAD in messages[0] geschrieben
+- purse-Variable liest Scoreboard "Purse:"/"Piggy:"
+- Rat-Pet-Erkennung ist eigene Heuristik (bat.ambient/chicken.step ≤6 Blöcke, keine echte Fledermaus/Huhn ≤2 Blöcke um die Soundposition), SBA-Quelle nicht lokal, Pitch/Volume-Werte daher nicht übernommen
+- Backpack-Mute: Containertitel enthält "Backpack", chest.open ≤500 ms danach und ≤1.5 Blöcke vom Spieler — kommt der Sound vor dem Fenster, greift es nicht
+- /tmap ep etc. zählen jetzt über SkyBlock-ID (ENDER_PEARL, SPIRIT_LEAP, ...) statt Name; /calc ohne aktiven Toggle wird unverändert an den Server weitergereicht
+- Key Combos: zweite Taste nur per Tastatur belegbar (ESC im Listen-Modus löscht sie)
+- Best-Friend-Erkennung: Chatformate "is now a best friend!" / "is no longer a best friend!" und fett im /f list (aus SkyHanni übernommen, nie live gesehen)
+- /show-Vorschläge kollidieren evtl. mit Hypixels eigenen Command-Nodes (Rejoin nötig, wie bei den anderen Player-Suggestions)
+- Warp-Shortcuts: Reihenfolge ggü. eigenen Client-Befehlen und Ausnahmen /jerry (Private Island) und /barn (Garden) live prüfen
+- Wiki-Lookup: Titel "Visitor's Logbook" und "Calendar and Events" samt Slotbereichen aus Skyblocker, Enchant-Seitennamen über die Wiki-Suche
+- Ability Menu Fix: Mixin auf MultiPlayerGameMode.tick/useItem/useItemOn (per javap geprüft), Lore-Check "menu" wie bei GanKura, Verhalten mit Royal Pigeon live testen
+- Scoreboard-Logger: eine Datei pro Welt (neue Datei bei Weltwechsel)
+- Route-Tasten: Place (Füße bzw. Fadenkreuz beim Schleichen) speichert sofort in die geladene Route
+- HUD-002: 3D-Render des Kopf-Stands (Größe/Offset von Devonian übernommen), neue AW-Zeile für InventoryScreen.extractRenderState
+- HUD-010: Zeilen-Reihenfolge/Farben gegen die echte Hypixel-Sidebar, Default-Position (500/60) evtl. außerhalb kleiner Fenster -> in /tmap gui verschieben
+- HUD-012: Actionbar-Format der Stack-Symbole und Fett-Erkennung (aus GanKura, nie live gesehen)
+- HUD-013: HP-Regex auf der Actionbar, Mixin auf getAbsorptionAmount in Gui.extractPlayerHealth (Zeilen/Armor-Leiste rücken mit)
+- HUD-014/015: Total-XP-Seeding ohne Skill Overflow (Tooltip im /skills-Menü bzw. Tab-Level + Actionbar "(x/y)"), Goal-Alarm beim Überschreiten
+- Beacon: Menütitel "Beacon", Slot 22/23 und Lore "Power Remaining: 0d 5h 53m 12s" / "Beacon Deactivated" / "Current Stat: " stammen aus SkyHanni; Speicherung pro SkyBlock-Profil über SbProfile.key()
+- Crown of Avarice: custom_data "collected_coins" + Helm-Id CROWN_OF_AVARICE aus SkyHanni, nie live gesehen
+- Custom Trackers: Inventar-Diff zählt nur ohne offenes Menü (Items aus Kisten/Storage zählen nicht, Aufnahmen bei offenem Inventar auch nicht); "Moved N X from your Sacks to your inventory." wird abgezogen; [Sacks]-Hover "+N Name (Sack)" wird gezählt; Coins = Purse-Anstieg im Scoreboard ohne offenes Menü. Insel-Filter vergleicht exakt mit Tab "Area:"
+- CPS: zählt Mausklicks nur ohne offenen Screen (MouseHandler.onButton), kein "Count Packets"
+- Neue HUDs erst in /tmap gui positionieren (Default-Positionen links, y 120-310)
+- Chicken Head: Chatzeile "You laid an egg!" und Item-ID CHICKEN_HEAD aus SkyHanni, nie live gesehen
+- Cake Tracker: Kauf-Chat "You purchased New Year Cake (Year N) for X coins!", "You claimed a New Year Cake!", Menütitel (Ender Chest (x/y), ... Backpack (Slot #n), New Year Cake Bag, Auctions Browser/Auctions: "...") aus SkyHanni; Preise über Lowest-BIN-Key "NEW_YEAR_CAKE+<Jahr>" (NEU-Format) — ob unsere Lowest-BIN-Quelle diese Keys hat, ungeprüft; aktuelle SkyBlock-Jahr-Berechnung (ab 12/29 zählt das laufende Jahr)
+- Draconic: Chatformate "SACRIFICE! You turned X into N Dragon Essence!" / "BONUS LOOT! You also received Nx Item from your sacrifice!" (aus SkyHanni-Regex, farbcodes gestrippt); Bonus-Item-ID per Namenssuche; Area-Name "The End" aus der Tab-Liste; Altar-Box von SkyHanni
+- Pickup Log: Purse-Zeile "Purse:/Piggy:" im Scoreboard; [Sacks]-Hover-Format; Rauschen beim Schließen von Menüs (Items aus Kisten zählen bewusst als +) und bei Tod
+- Custom Todos: nur Chat-Trigger auf Server-Zeilen (isServerMessage), Farbcodes immer gestrippt
+- Equipment HUD: nutzt die bestehende Erfassung aus EquipmentDisplay (/equipment einmal öffnen), Optik nur im Dev ungesehen
+- HUD-030: cooldown start only on right-click use (like Skyblocker's UseItemCallback); Treecapitator on block break is not caught. The two new mixins (GuiGraphicsExtractor.itemCooldown, Gui.extractCrosshair via @ModifyExpressionValue) only compiled, never ran in a client.
+- HUD-032: source is the per-tick ping packet (ServerTickTimer); only shown on Hypixel. Lobby switches may show a short zzz.
+- HUD-033: tab lines "Eyes placed: n/8", "Dragon spawned!", "Egg respawning!" taken from Devonian; Dragon's Nest detection = area "The End" + scoreboard line containing "Dragon" and "Nest".
+- HUD-034: all formats are guesses/foreign: Soulflow tab line "Soulflow: X" (SkyHanni TabWidget) or lore "Internalized: X"; overflow mana token with  or ʬ; Final Destination stacks = action bar token with ⚶, fallback lore line "Kills: n" on FINAL_DESTINATION* pieces; Legion = real players (uuid v4) within 30 blocks, 0.07% per level per player (SkyHanni defaults).
+- HUD-035: exact chat line "Used Explosive Shot!", fixed 6.70s (134 server ticks), no cooldown reduction.
+- HUD-036: Zen source not found locally, built from description: buff = min(200, hits in 3s * level * 10); hits = own melee attacks + arrow "ding" sounds. Level from custom data enchantments.ultimate_fatal_tempo of the held item.
 
-## Performance
+## Welle 8 (10 Gruppen)
 
-- Built-in profiler (`/tmap perf`) that shows exactly which feature costs how much per frame
-- Several per-frame recalculations removed from the dungeon score, storage overlay and map
+### Neu
+- **Tab Stats HUD** — shows any stat from the tab list Stats widget, Ferocity by default (Settings: Interface)
+- **Interactive Tracker Rows** — with a menu open, click a tracker row to hide it, Ctrl+Click to remove it, click the profit line to copy it; fresh drops glow green and /tmap tracker <id> edit fixes wrong counts (Settings: Interface)
+- **HUD Line Order** — drag the lines of the Safari HUD and Performance HUD into your own order and hide the ones you don't need (Settings: Critter Safari / Interface)
+- **Experimentation Stats** — dry streak since your last ULTRA-RARE, an experiments profit tracker with XP bottle and bit costs, and a Guardian pet reminder (Settings: Inventory)
+- **Coordinates in Performance HUD** — x / y / z with yaw and pitch, plus the block you are looking at (Settings: Interface)
+- **Lobby Player Count** — "Players: 12/24" for the lobby you are in, handy for lobby hopping (Settings: Interface)
+- **Maxwell Power HUD** — your selected Accessory Power, Magical Power and tunings at a glance (Settings: Interface)
+- **Chunked Currency Lines** — the custom scoreboard packs Purse, Bits, Copper, Motes, North Stars, Bank and Gems into a few compact "|"-separated lines (Settings: Interface)
+- **Fancy Tab HUD** — on SkyBlock the tab list turns into tidy panels per section with progress bars, hold a key for the vanilla list (Settings: Interface)
+- **Hoppity Live Stats** — tracks eggs per meal, new and duplicate rabbits, strays and chocolate per Hoppity year, with a chat summary when the event ends and /tmap hoppity <year> for past years (Settings: Inventory)
+- **Limbo Time Tracker** — shows how long you have been in limbo and tells you the duration and your personal best when you leave (Settings: Interface)
+- **Profit Tracker** — drops, coins and profit per hour for Slayer (quest cost subtracted), Fishing, Foraging, Mining and Diana, picked automatically from what you are doing (Settings: Interface)
+- **Player Stat HUDs** — health, mana, overflow mana, defense, vitality, effective HP and speed as movable HUD elements, plus optional health and mana bars that can replace the vanilla hearts (Settings: Interface)
+- **Quiver Display** — shows your selected arrow type and how many are left, with an optional warning when you drop below 50 and 10 arrows (Settings: Interface)
+- **Effect Timers** — HUD with your Booster Cookie, God Potion and non-God-Potion buffs with time left, plus an optional warning before one runs out (Settings: Interface)
+- **Mayor Overlay** — HUD with the current mayor and minister, their perks, the election candidates and the time until the next mayor (Settings: Interface)
+- **Notification Popups** — important warnings can show as a centered popup that stays until you close it with X (Settings: Interface)
+- **Sacks Tracker HUD** — pick sack items and see their amounts live on screen, with changes highlighted (Settings: Inventory)
+- **Minions Widget** — on your island, every minion from the tab list with tier and a coloured ACTIVE/SLOW/FULL status (Settings: Interface)
+- **No Bits Warning** — title, sound and a clickable /bz booster cookie line when your bits run out, plus an optional "You gained N Bits" message (Settings: Interface)
+- **Screen Flash on Alerts** — a coloured full-screen flash on rare catches, pest warnings, kick timer and more, in case you miss the title or sound (Settings: Interface)
+- **Mounds Broken Counter** — the Safari missing panel shows how many Cavern mounds you broke this run and how many held a Rockmite (Settings: Critter Safari)
+- **Safari Log Import** — rebuilds past Safari runs from your game logs and keeps own catches, tries and shards per critter; see them with /tmap safari species (Settings: Critter Safari)
+- **Players In Range** — HUD with the number of real players within 30 blocks (Settings: Interface)
+- **Reaper Armor Timer** — ability and cooldown timer for full Reaper armor, optionally as a draining bar on the armor pieces (Settings: Timers)
+- **Skeleton's Helmet** — hide the bones orbiting you and show the remaining bones as icons (Settings: Interface)
+- **Jyrre Timer** — time left on the Refined Bottle of Jyrre Intelligence boost (Settings: Timers)
+- **Clock in Performance HUD** — optional real-world time line, 12/24h, with or without seconds (Settings: Interface)
+- **Profile Info HUD** — shows your profile type (♲ Ironman, ☀ Stranded, Ⓑ Bingo, Normal), optionally the profile name, and your SkyBlock level with x/100 XP (Settings: Interface)
+- **Title Stack** — titles from the server and from TeslaMaps alerts now stack with their own timers instead of overwriting each other, also show over open inventories, and can be moved in /tmap gui (Settings: Interface)
+- **Spring Boots Height** — while sneaking in Spring Boots, shows how many blocks the jump will take you, with an optional box at the target height (Settings: Interface)
+- **SkyBlock Level XP Bar** — the vanilla XP bar shows your SkyBlock level and level progress instead of Minecraft XP (Settings: Interface)
+- **Safari Spawn Quotas** — Gemzie, Troodon, Gazer and other fixed-spawn critters only count as done once every spawn is caught (checklist 1/3, biome bars, Biome Done alert, missing line) (Settings: Critter Safari)
+- **Daily Timers** — todo HUD for Booster Cookie, God Potion, Century Cakes, Puzzler, Fetchur, daily powder, free Rift infusion and the NPC buy limit (Settings: Timers)
+- **SkyBlock Clock year** — the SkyBlock Clock can add the SkyBlock year to the date (Settings: Interface)
+- **Tracker History** — trackers also count per day, week, month, year and mayor term; cycle to Today / This Week / ... with the view button, list older entries with /tmap tracker <id> history (Settings: Interface)
+- **Movable Vanilla HUD** — move and scale the hotbar, XP bar, action bar and held item name in /tmap gui (Settings: Interface)
+- **Movable Tab List** — move and scale the tab list in /tmap gui, with a live preview (Settings: Interface > Movable Vanilla HUD)
+- **Vanilla Style Mana Bar** — mana as icons in place of the hunger bar, overflow in its own colour, blinks on mana loss (Settings: Interface)
+- **Vanilla HP Number** — your vanilla hearts as a number, handy in the Rift (Settings: Interface)
+- **In Water Display** — "In Water: True/False" for Stranded (Settings: Interface)
+- **Scoreboard Number Changes** — the Custom Scoreboard shows gains like Purse: 52,763,737 (+1.2M) for 5 seconds (Settings: Interface > Custom Scoreboard)
+- **Lobby Day** — the Performance HUD can show how many days the current lobby has been running (Settings: Interface)
+- **Scoreboard Text** — sidebar shows "Purse" instead of "Piggy" and colors the SkyBlock month by season (Settings: Interface)
+- **Ability Cooldown HUD** — countdown for every item ability, read from the item lore, with optional ready message and icon shading (Settings: Inventory)
+- **Everything Except Macaw** — extra Safari milestone once everything but the Macaw is caught (Settings: Critter Safari)
+- **Safari Tries Per Critter** — shows capsule throws and escapes per uncaught critter in the missing panel, checklist and run screen (Settings: Critter Safari)
+- **Missing Tab Widget Hint** — Pet, Pickaxe Ability and Bestiary HUDs tell you which tab widget to enable instead of staying empty (Settings: Interface)
+- **More HUD Hiders** — hide the vanilla hearts, air bubbles, boss bar and XP bar (Settings: Hide)
+- **Performance HUD colors** — FPS, TPS and ping can now be colored green to red by value, TPS can show current/min/max/average and ping median/mean/instant (Settings: Interface)
+- **Ghost Loot Counter** — counts Sorrow, Volta, Plasma, Ghostly Boots and ghost coins with profit in the Dwarven Mines (Settings: Mining)
+- **Dragon Loot Counter** — dragon kills per type, eyes placed, dragons since Superior and the dragon drops you pick up (Settings: The End)
+- **Splits: wither doors and 300 score** — the splits HUD can show the wither door count and a live 300 score split that freezes when you hit 300 (Settings: Score & Splits)
+- **Skill tracker pause threshold** — set the idle time per skill before the session clock stops, with a (PAUSED) marker and an "Increase level cap!" hint (Settings: Skills)
+- **Tab Widgets HUD** — pick any tab widgets (Commissions, Pest Traps, Soulflow, Bank, Powders ...) and scoreboard values (Bits, Heat, Cold) and show them as one movable block (Settings: Interface)
+- **Snoozle 'none this run'** — when all five Snoozle walls are broken and no Snoozle is around, Cavern and the full dex count as done (Settings: Critter Safari)
+- **Valuable drop warning** — chat line or title for any tracked or sack gain worth more than your threshold, RARE DROP line or not (Settings: Render)
+- **Shared waypoint labels** — HeadESP, Hotspot, Rescue Mission and End Protector labels now use the common waypoint look, including the optional label background (Settings: Render)
+- **Old Item Textures** — SkyBlock items render as the vanilla item they used to be, and accessories/pet items get their old player head back; only the look changes (Settings: Inventory)
+- **Better Containers** — SkyBlock menus hide the black filler panes, draw connected slot and button frames in one of six styles and show enable/disable dyes as switches (Settings: Inventory)
+- **Hide Archer Passive** — the bone meal circling an Archer can now be hidden together with thrown bones (Settings: Hide)
+- **Arrow Trail** — draws a short fading line behind flying arrows, optionally only your own and in your own color (Settings: Render)
+- **Arrow Hitboxes** — draws the hitbox of every arrow with configurable line and fill color (Settings: Render)
+- **Crosshair Tweaks** — custom crosshair shapes with color/chroma/size/gap, crosshair in third person and exact centering at odd window sizes (Settings: Render)
+- **Container Tweaks** — remove the dark background behind menus, tint chest/inventory textures, hide the "Crafting" label, drop the hover highlight on filler glass panes and the offhand shield placeholder (Settings: Hide)
+- **Common Sea Creature Hider** — non-rare sea creatures render see-through with adjustable opacity, optionally only while holding a rod (Settings: Fishing)
+- **Chum Bucket Hider** — hides the "<name>'s Chum Bucket" and "/10 Chums" tags, optionally the bucket itself; your own can stay visible (Settings: Fishing)
+- **Hide Arachne Loot Tags** — removes the floating Luxurious Spool / String / Arachne Fragment / Spider Eye tags in Spider's Den (Settings: Hide)
+- **Fix Colored Particles** — restores the real color of Hypixel's 1.8-style colored particles, e.g. slayer spawn particles (Settings: Render)
+- **Custom Wither Cloak** — replaces the Creeper Veil creepers with rotating see-through shields; count, speed, distance and color adjustable (Settings: Render)
+- **Look Targeting** — look at a name tag briefly, a ring fills and an info card with name and distance pins next to it; look away to release (Settings: Render)
 
-## Removed
+### Teilweise
+- HUD-038: Interface > Trackers > Interactive Tracker Rows. Gilt für alle Trackers auf dem gemeinsamen Tracker-Helper (Inferno, Draconic, Custom, Experiments): Klick = ausblenden (auch aus dem Profit), Strg+Klick = entfernen, Klick auf Profit = kopieren, frische Drops grün, /tmap tracker <id> edit|hide|remove|copy. Fehlt: FarmProfitOverlay und ProtectorLootHud laufen nicht über Tracker und haben es nicht bekommen; Custom Trackers sind im Inventar ausgeblendet, dort geht nur der Befehl
+- HUD-045: Interface > Fancy Tab HUD (Scale, Player List, Progress Bars, Hold For Vanilla Tab). Fehlt: eigene Layouts pro Insel, zweite Tab-Ebene, Item-Icons, Tab-Footer (Effekte/Cookie) als Widget
+- HUD-046: Inventory > Hoppity's Hunt > Hoppity Live Stats / Hoppity Event Summary, dazu /tmap hoppity [year]. Fehlt: Leaderboard-Veränderung, frei sortierbare Stats (feste Reihenfolge), Blättern im HUD (vergangene Jahre nur per Befehl)
+- HUD-048: Interface > Profit Tracker (Activity Auto/manuell, Only Known Drops, Sacks, Coins, Subtract Slayer Quest Cost, Price Source, Pause After, Reset/Session-Total pro Aktivität). Fehlt: Farming-Preset (FarmProfit gibt es schon), Fishing-Catches-Zähler, Periode "Today", Crafting-Abgleich, PB pro Slayer-Kill, Reset-Bestätigung
+- HUD-070: Timers > Daily Timers — Cookie Buff, God Potion, Cakes, Puzzler, Fetchur, Mithril/Gemstone Powder, Free Rift Infusion, NPC Buy Limit; fehlt: Commissions, Experiments, Heavy Pearls, Crimson-Isle-Quests (die brauchen Container-/Lore-Auswertung), Icons pro Zeile, Anzeigemodus pro Zeile (es gibt einen globalen: Always / Ready / Expiring)
+- HUD-084: Interface > Tab Widgets > Missing Tab Widget Hint; Hinweis in Pet-, Pickaxe-Ability- (Textmodus; Balkenmodus hatte ihn schon) und Bestiary-HUD. ContestTimers nicht: hängt nur für den Miria-Score am Widget, "fehlt" ist dort nicht von "kein Contest" unterscheidbar
+- HUD-090: Interface > Tab Widgets HUD (+ Widgets list). ~60 widgets + scoreboard Bits/Heat/Cold/North Stars/Copper/Motes, all stacked in ONE movable block instead of one HUD per widget; no Skyblocker icons, no sortable player list
+- VIS-021: Inventory > Menu Look > Better Containers (Style: Dark/Light/Transparent/Vanilla/Purple/Ocean, Toggles As Switches). Rahmen/Schalter mit fill() gezeichnet statt SkyHannis CTM-Texturen; kein Pickblock-Klick auf Füllscheiben, keine eigenen Button-Stile getrennt vom Hintergrundstil
+- VIS-033: Render > Wither Cloak > Custom Wither Cloak (Count, Speed, Distance, Farbe mit Alpha = Transparenz); Schilde sind einfarbige Quads statt NEU-Textur
+- VIS-034: Render > Look Targeting > Look Targeting (Range, Leader Line); Ziel = sichtbare Name-Tags (Mobs/NPCs), Ring als HUD-Punktring statt Shader
 
-- The old terminal solvers and their settings — replaced by the new system above
-- Custom font
-- Secret clicker
-- Combat tracker (replaced by the skill tracker)
-- Reforge stone list (replaced by the item value system)
-- Auto-copy screenshot (replaced by the screenshot manager)
+### Live auf Hypixel prüfen
+- Alles nur gebaut, nicht im Spiel getestet (kein runClient laut Regeln).
+- HUD-037: Tab-Zeilenformat "Ferocity: ⫽123" aus GanKura übernommen; Stat muss im Tab-Widget aktiviert sein.
+- HUD-038: Klick-Hit-Test nutzt die zuletzt gezeichnete Position des Trackers (250 ms); Draconic-Tracker liegt im Inventar unter dem Screen, klickbar sollte er trotzdem sein.
+- HUD-039: Drag im Config-Screen (auch im Karten-Layout MapConfigScreen2) visuell prüfen.
+- HUD-040: Alle Formate aus SkyHanni-Regexes: GUI-Titel "Experiment Over"/"Superpairs Rewards", Belohnungs-Lore in Slot 13/11 zwischen "Rewards:" und "Click to claim rewards!", Chat "You claimed the X rewards!" (zählt erst beim Claim), "ULTRA-RARE BOOK" Lore, Bonus-Charge-Chat. Tischposition = Spielerposition beim Öffnen von "Experimentation Table" (nur im Speicher, nach Neustart einmal öffnen). XP-Flaschen-Verbrauch = Abnahme im Inventar innerhalb 15 Blöcken ohne offenes Menü (Wegwerfen zählt auch). Guardian-Check über PetTracker.displayName(); unbekanntes Pet warnt ebenfalls. Buch-IDs werden aus dem Namen gebaut (Ultimate-Bücher evtl. ohne Preis).
+- HUD-041: nur Anzeige, sollte direkt passen.
+- HUD-042: Tab "Players (n)"/"Guests (n)"/"Party (n)"; Kapazität: ✌-Zeile im Scoreboard, sonst Server-ID mit großem "M" = Mega (80), sonst 24 (SkyHanni nimmt Insel-Daten aus dem Repo, die haben wir nicht).
+- HUD-043: Lore-Formate "Selected Power:", "Accessory Power:", "Power is selected!", Slot 51 "Your tuning:", Slot 48 "Total: n Accessory Power", Stats Tuning "You have: ... + n ✎", Chat "You selected the X power for your Accessory Bag!". Tuning-Farben kommen aus dem Stat-Symbol, nicht aus der Lore. Daten pro SkyBlock-Profil (SbProfile.key()).
+- Alles nur im Build geprüft, nichts live auf Hypixel.
+- HUD-044: Scoreboard-Präfixe (Purse:/Bits:/Copper:/Motes:/Sowdust:/North Stars:/Heat:/Cold:) und Tab-Zeilen "Bank:"/"Gems:" aus SkyHannis Mustern.
+- HUD-045: Parsing der Tab-Liste (20er-Spalten, Titel = nicht eingerückte Zeile vor eingerückten, "Players (n)"-Spalte, "Info" wird verworfen) nie gegen die echte Tab-Liste geprüft; Layout bei vielen Widgets / kleinem Fenster ansehen.
+- HUD-046: Chat-Formate (HOPPITY'S HUNT You found a Chocolate <Meal> Egg / You found <Name> (<RARITY>)! / NEW RABBIT! / DUPLICATE RABBIT! +N Chocolate) und Stray-Erkennung über "CAUGHT!"-Items im Chocolate-Factory-Menü aus SkyHanni. Event = Monate 1–3 des SkyBlock-Jahres; Zusammenfassung erscheint beim ersten Tick nach Eventende.
+- HUD-047: Kein Hypixel-Mod-API hier, Limbo wird über die Chatzeilen "You were spawned in Limbo." / "You are AFK. Move around to return from AFK." erkannt, Fake-Limbo über Scoreboard-Titel "BED WARS" + SkyHannis Box. Verlassen = Weltwechsel.
+- HUD-048: Inventar-Differenz zählt jede neue Item-Menge außerhalb von Menüs (1,5 s Schonfrist nach Menü-Schließen/Weltwechsel/Aktivitätswechsel); fallen gelassene Items und aus Sacks genommene werden 10 s bzw. 60 s unterdrückt. Quest-Kosten = Purse-Abzug bis 1,5 s nach "SLAYER QUEST STARTED!". Burrow-Chat "You dug out a Griffin Burrow" / "You finished the Griffin burrow chain" geraten. Auto-Fishing = Angel in den letzten 2 min ausgeworfen.
+- HUD-049: Actionbar-Glyphen //// (Odin) plus alte ❤✎ʬ❈; Speed = Basiswert des Bewegungsattributs x1000 wie bei Odin.
+- HUD-050: Lore "Active Arrow: X (n)" im SkyBlock-Menü (Slot 9) bzw. "Arrows Remaining: n" beim Bogen halten (GanKura); Pfeilname ohne Rarity-Farbe (weiß).
+- Effect Timers: Tab-Footer-Format ("Active Effects", "Cookie Buff" + Folgezeile, "You have N non-god effects.", "God Potion: 4d"), Effekt-Tabzeilen, Chat-Texte und /effects-Lore "Remaining: hh:mm:ss" alle aus SkyHanni/Skyblocker übernommen, nie live gesehen
+- Mayor Overlay: Kandidaten-Feld "current.candidates" der Election-API nur während einer Wahl gefüllt
+- Minions Widget: Tab-Header "Minions:" und Zeilenformat "2x Snow XI [ACTIVE]" aus Skyblocker-Regex; braucht das Minions-Tab-Widget in /tablist
+- Bits: Scoreboard "Bits: N", SkyBlock-Menu-Item "Booster Cookie" mit Lore "Bits Available: N", Chat "You consumed a Booster Cookie!" (+4800 als Untergrenze, Fame-Multiplikator unbekannt); ohne einmal geöffnetes SkyBlock Menu kommt keine Warnung
+- Sacks HUD: Icons über SkyblockItems.idForName(Name) — bei Namen ohne Treffer kein Icon
+- Notification-Schließen-Taste reagiert auch im Container-Screen (nicht im Chat)
+- HUD-058: Mound-Chatzeilen ("The mound falls apart, but nothing is inside" / "The mound fell apart, revealing") aus critterMod übernommen, nie live gesehen
+- HUD-059: Import hängt davon ab, dass Hypixel-Chat mit [CHAT] in latest.log/.log.gz landet; Shard-Anzahl aus "Nx <Critter> Shard" (critterMod-Format); Run-Grenzen = "<du> entered Critter Safari!" oder 15 min Pause; Mitternachtswechsel in latest.log nur grob behandelt
+- HUD-060: Watchdog wird über "unsichtbar" ausgefiltert statt pauschal -1 (Skytils); unsichtbare echte Spieler werden dadurch nicht gezählt
+- HUD-061: Auslöser = Sneak-Start mit voller Reaper-Rüstung (Zen) oder Sound entity.zombie_villager.cure (DulkirMods mob.zombie.remedy); 6s aktiv / 25s Gesamt-Cooldown; Item-IDs REAPER_CHESTPLATE/LEGGINGS/BOOTS
+- HUD-062: Wie die kreisenden Knochen in 26.1.2 auf Hypixel dargestellt werden, ist unbekannt — erkannt werden Bone-ItemEntity auf unsichtbarem ArmorStand und unsichtbare ArmorStands mit Bone in Hand/Kopf im Umkreis von 8 Blöcken
+- HUD-063: Chatzeile "You consumed a Refined Bottle of Jyrre and gained ... for 60m!" (SkyHanni-Regex); Timer zählt nur, während man in SkyBlock ist, und wird in der Config gespeichert
+- Title Stack: fängt Gui.setTitle/setSubtitle/setTimes/clearTitles ab. Reihenfolge Titel/Untertitel wird über ein 100-ms-Fenster zugeordnet; nur Untertitel (DamageAlert: leerer Titel + Untertitel) wird zu einem Eintrag nur mit Untertitel. Server-Titel sind auch drin. Standardposition x110/y60 ist geraten, nach dem Einschalten in /tmap gui setzen.
+- Profile Info: Tab-Formate "SB Level: [n] x/100 XP" und "Profile: Name ♲/☀/Ⓑ" stammen aus SkyHanni bzw. dem SbProfile-Regex; Ersatz ist die Scoreboard-Zeile "♲ Ironman". Bingo-Rang-Icon aus dem Scoreboard ist nicht eingebaut, Bingo zeigt Ⓑ.
+- SB Level XP Bar: setzt experienceLevel/-Progress nur für die Dauer von INFO_BAR/EXPERIENCE_LEVEL und stellt sie danach zurück. Rift und Catacombs sind ausgenommen. Geht nur, wenn Vanilla gerade die XP-Leiste zeigt (nicht beim Reiten oder mit Locator Bar).
+- Spring Boots: Pitch-Tabelle und Reset-Sounds 1:1 aus Odin, der Vergleich hat 0.001 Toleranz. Nicht live geprüft.
+- Daily Timers: Chat-Texte aus NEU (1.8.9-Ära), auf gestrippten Text umgestellt: Puzzler, Fetchur, Powder, "You may only buy up to", "INFUSED! Used one of your free Rift charges!". Cookie Buff kommt aus dem Tab-Footer (Zeile nach "Cookie Buff"), God Potion aus "You have a God Potion active! …" im Footer oder "God Potion: …" im Tab. Beide Footer-Formate nicht live gesehen. Resets: Fetchur 05:00 UTC, Powder/Buy-Limit 00:00 UTC, Puzzler 24 h nach Abschluss, Rift 4 h nach Nutzung.
+- Safari Quotas: zählen partyCatches (wie Missing Panel/Run Screen). Ein Loot Share ohne eigene Catch-Meldung zählt also nicht für die Quote.
+- Alles nur gebaut, kein runClient. Default-Positionen der verschobenen Vanilla-Teile (Hotbar sh-22, XP sh-35, Action Bar sh-72, Item-Name sh-59) sind aus dem Vanilla-Code abgeleitet; ob der Rahmen in /tmap gui exakt deckt, live prüfen.
+- Tab-List-Vermessung (Spalten/Header/Footer) gegen die echte Hypixel-Tabliste prüfen; Vorschau rendert die echte Tabliste im Editor.
+- Mana-Bar: Parser erwartet "cur/max✎" und "nʬ" in der Actionbar (Formate aus EndStatsHud/Skyblocker); ohne gesehene Mana-Zeile bleibt die Hungerleiste.
+- Stranded-Erkennung (☀ im Scoreboard-Titel oder Zeile "☀ Stranded") aus SkyHanni, nie live gesehen.
+- Scoreboard-Diff: Labels "Purse: / Piggy: / Bits: / Copper: / Motes: "; Profilwechsel erzeugt einmal einen großen Diff.
+- Mayor-Bucket: Amtszeit per SkyBlock-Jahr gerechnet (Wahlende Late Spring 27th), Name kommt aus ElectionApi (jetzt auch geladen, wenn Tracker History an ist).
+- HUD-080: Scoreboard-Mixin zielt auf Gui.lambda$displayScoreboardSidebar$1 (require = 0, crasht also nicht; greift er nicht, wirkt es nur im Custom Scoreboard). Ob Hypixel-Zeilen "Piggy: " / "Late Summer 11th" genau so lauten, live prüfen
+- HUD-081: Aktionsleisten-Format "-50 Mana (Ability Name)" (aus Skytils) und Lore-Format "Ability: X  RIGHT CLICK" / "Cooldown: 5s" nicht live gesehen. Cooldown-Reduktion (Mage etc.) wird nicht eingerechnet. Abilities ohne Manakosten starten nur per Rechtsklick in die Luft
+- HUD-082: nur Chat + Sound + Share wie die übrigen Done-Meldungen; Name "Macaw" aus RARE_EXCEPT übernommen
+- HUD-084: Bestiary-Hinweis erscheint nur wenn Mobs getrackt sind und das Bestiary-Widget in der Tab-Liste fehlt; kann in Gebieten ohne Bestiary-Widget auftauchen
+- HUD-085: Hide XP Bar blendet den ganzen INFO_BAR-Slot aus (auch Pferde-Sprungleiste / Locator Bar)
+- HUD-086: FPS color uses Options.framerateLimit (260 = unlimited, treated as 240); median ping over the last 15 silent pings.
+- HUD-087: ghost coin line "The ghost's death materialized N coins from the mists!" and "RARE DROP! Sorrow/Volta/Plasma/Ghostly Boots" not seen live; dragon "X DRAGON DOWN!" and "☬ You placed a Summoning Eye!" from SkyHanni patterns; dragon drops = inventory gains of dragon item ids (fragments, dragon armor, claw, horn, scale, AOTD, Ender Dragon pet) within 60 s after a kill — ids unverified. HUDs only in area "The End" / "Dwarven Mines".
+- HUD-088: wither doors from DoorScanner.countType(WITHER); the 300 time forces a DungeonScore calc every 10 ticks while the split is on, so the 270/300 score messages now also fire when score HUD and map score are off.
+- HUD-089: level-cap hint only for Farming/Taming when tab shows "MAX" below 60 and XP overflows.
+- HUD-090: widget header patterns from SkyHanni's TabWidget.kt, relies on tab text carrying § codes; widget boundaries not verified live.
+- HUD-091: needs all 5 wall chunks loaded and broken (or seen broken with wall sight on).
+- HUD-092: prices via PriceManager (bazaar sell, fallback lowest BIN/NPC); hooks = every Tracker.add + [Sacks] "Added" hover (new line in ChatMixin); Protector loot / pest drops only count when they land in sacks or a tracker.
+- Alle Mixins (CustomCrosshairMixin, OldItemTexturesMixin, ContainerLabelColorMixin) nur kompiliert, Ziele per javap geprüft, nie im Client geladen.
+- VIS-019: Mapping-Daten aus SkyBack (6369 IDs, 4367 Köpfe) gebündelt als assets/teslamaps/data/old_items.txt + old_heads.txt (~550 KB roh). Köpfe werden aus dem Textur-Hash mit unsignierter textures-Property gebaut (nicht SkyBacks volles base64) — ob der Skin so lädt, nur live prüfbar. Pack-Erkennung = Namespace "hypixel_skyblock" im ResourceManager (SkyBack-Annahme).
+- VIS-021: Erkennung Füllscheibe (schwarze Scheibe, Name leer, ohne SkyBlock-ID), Button (Item ohne SkyBlock-ID), Toggle (Dye + letzte Lore-Zeile "Click to enable!/disable!") nur aus SkyHanni übernommen; ausgeschlossene Menüs per Titel (Experimente, Harp, Maze, Craft Item). Aktiv nur, wenn das Menü mindestens eine Füllscheibe hat. Optik der Stile nicht gesehen.
+- VIS-022: Archer-Passive als BONE_MEAL-ItemEntity nur aus Devonian/Skytils übernommen.
+- VIS-023: Besitzer-Erkennung "eigener Pfeil" über getOwner() hängt davon ab, dass Hypixel die Owner-ID im Spawn-Paket schickt.
+- VIS-026: Chroma per HSB im Render; eigene Formen werden ohne die invertierende Vanilla-Crosshair-Blend gezeichnet.
+- Alle Mixins nur kompiliert, nicht im Client gestartet (kein runClient laut Regeln): ContainerTintMixin (ContainerScreen+InventoryScreen blit), ContainerSlotTweaksMixin, ContainerDimMixin, InventoryLabelsMixin, LivingEntityAlphaMixin (getRenderType/submitModel ModifyArg mit @Local), ModifyArg auf ClientLevel.addParticle.
+- VIS-029: Zuordnung Nametag -> Mob (ArmorStand-Name "[LvX] <Name> HP/HP❤", Mob bis 4 Blöcke darunter) und Namen aus SkyHanni-REPO SeaCreatures.json, live nicht gesehen. Nur der Körper wird transparent, Rüstungs-/Item-Layer nicht.
+- VIS-030: Formate "'s Chum Bucket"/"'s Chumcap Bucket", "/10 Chums", Eimer-Item "Empty Chum Bucket" aus SkyHanni übernommen.
+- VIS-031: Tags nur in Area "Spider's Den" (Tab-Liste); "String" matcht per contains wie in DulkirMod.
+- VIS-032: Farbformel 1:1 aus SkyHanni (RGB = 1 - xDist/zDist/yDist) für alle ColorParticleOption-Partikel in SkyBlock.
+- VIS-033: Erkennung = Chat "Creeper Veil Activated!/De-activated!" + geladene Creeper (isPowered, < 4 Blöcke) werden versteckt; ob Hypixel auf 26.1 noch Charged Creeper schickt, ungeprüft. Auto-Aus nach 2 s ohne Creeper.
+- VIS-034: Projektion über Camera.getViewRotationProjectionMatrix; Lage der Karte bei FOV-Effekten/Bobbing live prüfen.
 
-If you are updating from 1.7, your config carries over. Anything removed above is simply ignored.
-Have a look through the settings — a lot is new and most of it is off by default.
+## Welle 9 (10 Gruppen)
+
+### Neu
+- **Big Items** - item icons in container slots can be drawn bigger, optionally only player heads or scaled by rarity (Settings: Inventory)
+- **Custom Skin** - swap your skin (and optionally other players' skins) for a PNG from config/teslamaps/skins, visible only to you (Settings: Render)
+- **Cone Hat** - a textured, optionally spinning cone hat on your head, with a PNG of your choice from config/teslamaps/conehat (Settings: Render)
+- **Custom Hub Map** - replaces the big hub map wall with your own PNG or animated GIF from config/teslamaps/hubmap (Settings: Render)
+- **Hide Enderman Teleport** - hides the portal particles and teleport bursts of endermen, Zealots and Voidgloom (Settings: Hide)
+- **ESP Distance Fade** - ESP boxes fade out with distance and far ones are skipped entirely (Settings: ESP)
+- **Entity Highlight** - outlines the entity under your crosshair, coloured by type (Settings: Render)
+- **Effective Area Overlay** — holding a Wither Blade or Spirit Sceptre shows a filled circle with the ability radius where you look (Settings: Render)
+- **Fire Veil Wand Circle** — hides the Fire Veil flame particles for 5.5s and shows its 3.5 block range as a ring, or nothing (Settings: Render)
+- **Hide Firework Rockets / Hide Horses** — removes Bonzo Staff rockets and horses, optionally at packet level (Settings: Hide)
+- **Dropped Item Scaling** — dropped SkyBlock items are drawn bigger or smaller by rarity (Settings: Render)
+- **Color Ender Chests** — ender chests on The End island are tinted in a color of your choice (Settings: The End)
+- **Custom Hurt Tint** — replaces the red hit flash of entities with your own color and strength (Settings: Render)
+- **DVD Logo** — a text box bounces around the screen, changes color on every wall and celebrates corner hits; text via /tmap dvd (Settings: Interface)
+- **Item Animations** — move, rotate and resize your held item, change swing speed, and turn off the re-equip dip, swing or hand sway (Settings: Render)
+- **Gyro Wand Range** — shows the 10 block pull radius where your Gyrokinetic Wand would land, in red while on cooldown (Settings: Combat)
+- **Hide Wither Shield Hearts / Enchant Rune Particles** — removes the heart spam from Hyperion healing and enchanting-glyph rune particles (Settings: Hide)
+- **Following Line** — draws a fading line along the path you just walked (Settings: Render)
+- **Hide Flaming Flay / Soul Whip Particles** — removes the weapon dust particles near you while lava fishing (Settings: Fishing)
+- **Remove Server Glow** — strips the server-side glowing effect from entities while keeping TeslaMaps' own glow (Settings: Hide)
+- **Fix Riding Camera** — the camera no longer lags behind while riding mounts or minecarts (Settings: Hide)
+- **Change Crouch** — instant sneak camera and the 1.8.9 sneak eye height (1.54), visual only (Settings: Render)
+- **Hide Glitch Mobs** — hides stuck mob player models that never despawn (Settings: Hide)
+- **Smooth Tooltip Lines** — Hypixel's dashed separator lines become one clean solid line (Settings: Tooltips & Value)
+- **Head Display Size** — resize player head icons in inventories and the hotbar (Settings: Inventory)
+- **Hideonwall Perches** — marks the 8 Haunted perches and resolves them when you look at one or throw a capsule through it (Settings: Critter Safari)
+- **Bigger Bat Models / Lower Enderman Nametags** — dungeon bats drawn larger, Zealot/Enderman health tags drawn at body height (Settings: ESP / Render)
+- **Cosmetics** — a bobbing coloured halo and custom body size for your own player (Settings: Render)
+- **No Re-equip Animation** — your held item no longer dips and comes back up when only its lore changes, like kill counters or drill fuel (Settings: Hide)
+- **Hide Item Cooldown Overlay / Hotbar Item Name** — removes the white cooldown shading on items and the item name above the hotbar (Settings: Hide)
+- **Compact Tab List** — SkyBlock tab list with sections in tight columns, no empty lines or adverts, optional tab toggle, player sorting and cleaner player names (Settings: Interface)
+- **Low Health Vignette** — red screen edges when your health drops below a set share, stronger the lower you go (Settings: Render)
+- **Lower Nametags** — health tags of giant mobs float at normal height (Settings: Mob Visuals)
+- **Hide Player Armor** — hides armor and helmet heads on yourself, others or everyone (Settings: Hide)
+- **Hide Jerry Rune Eggs** — no more villager spawn eggs scattered by the Jerry rune (Settings: Hide)
+- **Readable Mob Type Icons**: mob type symbols in name tags become text (UND/Undead, SKEL/Skeletal, ...), with an optional color per type (Settings: Mob Visuals)
+- **Player Size & Trail**: scale your own model or other players' models in width/height/depth (negative height = upside down), plus a fading trail behind you (Settings: Render)
+- **Player Model**: draws you or other players as a cat, fox, wolf, axolotl or one of 30+ other mobs, baby version optional (Settings: Render)
+- **Pet Dragon**: a small client-side ender dragon follows you, with adjustable size, position, wing speed and color (Settings: Render)
+- **Hide Wither Cloak Creepers**: the Creeper Veil creepers no longer block your view, and they still block clicks as before (Settings: Hide)
+- **More Hiders**: hide absorption hearts, mount health, fire on other entities, death smoke, night vision and enderman teleport particles (Settings: Hide)
+- **Red Tripwires**: built-in resource pack that turns dungeon tripwires into thick red strips (Settings: Render)
+- **Transparent Armor** — makes other players' armor and your own see-through (separate opacity sliders) so skins and capes show; NPCs are left alone (Settings: Hide)
+- **Zealot Color** — tints zealot endermen in a color you pick, or chroma (Settings: The End)
+- **Visual Words** — replaces any word or phrase in all text you see with your own text, color codes included, managed with /tmap visualwords (Settings: Interface)
+- **Full Text Shadow** — draws the text shadow all around each letter for an outline look (Settings: Interface)
+- **Hide Sky Flash** — Hide Lightning can now also stop the sky from flashing (Settings: Hide)
+- **Hide Block Hit Particles** — Hide Block Breaking can now also drop the crack particles from every hit (Settings: Hide)
+- **Blindness Fog Opacity** — Hide Blindness gets a slider that keeps the effect but fades the fog to the opacity you choose (Settings: Hide)
+- **Hide Fire On All Entities** — burning mobs and players are drawn without flames, render only (Settings: Hide > Hide Fire Overlay)
+- **Fire Overlay Height/Opacity** — keep the on-screen fire but make it lower and fainter instead of hiding it (Settings: Hide > Hide Fire Overlay)
+- **Hide 0 HP Nametags** — hides mob name tags that already show 0 health (Settings: Hide)
+- **See-Through Players** — Hide Players can draw players see-through at a chosen opacity instead of removing them (Settings: Hide > Hide Players)
+- **Ghost Players** — every other real player is drawn see-through, armor and held items included (Settings: Hide)
+- **Mute Endermen In The End** — silences enderman sounds, only on The End island (Settings: Sounds)
+- **Chicken Racing Exception** — Hide Explosions pauses during Chicken Racing in Jerry's Workshop (Settings: Hide > Hide Explosions)
+- **Chroma Format Code** — any text with §z renders in chroma, plus an Everything Chroma joke mode (Settings: Tooltips & Value)
+- **Healer Orb Particles** — the dust trail of hidden healer orbs disappears with them (Settings: Hide)
+- **Hurt Tilt Strength** — scale the damage camera tilt instead of switching it fully off (Settings: Hide)
+- **More Overlay Hiders** — hide the nether portal, pumpkin and in-wall overlays, the underwater FOV zoom and Wither Impact particles (Settings: Hide)
+- **Night Vision Control** — dim Hypixel's permanent night vision and stop it blinking (Settings: Render)
+- **Particle Hider** — hide far particles, close redstone dust, fireball smoke, blaze/enderman/fire particles and smoke; block breaking can be hidden in the Garden only (Settings: Hide)
+- **Grounded Arrows Only** — Hide Arrows can keep flying arrows visible and only hide stuck ones (Settings: Hide)
+- **Armor-only Glint** — Hide Enchant Glint can hide only the glint on worn armor (Settings: Hide)
+- **Island Cloud Hider** — Hide Clouds can be limited to chosen islands (Mines, Hollows, Dungeons, Kuudra ...) so clouds stay on Hub and Garden (Settings: Hide)
+- **Zero-Ping Etherwarp Sound** — plays the etherwarp sound the moment you click when the warp will land, instead of after your ping (Settings: Sounds)
+- **Trajectories** — shows the flight path and impact point of your bow (incl. Terminator's 3 arrows) and ender pearls (Settings: Render)
+- **Glass Dungeon Doors** — entrance, wither and blood doors turn into see-through stained glass in a color of your choice (Settings: ESP)
+- **Custom ESP Rules** — highlight mobs by entity type, name, armor, held item, island, invisibility, NPC or health, with labels, distance, per-rule tracer/alert and on/off switch (Settings: ESP)
+- **Rift Parkour Guides** — next platforms, shortcuts and a rainbow line for the Mirrorverse parkours; platforms only count once you land on them (Settings: Ordered Waypoints)
+- **Advance Only On Ground** — ordered waypoint routes only advance once you land near a point, not while jumping past (Settings: Ordered Waypoints)
+- **Particle Cloak & Colored Names** — a particle cape behind your back and colored name tags for yourself and other TeslaMaps users (Settings: Render)
+
+### Teilweise
+- VIS-037: Render > Cone Hat (Height/Radius/Y Offset/Spin, Prev/Next/Reload/Folder; Ordner config/teslamaps/conehat) - nur lokal für den eigenen Spieler, kein Teilen über das Cape-Sync-Backend
+- VIS-051: Render > Held Item > Item Animations (XYZ offset, yaw/pitch/roll, size, swing speed, ignore haste/fatigue, no re-equip, in-place swing, no swing, no Terminator swing, no hand sway, empty hand, reset). Not built: Skysoft per-item editor with live preview/undo, map-hand scaling, Floyd "Hide Hand"
+- VIS-064: Render > Cosmetics > Cosmetics (Halo, Halo Color, Custom Size X/Y/Z, Show Other Users' Cosmetics). Eigenes Halo/Größe nur lokal sichtbar; andere Nutzer nur, wenn der Cape-Server im lookup optionale Felder "halo" (hex) und "size" ("x,y,z") pro Zeile liefert — Backend-Seite (Speichern/Hochladen) fehlt, Client parst sie schon. Custom Name weggelassen.
+- VIS-067: Interface > Tab List > Compact Tab List (+ Hide Adverts, Hide Fire Sales, Background, Tab Toggles, Player Sort Rank/Level/Name + Reverse, Hide Heads/Level/Emblems/Rank Color, Mark Party Members). Fehlt: Freund-/Gilden-Icons (keine Freund-/Gilden-Daten im Mod), SkyHannis Footer-Umbau zur "Other"-Spalte (Footer wird nur ohne Werbezeilen darunter gezeigt), HUD-Edit-Box von "Move Tab List" misst weiter die Vanilla-Größe
+- VIS-073: Render > Cosmetics > Player Size (Players Self/Real/Everyone, Width/Height/Depth, negative = upside down) + Player Trail; no sync to other mod users (would need backend changes to the CapeSync server), no Shizo fake mobs
+- VIS-074: Render > Cosmetics > Player Model (Players, Mob from 32 vanilla mobs, Baby); no variants/collar colors, no imported custom models, no first-person replacement
+- VIS-101: Hide > Player Armor > Transparent Armor (+ Own / Other Players Opacity %). Armor, trims and player-skull helmets fade; non-skull helmet items (block/item models on the head) are only hidden at 0 %, not faded (SkyOcean left this as a TODO on 26.1 too)
+- VIS-116: Tooltips & Value > "Chroma Format Code (§z)" + "  Everything Chroma". Missing: SkyHanni's "Ignore Chat" for Everything Chroma (GUI render is deferred, no reliable chat flag at pipeline swap), &z (vanilla never parses &, only §z is hooked), 4-direction option (existing Slant Forward toggle is reused)
+- VIS-128: Ordered Waypoints > Rift Parkour Guides (+ Ordered Waypoints > Progression > Advance Only On Ground). Generischer ParkourHelper (On-Ground-Check, Shortcuts, Regenbogen/einfarbig, Look-Ahead) für Rift Upside Down / Lava Maze / Tubulator aus dem SkyHanni-Repo. RescueMission hatte On-Ground + Regenbogen schon. Dungeon Hub Races, Deep Caverns und Gunthers Race fehlen (andere JSON-Struktur bzw. eigene Start-Logik), Moving-Platform-Interpolation weggelassen
+- VIS-129: Render > Cosmetics > Particle Cloak / Colored Names. Partikel-Umhang (12 Typen, Dust-Farbe, Dichte, Motion, optional in Ego-Perspektive) nur lokal sichtbar. Farbige Namen: eigener Name + andere TeslaMaps-Nutzer (über CapeSync.isUser) in lokal gewählter Farbe. Server-Sync von Cloak/Namensfarbe fehlt, weil das Cape-Backend (Supabase-Function) nicht in diesem Repo liegt und dafür ein neues Feld bräuchte
+
+### Live auf Hypixel prüfen
+- Nichts wurde im Client gestartet (kein runClient). Alle Mixin-Ziele sind per javap geprüft, beim Laden aber noch nicht verifiziert: AvatarRenderer.getTextureLocation/renderHand, LivingEntityRenderer.<init>/addLayer, MapRenderer.extractRenderState, EnderMan.aiStep, AbstractContainerScreen.extractSlot.
+- Hub Map: Die 13x7-Wand-Erkennung stammt aus FloydAddons und wurde auf Hypixel nie live gesehen. Offen sind auch die Kachel-Ausrichtung (Spalten-/Zeilenreihenfolge je Blickrichtung der Wand) und die GIF-Frame-Zusammensetzung.
+- Enderman-Hider: Ob Hypixel Teleport-Partikel als Partikel-Paket, als Entity-Event 46 oder gar nicht schickt, ist nur live prüfbar. Der sichtbare Positionssprung selbst ist echt (Server) und bleibt.
+- Cone Hat: Sitz und Ausrichtung auf dem Kopf (Y Offset -0.5 wie bei Floyd), die Default-Textur (rot/weiße Streifen, 64x16) und das Rendern mit entityCutout.
+- Custom Skin: nur quadratische Skins (64x64 oder HD); alte 64x32-Skins werden abgelehnt. "Other Players" trifft auch Hypixel-NPCs, weil die Spieler-Entities sind.
+- Big Items: Skalierung über die GUI-Pose. Nicht geprüft ist, ob andere Slot-Overlays (Rarity-Hintergrund, Stack-Zahl) visuell mit großen Icons kollidieren.
+- Entity Highlight: nutzt mc.crosshairPickEntity (nur innerhalb der Interaktionsreichweite). Armor Stands werden ausgelassen.
+- Alles nur gebaut, kein runClient. Mixins (ItemEntityScaleMixin, EnderChestTintMixin, OverlayTextureAccessor, ItemEntityRenderStateMixin) erst beim Start geprüft.
+- VIS-042: Zen-Quelle nicht lokal; Item-IDs (HYPERION/ASTRAEA/SCYLLA/VALKYRIE/BAT_WAND/STARRED_BAT_WAND), Default-Radius 7 und Raycast 45 Blöcke aus der Erinnerung an Zen, Radius per Slider einstellbar.
+- VIS-043: Partikel-Match (FLAME, Speed 0.55) aus SkyHanni, live nicht gesehen; Ashfang-Freeze-Check von SkyHanni weggelassen.
+- VIS-044: ob Bonzo-Staff-Projektile wirklich FireworkRocket-Entities sind; render-seitig bleibt der Funkenschweif (tickt weiter), nur Packet-Level entfernt ihn.
+- VIS-045: Rarität über RarityBackground.rarityRank (Tooltip-Style/Lore) — ob gedroppte Item-Entities auf Hypixel Lore/Tooltip-Style mitbringen.
+- VIS-047: Tint über ChestRenderer-Model-Farbe (multiplikativ auf die Textur), Gebiet über Tab-Liste "Area: The End".
+- VIS-049: Farbe wird in die Zeilen 0-7 der Overlay-Textur geschrieben und hochgeladen; Mischverhalten des Entity-Shaders live prüfen.
+- VIS-050: Odin-Forge-DVD.kt nicht lokal, aus Beschreibung gebaut.
+- All three new mixins (ItemAnimationsMixin on ItemInHandRenderer, SwingDurationMixin on LivingEntity.getCurrentSwingDuration, RidingCameraMixin on Camera.alignWithEntity): targets checked with javap, but they were never loaded in a running client (no runClient). A bad target would crash at startup
+- Gyro cooldown trigger: the action bar text "-X Mana (Gravity Storm)" comes from Odin's regex and was never seen live here. No automatic mage cooldown reduction; the user sets the seconds
+- Hype hearts packet signature (HEART, count 3, alwaysShow, overrideLimiter) comes from Devonian
+- Enchant rune: hides all ENCHANT particle packets except the pest (count 10, speed -2) and burrow (count 5, speed 0.05) signatures. The Dulkir source was not available locally, so check that no other needed particle disappears
+- Flay/whip dust offsets come from SkyHanni
+- Following line in first person: segments close to the player are hidden only while airborne
+- Alles nur gebaut, kein runClient. Mixin-Ziele per javap geprüft (Camera.tick, GuiGraphicsExtractor.item, LivingEntityRenderer.scale, AvatarRenderer.scale, EntityRenderer.extractRenderState).
+- VIS-058: Area-Namen "Hub"/"The Park"/"Galatea" für 1.27 aus Devonian übernommen; unbekanntes Gebiet = 1.27.
+- VIS-059: Glitch-Zustand live nicht reproduzierbar; Health-Tag-Erkennung = Armor Stand mit "❤" innerhalb 1.5 Blöcke horizontal über dem Model (vereinfachter Skysoft-Matcher).
+- VIS-060: trifft jede Tooltipzeile, die nur aus ≥10 "-" besteht.
+- VIS-062: Perch-Koordinaten aus critterMod; "besetzt" = Armor Stand mit "Hideonwall" oder lila Shulker-Box-Display im 3-Block-Radius; Capsule = item_display mit Namen "Critter Capsule". Fang räumt Perches über die CAUGHT/FOUND/LOOT_SHARE-Regexe von SafariTracker. Nur sichtbar, wenn Critter ESP (Safari) an ist.
+- VIS-063: Bat-Skalierung nur in Dungeons und nur mit Dungeon Bat ESP an (Unteroption); Nametag-Offset (1 Block zum Spieler, 1.5 tiefer) wie Skytils.
+- VIS-064: HaloLayer wird über Fabrics LivingEntityRenderLayerRegistrationCallback an AvatarRenderer gehängt — prüfen, ob das Event für Spieler-Renderer feuert und das Halo über dem Kopf sitzt; kopfüber (Size Y negativ) prüfen.
+- Alles ungetestet in-game (kein runClient). Mixin-Ziele per javap geprüft: ItemInHandRenderer.shouldInstantlyReplaceVisibleItem, Gui.extractTabList (KeyMapping.isDown), PlayerTabOverlay.extractRenderState, AvatarRenderer.extractRenderState(Avatar,...).
+- Compact Tab: Hypixel-Layout (80 "!"-Einträge, 20er Spalten, Titel = erste Zeile, gleiche Titel werden zusammengelegt), Player-Zeilen-Format "[280] Name ♲", Fire-Sale-Sektion ("Fire Sale..."), Werbezeilen (HYPIXEL.NET / Ranks, Boosters) nur aus SkyHanni übernommen. Ob Köpfe der Fake-Einträge die echten Skins tragen, live prüfen. Rang-Sortierung = Hypixels eigene Reihenfolge.
+- Re-equip: Slotwechsel sollte weiter animieren (3-Tick-Fenster nach Slotwechsel), live prüfen.
+- Lower Nametags: Annahme aus Devonian, dass der Health-Stand ID = Mob-ID + 1 ist.
+- Jerry Rune: Annahme, dass die Rune-Eier Villager-Spawn-Eggs ohne SkyBlock-ID sind.
+- Hide Player Armor wirkt auch auf die eigene Figur im Inventar-Preview (bei Self/All).
+- Hide Item Cooldown Overlay blendet nur Vanilla-Cooldowns aus; die eigenen Item Cooldowns / Ability Cooldowns zeichnen weiter.
+- Whole wave untested in-game (no runClient). All mixin targets were checked against the 26.1.2 jar with javap and the build is green, but none of it has run yet
+- VIS-072: glyph codes come from SkyOcean (U+E070..E088, U+E018). Only works if Hypixel puts them in armor-stand custom names; if Hypixel uses text display entities for those tags, nothing changes
+- VIS-073: Odin's upside-down translate was copied unchanged; Real Players = UUID version 4
+- VIS-074: fake mobs are created client-side per type; a mob type that fails to construct on the client is skipped silently. Inventory preview is likely replaced too, first person stays the player hand
+- VIS-075: dragon facing (yaw+180), flap speed and default size 0.15 are guesses, tune them live
+- VIS-099: death particles = entity event 60, enderman teleport = entity event 46; check that Hypixel actually sends them
+- VIS-100: pack.mcmeta min_format 69 was taken from Skyblocker; the pack could show up as incompatible if 26.1.2 needs a different format
+- None of the mixins ran in a client (runClient not allowed). Mixin targets and descriptors were checked with javap against 26.1.2, but a runtime mixin apply failure would show up on startup
+- Transparent Armor: NPC exclusion uses uuid version 2 (Hypixel NPC convention); translucent armor/trim render types and alpha on player skulls need a visual check; your own armor also fades in the inventory player preview (same as SkyOcean)
+- Zealot Color: finds a zealot through an armor stand name containing "Zealot" and an enderman up to 3.5 blocks below it, only in the areas "The End" / "Dragon's Nest". The name tag offset on Hypixel is unverified. The eye layer stays purple
+- Visual Words: String/FormattedCharSequence hooks in Font.prepareText + width (same place as StreamerMode). Word wrapping (Font.split) still measures the original text. Also affects the chat input box
+- Full Text Shadow: shadow offset taken from the glyph instance (access widener on BakedSheetGlyph$GlyphInstance)
+- Blindness Fog Opacity: scales FogData.color alpha (fog shader mixes by fogColor.a); the blindness lightmap darkening is left unchanged
+- Alle neuen Mixins (FireOverlay, EntityFire, Ghost*, ChromaFormat) nur kompiliert, nicht im Client geladen; Mixin-Ziele per javap geprüft. Ein falsches Ziel crasht erst beim Start.
+- Hide Fire Overlay: jetzt render-seitig. Der eigene Spieler brennt in 3rd-Person/Inventar wieder sichtbar, außer "Hide Fire On All Entities" ist an.
+- Ghost/See-Through: Rüstung/Items/Cape nur ungefähr wie bei Bax; Kopf-Items (Skull-Modelle) bleiben Cutout, bei sehr niedriger Deckkraft können sie flackern/verschwinden. Die zusätzliche Rüstungs-Transparenz gilt jetzt auch für Common Sea Creature Hider.
+- 0-HP-Regex "[Lv\d+] .+ 0/.+❤" stammt von NoammAddons, auf Hypixel nicht gesehen.
+- Chicken-Racing-Action-Bar-Text aus SkyHanni-Regex, live nicht gesehen.
+- Ob Hypixel-Endermen im End wirklich die vanilla enderman.* Sound-IDs benutzen.
+- §z in Chat/Scoreboard/Nametags anderer Mods; Everything Chroma macht auch Schatten-/grauen Text chroma (Helligkeit bleibt).
+- Alle neuen Mixins (NightVision, OverlayHider, WaterFov, ArmorGlint, ParticleHider, MobParticleHider, FireParticleHider, AbstractArrowInvoker, ModifyExpressionValue in NoHurtCamMixin, renderTex in NoWaterOverlayMixin) nur kompiliert, kein runClient — Mixin-Ziele per javap geprüft.
+- VIS-119: Orb-Dust-Filter (DUST, count 0, overrideLimiter, alwaysShow, 8 Blöcke um Stand+2) aus Devonian übernommen; Orb-Positionen werden render-seitig gesammelt (Stand muss im Render-Check auftauchen). Live im Dungeon mit Healer prüfen.
+- VIS-122: Wither-Impact-Filter verwirft WITCH- und HEART-Partikel global (wie Odin), auch z. B. Zucht-Herzen. Pumpkin-Erkennung über Texturpfad "pumpkinblur".
+- VIS-123: Slider wirkt nur, solange Fullbright aus ist (Fullbright setzt Helligkeit ohnehin auf max).
+- VIS-124: Fireball-Rauch = SMOKE/LARGE_SMOKE im 5-Block-Radius eines SmallFireball (auch Paket-Partikel); Far-Particles-Ausnahme im M7-Boss über DungeonManager.isInBossArea.
+- VIS-127: Rüstungs-Glint über EquipmentLayerRenderer.renderLayers (Köpfe/Skull-Layer nicht betroffen).
+- VIS-135: Zero-Ping-Auslösung nur wenn Sneak + Etherwarp-Item + lokale Berechnung erfolgreich; keine Mana-Prüfung (kein Mana-Parser vorhanden), bei zu wenig Mana spielt der Sound trotzdem. Server-Sound wird 2s lang nach eigenem Zero-Ping-Sound verschluckt, sonst wie bisher ersetzt. Ausnahmen: F7-Boss, Räume New/Old Trap, Teleport Maze, Boulder, Blick auf Truhe/Hebel/Knopf/Falltür/Hopper/Kessel, Blick auf Entity
+- VIS-136: Inselnamen per contains gegen Tab-"Area:"-Zeile ("Catacombs" trifft "Dungeon: Catacombs"); Kuudra/Mineshaft-Area-Namen nicht live geprüft
+- VIS-105: Tür-Erkennung wie DoorScanner (Kohle/Red Terracotta/Infested bei y=69, Volumen 3x4x3 um Türmitte); Ersetzen per ClientLevel.setBlockAndUpdate jede Tick, nur Blöcke vom Tür-Typ. Beim Ausschalten bleibt Glas bis Tür öffnet/Relog. Entrance-Tür-Blocktyp (infested) live prüfen
+- VIS-097: Pfeil-Startpunkt/Physik wie shizo (Drag 0.99, Gravitation 0.05/0.03), Terminator-Winkel ±5°, Hypixel-Shortbows ohne Aufladen = volle Kraft; Spirit Leap wird per SkyBlock-ID ausgenommen
+- VIS-002: Rüstungs-/Held-Filter matchen Item-Name ODER SkyBlock-ID (Teilstring); Insel-Filter gegen Tab-Area (Teilstring); Min-Health nutzt getHealth() (auf Hypixel oft nicht die echte HP). Rule-Editor-Screen (Layout, Autocomplete-Vorschläge) nicht im Spiel angesehen
+- VIS-128: Rift-Erkennung nur über Tab-Area "The Rift" (nicht Mirrorverse-Unterzone); Guide erscheint erst, wenn man nah am ersten Punkt ist. Upside-Down-Offset -1 wie SkyHanni
+- VIS-129: Name-Recolor per EntityRenderer.getNameTag-Mixin, sucht den Profilnamen im Nametag-Text; Hypixel-Nametag-Format (Team-Prefix, §-Codes) live prüfen. Andere-User-Erkennung braucht konfigurierten Cape-Server
+
+## Welle 10 (10 Gruppen)
+
+### Neu
+- **Block ESP** — highlights every block of the types you pick, through walls; pick from a searchable list or with /tmap blockesp add <block> [color] (Settings: ESP)
+- **Camera Distance & Clip** — set the third person camera distance (3–12 blocks) and let it pass through blocks; Custom FOV now goes down to 1 (Settings: Hide)
+- **Glow In Unloaded Chunks** — glowing mobs past your render distance keep their outline, so glow and tracer match (Settings: ESP)
+- **Mob Visuals boss detection** — area bosses, body-type sea creatures, NPC mobs and Invisibugs picked in Mob Visuals are now actually found and highlighted (Settings: Mob Visuals)
+- **Glow Outline Width** — thicker glow outlines for every ESP/Mob Visuals glow (Settings: ESP)
+- **Chest ESP** — shows every chest through walls, optionally only in dungeons or the Crystal Hollows, and hides chests you already opened (Settings: ESP)
+- **Autopet Messages** — hide the "Autopet equipped your ..." line or show it in the action bar or as a toast; the pet HUD still reads it (Settings: Chat)
+- **Chat Log Files** — every chat line is written to .minecraft/logs/teslamaps-chat/, one file per day, old logs deleted after a set number of days (Settings: Chat)
+- **Chat Log Filter Status** — the chat log marks lines BLOCKED / MODIFIED / ALLOWED / OUTGOING with the filter responsible, plus separate blocked and modified logs (Settings: Chat)
+- **Chat Timestamps** — [HH:mm] in front of every chat line, 24h/12h with or without seconds, custom color (Settings: Chat)
+- **Current Chat Channel** — shows "Chat: Party (4 members)", Guild, All or your /msg partner with time left while the chat is open (Settings: Chat)
+- **Chat Peek** — hold a key to see the full chat as if it were open, without opening the chat screen (Settings: Chat)
+- **Chat Notify** — /tmap chatfilter notify <text> highlights a word in chat and plays a sound instead of hiding it (Settings: Chat)
+- **Ability Cooldown Hider** — hides "This ability is on cooldown" and can mute Hypixel's loud cooldown sound (Settings: Chat)
+- **Abiphone Do Not Disturb** — blocks incoming NPC calls, their ring lines and the ringtone, optionally telling you who called (Settings: Chat)
+- **Click To Confirm** — after a [YES] or NPC confirm prompt, click anywhere in open chat to answer it (Settings: Chat)
+- **Chat Search** — Ctrl+F in open chat filters the chat live and shows the match count, works with chat tabs (Settings: Chat)
+- **Chat Emotes** — :shrug:, :tableflip:, <3, o/ and friends turn into MVP++ emotes when you send them (Settings: Chat)
+- **Compact Potion Messages** — "BUFF! You were splashed by..." becomes a short clickable "Potion Effect!" line (Settings: Chat)
+- **Compact Bestiary** — the BESTIARY level-up block becomes one line with details on hover (Settings: Chat)
+- **Compact Jacob Claims** — a bulk contest claim becomes one summary line (tickets, books, medals, bits, overclockers), full list on hover (Settings: Chat)
+- **Compact Level-Ups** — skill, SkyBlock and collection level-ups and New Area blocks are cut to the key lines, borders optionally hidden (Settings: Chat)
+- **Compact Experiment Rewards** — the Experimentation Table claim and all +reward lines become one line with a hover list (Settings: Chat)
+- **Shorten Coin Amounts** — gold coin numbers in SkyBlock chat are shortened, 5,100,000 -> 5.1M (Settings: Chat)
+- **Dark Auction Item Name** — Sirius' highest-bidder / no-bids line gets the auctioned item appended (Settings: Chat)
+- **Hide Arachne Messages** — other players' Arachne callings, spawns and ARACHNE DOWN blocks are hidden outside the Sanctuary, Venom Shot lines everywhere in Spider's Den (Settings: Chat)
+- **Hide Message Indicator Bar** — removes the coloured bar left of system/modified chat lines (Settings: Chat)
+- **Keep Chat Scroll** — reopening chat stays where you scrolled to instead of jumping to the newest line (Settings: Chat)
+- **Hide Blazetekk Radio** — hides the three "Your radio ..." messages on their own toggle (Settings: Chat > More Filters)
+- **Animal Sound Responses** — someone writes meow, woof, moo or oink in chat and you hear the animal, 14 sounds to pick from (Settings: Chat)
+- **Own Filter Alerts** — your own chat filters can now show a title, play a sound or flash the screen, with regex groups in the title (Settings: Chat > Own Filters, /tmap chatfilter title|sound|flash <n>)
+- **Compact Channel Lines** — "Guild > [MVP+] Name [Member]: hi" becomes "G > Name: hi", also for party, officer and public chat, ranks/level/emblem hideable (Settings: Chat)
+- **Remove Discord Link Warning** — cuts Hypixel's "Please be mindful of Discord links" sentence off chat messages (Settings: Chat)
+- **Share Rare Drops** — post your RARE DROP lines with a per-item counter to party and/or guild chat, optionally only over a value, or copy them to the clipboard (Settings: Render > Rare Drop Effects)
+- **Pet Rarity & Book Names**: pet drop, catch and "has obtained" lines show the pet's rarity, and "RARE DROP! Enchanted Book" is renamed to the enchant you actually got (Settings: Chat)
+- **Compact Combat Lines**: cooldown, mana, ability-ready, too-fast and in-combat lines become one short line, damage/heal lines get shortened and other players' deaths are greyed out, with the full text on hover (Settings: Chat)
+- **Compact Drop & Economy Lines**: SkyBlock XP, loot share, rare rewards, pet summons, autopet, sacks, Abiphone rings, fire sales and "inventory full" shrink to short lines (Settings: Chat)
+- **Compact Melody Messages**: in dungeons only each player's newest melody progress line stays in party chat, or all of them can be muted (Settings: Chat)
+- **Compact Hoppity Finds**: the egg, rabbit and NEW/DUPLICATE lines merge into one line with rarity, duplicate number and a Hitman Claim All summary (Settings: Chat)
+- **Compact Mining Lines**: Breaking Power warnings, crystals, Metal Detector finds, Keeper and Automaton lines get shortened, treasure chest notices are hidden (Settings: Chat)
+- **Hotkey Placeholders**: chat hotkeys can use {x} {y} {z} {player} {island} {location} {server} {health} {mana}, for example "/pc Coords: {x} {y} {z} ({island})" (Settings: Chat)
+- **Highlight Own Name** — your name is drawn in a colour of your choice in every chat line (Settings: Chat)
+- **Profile Badges In Chat** — the Ironman/Bingo/Stranded/faction symbol from the tab list appears behind the sender's name (Settings: Chat)
+- **Piggy Bank Repair Link** — when your piggy bank cracks or breaks, one click runs /gfs ENCHANTED_PORK 8 (Settings: Chat)
+- **Compact Join & Leave** — friend and guild join/leave lines shrink to "F >> Name" / "G << Name" (Settings: Chat)
+- **Explosive Shot Per Enemy** — adds the damage per enemy after each Explosive Shot line (Settings: Chat)
+- **Log Search** — /tmap logsearch searches the chat of all your log files, zipped ones too, with text or regex (Settings: Chat)
+- **Guild Bridge Formatting** — your bridge bot's guild lines show as "Bridge > Name: text" with the real sender (Settings: Chat)
+- **Markdown In Chat**: **bold**, *italic*, __underline__, ~~strike~~ and ||spoiler|| in player messages show up as real formatting. Only you see it (Settings: Chat)
+- **Sack Message Prices**: the [Sacks] hover also shows the NPC sell, Bazaar buy and Bazaar sell value of the items (Settings: Chat)
+- **Sack Notifications**: a chat line when a picked item such as Glossy Gemstone lands in your sacks, even while [Sacks] messages are hidden (Settings: Chat)
+- **SkyBlock XP In Chat**: the short "+N SkyBlock XP" action bar message is copied into chat so you can read it later (Settings: Chat)
+- **Scam Warning**: player messages that fake a system line (lost coins, guild kick, staff tags, padding to a new line) get a red "Likely scam" in front (Settings: Chat)
+- **Mute Players**: hides every message from the listed players in all chat, party, guild (bridge names too), co-op and DMs; manage them with /tmap mute and /tmap unmute (Settings: Chat)
+- **Hide Far Death Messages**: hides "☠ player ..." lines from players who were not near you in the last 30 seconds, outside Dungeons and Kuudra (Settings: Chat)
+- **Hide Separator Lines** — hides Hypixel's ----- divider lines around party, friend and guild messages (Settings: Chat)
+- **Player Chat Format** — cleans up player messages: hide ranks, level without brackets, name in level colour, white message text (Settings: Chat)
+- **Smooth Chat** — new messages slide in, the input bar slides up on open, optional hidden message indicator (Settings: Chat)
+- **Auto Confirm /report** — sends the /report confirm Hypixel asks for after your /report (Settings: Chat)
+- **Chat Translator** — click a player message to translate it into your language via Google Translate (Settings: Chat)
+- **More Command Suggestions** — tab-complete for /joininstance, /joindungeon, /joinkuudra, /rngmeter, /chapter, /viewstash, /ahs, /bz, /setmaxspeed and a rank-filtered online /warp list (Settings: Chat)
+- **Chat Tab Order** — choose which chat tabs show and drag them into your order (Settings: Chat)
+- **Full Dungeon Chat Filter** — hides all floor boss dialog (Watcher to Wither King, M7 crystals, "You may pass" stays) plus pick-and-choose categories: prepare/start, reminders, buffs, not-possible, damage taken, abilities, puzzles, run end (Settings: Chat)
+- **Compact Dungeon Lines** — keys, doors, puzzles, Superboom/Revive pickups and solo class lines become one short line with the full text on hover, keeping who picked it up (Settings: Chat)
+- **Chat Send Queue** — the mod's automatic party callouts and replies go through one queue with a minimum gap so Hypixel stops dropping them as "too fast" (Settings: Chat)
+- **Compact Lobby & System Lines** — lobby joins, boosters, tips, bank interest, Mystery Box, achievements, server routing ("→ mini12") and Watchdog lines get shortened (Settings: Chat)
+- **Compact Foraging / Hunting / Safari** — Floor Drop, TIMBER!, Beeheemoth, Honeyhive, Safari entries and captures get shortened; capsule throws and Safari NPC chatter are dropped (Settings: Chat)
+- **Mute Terminator Cooldown** — while holding a Terminator, the ability cooldown sound (and optionally the cooldown message) is muted (Settings: Chat)
+- **Image Link Preview** — hover an imgur, Discord or Twitter image link in open chat to see the picture, optionally only while holding a key (Settings: Chat)
+
+### Teilweise
+- CHAT-060: Chat > More Chat > Hide Far Death Messages; das Hervorheben markierter Spieler fehlt (wir haben keine Liste markierter Spieler)
+- CHAT-062: Chat > Player Chat Format > Reformat Player Chat (+ Hide Ranks, Keep YouTube/Admin, Level Without Brackets, Name In Level Colour, White Message Text). Fehlt: Drag&Drop-Reihenfolge der Teile, markierte Spieler
+- CHAT-071: Chat > Send Queue > Queue Outgoing Messages (+ Minimum Gap). Migriert: alle automatischen /pc-Ansagen (Mimic, Prince, Blaze, Livid, SS, Melody, Blood Camp, Score, Leap, Kicked, Ping, Rare Sea Creature, Contest, Duplicate Classes, Invincibility), ChatCommands-Antworten, Chat-Waypoint, /tmap sendcoords, Announce. Absichtlich direkt gelassen: Klick-/Hotkey-Navigation (storage, warp, bz, GUI-Befehle), AutoGFS/GetFromSacks/PestRoutine (eigenes Timing)
+- CHAT-075: Chat > Image Links > Image Link Preview (+ Hold To Preview). Feste Host-Liste (imgur, Discord CDN, Twitter); kein Shift-Klick-Vertrauen für fremde Hosts (wegen catbox-only-Regel bewusst weggelassen). SharedImageLoader/catbox-Regel unverändert.
+
+### Live auf Hypixel prüfen
+- Alles nur gebaut, kein runClient. Glow Outline Width: eigene Post-Chain (teslamaps:entity_outline_w2..w8 + shaders/post/outline_dilate.fsh) nie live gerendert - bei Shader-/Ladefehler latest.log prüfen; Breite 1 = Vanilla-Chain, dann greift nichts.
+- Camera Distance/Clip: @ModifyArg auf den getMaxZoom-Aufruf in Camera.alignWithEntity + HEAD-Inject in getMaxZoom, nur per javap geprüft.
+- VIS-121: alle Namen/Koordinaten aus GanKura übernommen, nie auf Hypixel gesehen: Nametag-Texte (Broodmother, Arachne Lv300/Lv500, Brood Lv100/Lv200, Ashfang-Minions, Magma Boss/Glare, Stag Beetle/Woodlouse), NPC-Namen (DukeBarb, Mage Outlaw, Matcho, Hideyho, Grizzly Bear, Littlefoot, Sea-Creature-Labels), Corleone-Skin-Hash, Spawnpunkte Bladesoul (-295 83 -518) / Ashfang (-485 137 -1016). End Stone Protector = jeder IronGolem in The End (GanKura prüft zusätzlich die Stage, das fehlt hier). Magma Boss/Glare ohne Scoreboard-Phase, rein über Nametag in der Nähe.
+- Invisibug: CRIT-Partikel-Hook läuft im Main-Thread-Durchlauf von handleParticleEvent; Moonglade-Marsh-Erkennung über MobArea (Tab-Area "Moonglade Marsh").
+- Chest ESP: Hide Opened merkt Klicks auf Chest/Trapped Chest pro Welt; Filter "Crystal Hollows" über Tab-Area.
+- Block ESP: Scan beim Chunk-Nachladen (alle 20 Ticks nach neuen Chunks schauen, 4 Chunks/Tick, Palette-Vorprüfung per maybeHas), Blockänderungen über BlockUpdateMixin; Limit 100k indiziert, sichtbar die nächsten N (Max Shown). Bei sehr vielen Treffern Performance live prüfen.
+- Alles nur gebaut, nie im Client gestartet (kein runClient laut Regeln): neue Mixin-Injections in ChatMixin (ModifyVariable DisplayMode auf extractRenderState, Inject RETURN auf private getHeight()I) laufen erst beim Start durch die Mixin-Validierung.
+- Autopet: Zeilenformat "Autopet equipped your [Lvl n] X! VIEW RULE" aus Skyblocker, gestrippt gematcht, live nicht gesehen. Toast = Vanilla-SystemToast (multiline), ohne Autopet-Kopf.
+- Current Chat Channel: Chatzeilen "You are now in the X channel", "Opened a chat conversation with ... for the next 5 minutes. Use /chat a to leave", "You are not in a party and were moved to the ALL channel." aus SkyHanni übernommen. Kanal ist nach Neustart unbekannt (erst nach /chat-Wechsel sichtbar). Party-Größe aus PartyTracker.
+- Chat Peek: Umschalten nur über DisplayMode FOREGROUND + fokussierte Höhe (wie Skysoft); Scrollen beim Peek nicht eingebaut. Chat-Bilder älterer Zeilen erscheinen beim Peek evtl. nicht (Renderer liest den focused-Parameter).
+- Timestamps: Stempel ist ein eigenes erstes Geschwister-Component; ChatTabs, ChatStacking, Right-Click-Copy, Filter-Hotkey, StashCompact, ChatCompacts und Shared-Image-Zuordnung schneiden ihn raus. Andere Mods, die gespeicherte Chatzeilen per Text vergleichen, sehen ihn.
+- Chat-Log: Zeilen, die andere Mods VOR unserem HEAD-Inject verwerfen, fehlen im Log; Zeilen, die andere Mods danach verwerfen, erscheinen gar nicht (kein Status). Reihenfolge der zwei HEAD-Injectors (ModifyVariable/Inject) ist abgesichert, aber nicht live geprüft.
+- Notify: Hervorhebung baut die Zeile per StringDecomposer neu (§-Codes werden zu Styles, Hover/Klick bleiben). Sound spielt pro Zeile einmal. Ignore Own nutzt PlayerChat-Autor bzw. DM_TO.
+- Abiphone-Anrufzeile: Format "✆ <Name> ✆ ..." aus DulkirMod-Erinnerung (Quelle nur als Jar da), Klingelton als block.note_block.pling ohne Pitch-Filter (nur 5 s nach Anruf/Ring stumm).
+- Ability-Cooldown-Ton: enderman.teleport Lautstärke 8.0 laut Devonian; Item-Bedingung = Lore enthält "Ability: ".
+- Confirm Prompt: Button-Texte mit §-Codes aus Skyblocker (§a§l[YES], Karneval-Antworten); Klick auf leere Fläche irgendwo im Chat-Screen schickt den gemerkten /chatprompt bzw. /selectnpcoption.
+- Splash-Potion-Texte (gestrippt) und Bestiary-Block (Titel "BESTIARY", Meilenstein-Regex §8n➡§en) aus SkyHanni; die öffnende ▬-Leiste wird nachträglich aus dem Chat entfernt.
+- Chat Search zusammen mit Chat Tabs und Infinite History (Filter kombiniert, Speichern aller Zeilen während der Suche).
+- Alle Chat-Formate stammen aus SkyHanni-Regexen (gestrippt nachgebaut), live nie gesehen: Jacob-Bulk-Claim-Block, Level-Up-Blöcke (SKILL/SKYBLOCK/COLLECTION LEVEL UP, NEW AREA DISCOVERED), Experiment "You claimed the X rewards!" + " +Reward"-Zeilen, Sirius-Zeilen, Arachne-Zeilen.
+- Level-Up-Border-Hide und ARACHNE-DOWN-Border erkennen die Farbe (gelb/dunkeltürkis bzw. grün) über Style oder §-Codes; Arachne-Hide-Zustand setzt sich nach 5 s selbst zurück, Level-Up-Block nach 3 s (Schutz gegen hängenbleibendes Verstecken).
+- Collection-Level-Up: Logik 1:1 von SkyHanni (letzte versteckte Zeile wird vor "Trade"/"Recipe" wieder ausgegeben) — Ergebnis live prüfen.
+- Experiment-Menü-Erkennung per Tick über Container-Titel (Superpairs/Chronomatron/Ultrasequencer/Experimentation Table), 3-s-Fenster nach letztem Sichtbarsein.
+- Coin-Kürzung: nur goldene Zahlen >= 1000 direkt vor Leerzeichen, im SkyBlock (Scoreboard); Zusammenspiel mit Chat-Filter "Grey/Compact" (dann keine Kürzung dieser Zeile).
+- Indicator-Mixin (ModifyReturnValue auf GuiMessage.Line.tag) blendet auch Tag-Icon/Tooltip aus, wie bei Skysoft.
+- CHAT-031: Scroll-Restore nur bei geöffnetem/geschlossenem Chat getestet per Code-Analyse; ChatSearch-Close oder Tab-Wechsel (refreshTrimmedMessages) setzt die gemerkte Position bewusst zurück.
+- CHAT-036: Rang-/Gildenrang-/Emblem-Schnitt arbeitet auf Hypixels §-Codes im Text; Farbe des Namens sollte erhalten bleiben (Code vor dem "[" bleibt stehen) — live prüfen, auch Emblem-Erkennung im Public-Chat. Zeilen mit Item-Hover bleiben unverändert. ChatTabs erkennen "P >"/"G >"/"O >" jetzt mit.
+- CHAT-037: Warnungstext aus HypixelSimpleChat übernommen, nie live gesehen.
+- CHAT-033: Sound-IDs (entity.cat.ambient usw.) gegen sounds.json 26.1.2 geprüft, nicht angehört.
+- CHAT-038: Nur "RARE DROP!"-Zeilen (eigene Drops). Bei Mindestwert > 0 wird mit Preis gepostet; Items ohne bekannten Preis werden dann nicht gepostet. Bei Mindestwert 0 ohne Preisangabe. Zähler #n ist pro Session. Funktioniert nur mit "Rare Drops" an (Unteroption).
+- CHAT-035: Setzt man zum ersten Mal title/sound/flash auf einen Filter, wird die Zeile automatisch sichtbar gelassen ("show" schaltet zurück auf verstecken).
+- Every compact rule uses chat formats taken from HypixelSimpleChat/SkyHanni regexes (stripped text). None of them have been seen live here, especially mining (crystal count + name merge, Keeper, Automaton, Metal Detector), loot share, autopet and fire sales.
+- Compact rules, melody and Hoppity only run while "Enable Chat Filter" is on (switching one of them on also turns the filter on). A filter rule the user already set to Hide/Grey/Compact wins over the new compact rules.
+- CHAT-039 pet rarity reads the rarity from the pet name's colour (via ChatText.formatted), so it depends on Hypixel's component colours. Book name: an inventory diff of enchanted books (first lore line) within 2s of the chat line replaces the line in chat history; not tested live (the SkyHanni slayer-book late message is not ported).
+- CHAT-042: party melody messages only in dungeons; deleting the previous line matches on stripped text (a line that ChatStacking turned into "(2x)" will not be found). Learning a custom start message only works when it contains "melody" or ♪.
+- CHAT-043: Time Tower detection comes from a guessed chat line "TIME TOWER! ... for Nh". Duplicate number comes from hoppityRabbits (Hoppity's Collection must have been opened once). The Hitman summary groups all Hitman finds that arrive less than 2s apart, so single Hitman lines show up about 2s late. If the third line of a find never arrives, the held lines are put back after 3s.
+- CHAT-045: regex groups ({1}, {name}) are in the Placeholders API, but no alert currently feeds them. Hotkeys only use the fixed variables. {location}/{server} come from the scoreboard, {health}/{mana} from the last action bar.
+- Alles nur gebaut, nicht im Spiel getestet.
+- Profile Badges: Tab-Namensformat "[lvl] Name ♲" und Team-Suffix aus SkyOcean/Skysoft übernommen, live nicht gesehen; Scan alle 2 s, Cache 10 min, Reset bei Weltwechsel.
+- Piggy-Bank- und Explosive-Shot-Regex aus SkyOcean/NoammAddons übernommen.
+- Bridge: Regex "Guild|Officer > [Rank] Bot [GRank]: Name (» | > | : ) Text" (Dulkir/HypixelSimpleChat); der Bot-Name muss per /tmap bridgebot gesetzt werden (Konfig-Screen hat kein Textfeld). Zeilen mit geteiltem Bild ([img]-Token) werden nicht umgeschrieben, sonst findet der Bild-Renderer die Zeile nicht mehr.
+- Die Umschreibungen laufen am Ende von ChatMixin (nach ChatFilter), alle Handler sehen weiter die Originalzeile. In ChatTabs zählen jetzt auch "Bridge >"-Zeilen zu Guild und F/G >>/<<-Zeilen zu DM/Guild.
+- Log Search liest "[CHAT] " aus latest.log und yyyy-mm-dd-n.log.gz (Format in latest.log geprüft); maximal 5000 Treffer; Linksklick kopiert die Zeile, Rechtsklick öffnet die Logdatei.
+- Hover layout of the [Sacks] line ("Added items:" / "Removed items:", "+N Name (Sack)" per line): taken from Skyblocker/SkyHanni, not seen live here. Prices need idForName to resolve the item names
+- SkyBlock XP action bar format "+N SkyBlock XP (reason) (x/100)", matched on stripped text
+- Death line format "☠ Name reason", taken from SkyHanni's regex
+- Bridge mute: a guild or party line whose message starts with "<name>: " (max. 32 chars) is muted when a list entry is contained in that name. A real member whose message starts with such a quote is muted too
+- The scam keyword list is our own (SBE/SkyHanni lists are not local): fake system phrases, staff tags, 12+ blank characters in a row. May give false positives, e.g. "[mod]" or "discord.gg/" in guild chat
+- Markdown only runs on player chat lines (PlayerChat), on the message part after the author. Edge cases like "***x***" match SkyOcean's parser behaviour
+- Alles nur kompiliert, kein runClient: die drei neuen Mixins (SmoothChatMixin, SmoothChatScreenMixin, ChatIndicatorMixin) laufen erst beim Start durch den Mixin-Check.
+- CHAT-061: Separator-Erkennung = Zeile nur aus -, =, ▬, ━, ─ (mind. 10). Nutzt die Chat-Filter-Aktion der Dungeon-Gruppe (normal Hide). Bei aktiven Chat Tabs wird eine Einstellungsänderung erst beim nächsten Filter-Refresh auf alte Zeilen angewandt.
+- CHAT-062: Umformatierung läuft beim Speichern der Zeile (nach allen Handlern, vor ChatCompact-Kanalkürzung). Rang/Level-Erkennung über PlayerChat; Emblem, Ironman-Symbol, Guild-Rank bleiben. Zusammenspiel mit ChatRewrites (Profil-Badges/Own-Name) nicht live geprüft.
+- CHAT-064: Trigger-Text "Please type /report confirm…" aus SkyblockExtras-Strings, nie live gesehen; greift nur innerhalb 60 s nach eigenem /report <spieler>, sendet nach 0,5 s.
+- CHAT-065: Klick nutzt RunCommand "/tmap translate <text>" (Text auf 230 Zeichen gekürzt); Google-Endpoint translate.googleapis.com (client=gtx) — Text geht an Google.
+- CHAT-067: Listen für joininstance/rngmeter/chapters/warps kommen von Skyblockers API hysky.de (einmal geladen, Warps in config/teslamaps/warp_cache.json gecacht, Join-Listen haben eingebauten Fallback). Eigener Rang für den Warp-Filter wird aus eigenen Chatzeilen gelernt (unbekannt = alle Warps). Nodes werden beim Tree-Empfang ersetzt → Rejoin nach dem Einschalten nötig. /setmaxspeed schlägt feste Werte 100–500 vor.
+- CHAT-068: Änderung greift beim nächsten Öffnen des Chats; ist der aktive Tab ausgeblendet, springt er auf den ersten sichtbaren.
+- Alle Chat-Formate sind aus SkyHanni/HypixelSimpleChat übernommen und auf gestrippten Text umgeschrieben, nie live gesehen (besonders Safari/Hunting, Beeheemoth, Honeyhive, Booster-Zeile, Mystery Box).
+- Kompakt-Regeln laufen vor den Hide-Filtern (Kompakt gewinnt, wenn eingeschaltet) und brauchen den Chat-Filter-Master; Namens-/Rangfarben kommen aus ChatText.formatted — live prüfen.
+- Terminator-Cooldown-Sound = entity.enderman.teleport mit Volume 8.0 (aus Devonian NoAbilityCdSound); live prüfen, ob Hypixel beim Terminator genau diesen schickt.
+- Image Link Preview: JPG/GIF werden per javax.imageio in PNG umgewandelt — live prüfen, dass java.desktop in der Modrinth-JRE vorhanden ist; Discord-CDN-Links laufen ab (signierte URLs); Hover-Erkennung nutzt DisplayMode.FOREGROUND.
+- Send Queue: bei aktiver Queue werden Ansagen um bis zu Gap × Anzahl verzögert (Default 200 ms).
+- CLAUDE.md "Images & screenshots" sagt "Only catbox.moe is ever fetched" — gilt jetzt nur noch für SharedImageChat; ImageLinkPreview hat eine eigene feste Host-Liste (CLAUDE.md ggf. nachziehen).
+
+## Welle 11 (10 Gruppen)
+
+### Neu
+- **Full Chat Chroma** — makes all visible chat text cycle through the chroma rainbow (Settings: Chat)
+- **Smart Collapse** — stacked chat lines that only differ in their numbers now count together; player chat only stacks with the line right above (Settings: Chat > Stack Duplicate Messages)
+- **Compact Daily Buffs** — Sky Mall, Lottery and Beekeeper announcements become one short line like "☀ Sky Mall · +100 Mining Speed" instead of being hidden (Settings: Chat > Hide HOTF/HOTM Perks)
+- **Encrypted Chat** — /tmap encrypt on sends what you type (chat, /pc, /gc, /oc, /cc, /ac, /msg, /r) encrypted so only TeslaMaps users can read it; incoming encrypted lines are always decrypted and underlined (Settings: Chat)
+- **Party Finder Buttons** — party finder join lines get clickable [✖] kick and [PV] buttons, and clicking a name in chat can open /pv (Settings: Party)
+- **Kuudra Party Finder** — Kuudra joiners show T5 runs, magical power, gear, armor and pet with hovers, plus an optional kick line, join sound, auto-kick rules and a .runs auto-reply (Settings: Party)
+- **Accept Last Party Invite** — /p accept without a name accepts the last invite you got (Settings: Party)
+- **Ability Callouts** — tells your party how many players your Extreme Focus mana drain reached, and where you cast Spirit Spark / Hollowed Rush / Raging Wind / Ichor Pool in Kuudra (Settings: Party)
+- **Mute Party Spam Pings** — mod callouts in party chat (Leaped to, Bonzo Procced, [Skyblocker], ...) no longer play the party ping; the list can be edited (Settings: Chat)
+- **Share Safari Hunting Hotspot** — posts your Critter Safari hunting hotspot to the party (Settings: Fishing)
+- **Hunter Trade Tracker** — tracks the Safari Hunter NPCs' shard-for-item offers in a HUD list with waypoints and shares them with your party (Settings: Critter Safari)
+- **Multi Party Invite Fix** — /p name1 name2 name3 is sent as separate /p invite commands to avoid Hypixel's ghost party bug (Settings: Party)
+- **TeslaMaps User Labels** — shows a small "TeslaMaps" label above other players who use the mod (Settings: Render)
+- **Party Finder Right-Click** — right click a party in the Party Finder to copy the leader's name or leave your party (Settings: Party)
+- **Fancy Party Finder** — the Party Finder as clean party cards with classes, levels, requirements, notes and a search box (Settings: Party)
+- **Nick Hider** — replaces your own name everywhere on screen with a nick set via /tmap nick (Settings: Interface)
+- **Party On Boop** — when someone boops you, a clickable line lets you invite them to your party (Settings: Party)
+- **/rboop** — boops the last player who messaged you (Settings: Party)
+- **Reparty** — /rp disbands your party and invites everyone again; optional auto-accept for a reparty invite from whoever just disbanded (Settings: Party)
+- **Party Finder head info** — level requirement and missing classes drawn on each party head, plus Cata level, secrets/average and floor PB for every member in the tooltip (Settings: Party)
+- **Compact party list** — /p list becomes a tidy block with online dots and clickable Warp, All Invite, Mute, Kick Offline, Disband, Promote/Demote, Kick and Transfer buttons (Settings: Party)
+- **Party Members HUD** — movable list of your party with a leader crown, you in green and dungeon class + level when known (Settings: Party)
+- **Party Join Sound** — plays a sound whenever someone joins your party (Settings: Party)
+- **Limbo Alert** — title, sound and chat line when you get sent to Limbo (Settings: Timers > Kick Handling)
+- **Safari per-player breakdown** — who caught which critters per biome, green if you have it too, aqua if only a teammate; at run end or via /tmap safari players (Settings: Critter Safari)
+- **Throttle Notifier** — in dungeons, hides the "menu throttled" line and tells your party instead, at most every 8s (Settings: Party)
+- **Party Check** — /pcheck shows the PB line for every party member, /gxp lists weekly guild EXP and /ginfo shows a player's guild (Settings: Party)
+- **Marked Players** — /tmap mark <name> highlights a player in the world and colors their name in chat, and can tell you when they join or leave your lobby (Settings: Party)
+- **Clean Social Screen** — the vanilla Social Interactions screen (P) only lists real players on SkyBlock, no NPCs or tab fakes (Settings: Chat)
+- **Scam Check** — checks your trade partner against the Skytils scammer database when a trade opens and can close the trade on a hit (Settings: Inventory)
+- **TeslaMaps User Chat** — /tmc <message> chats with other TeslaMaps users outside of Hypixel (Settings: Chat)
+- **More Chat Commands** — !tps, !location, !holding, !boop, !runs, !reinvite, !kickoffline, clickable !invite from DMs, and !dt <reason> with a downtime summary at the end of dungeon and Kuudra runs (Settings: Party)
+- **Party Tracking** — /p list now rebuilds the party list cleanly; /tmap party shows who the mod thinks is in your party (Settings: Party)
+- **Party Shortcuts** — /pko, /pw, /pp and /rpt (transfer back to the previous leader), /pk <name> <reason> posts the reason in party chat before kicking, and party commands tab-complete your party members (Settings: Chat)
+- **Party Glow** — Highlight Teammates can also outline your party members with a glow outside dungeons, in a colour you pick (Settings: ESP)
+- **Diana Burrows Check** — after an SBO invite joins, asks !burrows in party chat and kicks them when they are below your minimum burrows/h (Settings: Party)
+- **Positional Messages** — /posmsg zones that send a party message when you walk into them, drawn as cylinders or boxes with their text (Settings: Party)
+- **Frosted HUD panels** — the "Custom" HUD style can blur the world behind every panel, Gaussian or box kernel (Settings: Interface)
+- **Config commands** — /tmap config get/set/toggle/reset/search changes any option by name, including ones without a GUI entry
+- **/tmap help** — searchable, paged list of every /tmap command, hover shows the full usage, click puts it in the chat box
+- **/tmap <search>** — opens the settings with the search already filled in, e.g. /tmap blaze
+- **New options after updates** — /tmap newfeatures shows only the toggles added since you last looked, with Turn All On/Off per category; an optional chat hint points to it (Settings: Interface)
+- **Global HUD scale** — one multiplier for all HUD elements, set with the -/+ buttons in /tmap gui
+- **Hide world overlays key** — one key fades every ESP box, tracer, waypoint and glow out and back in, all toggles stay as they are (Settings: Render)
+- **Reset To Default** — right-click any setting to put it back to its default, or reset a whole category with one button (Settings: Interface)
+- **Pause Menu Button** — a gear in the pause menu opens the TeslaMaps settings and returns to the menu (Settings: Interface)
+- **SkyBlock Menu Button** — a small gear in the SkyBlock Menu opens the TeslaMaps settings (Settings: Interface)
+- **Own Sound Files** — drop .ogg/.wav files into config/teslamaps/sounds and pick them for any alert, or type any vanilla sound id (Settings: Sounds)
+- **Feature Conditions** — limit any feature to islands, events or a held item with /tmap condition (Settings: Interface)
+- **Custom Font** — draw all text with your own .ttf/.otf font, missing symbols fall back to the normal font (Settings: Interface)
+- **/widgets Menu Helper** — live tab-list preview, overflow warning and a clickable widget list next to Hypixel's /widgets menu (Settings: Interface)
+- **Column Layout** — optional settings layout with one movable, scalable, foldable column per category, positions are remembered (Settings: Interface)
+- **HUD Editor Reset** — press R on an element or use Reset All to put HUD elements back to their default spot and size (Settings: Interface)
+- **HUD Editor Nudge** — arrow keys move the hovered or selected element pixel by pixel, +/- change its scale (Settings: Interface)
+- **Config Backups** — automatic timestamped config backups with a screen to preview and restore them (Settings: Profiles)
+- **Show Disabled HUDs** — the HUD editor can show switched-off elements and toggle them with a right-click (Settings: Interface)
+- **Jump To Settings** — middle-click an element in the HUD editor to open its settings (Settings: Interface)
+- **Feature Toggle Keys** — bind a key to any on/off setting and flip it in game, with an optional chat message (Settings: Interface)
+- **Mod Menu Button** — the Configure button in Mod Menu opens the TeslaMaps settings (Settings: none, works when Mod Menu is installed)
+- **Radial Menus** — SkyBlock menu, Wardrobe, Fast Travel, Sacks, Bank, Storage and more as a ring of items: point and click or use WASD + Enter (Settings: Inventory)
+- **HUD Layout Per Location** — every HUD element can sit somewhere else in Dungeons, Garden, Mining, ...; copy layouts between locations in /tmap gui (Settings: Interface)
+- **Keybinds In Controls Menu** — all TeslaMaps key settings show up in the vanilla Controls screen so conflicts turn red, changes sync both ways (Settings: Interface)
+- **HUD Text Style** — outline or no shadow for HUD text, plus per-panel alignment and line backdrop (Settings: Interface)
+- **Join Tips** — a random TeslaMaps tip with a clickable command once per session on SkyBlock join (Settings: Interface)
+- **Clickable Prefix** — click the [TeslaMaps] tag in chat to open the settings (Settings: Chat)
+
+### Teilweise
+- PAR-015: Render > TeslaMaps User Labels (+ Label Color); festes Label "TeslaMaps", keine Server-Labels pro Nutzer (Backend liefert keine), erkennt nur Nutzer mit Cape auf dem Cape-Server
+- PAR-017: Party > Fancy Party Finder; Karten, Mitglieder mit Klasse/Level, Floor, Min-Level, Note, Lock-Grund, Suche, Scroll, Seiten-/Menü-Buttons, Vanilla-Knopf; Search-Settings/Create-Party-Tabs mit Dropdowns/Range-Widgets fehlen (bleiben Vanilla-GUI), keine Mitglieder-Köpfe/Floor-Icons
+- PAR-018: Interface > Nick Hider (/tmap nick <name>, & Farbcodes); Mappings für andere Namen über bestehende Visual Words; kein Chroma
+- PAR-023: Party > Reparty > "Reparty Command (/rp)" + "Auto-Accept Reparty Invites" (cheat, rot/⚠). Fehlt: Skytils' /rp fail (nur fehlgeschlagene neu einladen) und Auto-Reparty am Dungeon-Ende
+- PAR-036: Chat > TeslaMaps User Chat (/tmc <msg>, /tmap tmc <msg>). Client is done; the SERVER SIDE IS MISSING: table mod_chat + edge-function action "chat_send" have to go into teslamapsbackend and be deployed. Ready-made SQL/TS snippet: scratchpad/reports/w11-04-par-modchat-backend.md. Until then sending returns an error and polling returns 404 (logged once)
+- GUI-022: Interface > Custom Font (Font File, Size, Sharpness, Vertical Shift, Apply/Open Folder). TTF/OTF aus config/teslamaps/fonts wird per FreeType (Vanilla TrueTypeGlyphProvider, Oversample) vor die Default-Schrift gesetzt, fehlende Glyphen (Emojis, SkyBlock-Symbole, Pack-Glyphen) fallen auf die normale Schrift zurück. Fehlt: echtes MSDF-Rendering und getrennte Wahl für Scoreboard/Inventar-HUD (gilt immer für allen Text)
+- GUI-023: Interface > /widgets Menu Helper (+ Widget List). Kein Ersatz-Screen: neben dem Hypixel-Chest-Menü "Tablist Widgets"/"Widgets on/in ..." Live-Vorschau der 3 Tab-Spalten (aus den "Widgets Preview"-Items), rote Überlauf-Warnung und klickbare Widget-Liste links (grün an/rot aus, Klick = echter Slot-Klick, 250 ms Sperre). Fehlt: vollständiger Listen-Screen mit Options-Untermenüs wie Skyblocker
+- GUI-033: Interface > HUD Layout Per Location; x/y/scale of every /tmap gui element per Default/Dungeons/Garden/Safari/Foraging/Mining/The End, location without own layout uses Default; /tmap gui gets "Copy To: <loc>" + Copy + "Use Default". Missing: Skyblocker's CopyTracker live sync of copies
+- GUI-034: Interface > Keybinds In Controls Menu (needs restart); every int *Key/*Keybind config field becomes a KeyMapping in Controls > TeslaMaps, synced both ways (config wins at start). Missing: the user hotkey list (/tmap hotkeys) is not mirrored; names are generated from field names
+
+### Übersprungen
+- CHAT-079: existiert schon komplett: Sky Mall nur auf Mining-Inseln = "Hide HOTF/HOTM Perks > Keep Sky Mall/Lottery On Its Island" (chatFilterPerkBuffsElsewhere), Anita außerhalb Garden = "Hide Anita Fortune (outside Garden)" (chatFilterAnita)
+
+### Live auf Hypixel prüfen
+- Full Chat Chroma: Mixin auf ChatComponent$DrawingBackgroundGraphicsAccess/$DrawingFocusedGraphicsAccess.handleMessage (Signatur per javap geprüft), Optik nur im Spiel prüfbar; Schatten-Glyphen laufen ebenfalls durch die Chroma-Pipeline.
+- Encrypted Chat: Format "tmE:" + Base64url (AES-256-GCM, fester TeslaMaps-Schlüssel). Nur verschlüsselt, wenn beim Senden der Chat-Bildschirm offen ist (automatische /pc-Ansagen bleiben lesbar). Zu lange Nachrichten (>256 Zeichen nach Verschlüsselung) werden mit Hinweis nicht gesendet. Ob Hypixel die Base64-Strings unverändert durchlässt (Spam-/Wortfilter), nur live prüfbar. Entschlüsselte Texte bekommen § -> & ersetzt.
+- Compact Daily Buffs: Zeilenformate aus HypixelSimpleChat (Mining.kt/Foraging.kt), nie live gesehen; Buff-Quelle über Stichworte, Fallback auf die zuletzt gesehene "New day! Your X buff changed!"-Zeile. Wirkt nur mit Chat-Filter-Master + "Hide HOTF/HOTM Perks" an; mit "Keep ... On Its Island" wird abseits der Insel weiter komplett versteckt.
+- Smart Collapse: Spielerchat-Erkennung über PlayerChat.parse; Ziffern nach § (Farbcodes) werden nicht normalisiert.
+- PAR-007: the command behind Hypixel's chat-name click (assumed /socialoptions <name> or /viewprofile <name>; a UUID argument is left alone)
+- PAR-008: Kuudra join = party finder join line without "dungeon"; API fields nether_island_player_data.kuudra_completed_tiers, inventory.bag_contents.talisman_bag, highest_magical_power, leveling.experience, currencies.coin_purse; auto-kick live
+- PAR-009: invite/expired line formats (from SkyHanni regex tests), multi-line invite block
+- PAR-010: "Used Extreme Focus! (N Mana)" and "Casting Spell: X!" lines; spell callouts only while the area name contains "Kuudra"
+- PAR-011: assumes the party ping is experience_orb.pickup, PLAYERS source, vol 1 pitch 1, arriving after the chat line (within 1.5 s)
+- PAR-012: HOTSPOT line reuses SafariTracker's regex
+- PAR-013: all Hunter NPC dialog formats, "You received a X Shard!" / "You have been given a X!", Hunter entity custom names ("Hunter "/"Huntress ")
+- Party-Finder-Lore-Formate (Mitgliederzeilen " Name: Klasse (Level)", "Dungeon Level Required", "Class Level Required", roter Lock-Grund) aus Skyblocker übernommen, nie live gesehen; Kuudra-PF (Tier-Zeile) nur generisch
+- Fancy PF: Bottom-Row-Buttons (Refresh/Settings/Create/Back/Close/Delist) generisch aus Items gelesen, Layout bei kleinen GUI-Scales
+- DM-Format "From [RANK] Name: Boop!" für Boop/rboop, Bingo-Erkennung über "Ⓑ" im Scoreboard
+- Multi-Invite: Hypixel-Subcommand-Liste evtl. unvollständig; Invites laufen über Announce (1.2 s Abstand)
+- User Labels: CapeSync.isUser kennt nur Spieler, die einen Cape veröffentlicht haben
+- /rp: verlässt sich auf PartyTracker nach /p list (1,5 s Wartezeit); Leader-Erkennung und gestaffelte Invites (1,2 s Announce-Gap) nur live prüfbar
+- Auto-Accept: Regex für "X has disbanded the party!" / "X has invited you to join their party!" im mehrzeiligen Einladungs-Block
+- /p list Umformatierung: Online-Status liest die Farbe (§a/§c) vor "●" aus den Chat-Styles (ChatText.formatted); Annahme wie NoammAddons, dass Hypixel die Liste zeilenweise mit zwei "-----"-Trennern schickt (mehrzeilige Einzelnachricht ist auch abgedeckt). Wird nur nach selbst getipptem pl / p list / party list aktiv (5 s Fenster)
+- Party Finder: Lore "Dungeon Level Required: N" und "Floor: Floor VII" aus NoammAddons übernommen; Stats laden über HypixelApi (max 5 gleichzeitig, "Loading..." bis fertig)
+- Limbo: Trigger "You were spawned in Limbo.", "...routed to limbo", "You are AFK. Move around to return from AFK."
+- Throttle-Zeile "This menu has been throttled! Please slow down..." (DulkirMod), nur im Dungeon
+- Party-HUD Klasse/Level: im Dungeon aus PlayerTracker, sonst aus der Party-Finder-Join-Zeile
+- Skytils scam API (api.skytils.gg/api/scams/check) sits behind a Cloudflare challenge: curl got a 403 challenge page, then timeouts. Might not answer the Java client either; if not, the chat says "Scam check failed". Trade window title "You    <name>" and slot-41 lore "Trading with ... <name>." were taken from Skytils (1.8 era), never seen live on 26.1.2
+- /gxp and /ginfo: guild JSON from the Hypixel key or the pv backend /guild/{uuid} (shape assumed to be Hypixel's: members[].expHistory/rank/joined). Top 15 names resolved one by one through Mojang's session server
+- /pcheck only prints players whose profile loads (same one-liner as PB on Join); needs PartyTracker to know the party (run /p list first)
+- PartyTracker "Party Members (n)" line and the Kuudra end lines ("[NPC] Elle: Good job everyone. ..." / "KUUDRA DOWN!") come from SkyHanni/Odin
+- !location reads the ⏣/ф scoreboard line; !invite in DMs depends on PlayerChat's DM_FROM parsing
+- Mod chat: nothing live until the backend part is deployed
+- Marked-player chat recolor: lines with literal § codes before the name were only reasoned about, not seen in game
+- Short commands /pcheck /gxp /ginfo /tmc only exist after a rejoin once the toggle is on (the /tmap forms always work)
+- Kick reason: sends "pc Kicking X: reason", then "party kick X" half a second later. Hypixel's reaction to two commands that close together has not been checked.
+- Clickable transfer-back line and /rpt: rely on the "The party was transferred to X by Y" format. PartyTracker only records the previous leader on that line.
+- Party member tab completion only works if PartyTracker already knows the party (join/list lines have been seen).
+- Party glow: uses EntityGlow on members matched by name from PartyTracker, SkyBlock only. Not verified live.
+- Diana: SBO invite line format ("[SBO] ... invited X to the party") and the !burrows reply format (number with k/m, /h) are taken from FrankyAddons and never seen here. Kick needs leader/mod, 30-50 tick delay. Minimum 0 = only show the rate.
+- Positional Messages: cylinder/box rendering, text size and depth off/on not checked visually. Trigger check runs per tick instead of on the move packet.
+- Blur: gl_FragCoord-Abtastung auf die Weltkopie (Ausrichtung/Y-Richtung) nur per Build geprüft, live im Spiel ansehen; blurrt nur die Welt, nicht Vanilla-HUD/Hotbar dahinter (so wie bei FloydAddons)
+- Global HUD Scale: HUDs mit eigener Maus-Interaktion (Klick/Drag im Inventar) können bei ≠1x danebenliegen; Elemente ohne HudEditElement (farmprofit, dungeontimers) skalieren nicht mit
+- New Options: die erste Baseline entsteht beim ersten Join nach diesem Update (alles, was dann existiert, gilt als bekannt). Umbenannte Toggle-Labels zählen als "neu"
+- World Overlay Key: Core-Renderer außerhalb von FeatureRegistry.world (z. B. BlockOverlay, StarredMobESP-Glow über einen eigenen Pfad) werden evtl. nicht ausgeblendet; Fade betrifft nur Farben von ESPRenderer, Text-Labels springen direkt um
+- /tmap help: Chatzeile wird per Text-/Referenzvergleich ersetzt; wenn andere Chat-Mods die Zeile umschreiben, kann die alte stehen bleiben
+- Nichts davon lief im Client (nur Build). Mixins UserSoundEventMixin/UserSoundBufferMixin (SoundManager.getSoundEvent, SoundBufferLibrary.getCompleteBuffer), CustomFontManagerMixin (FontManager.apply TAIL) und FontSetProvidersAccessor brauchen einen Start-Test.
+- Custom Font: Größe/Shift-Defaults (9 / 0) nur geschätzt; Wirkung auf Zeilenhöhe/Breiten und Verhalten nach Resource-Reload (F3+T) prüfen.
+- Eigene Sounds: .wav-Konvertierung (javax.sound -> 16 bit PCM) und .ogg über JOrbis ungetestet; Stereo-Dateien spielen nicht positionsabhängig (egal, LoudSound ist ohne Attenuation).
+- /widgets-Helper: Titel ("Tablist Widgets", "Widgets on/in"), Preview-Slots 3-5 mit "⬛"-Lore, Überlauf-Logik und "click to enable/disable"-Lore stammen aus Skyblocker, nie live gesehen.
+- SkyBlock-Menu-Button: Titel "SkyBlock Menu" und Position (rechts oben, 12 px) nur aus Skyblocker übernommen.
+- Feature Conditions: Island-Namen = Tab-Liste "Area:" (z. B. island:Dwarven_Mines, island:Garden); Event-Erkennung ist nur Textsuche in Scoreboard/Tab.
+- Reset: tauscht kurzzeitig alle Config-Felder gegen Defaults, um die Getter zu lesen — bei Optionen mit Nebenwirkungen im Setter (z. B. Custom Font) wird der Setter nur bei echter Änderung aufgerufen; in-game gegenprüfen.
+- Alles nur gebaut, kein runClient: Spalten-Layout (Klicks/Slider/Dropdowns/Farbwähler in skalierten Spalten, Tooltips, Fling), HUD-Editor-Tasten, Backup-Screen, Toggle-Keys.
+- ColumnConfigScreen nutzt die Entry-Klassen des klassischen Screens mit transformierten Mauskoordinaten; Entries, die intern screen.width nutzen (Group-Label-Hover, Cheat-Tooltip), werden nur per Scissor abgeschnitten. Dropdown-/Farbwähler-Aufklappen in einer skalierten Spalte prüfen.
+- Rechtsklick-Toggle findet das Feld per Namensregel; bei ~50 der 133 Elemente passt kein Feldname (z. B. map, splits, dungeonTimers), die melden nur "no single on/off switch".
+- Nach Merge mit w11-06: openWithSearch/openNew öffnen bewusst immer das klassische Layout (Spalten-Screen hat keine Suche und keine "New Options"-Ansicht). HUD-Editor: Reset All oben rechts unter Done, -/+/1x + Global-Label bleiben oben links.
+- Restore lädt config.json neu; Features, die Config-Werte beim Start gecacht haben, sehen die Änderung evtl. erst nach Neustart.
+- Mod Menu: not installed in the test profiles; the stub interfaces match Mod Menu's current api (ModMenuApi.getModConfigScreenFactory, ConfigScreenFactory.create(Screen)) but loading was not tried
+- Radial Menus: container titles/slot filters from Skyblocker, never seen live here; Wardrobe equip click uses slot+36 like Skyblocker; Sack of Sacks right-clicks non-control slots
+- KeybindSync: Controls screen listing, options.txt round trip and mouse-button binds not tried in game
+- HudTextStyle: mixin on GuiGraphicsExtractor.text(Font, FormattedCharSequence, int, int, int, boolean); alignment with scaled HUDs and panels that use scissor not checked visually
+- HUD layouts: switching by HudCtx (dungeon/garden/safari/foraging/mining/end detection), checked every 20 ticks
+- Join tip: SkyBlock detection via scoreboard, 3 s after join
+
+## Welle 12 (9 Gruppen)
+
+### Neu
+- **Mark Modified Items** — items changed with /tmap customize can show a small ✎ before or after their name, or a "Modified by TeslaMaps" lore line (Settings: Inventory)
+- **Quick Mod Menu Switch** — inside the config screens of TeslaMaps, Skyblocker, SkyHanni, Devonian, Odin, SkyOcean or Firmament, a clickable list opens the other installed mods' menus (Settings: Interface)
+- **Key Conflict Warning** — key buttons turn red when that key is also bound elsewhere in TeslaMaps, in a hotkey or in vanilla/other mods' controls, and hovering shows where (Settings: Interface)
+- **No Text Shadow** — removes the 1 px shadow under all text for a flat look (Settings: Interface)
+- **Status Bars Editor** — /tmap bars lets you drag, resize and restyle the health and mana bars (color, text, direction, max/overflow) with a reset button (Settings: Interface)
+- **Safari HUD Show Where** — choose whether the Safari HUD also shows up at the entrance or everywhere, with a "ready" / "last run" view (Settings: Critter Safari)
+- **HUD Text Chroma** — rainbow text for every HUD panel or just the ones you pick (Settings: Interface)
+- **Custom Accent Color** — pick your own accent colour for the TeslaMaps screens instead of the preset one (Settings: Interface)
+- **Global Title Duration** — one slider sets how long every TeslaMaps title alert stays on screen (Settings: F4 / M4)
+- **Chat Prefix Text** — switch the chat tag to [TM] or your own coloured text (Settings: Chat)
+- **Only Run Features In SkyBlock** — one switch stops features outside SkyBlock, with a list of the ones that keep running (Settings: Interface)
+- **Hide Silly Buttons** — removes Realms, Feedback, Language and similar buttons from the title and pause menu (Settings: Menu & Skybox)
+- **HUD Editor Helpers** — grid, snapping, centre guides, multi-drag and a resize grip in /tmap gui (Settings: Interface)
+- **Movable Container Panels** — hold Alt and drag the Croesus profit panel or the shard overlay next to a chest menu, Alt + right click resets (Settings: Garden)
+- **Inventory Button Confirm** — inventory buttons can need a second click within 1 s, for warp commands or all buttons (Settings: Inventory)
+- **Inventory Scale** — own GUI scale for every chest menu and the inventory, restored on close (Settings: Puzzles & Terminals)
+- **Custom Class Colors** — one colour per dungeon class for map heads, leap menu and teammate highlight, with reset (Settings: Map)
+- **Quick Join Button** — Join button next to the vanilla Multiplayer button with a configurable server IP (Settings: Menu & Skybox)
+- **Search Input On Every Sign** — the custom search textbox replaces every "Enter query" sign, not only AH/Bazaar/recipes (Settings: Inventory)
+- **Tab Widget Setup Guide** — /tab marks which area and widget to click for HUDs that are missing their tab widget (Settings: Interface)
+- **Instanced ESP Boxes** — filled ESP boxes can be drawn with GPU instancing, one draw call for hundreds of boxes (Settings: ESP)
+- **Map Texture Cache** — the dungeon map's rooms and doors can be cached in a texture instead of being redrawn every frame (Settings: Map)
+- **Render Toggle** — /tmap rendertoggle temporarily turns off all TeslaMaps rendering to check whether a problem comes from this mod (Settings: Interface)
+- **Quiet Hypixel Log Spam** — hides Hypixel's skin-signature, scoreboard, team and entity-data warnings from latest.log (Settings: Interface)
+- **Hypixel Mod API** — with the Hypixel Mod API mod installed, SkyBlock detection and party members come straight from the server (Settings: Interface)
+- **Hide Far Entities** — only the nearest entities are rendered, bosses, starred mobs and party members always show (Settings: Hide)
+- **Iris Shader Compat** — ESP boxes and lines keep drawing with an Iris shader pack (Settings: Interface)
+- **Keep Terrain Loaded** — caches chunks on disk per island and keeps them loaded past Hypixel's small view distance, up to your render distance; turns itself off when Bobby is installed (Settings: Render)
+- **Caxton / ModernUI Outline Fix** — the map's Outline text shadow draws correctly with the Caxton or ModernUI font renderers (Settings: Map)
+- **Catch Feature Errors** — an exception in one feature no longer crashes the game; you get one clickable chat line per error that copies the stack trace (Settings: Interface)
+- **Entity & Item Inspector** — a filterable browser of nearby entities with a live in-world highlight, plus an item view with every component, custom data, lore with & codes and glyph escapes, click to copy (Settings: Interface > Dev Tools)
+- **Mute Jerry-chine Gun / Mute Flower Of Truth** — one-click mutes for those two item sounds (Settings: Sounds)
+- **Bazaar Order Tracker** — movable HUD listing all your buy orders and sell offers with fill progress and a live status (competitive / outbid / undercut / filled), with optional sounds for fills and outbids (Settings: Inventory)
+- **Expensive Purchase Warnings** — asks for confirmation before bazaar instant buys or hex upgrades over a coin limit and before BIN auctions listed far below or above the lowest BIN (Settings: Inventory)
+- **Manage Auctions Helper** — colors sold, expired and overpriced auctions and shows coins to collect, value if everything sells and the expired count (Settings: Inventory)
+- **Auction Outbid Warning** — title and sound when someone outbids you on the auction house (Settings: Inventory)
+- **Bazaar Quick Quantities** — amount buttons next to the bazaar amount sign, plus one with the number from your clipboard (Settings: Inventory)
+- **Bazaar Reorder Helper** — Ctrl+click on Cancel Order copies the missing amount, and a cancelled buy order copies it automatically with a click-to-reorder chat line (Settings: Inventory)
+- **Bazaar Purchase Helper** — after a /bz jump from the shard list, Get From Sacks or the sack table, the searched item is marked green until you buy or sell it (Settings: Shards / Auto)
+- **Bits & Copper Shop Helper** — shows coins per bit in the Community Shop and coins per copper in SkyMart, categories name their best item and the best deal gets highlighted (Settings: Tooltips & Value)
+- **Crafting Price** — the craft cost tooltip line can now count each ingredient at the cheaper of buying or crafting it, up to 15 levels deep (Settings: Tooltips & Value)
+- **Bazaar Flip Tracker** — HUD with coins invested in open buy orders and unsold items plus your flip profit, per session or all-time (Settings: Inventory)
+- **Only My Orders** — hides and locks your co-op members' orders in Co-op Bazaar Orders so you can't cancel or claim them by accident (Settings: Inventory)
+- **Trade Value Panel** — the trade menu shows what each side is worth and flags items the other player just changed (Settings: Tooltips & Value)
+- **Bazaar Chat Summary** — a burst of bazaar sells or buys collapses into one line with the per-item breakdown on hover (Settings: Chat)
+- **Dark Auction Timer** — the Contest Timers HUD can count down to the next Dark Auction (Settings: Contest Timers)
+- **Anita Medal Profit** — table next to Anita's shop with the profit per bronze medal for every item, plus the medals/tickets left to max Extra Farming Fortune in its tooltip (Settings: Garden)
+- **Bazaar Helpers** — panel beside the bazaar with the sell difference for your inventory amount, how many items your purse buys, and your daily 15B trade limit (Settings: Inventory)
+- **Craft Material Collector** — recipe view shows the material cost and a clickable shopping list (x1 to x512, click opens /bz or /ahs) (Settings: Inventory)
+- **Craftable Item List** — the Craft Item menu lists everything you can craft from your inventory and sacks, type to search, click to view the recipe (Settings: Inventory)
+- **Highlight Insta-Sell Items** — tints inventory items the bazaar buys right away and shows their instant-sell value in the tooltip (Settings: Inventory)
+- **Price History Graph** — a key over any item opens a price graph (1 day to all time) for bazaar buy/sell or auction average/lowest, or the price website (Settings: Inventory)
+- **Auction Sort Warning** — warns in the auction browser when it is not sorted by Lowest Price (Settings: Inventory)
+- **Dragon Profit Tracker** — tracks dragon kills per type, eyes spent and loot with estimated fragments, and posts the profit per dragon in chat (Settings: The End)
+- **Bazaar Fill Estimate** — guesses how far your buy orders and sell offers are filled from the public order book, without opening the menu, with a HUD and an optional chat/sound alert on new fills (Settings: Inventory)
+- **Average BIN & Bazaar Volume** — price tooltips can show the 1 and 3 day average lowest BIN and a bazaar item's weekly insta-buy/sell volume (Settings: Tooltips & Value)
+- **Price Lookup Key** — press a key over any item to search it on the bazaar or AH, a second key opens its recipe (Settings: Inventory)
+- **Sack Value HUD** — the total worth of your sacks everywhere, with a per-sack breakdown on hover and /sacks on right click (Settings: Tooltips & Value)
+- **/tmap refreshprices** — reloads every price source right away and reports the result in chat (Settings: command only)
+- **Wardrobe Set Value** — wardrobe slot tooltips list the value of every piece in the set plus the total (Settings: Tooltips & Value)
+
+### Teilweise
+- GUI-042: Interface > Player Stats > "  Status Bars Editor (/tmap bars)" — Editor für unsere zwei vorhandenen Balken (Health/Mana): ziehen, Breite am rechten Rand, Scroll = Skalierung, Rechtsklick-Menü (An/Aus, Farbe aus 8 Presets, Text Off/Left/Right/Above/Center, Show Max, Overflow, Richtung), Reset. Fehlt: Skyblockers Hotbar-Anker/Reihen-Snapping, weitere Balken (Defense/XP/Speed), freier Farbwähler, Icon-Position
+- GUI-045: Interface > HUD Style > "Text Chroma (All Panels)" + per panel "Text Chroma Of That Panel" (Off / Plain Text / All Text). ESP and tracer colours not switched to chroma (the chroma shader only covers GUI text); HUD panel borders already had Chroma/Fade under Custom Border Mode
+- GUI-049: Interface > Outside SkyBlock > "Only Run Features In SkyBlock" + "Also Outside SkyBlock" multi-select list. Central gate in Feature.active() for every section-gated registry feature; the old per-feature toggles (Skybox, Contest Timers, Garden) stay as they were, not migrated
+- GUI-052: Garden > Move Panels From Inventory > Container Panels Too (Alt + Drag) — Croesus-Panel + Shard-Overlay per Alt+Drag verschiebbar (Offset, auf Screen geklemmt, Alt+Rechtsklick = Reset); kein Editor-per-Hotkey aus Kisten, Leap-Overlay nicht verschiebbar
+- GUI-058: Interface > Tab Widgets > Missing Tab Widget Hint > Setup Guide In /tab + Open /tab — nur für Pet, Bestiary, Pickaxe Ability (die einzigen HUDs mit Missing-Flag); Priority-Pfeile (Left/Right Click) nicht portiert, nur Hinweis "On - raise priority"
+- ECO-017: Inventory > Bazaar Flip Tracker (Invested/Profit FIFO, Session/Total, Reset); Kostenbasis durch Crafting wird nicht verfolgt, kein Order Tracker (ECO-008) vorhanden, eigenes Chat-Parsing
+- ECO-018: Inventory > Bazaar: Highlight Own Orders > Only My Orders In Co-op Orders (fremde Orders verdeckt, Tooltip + Klick blockiert); kein Umsortieren/Verkleinern des Menüs
+- ECO-019: Tooltips & Value > Trade Value Panel (+ Mark Their Changes); leichte Variante: Wert je Seite + Differenz, Preis im Tooltip, Änderungen der Gegenseite 10s gelb; kein eigenes GUI, Backpack-Inhalt nicht mitgerechnet, Slot-Sperre über bestehendes SlotLock
+- ECO-029: Inventory > Bazaar & Progress > Bazaar: Estimate Order Fills (+ Chat On New Fill, Sound On New Fill), HUD "Bazaar Fill Estimate" in /tmap gui. Kein Skysoft-Backend: nur öffentliches Hypixel-Orderbuch (Top 30 Preisstufen, alle 60 s neu geladen, solange Orders bekannt sind), deshalb keine Verkaufsfluss-Deckelung. Wenn andere Spieler auf deinem Preis stornieren, sieht das wie eine Füllung aus
+- ECO-032: Tooltips & Value > Sack Value HUD (+ Only In SkyBlock), HUD "Sack Value" in /tmap gui. Min/Max + Menge, Wert pro Sack beim Hovern im Inventar, Linksklick zeigt Liste aller Säcke (max 20 Zeilen), Rechtsklick öffnet /sacks. Es fehlt die Suchleiste bzw. das Scrollen in der Liste. Braucht Live Sack Contents
+
+### Übersprungen
+- GUI-043: gibt es schon auf master (Interface > Layout > Column Layout > "  Fling Columns", Commit e6e48fc aus einer anderen Gruppe); meine zusätzliche HUD-Wurf-Version habe ich wieder entfernt
+- PERF-027: Der Auto-Mode-Classifier hat das als "TLS/Auth Weaken" blockiert (die RSA-Signaturprüfung für Skin-Properties abschalten). Nicht gebaut, Tim muss entscheiden/freigeben. Fertiger 5-Zeilen-Mixin nach Odin wäre: HEAD-Inject auf YggdrasilServicesKeyInfo.validateProperty (authlib 9.0.75), hinter Toggle default aus.
+- PERF-028: Im selben Schritt blockiert: das javap auf ServerPackManager wurde vom Classifier mit derselben Begründung (TLS/Auth Weaken) abgelehnt, deshalb nicht weiter verfolgt. Tim muss entscheiden. Vorlage: Skysofts ServerPackManagerMixin + ServerPackReloadCallbacksMixin (läuft auf 26.1), Port ~1h.
+- ECO-033: existiert inzwischen auf master (TradeValue einer anderer Gruppe, gleicher Config-Name tradeValue: Wert beider Seiten, Wert pro Item im Tooltip, markiert Änderungen der Gegenseite). Meine doppelte Version habe ich beim Merge verworfen
+
+### Live auf Hypixel prüfen
+- Alles ungetestet im Spiel (kein runClient laut Regeln).
+- Quick Mod Menu Switch: die Befehle (/skyblocker config, /sh, /devonian, /odin, /skyocean, /firm config) und die Screen-Package-Präfixe stammen aus dem Quellcode der Mods bzw. sind Annahmen (SkyOcean/Firmament/Odin-Klick-GUI nicht verifiziert). Erscheint nur, wenn mindestens 2 der Mods installiert sind. Voreingestellte Position x=132/y=34 — kann in /tmap gui verschoben werden.
+- Key Conflict Warning: Hover-Binds wie Left Shift (Item Value + Compactor Preview) sind mit Absicht doppelt belegt und werden auch rot markiert. Hotkeys mit Ctrl/Alt/Shift-Kombination zählen nicht mit. Im Column-Layout gibt es nur die rote Markierung, keinen Tooltip.
+- No Text Shadow: Font-Mixin (prepareText dropShadow, beide Overloads) — Wirkung auf Nametags/Schilder live prüfen.
+- Safari Show Where: Eingang = Area enthält "safari" aber wir sind nicht drin (wie das bestehende nearSafari). Im Zeilen-Modus zeigt der "last run"-Blick nur Titel/Dex/Biome.
+- Status Bars: Text "Center" liegt über dem 5 px hohen Balken (Schrift ist höher als der Balken).
+- Chroma text path (ModifyVariable on GuiGraphicsExtractor.text): check it in-game with the shader, including text shadows
+- Title duration: the flag is set only while the server's titles-animation packet is handled, so Hypixel titles should keep their own timing. Verify that Hypixel titles still behave normally
+- Outside-SkyBlock gate uses SkyblockUtils.isInSkyblock (scoreboard, checked once a second). Singleplayer counts as outside, so with the gate on, only listed features run there
+- Hide Silly Buttons: whether TeslaMaps' custom title screen and the settings cog stay untouched (widgets more than 110 px from centre are ignored), and the row layout with other mods' buttons
+- Custom prefix: & codes are turned into section-sign codes. A custom prefix with colour codes skips the gradient
+- GUI-058: /tab-Menüformate aus NEU übernommen, nie live gesehen: Titel "Tablist Widgets", Slot 4 Lore "Click to edit <Area> settings!", Regionen-Items "Widgets in/on <Area>", Widget-Items "✖/✔ <Name> Widget", Back-Button Slot 48; Widget-Namen "Pet", "Bestiary", "Pickaxe Ability" geraten
+- GUI-057: welche Hypixel-Schilder außerhalb AH/Bazaar "Enter query" tragen (Museum etc.)
+- GUI-052: Alt-Taste in Container-Screens (Mac: Option), Drag über Per-Frame-Mausabfrage
+- GUI-054: Flackern beim Hypixel-Schließen/Neuöffnen zwischen Menüs (zwei resizeGui), Zusammenspiel mit Storage-Scale/Terminal-Scale
+- GUI-056: Button-Suche über Übersetzungsschlüssel menu.multiplayer; andere Titel-Mods (ModMenu o. ä.) können das Layout verschieben
+- Nothing ran in a client (rules: no runClient). All mixin targets were checked with javap against 26.1.2 / authlib 7.0.63, but whether they apply cleanly can only be seen at startup: LogSpam*Mixin (ClientPacketListener, Scoreboard, SynchedEntityData, SkinManager$1.lambda$load$0, YggdrasilServicesKeyInfo, YggdrasilMinecraftSessionService). If the game crashes at launch, check these first. Skyblocker in profile tmapaa wraps the same logger calls; WrapWithCondition should chain.
+- PERF-005 instancing: shader, uniform block (std140 vec4[1023], 16 KB chunks), render pass on the main target, and ModelView = RenderSystem modelview * frame pose were all written blind. Needs a visual check: boxes in the right place, depth vs through-walls, alpha/fade. Boxes drawn under a different pose than the first box of the frame fall back to the normal path. After an exception it switches itself off and logs "Instanced ESP boxes disabled".
+- PERF-007: needs a check that the cached map looks the same as the live one (nearest sampling at non-integer HUD scale, translucent room colours, door overlaps). Room colours can show up to 0.25 s late.
+- PERF-011: slot overlays other than SlotBackgrounds (about 30 container mixins) are not gated; only the central slot-background path is.
+- PERF-013: only checked against the API jar in "tmapaa (1)" (HypixelModAPI 1.0.2). Things to confirm live: hello/location handling, which thread the handlers run on (they hop to the main thread anyway), and that the party request (at most every 5 s, after a location packet) does not trigger Hypixel rate-limit errors. Party member names only resolve for players in the current tab list; other names stay as the chat tracker had them. Only isOnHypixel / isInSkyblock and PartyTracker use it; getArea still scrapes the tab list (the mod-api island ids are not the tab names).
+- PERF-014: the never-hide list uses DungeonManager, StarredMobESP highlights, WitherBoss/EnderDragon, real players in dungeon/Kuudra, PartyTracker members, Magma Cubes in areas containing "jerry", Ghast/Iron Golem in "dwarven", names containing "Mort", and anything glowing from MobVisuals/EntityGlow. The area substrings still need checking against the real tab names.
+- PERF-015: untested with Iris (Iris is not installed in either profile). Turning it off needs a restart.
+- Keep Terrain Loaded: nur live testbar. Die Mixins (ClientChunkCache.updateViewRadius, ClientPacketListener.handleForgetLevelChunk/handleLevelChunkWithLight nach ensureRunningOnSameThread, Accessor serverChunkRadius) sind per javap gegen 26.1.2 geprüft, aber nie im Client gelaufen. Die Inseln werden über die Tab-Area-Namen erkannt (Allowlist, Dungeons/Kuudra/Mineshafts ausgeschlossen); die Namen für Galatea/Safari/Lotus Atoll/Torrhus sind geraten. Cache liegt in config/teslamaps/terrain_cache/<insel>.
+- Catch Feature Errors: fängt Registry-Ticks, World-Render, Chat-Handler, Foreground-Panels und jedes Perf.hud-HUD ab (also auch die Core-HUDs). Ist der Schalter aus, wird die Exception wie bisher weitergeworfen. Im Dev-Env wird immer geworfen, wie bei SkyHanni. Test: /tmap debug throwerror, /tmap debug reseterrors. Die pre-registry ChatMixin-Handler und Mixins sind nicht abgedeckt.
+- Caxton/ModernUI: ohne diese Mods nicht testbar (auf 26.1 gibt es sie evtl. gar nicht); der Aufruf läuft per Reflection, bei Fehler fällt er auf die alte Outline zurück.
+- Jerry-chine/Flower of Truth: die Signaturen kommen aus Skytils (1.8) und sind auf die modernen IDs umgesetzt (villager.yes vol 0.35, villager.trade vol 0.5, generic.eat pitch 0.698 vol 1.0). Stimmen die Werte nicht, mit soundDebug nachmessen.
+- Inspector: Screen-Layout, Klick-Kopieren, Highlight und Keybind "angeschautes Entity" (Strahl bis 64 Blöcke, ~4°) nur ingame prüfbar.
+- Alles nur live prüfbar, kein runClient gelaufen.
+- ECO-008: Chat-Formate (Setup/Flipped/Cancelled/Claimed/"was filled!") und Order-Lore aus Skysoft übernommen. Buy-Order-Cancel kennt das Item nur über den letzten Klick im Orders-Menü. Flipped-Orders haben bis zum nächsten Menübesuch keinen Preis ("?"). Teilweise geclaimte Orders bleiben bis zum Menübesuch stehen. Status nutzt die PriceManager-Bazaarpreise (keine Live-Orderbook-API wie Skysoft), deshalb Verzögerung bis zum nächsten Preis-Refresh.
+- ECO-009: Lore-Formate aus NEU (1.8): "Price: X coins" + "Click to buy now!", Hex "Bazaar Price" + "X Coins", BIN-GUI Slot 29/31/13 "Item price: X coins". Popup statt NEU-Screen: dunkles Overlay mit Yes/No, Y/Enter bestätigt, N/Esc bricht ab. Bestätigen schickt den einen Klick, den der Spieler gemacht hat.
+- ECO-010: Lore "Buy it now/Top bid/Starting bid/Sold for/Status: Sold!/Expired!/Ends in" aus NEU/SkyHanni, Steuer-Abzug nach NEU (1/2/2.5 %). Panel links neben dem Container.
+- ECO-011: Muster "[Auction] X outbid you by Y coins for Z" (SkyHanni-Regex).
+- ECO-012: Schild-Erkennung wie Skyblocker (Zeile 2 "^^^^^^^^^^^^^^^", Zeile 4 "to order"). Clipboard-Button nur bei reiner Zahl bis 7 Stellen.
+- ECO-013: "Order options" Slot 11/13 grüne Terracotta, "Nx missing items." / "Nx items." aus Skyblocker/SkyHanni.
+- ECO-014: Markierung vergleicht den Slot-Namen exakt mit dem /bz-Suchtext. Bei Shards wird nach "<Name> Shard" gesucht. Heißt das Bazaar-Item anders, wird nichts markiert.
+- Bits-Lore-Format ("Cost" / "N Bits") und Kategorie-Button-Lore "Click to browse!" aus Skyblocker übernommen, Copper-Kostenzeilen ("N Copper", "Item xN") nach SkyHanni-Konzept geraten
+- Shop-Titel "Community Shop"/"Bits Shop"/"SkyMart ..." und Trade-Titel "You    <name>" (Spalten 0-3 eigene, 5-8 fremde Items) nur aus NEU/Skyblocker
+- Bazaar-Chat-Formate (Buy Order Setup, Claimed ... bought for, Claimed coins from selling, Order Flipped, Cancelled! Refunded, Bought/Sold) aus Skysoft/HypixelSimpleChat; Cancel-Zuordnung per Refund-Betrag ist eine Schätzung
+- Bazaar Chat Summary: Entfernen der vorherigen Zeile klappt nur, wenn sie unverändert im Chat steht (andere Chat-Rewrites/Timestamps)
+- Co-op Bazaar Orders: "By: <name>"-Zeile und Titel exakt "Co-op Bazaar Orders"
+- Crafting Price: erste Anzeige braucht mehrere Hover, bis alle NEU-Rezepte geladen sind
+- Anita: Lore-Format der Shop-Items ("Cost" + "Gold medal x2" etc., "Click to trade!") und "You have: +N☘ Farming Fortune" / "Jacob's Ticket xN" aus SkyHanni-Regexes übernommen, nie live gesehen. Upgrade-Kosten aus SkyHanni-Repo (AnitaUpgradeCosts.json). Verzauberte Bücher werden über EstimatedValue bepreist.
+- Bazaar Helpers: Produktseite erkannt an Slot 10 "Buy Instantly" + Produkt in Slot 13 (SkyHanni); "Create Buy Order"-Lore "X coins each" und "Price per unit: X coins". Tageslimit zählt Chat "[Bazaar] Bought/Sold/Buy Order Setup!/Sell Offer Setup! ... for X coins" (Order Flipped ausgenommen), 15B-Konstante, Reset UTC-Mitternacht, gespeichert in qol_account.json.
+- Craft Material Collector: Rezeptansicht erkannt an Slot 23 "Crafting Table" + Slot 32 "Supercraft", Materialslots 10-12/19-21/28-30, Output Slot 25 (SkyHanni).
+- Craftable Item List: lädt beim ersten Öffnen von "Craft Item" einmalig das NEU-Repo-Zip (Streaming, einige 10 MB) und cached nur die Rezepte in config/teslamaps/repo/neu-recipes.json (3 Tage). Download-Dauer/-Größe live prüfen. Während die Liste offen ist, schlucken Buchstaben/Ziffern/Leertaste die Tasten (Suche), E schließt das Menü dort nicht mehr (Esc schon). Klick sendet /viewrecipe <ID>.
+- Price History: Coflnet-Endpoints /api/bazaar/<id>/history/<span> und /api/item/price/<id>/history/<span> per curl geprüft (funktionieren). Graph-Screen ersetzt kurz den Container-Screen und kehrt beim Schließen zurück — prüfen, dass das Menü danach normal bedienbar ist. Tastenbelegung default keine (muss gesetzt werden). Bücher über CUSTOM_DATA enchantments -> ENCHANTMENT_X_N.
+- Auction Sort Warning: Sortier-Item in Slot 50, gewählte Zeile beginnt mit "▶ " (NEU).
+- Dragon Profit Tracker: Chat-Formate aus SkyHanni (☬ ... Dragon has spawned!, You placed a Summoning Eye!, X DRAGON DOWN!, 1st Damager - ... - N, Your Damage: N (Position #n)); Loot per ArmorStand-Namen 1-3 s nach dem Kill, Gewichte aus SkyHanni-Repo (DragonProfitTrackerItems.json); Fragmente/Pearls nach Weight geschätzt. Ender-Dragon-Pet-Rarität über Farbcode geraten (§6 = legendary). Keine Buckets pro Drachentyp wie SkyHanni, stattdessen Kill-Zeilen pro Typ im selben Tracker.
+- ECO-029: Formate der Chatzeilen "[Bazaar] Buy Order Setup! Nx Item for X coins." und "[Bazaar] Your Buy Order for Nx Item was filled!", Lore im Bazaar-Orders-Menü ("Order amount:/Offer amount:", "Price per unit:", "Filled: a/b"), ob die Schätzung live brauchbar ist. Holt alle 60 s den ganzen Bazaar-Endpunkt (mehrere MB), solange Orders gespeichert sind. Liste in config/teslamaps/<profil>/bazaar_orders.json, wird bei jedem Öffnen von "Bazaar Orders" abgeglichen
+- ECO-030: Keys der hysky.de-Avg-API (lowestbins/average?days=1|3) gegen unsere ItemUtil.skyblockId, v. a. Pets und Enchanted Books. Hypixel-Felder buyMovingWeek/sellMovingWeek
+- ECO-031: ob /bz und /ahs mit dem aufgelösten Namen treffen (Pets ohne [Lvl], Books über erste Lore-Zeile), /viewrecipe <ID>
+- ECO-032: Sack-Namen kommen aus dem Menütitel oder den [Sacks]-Hovertexten ("(Mining Sack)"). Alte Einträge erscheinen unter "Other", bis der Sack einmal geöffnet wurde. Klick und Hover gehen nur im Spielerinventar
+- ECO-035: Titel "(1/2) Armor Sets" / "(1/2) Equipment Sets" / "Wardrobe (1/2)". Tooltip nur auf der Knopfreihe (Slots 36-44), Teile aus derselben Spalte
+
+## Welle 13 (10 Gruppen)
+
+### Neu
+- **Fancy Auction Browser** — the Auctions Browser as a compact panel with category tabs, a 24-item grid, search, page x/y with scrollbar, sort/rarity/BIN buttons and arrow-key or scroll paging (Settings: Inventory)
+- **Fancy Auction View** — single auctions as a clear card with big item, price, state (Can't Afford, Top Bid, Your Auction, grace countdown), one Buy/Bid/Collect/Cancel button, own confirm popup and an Edit Bid popup with Set Minimum Bid and calculator (Settings: Inventory)
+- **Safari Shard Value** — values the shards of a Safari run at the bazaar: Value line with coins/h in the run HUD, coins per run plus total and average in /tmap safari, top species in /tmap safari prices (Settings: Critter Safari)
+- **NPC Sell Day Limit** — movable HUD that adds up your NPC sales against the 500M daily limit, reset at midnight GMT, per profile (Settings: Tooltips & Value)
+- **Price Paid** — BIN purchases remember what you paid per item and show it in the tooltip, settable with /tmap pricepaid (Settings: Tooltips & Value)
+- **Fire Sale Widget** — movable HUD with running Fire Sales from the tab list and availability bars, or when the next one starts (Settings: Interface)
+- **Pesthunter Shop Profit** — table next to Pesthunter's Wares with profit per pest for every item, best first, hover for details and the slot (Settings: Garden)
+- **Coupon Profit** — Agatha's and Miria's shops list the profit per coupon for every item, sorted next to the menu, with a cost breakdown in the tooltip (Settings: Foraging)
+- **Supercraft Waste Block** — blocks a Supercraft that would lose more coins than just selling the materials and buying the result; hold Ctrl to bypass (Settings: Inventory)
+- **Supercraft Presets** — clickable amount buttons on the "Enter amount of crafts" sign, edit with /tmap supercraftpreset <n> (Settings: Inventory)
+- **NPC Trade Helper** — NPC shop cost lines show how many you own, your sack amount and the coin value; affordable trades glow green (Settings: Tooltips & Value)
+- **RNG Meter Helper** — RNG Meter menus show odds as fractions, runs/bosses needed per score or tier and coins per score/XP (Settings: Tooltips & Value)
+- **Museum Search** — the custom search box now also replaces the museum search sign, suggesting your donations and armor sets (Settings: Inventory)
+- **Trade History** — saves every finished trade and shows them by day with value and profit in /tmap tradehistory (Settings: Tooltips & Value)
+- **Shorter Bazaar Order Tooltips** — hides the "By:" line and the list of trade partners in the bazaar order menu (Settings: Inventory)
+- **Copy Underbid Price** — putting an item into Create BIN Auction copies its lowest BIN minus one to the clipboard (Settings: Inventory)
+- **Search Commands** — /ahs, /ahsearch and /bzs open the auction/bazaar search from anywhere with item suggestions, Ctrl+F opens it inside AH/Bazaar, history size adjustable (Settings: Inventory)
+- **Search Filters** — Max Lvl and star buttons in the auction search add [Lvl 100/200] to pets and ✪/master stars to starrable items (Settings: Inventory)
+- **Own Orders In Order Tooltip** — Create Buy Order / Sell Offer shows how many of each price level are your own orders (Settings: Inventory)
+- **Pet Value** — Estimated Item Value now prices pets by level, held item and skin, so container value and item protection count them (Settings: Tooltips & Value)
+- **Essence Shop Costs** — essence shops show each upgrade's coin value, essence left to max and a summary with missing essence and bazaar cost (Settings: Inventory)
+- **Escrow Fix** — reopens /ah or /bz once after an escrow message closed the menu (Settings: Inventory)
+- **PV Wardrobe** — new Wardrobe section in the Inventories page shows every armor set and equipment set page, with the worn set filled in and marked (Settings: none, always on in /pv)
+- **PV Equipment** — necklace, cloak, belt and gloves now appear as a column next to the armor in the Inventory view (Settings: none, always on in /pv)
+- **PV Networth** — new Networth tab with totals per container, top-10 items per category on hover, the most valuable items, purse/bank and Senither weight (Settings: none, always on in /pv)
+- **PV Jacob's Contests** — the Garden page shows medals (diamond/platinum counted from claimed medals), unique brackets, contest count, Double Drops, farming cap and the contest PB per crop (Settings: none, always on in /pv)
+- **PV Sacks** — optional Sacks tab in the Inventories page, all sack items with amount and bazaar value, most valuable first (Settings: Interface > Profile Viewer > Sacks Tab)
+- **PV Catacombs Calculator** — "Until Cata X" on the Dungeons page: type or scroll to a target level, hover to see the F5-F7 / M3-M7 runs you need, with Expert Ring and completion bonus (Settings: none, always on in /pv)
+- **PV Croesus & Daily Runs** — the Dungeons page shows Croesus x/60 with unclaimed runs and today's daily runs n/5 with the reset timer (Settings: none, always on in /pv)
+- **PV Hunting** — optional Hunting tab with every attribute's level, progress and shards still needed, plus the player's Hunting Box, with search (Settings: Interface > Profile Viewer > Hunting Page)
+- **PV Leaderboard Ranks** — skill, catacombs, class, slayer, collection and SkyBlock level tooltips show your elite leaderboard position (Settings: Interface > Profile Viewer Extras)
+- **PV Mining/Foraging Gear** — the Mining and Foraging pages show the best armor, equipment and tools found anywhere in the player's containers (Settings: Interface > Profile Viewer Extras)
+- **PV Greenhouse** — the Garden page lists every greenhouse mutation (analyzed, discovered or undiscovered) plus copper and larva consumed (Settings: Interface > Profile Viewer Extras)
+- **PV Fishing Stats** — the Extra page gets treasure, sea creature kills, trophy fish caught and the dolphin milestone (Settings: Interface > Profile Viewer Extras)
+- **PV Minions** — a new Minions category in Collections shows crafted tiers per minion and the unique craft count (Settings: Interface > Profile Viewer Extras)
+- **PV Misc Bags** — adds the Candy Bag and Carnival Mask Bag and groups them with the potion bag, quiver and fishing bag under Misc; hover Quiver to see arrow totals (Settings: Interface > Profile Viewer Extras)
+- **PV Overview Links** — click a skill, catacombs or the SkyBlock level on the Basic page to jump to its page (Settings: Interface > Profile Viewer Extras)
+- **PV Level & Hoppity Page** — new tab that breaks your SkyBlock XP down by category and shows the chocolate factory (Settings: Interface > Profile Viewer Extras)
+- **Island Panorama** — the profile viewer shows a panorama of the island the player is on behind their model, day or night by SkyBlock time (Settings: Interface)
+- **Copy PV Errors** — right-click a profile viewer load error to copy it (Settings: Interface)
+- **/peek + Lobby Leaderboards** — /peek <name> prints a compact stats card in chat, /tmap lobbylb <purse|skills|cata> ranks the players in your lobby (Settings: Interface)
+- **PV Info Board** — game mode, Hypixel level, fairy souls, created date, cookie buff and crit record on the Basic page (Settings: Interface)
+- **PV Mobs Tab** — kills and deaths per mob in two scrolling columns (Settings: Interface)
+- **Bingo Goal Names** — the bingo card shows goal names with hover details, community goals and points (Settings: Interface)
+- **Trophy Fisher Rank** — the Trophy Fish page shows your Novice to Master Fisher rank and what is missing for the next one (Settings: Interface)
+- **Power Stats + Tuning** — hover Magical Power on the Accessories page to see your power stone stats and tuning (Settings: Interface)
+- **Greenhouse Plant Models & Presets** — missing greenhouse plants show as see-through heads of the actual plant, and a new screen manages named layouts (Settings: Garden)
+- **Composter HUD** — time left, organic matter, fuel, stored compost and time until empty, with low/empty warnings and an optional timer outside the Garden (Settings: Garden)
+- **Crop Milestone HUD** — tier, progress, time to next tier and crops per second for the crop in hand, plus a Mooshroom Cow perk panel (Settings: Garden)
+- **Farming Fortune HUD** — your true farming fortune from the tab list, red when pests cut it, with the Phillip bonus timer (Settings: Garden)
+- **Crop Fever Timer** — 60 second countdown in the Pest Overlay with an optional title and sound (Settings: Garden)
+- **Accept Offer Colors** — the visitor Accept Offer slot turns green when you can serve right away, red when items are missing (Settings: Garden)
+- **Composter Overlay** — cheapest items to refill organic matter and fuel, compost profit per hour/day and upgrade previews next to the Composter menus (Settings: Garden)
+- **Composter Menu Numbers** — amounts written into the Composter menu, prices on upgrade costs and affordable upgrades in gold (Settings: Garden)
+- **Best Crop Time** — ranks every crop by the time to its next milestone at your measured farming speed, by SkyBlock level or Garden XP (Settings: Garden)
+- **DNA Analyzer Solver** — marks the next two slots to swap in the Greenhouse DNA puzzle, optional middle click, close-button lock and hidden tooltips (Settings: Garden)
+- **Crop Start / Last Farmed Location** — holding a crop's tool shows where you start farming it and a beacon where you stopped (Settings: Garden)
+- **Garden Level Display** — garden level and xp to the next level as a HUD, with overflow levels past 15 in the HUD, tooltip and chat (Settings: Garden)
+- **Burrowing Spores Alarm** — title and/or big item pop when Burrowing Spores drops (Settings: Render)
+- **Crop Fever Tracker** — counts Crop Fevers, fever time, breaks during/outside and every fever drop with profit and breaks per drop (Settings: Garden)
+- **Crop Milestone Overflow** — Crop Milestones menu shows overflow tiers with progress, tiers as stack size, average milestone and a chat line per overflow milestone (Settings: Skills)
+- **Hide Farming RNG Titles** — hides the Melon/Pumpkin Dicer DROP! titles in the Garden (Settings: Garden)
+- **Atmospheric Filter Perk** — small HUD with the current SkyBlock season and its Atmospheric Filter perk (Settings: Garden)
+- **Crop Diagnostics Highlight** — colours the status and water slots in the Greenhouse Crop Diagnostics menu (Settings: Inventory > Menu Highlights)
+- **Elite Leaderboards** — farming weight, crop collection and pest kill ranks from EliteSkyblock with the gap and ETA to the next player (Settings: Garden)
+- **Crop Speed Meter** — measures your real farming fortune from /cropmilestones before and after farming (Settings: Garden)
+- **Crop Calculators** — /tmap cropsin, croptime, calccrop and calccroptime work out items per time, time per amount and milestone gaps (Settings: Garden)
+- **/ff Fortune Guide** — shows your fortune sources and links your EliteSkyblock fortune page with the cheapest upgrades (Settings: Garden)
+- **Farming Tool Overlays** — previews the blocks hit by tilling hoes, scythes, the InfiniDirt Wand, Prismapump water and minion crystal ranges (Settings: Garden)
+- **Jacob Contest Fortune Needed** — hover a contest in Your Contests to see the fortune each medal needed (Settings: Garden)
+- **Time Needed For Medal** — Jacob's "Your Contests" menu lists every crop sorted by how long your fortune and BPS need for the chosen medal (Settings: Garden)
+- **Optimal Speed Helper** — shows the right speed per crop, warns when you farm with the wrong one and puts a crop list on the Rancher's Boots sign (Settings: Garden)
+- **Hoe Level Display** — level and tool XP of your farming tool, with overflow levels, upgrade/overclock and wrong-crop hints, plus an option to mute the level-up sound (Settings: Garden)
+- **Greenhouse Growth Stage Timer** — counts down to the next greenhouse growth stage from Crop Diagnostics and pings you when it is ready (Settings: Garden)
+- **Pest Guess Waypoint** — left click with a vacuum and the tracker trail's target shows up as a waypoint with a beam (Settings: Garden)
+- **Contest Stats Summary** — after a Jacob's Contest you get blocks broken, average BPS and time in chat (Settings: Garden)
+- **Money per Hour per Crop** — ranks every crop by coins per hour at your own speed, with instant sell / sell offer / NPC prices (Settings: Garden)
+- **Contest Menu Helpers** — medals, reward status and real time on Jacob's contest menus, and a key+click to open contests on eliteskyblock.com (Settings: Garden)
+
+### Teilweise
+- PV-012: /pv > Networth tab. Senither weight is in, Lily weight is missing. Pets are priced at lowest BIN for type+rarity, pet level is ignored
+- PV-025: Interface > Profile Viewer Extras > Level & Hoppity Page. Level: Core, Dungeon, Slaying, Skill Related are computed after NEU's formulas; Essence shops, Misc, Story, Events plus bestiary/dragons/arachne/HotM powder/PotM/nucleus are not computed and show up together as "Other" (total minus computed). Hoppity: chocolate, prestige, rabbits per rarity, employees and upgrades, elite leaderboard rank; no chocolate/s calculation and no talisman.
+- PV-028: Interface > Profile Viewer Extras > /peek + Lobby Leaderboards; /cata gab es schon; /peek (Skills, Skill-Avg, SB-Level, Cata, Klassen, Secrets, Slayer, Purse/Bank, [PV]-Button) und /tmap lobbylb <purse|skills|cata> (max 20 Tab-Spieler) gebaut; Networth fehlt (keine Networth-Berechnung im Mod)
+- PV-031: Interface > Profile Viewer Extras > Bingo Goal Names; Zielnamen, Hover (Lore/Belohnung/Status), Community Goals mit Stufe, Punkte aktuelles Event + alle Events; Bingo-Rang und "Punkte bis nächster Rang" fehlen (keine verlässliche Quelle für die Rangschwellen)
+- GAR-003: Garden > Greenhouse Planner > "  Real Plant Models" + Button "Manage Presets" (auch /tmap greenhouse presets). Echte, durchscheinend getönte Kopf-Modelle für alle 40 Mutationen + Kopf-Crops (Texturtabelle aus Skyblocker). Block-Crops (Weizen, Karotte, Kartoffel, Warze, Zuckerrohr) bleiben Boxen: 26.1.2 hat keinen einfach nutzbaren Block-Renderer mehr. Rescan-nur-bei-Änderung nicht umgebaut (bleibt alle 5 Ticks)
+- GAR-024: Garden > Elite Farmers Leaderboards > Elite Leaderboards (Weight / Crop / Pest, Monthly, Gamemode, Overtake ETA, outside Garden); fehlt ggü. SkyHanni: Rank-Goal-Ziel, Offline-Platzwechsel-Chatmeldung, lokales Hochzählen zwischen API-Updates, Pest-Art-Auswahl (nur alle Pests), Crop-LB nimmt immer die zuletzt gefarmte Crop. Klick auf Zeile (bei offenem Chat) öffnet Elite-Profil
+- GAR-028: Garden > Farming Fortune Guide > /ff Fortune Guide (/ff + /tmap ff): Chat-Aufschlüsselung (Tab-FF, Tool, Rüstung, letzte FF pro Crop) + Link zur EliteSkyblock-Fortune-Seite mit Upgrade-Empfehlungen — genau wie SkyHanni es heute macht; eigene Upgrade-Rechnung/GUI nicht gebaut
+- GAR-037: Garden > Money per Hour > Money per Hour per Crop — ohne Rüstungs-Rare-Drops; Crop-Rate = letzte FF × Base Drops × BPS (Schätzung, nicht gemessene Collection)
+
+### Live auf Hypixel prüfen
+- Fancy AH: Slot-Layout (Tabs 0/9/.../45, 46/53 Pfeile, 47-52 Buttons), "▶"-Optionszeilen, "(x/y)"-Seitenzeile, "Filtered:"-Suche aus Skyblocker übernommen, nie live gesehen. Seitenwechsel öffnet evtl. neuen Container -> kurzes Flackern möglich.
+- Fancy View: Zustandserkennung über Items (Kartoffel/Nugget/Goldblock/Namensschild/Bett/rote Terracotta, "Collect Auction"), Preiszeilen "Price:"/"New bid:"/"Minimum bid:"/"You pay:"/"Can buy in:" aus Skyblocker. Confirm-Popup klickt Slot 11/15. Edit-Bid-Popup ersetzt das Schild, das innerhalb von 3s nach Klick auf den Preis (Slot 31) aufgeht.
+- Safari: Instant Sell = bester Buy Order, Sell Offer = billigstes Angebot; Shard-ID über ShardData-Anzeigenamen bzw. "<Critter> Shard". Alte Runs werden mit heutigen Preisen bewertet.
+- NPC Limit: Chatformat "You sold X for N Coins!" aus SkyHanni.
+- Price Paid: nur BIN; Preis aus Lore "Buy it now:"/"Price:" der BIN Auction View, bestätigt durch "You purchased <item> for N coins!" (Namensabgleich locker).
+- Fire Sale: Tab-Header "Fire Sales:" und Zeilen "Item: 123/2.5k" aus Skyblocker.
+- Pesthunter: Kostenzeilen "N Pests"/"N Coins"/"Item xN" unter "Cost" und "Click to trade!" geraten nach SkyHanni-Mustern.
+- Alles nur im Code, nichts live auf Hypixel getestet.
+- ECO-043: Menütitel "Agatha's Shop"/"Miria's Shop" und Coupon-IDs AGATHA_COUPON/MIRIA_COUPON aus SkyHanni; Verkaufspreis per Item-ID oder Namens-Lookup.
+- ECO-044: Slot-Layout (Material 10-12/19-21/28-30, Ergebnis 25, Button 32), Lore "Crafting N items" und "✔ owned/used" aus SkyHanni-Regex. Preis = Top-of-Book (BZ Instant-Sell Materialien vs. Instant-Buy Ergebnis), nicht Orderbuch-Tiefe wie SkyHanni. Cookie-Status aus dem Tab-Footer. Preset-Buttons schreiben nur Zeile 1 des Schilds, abschicken macht der Spieler selbst.
+- ECO-045: "Click to trade!"/Cost-Block-Erkennung aus SkyHanni; Besitz nur aus dem Inventar (per Item-ID), Coins aus der Scoreboard-Purse; Essenzen/andere Währungen zeigen "?".
+- ECO-046: Klartext-Muster für Odds / "Dungeon Score:" / Fortschrittsbalken aus NEU (1.8.9-Format) abgeleitet; Score/XP-Werte fest eingebaut (S+ 300, S 189, Slayer-XP- und Kostentabellen aus dem NEU-Repo).
+- ECO-047: Vorschläge nutzen die Spendenliste von "Museum Donation Tooltip"; ist das aus, werden alle Museum-Items vorgeschlagen.
+- ECO-048: Zen-Quelle lokal nicht vorhanden, aus der Beschreibung gebaut. Snapshot des Trade-Fensters, gespeichert bei Chatzeile "Trade completed with <name>!" (Format vermutet), verworfen bei "... cancelled the trade!". Datei config/teslamaps/trade_history.json, max. 2000 Einträge.
+- ECO-050: Header "Vendors:/Single vendor:/Customers:/Single customer:" und "By:" aus SkyHanni.
+- ECO-049: escrow chat texts from memory of OdinClient (Odin source not local): "There was an error with the auction house! (AUCTION_EXPIRED_OR_NOT_FOUND|INVALID_BID)", "Claiming BIN auction...", "Visit the Auction House to collect your item!", "Escrow refunded … coins for Bazaar Instant Buy Submit!". Sends only 8 ticks later, only when no screen is open, 5s cooldown, one command per trigger.
+- ECO-052: /ahs overrides Hypixel's own /ahs only while the toggle is on (off = forwarded unchanged as packet). PriceLookup now sends its "ahs"/"bz" via packet so it keeps going straight to the server. Ctrl+F is checked before the container Searchbar's Ctrl+F, only in AH/Bazaar titles.
+- ECO-053: pet detection via NEU pets.json "pet_types" (PetRepo now parses it); max level 200 from custom_pet_leveling. Sign split of "[Lvl 100] Name" over two sign lines untested live.
+- ECO-054: lore formats from Skyblocker ("Price per unit", "Order/Offer amount", "- X coins each | Nx in M orders"); product = hover name of slot 13. Co-op orders by others skipped via "By:".
+- ECO-055: pet prices from a new lazy fetch of hysky.de/api/auctions/lowestbins (LVL_1/100/200_<RARITY>_<TYPE>; our tricked/moulberry BIN source has no pets), only while "Value Pets" is on, refreshed every 30 min. Base tier from petInfo + held item price (tier boost counted as item). Candied pets under 100 x0.65 like SkyHelper.
+- ECO-056: upgrade data from NEU essenceshops.json (lazy fetch only inside an essence shop with the toggle on). Summary goes into the tooltip of slot 4 (header item) instead of a fake item in slot 8; no click-to-bazaar. "Your X Essence: N" read from slot 4 lore, "UNLOCKED" lore = maxed.
+- Wardrobe: we use wardrobe_contents (36 per page, worn set taken from inv_armor) and fall back to loadout.armor. Equipment sets come from loadout.equipment (EQUIPMENT_SLOT_1-4). Both formats come from Skyblocker/pv and were never checked against a live profile here. Worth checking that equipment_contents shown reversed really gives necklace on top.
+- Networth: EstimatedValue on PV stacks (CUSTOM_DATA = ExtraAttributes), with insta-sell/BIN as fallback. Museum loads async through HypixelApi.getMuseum. The pet BIN key TYPE;rarityIndex is untested. The totals need a comparison against SkyCrypt.
+- Senither weight constants are hardcoded from NEU weight.json. The skill level cap follows NEU (farming 60, mining/combat/enchanting 60, the rest 50).
+- Jacob's: contest keys "<date>:<CROP>" mapped to GardenRegistry keys. Crops without a match do not show up in the PB list.
+- Croesus: we count distinct run_id values in dungeons.treasures.chests; a run counts as unclaimed when no chest has paid/is_opened. Daily runs come from dungeons.daily_runs.current_day_stamp against the UTC day.
+- Hunting: attributes.stacks keys are mapped through NEU internalName (ATTRIBUTE_SHARD_<KEY>); this matched all 189 pv attributes. shards.owned[].type/amount_owned come from pv, never seen live. Shard icons come from the item repo (SHARD_* ids).
+- The tab bar now squeezes tabs together (they overlap) once they no longer fit in 431px. That happens with Networth plus Hunting and/or Bingo. Needs a visual check.
+- Nothing tested in game (no runClient). Elite API: format checked with curl (/leaderboards and /leaderboards/<uuid>/<profile> work with a dashed profile id); the collection -> leaderboard mapping only matches when elite's "collection" field uses the same ids as our CollectionRepo.
+- API keys taken from skyblock-pv/NEU and never seen here: garden_player_data.analyzed_greenhouse_crops / discovered_greenhouse_crops / copper / larva_consumed, shared_inventory.candy_inventory_contents / carnival_mask_inventory_contents, player_stats.sea_creature_kills, player_data.crafted_generators, events.easter.* (rabbits, employees, time_tower, shop.chocolate_spent), leveling.completed_tasks, objectives.tutorial.
+- Master switch: "Profile Viewer Extras" (pvExtras) is shared with w13-05-pv, which uses the same field. My 8 toggles sit under it (sub-toggles default true, master default false).
+- Tab strip: with extras on, the new "Level & Hoppity" tab plus the other groups' new tabs can push the tab row wider than the window (431px).
+- Basic page: the Catacombs link block only shows while the Info Board (w13-05) is off, because both use the same spot.
+- The SkyBlock level breakdown is an estimate (NEU sblevels.json snapshot bundled). The Core collections part needs CollectionRepo, which loads when the tab is opened.
+- Minion max tiers and xp come from a bundled snapshot of NEU misc.json; the icons use item ids <MINION>_GENERATOR_<tier> from the item repo.
+- Alles nur gebaut, nicht im Spiel gesehen. Master "Profile Viewer Extras" ist default aus, die Unterschalter default an (nur wirksam mit Master).
+- Panorama: Laden der JPGs über CapeImport.decode (ImageIO-Fallback), Blit-Optik/Ränder und Tag/Nacht-Wechsel; /status-Mode-Namen (mining_3, dynamic, …) -> Dateimapping
+- Info Board: Feld profile.cookie_buff_active und networkExp aus dem Player-Objekt (ohne Key evtl. "?"); Fairy-Soul-Max 248 aus skyblock-pv
+- Bingo: /v2/resources/skyblock/bingo (keyless) Format goals/tiers/progress/lore; Bingo-Spielerdaten brauchen weiter einen eigenen API-Key. Nebenbei: alter Pfad crashte bei String-completed_goals (getAsInt), jetzt abgefangen
+- Trophy-Rang: rewards-Array-Deutung und 15/18/18/18-Schwellen aus NEU
+- Tuning-Umrechnung (health x5, cc x0.2, atk speed x0.3, int x2, speed x1.5) aus Skyblocker
+- /tmap lobbylb: 20 Profil-Abrufe in Folge, PV-API-Ratelimit; Tab-Filter UUID v4; "tmap"-Literal wird zusätzlich registriert (Brigadier merged das mit dem bestehenden Baum)
+- Mobs-Tab: 16 Tabs auf Bingo-Profilen ragen ~17px über die Fensterbreite
+- Alles nur gebaut, nicht live getestet (kein runClient laut Regeln).
+- Composter-Tab-Widget-Zeilen (" Organic Matter:", " Fuel:", " Time Left:", " Stored Compost:") und Upgrade-Namen "Composter Speed XV" aus SkyHanni übernommen; Zeitformat "5m 30s"/"INACTIVE".
+- Composter-Menü-Slots 13/46/52 und Lore "Compost Available: n" bzw. "x/y" am Zeilenende; Upgrade-Tooltip "Upgrade Cost:"-Block.
+- Overlay-Füllwerte: Basiswerte aus SkyHanni-REPO Garden.json (live geladen, Fallback eingebaut); die Enchanted-/Compacted-Stufen sind hart verdrahtet (160/25600 usw., Enchanted Hay Bale = 1296, Tightly-Tied = 186624) – IDs wie ENCHANTED_HAY_BLOCK, COMPACTED_WILD_ROSE nicht verifiziert. Strg+Klick sendet /gfs <ID> <n> bzw. /bz <Name>.
+- Crop Milestones: Menü-Lore "Harvest <Crop> on your Garden" + "Total: n", Tab-Zeilen " Wheat 30: 45.2%" / "MAX", Tool-Zähler aus custom_data farmed_cultivating (Fallback mined_crops); Tool-ID-Präfixe aus SkyHanni CropType. Mooshroom-Erkennung über PetTracker-Name.
+- Farming Fortune: Tab-Zeilen "Farming Fortune: ☘1234" / "<Crop> Fortune: ☘123"; Pest-Reduktionstabelle aus SkyHanni.
+- Visitor: Lore-Zeile "Missing items…" im Accept-Offer-Slot.
+- Kopf-Modelle: Render über RenderTypes.entityTranslucent + SkullModel direkt im AFTER_TRANSLUCENT_TERRAIN-Pass; Lage/Drehung und Tönung live prüfen. Planner-Item-Namen müssen per norm() auf die Tabelle passen (z. B. STOPLIGHT-PETAL -> STOPLIGHTPETAL).
+- Neue gemeinsame Datenschicht features/GardenMilestoneData (Datei sbprofiles/.../garden_data.json): Milestone-Crops aus Crop-Milestones-Menü (Lore "Harvest <Crop> on", "Total: n"), Tab-Zeile " <Crop> <tier>: xx%|MAX", Chat "GARDEN MILESTONE <Crop> a➜b", live über den Tool-Zähler (farmed_cultivating / mined_crops, Weizen x0.4 wie SkyHanni). Alle Formate aus SkyHanni, nie live gesehen.
+- w13-06-gar baut parallel GAR-008 (Crop Milestone Display) und bringt vermutlich eine eigene Milestone-Datenschicht mit — nach deren Merge ggf. zusammenlegen.
+- Crops/s wird aus dem Tool-Zähler gemessen (ab 10 s Farmen pro Crop gespeichert); Best Crop Time braucht pro Crop einmal Farmen. Contest-Crop-Unterstreichung liest den "Jacob's Contest"-Block der Tab-Liste (Format geraten).
+- Moonflower/Sunflower-Zuordnung nach Tageszeit, Wild Rose = rose_bush, wie ToolkitCropIcons.
+- Garden Level: Desk Slot 4 / SkyBlock Menu Slot 10, Lore "Progress to Level X", Balkenzeile "x/y", Overflow-Zeile; Visitor-Zeile "+N Garden Experience". Kurve 0,70,70,140,240,600,1500,2000,2500,3000,5x10000, danach 10000 pro Level.
+- Crop Fever: Chat "WOAH! You caught a case of the CROP FEVER", "GONE! Your CROP FEVER has been cured!", "<RARITY> DROP! You dropped Nx <Item>!", Enchant-Key ultimate_crop_fever.
+- DNA Analyzer: Menütitel endet auf " DNA", Board Slots 9-44, Close-Button Slot 49 (von GanKura übernommen).
+- Crop-Milestones-Tooltip: "Max tier reached!" + Balkenzeile; Composter-Upgrades-Stacks aus dem Namen "<Upgrade> <römisch>".
+- Dicer-Titel: Titel mit "DROP!" im Garden werden verworfen, Untertitel mit "Dicer" oder innerhalb 500 ms danach auch.
+- Alles nur live prüfbar; nichts ingame getestet (kein runClient laut Regeln).
+- Tab-Format " Farming Fortune: ☘123" / " <Crop> Fortune: ☘45" (Stats-Widget muss an sein) — Grundlage für "letzte FF pro Crop", Crop-Speed, ETA, Contest-Vorhersage.
+- /cropmilestones: Titel "Crop Milestones", Lore "Harvest <Crop> on ..." und "Total: N" (aus SkyHanni-Regex), Melon/Mushroom-Namen im Lore.
+- Crop Diagnostics: Titel "Crop Diagnostics", Slot 24 Beacon / Slot 21 Wassereimer, Lore-Texte aus SkyHanni.
+- Your Contests: Itemname "Spring 31st, Year 494", Lore "<Crop> Contest", "Your score: ", "GOLD (Top 5%): 1,234".
+- Elite-API: /weight/<uuid>, /leaderboard/<lb>/<uuid>/<profileId>?upcoming=1&previous=1[&mode=ironman|island], /weights/all (Schlüssel der crops-Map für Weight-ETA geraten: key/name/lbName), Profil-Match per SbProfile-Name.
+- Minion-Crystal-Erkennung über Skull-Profil-UUIDs aus NEU (1.8) — ob Hypixel die heute noch nutzt, unklar; Ring nur als horizontaler Kreis auf Kristallhöhe (NEU: Kugelschale).
+- Prismapump = Dark Prismarine neben dem Wasser, Garden-Grenzen der Dirt Wand aus NEU.
+- Crop-Rechner: Mehrstufen-Items (Enchanted Hay Bale, Mutant Nether Wart, ...) über NEU-Rezepte; erster Aufruf kann "Recipe still loading" melden.
+- /ff ist ein Client-Befehl; bei ausgeschaltetem Toggle wird /ff an den Server weitergereicht.
+- Alles nur auf Hypixel prüfbar; Formate aus SkyHanni-Regexes übernommen, nie live gesehen.
+- FF aus Tab-Widget "Farming Fortune: ☘N" / "<Crop> Fortune: ☘N" (Stats-Widget muss an sein); FF/BPS werden erst gespeichert, wenn man den Crop mit passendem Tool farmt (BPS nach >=30 Breaks über >=10 s).
+- Contest-Erkennung per Scoreboard ("Jacob's Contest" + Zeile "○/☘ <Crop> 12m3s"), unabhängig von der Zeilenreihenfolge.
+- "Your Contests": Slot 50 Lore "Claim multiple farming contest", Bracket-Zeilen "GOLD (Top 30%): 1,234", "You placed in the X bracket!", "Reward claimed!" / "Click to claim reward!". Contest-Daten nur im Speicher (wie SkyHanni), also pro Sitzung einige Seiten öffnen.
+- Echtzeit/Website-Links nutzen die SkyBlock-Epoche 1559829300000; Website jetzt eliteskyblock.com (elitebot.dev leitet um). Standard-Taste Links-Strg.
+- Rancher-Schild: Zeilen "^^^^^^" / "Set your…" / "…speed cap!"; Speed = MOVEMENT_SPEED-Basiswert × 1000.
+- Hoe: CUSTOM_DATA levelable_exp/levelable_lvl, Level-Tabelle aus SkyHanni-REPO Garden.json (Fallback eingebaut); Chatzeile "OVERFLOW! Your <tool> has just dropped a Tool Exp Capsule!" wird um "(Level N)" ergänzt; Mute: block.portal.travel Pitch 1.4920635 nur im Garden.
+- Crop Diagnostics: Slot 20 Lore "Next Stage: 1h 2m 3s".
+- Pest Guess: ANGRY_VILLAGER count 1 speed 0, erster Punkt ≤5 Blöcke vom Spieler; Linksklick über Minecraft.startAttack.
+- Money/h: Bazaar-IDs pro Crop (Basis, Enchanted 160, Block 25600) gegen die Bazaar-API geprüft; Carrot/Cocoa/Mushroom ohne 25600er-Stufe; Mooshroom-Anteil nutzt PetTracker (MOOSHROOM_COW + Level).
+
+## Welle 14 (10 Gruppen)
+
+### Neu
+- **Mantid Kill Display** — shows your Mantid reforge bonus (pest kills in the last 10 minutes, max 20) and when the next kills expire (Settings: Garden)
+- **Glowing Mushroom Highlight** — marks glowing mushrooms in the Glowing Mushroom Cave on The Farming Islands (Settings: Garden)
+- **Mousemat Optimal Angles** — clickable crop list next to the Squeaky Mousemat sign that fills in yaw and pitch, with editable angles per crop (Settings: Garden)
+- **No Crop Break** — left clicks on crops do nothing while holding a fishing rod or Sprayonator (Settings: Garden)
+- **Pest Spawn Sound** — mute Hypixel's pest spawn sound, replace it with a repeated sound of your choice, or play a short plumber melody (Settings: Garden)
+- **Pest Bait Overview** — panel next to Pest/Mouse/Vermin Trap menus showing which spray attracts which pests, click to get 64 from sacks (Settings: Garden)
+- **No Crop Rotation** — removes the random offset and rotation of plants so rows look even, Garden only or everywhere (Settings: Garden)
+- **Personal Best Fortune Gain** — after a new Jacob contest personal best, tells you how much crop fortune you gained (Settings: Garden)
+- **Sky Mutations Button** — a map in slot 9 of the Carpenter, Crop Guide, Crop Analyzer and All Mutations menus opens skymutations.eu (Settings: Garden)
+- **Garden Extras** — mute the composter, confirm before deleting a plot preset, and see the Sprayonator cooldown as a durability bar (Settings: Garden)
+- **Barn Solvers** — names the Hungry Hiker's food and turns the Treasure Hunter's hint into a waypoint (Settings: Garden)
+- **Visitor Shopping List** — everything your visitors want, added up with prices and what you already have; click an item to open the bazaar (Settings: Garden)
+- **Visitor Offer Prices** — the Accept Offer tooltip shows item prices, coins per copper and the offer's profit or loss (Settings: Garden)
+- **Visitor Accept/Refuse Guard** — stops you from refusing rare rewards or accepting bad deals, with a bypass key (Settings: Garden)
+- **Visitor Arrival Alerts** — title when a visitor arrives, queue full alert, warp link when away, big item for Jerry/Spaceman/Rhino (Settings: Garden)
+- **Visitor Status Highlight** — visitors glow yellow/green/grey/red by status, with status and rare rewards above their head (Settings: Garden)
+- **Yaw / Pitch Display** — shows your normalized yaw and pitch while farming, for lining up farm designs (Settings: Garden)
+- **Speed Presets** — type /setmaxspeed crops (or cocoa, cane, cactus …) instead of remembering the number, works in the speed-cap sign too (Settings: Garden)
+- **Rare Crop Tracker** — counts Cropie, Squash, Fermento, Helianthus and other RARE CROP! drops with their coin value, per session and all time (Settings: Garden)
+- **Stereo Harmony Display** — shows which vinyl plays and which pest/crop it attracts, crop icons in the Stereo menu and the vinyl for Jacob's current crop highlighted (Settings: Garden)
+- **Plot Borders** — draws the walls and build limit of your current plot on a key or while holding the Sprayonator (Settings: Garden)
+- **Visitor Chat Cleanup** — compacts OFFER ACCEPTED into one line and hides visitor chatter and arrival messages (Settings: Garden)
+- **Visitor's Logbook Navigation** — press F over a visitor in the Logbook to track it with the NPC Finder or warp to its island (Settings: Render)
+- **Visitor Statistics** — lifetime visitor numbers: accepted/denied, copper, XP, coins spent, bits, rarities and rare rewards (Settings: Garden)
+- **Sam's Scythe Blocks** — with Sam's Scythe or the Garden Scythe in hand, every grass, flower and leaf block the swing would break gets a box (Settings: Garden)
+- **Plot Cleanup Helper** — while the scoreboard shows "Cleanup: x%", leftover grass, flowers and leaves get a sponge-colored box (Settings: Garden)
+- **Egg & Toolkit Slot Text** — the Prehistoric Egg shows its walked blocks and hunting toolkit items a red ❒ (Settings: Inventory > Item Numbers)
+- **Zorro's Cape Contest Protection** — blocks claiming Jacob's Contest rewards while Zorro's Cape is not equipped (Settings: Garden)
+- **Phantomleaf Solver** — reads the hint sound's volume and puts beacons on every spot the Phantomleaf can hide in (Settings: Garden)
+- **Visitors Outside Garden** — garden visitors on other islands glow dark red, with an option to block clicking them (always or only on Bingo) (Settings: Garden)
+- **Visitor's Logbook Stats** — total times visited, accepted and denied beside the Visitor's Logbook (Settings: Garden)
+- **Visitor Supercraft Button** — if your sacks hold the ingredients, slot 31 in a visitor menu becomes a Supercraft button that opens the recipe, plus an optional Accept Offer key (Settings: Garden)
+- **Compact Farming Tool Tooltips** — farming tools drop the reforge blurb, generic counter text and Farmhand explanation, values stay (Settings: Garden)
+- **Custom Plot Icons** — pick any inventory item as a plot icon in Configure Plots, also shown in the plot grid (Settings: Garden)
+- **Farming HUD** — cultivating counter, crops per minute from the tool, blocks/s, yaw/pitch and a Jacob contest estimate (Settings: Garden)
+- **Crop Break Tracker** — blocks broken, BPS and farming time per session and day without AFK time, history via /tmap gardenuptime (Settings: Garden)
+- **Farming Keybinds** — remap attack, use, movement, jump and sneak while holding a farming tool in the Garden without touching vanilla binds (Settings: Garden)
+- **Plot Status Colors** — Configure Plots highlights current, pest, sprayed, locked and pasting plots, plus the next plot's unlock price in coins (Settings: Garden)
+- **Always Show Pest Chance** — Pest Overlay shows Bonus Pest Chance all the time and marks it OFF when Hypixel disables it (Settings: Garden)
+- **Carrolyn Helper** — right click a Carrolyn quest item to track Carrolyn or warp to the Crimson Isle (Settings: Garden)
+- **Contest Crops** — the Contest Timers HUD shows the three crops of the running or next Jacob's contest (boosted in gold) and your Top x% placement, with an optional warning before contests with your chosen crops (Settings: Contest Timers)
+- **Pest Finder** — panel with every infested plot and its pest count, plot walls and labels in the world, and a key or /tmap tpinfested that teleports to the nearest infested plot (Settings: Garden)
+- **Pest Tracker** — kills per pest species, drops with rare drop rates, kill coins and spray costs, session and total (Settings: Garden)
+- **Pest Trap Warnings** — reminders for full traps, traps without bait and unplaced traps, plus an optional release key in the trap menu (Settings: Garden)
+- **Pest Spawn Title** — a title on every pest spawn (offline ones too) and an optional compact clickable spawn line that teleports you to the plot (Settings: Garden)
+- **Pest Spawn Stats** — time since the last spawn and the average spawn time in the pest overlay, a separate cooldown for Finnegan's Pest Eradicator, and the countdown pauses in the wardrobe (Settings: Garden)
+- **Garden Warp Aliases** — on the Garden /home, /barn and /tp <plot> become warp/plottp, with hotkeys for warp garden, setspawn and barn (Settings: Chat)
+- **Pest Glow Colors** — picked pests glow green for the current contest crop and teal for the vinyl playing on your Stereo Harmony (Settings: Mob Visuals)
+- **Plot Pest Counts** — shows how many pests sit on each plot in the plot teleport grid and in the Desk's Configure Plots menu (Settings: Garden)
+- **Visitor HUD** — movable "3 visitors (Next in 3m 12s)" display with the waiting visitors' names, keeps estimating once the queue is full (Settings: Garden)
+- **Spray Per Plot** — lists every sprayed plot with its time left in the Pest Overlay and tells you when a spray ran out, even while you were away (Settings: Garden)
+- **Pest Reminder Threshold** — the teleport-to-pests reminder can now wait for a set number of pests or the fortune debuff, with an adjustable repeat interval (Settings: Garden)
+- **Profit Tracker Item Options** — click an item in the farming profit panel to give it its own price source or hide it, plus reset confirmation and Today / This Mayor windows (Settings: Garden)
+- **Mousemat Release Key** — a key that releases the mouse lock after snapping to the Squeaky Mousemat (Settings: Garden)
+- **Mute Vacuum Sound** — silences the loud vacuum sound in the Garden only (Settings: Garden)
+- **Commission HUD** — shows your commissions with progress bars and pops a title + sound when one is done (Settings: Mining)
+- **Commission Waypoints** — labels with distance where your commissions are done, Glacite gemstone spots, and the Emissaries once one is finished (Settings: Mining)
+- **Crystal Nucleus Profit Tracker** — tracks nucleus loot minus Jungle Key and Robot Parts, with a profit chat line after each run (Settings: Mining)
+- **Crystal Hollows Map** — movable minimap of the Hollows with your arrow and every structure the scanner found (Settings: Mining)
+- **Commission Tips** — the Commissions menu tooltip tells you where each commission is done (Settings: Inventory > Commission Highlight)
+- **Treasure Chest Helper** — boxes the treasure chest you just uncovered in the Hollows and marks the lockpick spot (Settings: Mining)
+- **Commission Mob Highlight** — highlights the mobs your open commissions ask for (Settings: Mining)
+- **Hollows Chest Rewards** — the CHEST LOCKPICKED / LOOT CHEST COLLECTED block becomes one line (or greyed, or hidden), full block on hover (Settings: Chat)
+- **Boss Corleone Spawn Title** — a BOSS CORLEONE title the moment Corleone shows up in the Crystal Hollows (Settings: Mob Visuals)
+- **Corpse Key Count** — when mineshaft corpses spawn, one chat line with the corpse count per type and the keys you own (Settings: Mining)
+- **Parts & Crystals Overlay** — shows which Automaton and Divan parts are handed in, carried, in storage or missing, and which Nucleus crystals are found or placed (Settings: Mining)
+- **Block Strength Guide** — /tmap blockstrength shows every mining block with ticks at your Mining Speed and a bar towards instant mine (Settings: Mining)
+- **Block Break Prediction** — the crack animation follows the real SkyBlock break time, with an optional sound when the block breaks (Settings: Mining)
+- **Crystal Hollows Walls** — see-through coloured walls at the quarter borders, around the Nucleus and a heat line at Y 65 (Settings: Mining)
+- **Dark Monolith Finder** — boxes and beams the Dark Monolith egg once you can see it, shows a title and tracks monolith loot (Settings: Mining)
+- **Nucleus Chat Filter** — hides or shortens the chat spam of a Crystal Nucleus run, per message type (Settings: Mining)
+- **Crystal Hollows Pass** — clickable warp lines and a Gwendolyn waypoint when you have no pass, a pass time-left HUD and optional auto renew (Settings: Mining)
+- **Last Death Waypoint** — after dying in the Crystal Hollows, click the chat line to get a waypoint where you died (Settings: Mining)
+- **Commission Block Colors** — ores of your active commissions turn one color, other commission ores turn gray; sneak to toggle (Settings: Mining)
+- **Deep Caverns Guide** — parkour path to the bottom of the Deep Caverns while the lift is locked (Settings: Mining)
+- **Nucleus Labels & Barriers** — big quarter names at the Nucleus exits and boxes around the crystal barriers (Settings: Mining)
+
+### Teilweise
+- GAR-075: Garden > Farming Keybinds (Attack/Use/WASD/Jump/Sneak + On/Off Key + Not In The Barn); Vanilla-Toggle-Keys (Toggle Sneak) nicht speziell behandelt
+- GAR-081: Garden > Profit > Pest Tracker Panel (+ Spray Cost, Rare Drop Rates, Kill Coins, Hide Drop Chat, Price Source, Reset/Session-Total); fehlt: Bits pro Kill, Shards, Uptime ohne AFK nur über den Tracker-Idle-Clock
+- GAR-092: Garden > Profit Tracker > Item Options On Click / Restore Hidden Items / Confirm Reset / Today + Mayor Windows. Fehlt: eigene Items hinzufügen (Skysoft-Panel) und Bestätigung für den Config-Button "Reset All Time Profit"; Panel ist als Klicks gelöst (links = Preisquelle, 2x rechts = ausblenden), kein eigenes Fenster
+
+### Live auf Hypixel prüfen
+- GAR-039: pest kill = "You received Nx <item> for killing a <pest>!" (same rule as FarmProfit's per-species count); Mantid detection via CUSTOM_DATA modifier == "mantid" on armor. Show When is a single dropdown (SkyHanni allows several at once).
+- GAR-040: particle offset 0.5/0.1/0.5 (ENTITY_EFFECT) from SkyHanni; island check via tab "Area: The Farming Islands". Hold time 3 s after the last particle, removed on hit/break.
+- GAR-041: sign detection "Set Yaw Above!" / "Set Pitch Below!" on lines 2/3; yaw goes to line 1, pitch to line 4. Gold highlight = last crop broken in the garden (via FarmSpeed hook).
+- GAR-042: via Fabric AttackBlockCallback (FAIL). Sprayonator = skyblock id or name contains "SPRAYONATOR".
+- GAR-043: detection note_block.bass, pitch 1.4920635, vol 1.0, <15 blocks, garden only; 5 s debounce. Melody timing is tick-based (50 ms).
+- GAR-044: trap titles "Pest Trap"/"Mouse Trap"/"Vermin Trap" matched exactly; /gfs ids COMPOST, PLANT_MATTER, DUNG, HONEY_JAR, CHEESE_FUEL, JELLY, MOONDEW. Field Mouse has no spray, so it is not listed.
+- GAR-045: mixin on BlockStateBase.getSeed/getOffset (like Skysoft); also moves the targeting hitbox of offset plants client side. Chunks rebuild when switching.
+- GAR-046: no repo table available locally, so the items-per-fortune rate is learned from the perk message (only while the perk is below 100). With the perk already maxed and no rate learned yet, it only prints a note. Jacob chat formats come from SkyHanni's regex tests.
+- Alles nur live auf Hypixel prüfbar. Visitor-Menü-Parsing (Slot 13/29/33, Lore "Items Required:" / "Rewards:" / "Click to give!" / "Offers Accepted:") nach SkyHanni/GanKura; Reward-Zeilenformat (+N Copper, +N Garden Experience, Item-Rewards) nie live gesehen.
+- Tab-Liste "Visitors: (N)" mit N Namenszeilen darunter, Namen stripped verglichen. Ohne Visitor-Tabwidget gibt es keine Visitor-Liste.
+- Entity-Zuordnung fürs Highlight: Nametag-Armorstand mit dem Visitor-Namen + nächstes LivingEntity (<0.5 Block horizontal).
+- Preise: Item-Name -> Id über die BazaarPrices-Namenstabelle (neuer public BazaarPrices.idForName), Enchant-Rewards über "Enchanted Book (<Name>)", Copper-Wert = ENCHANTMENT_GREEN_THUMB_1 / 1500.
+- Bestand = Inventar + ItemIndex.sackAmounts (Sack-Menüs einmal öffnen bzw. Live Sack Contents).
+- Composter-Sounds: NEUs 1.8-Namen auf die modernen gemappt (entity.wolf.growl, block.piston.extend, block.water.ambient, entity.chicken.egg), nur im Garden.
+- Preset-Warnung: Titel "Plot Modification:", Lore "Right-Click to delete!" (aus NEUs PresetWarning), zweiter Rechtsklick innerhalb von 3 s löscht.
+- Sprayonator-Cooldown: Chat "SPRAYONATOR! You sprayed Plot - X with Y!" + Lore "Cooldown: Ns" des gehaltenen Sprayonators (Fallback 2 s), jede Id die auf SPRAYONATOR endet.
+- Hiker-/Treasure-Hunter-Tabellen aus Skyblocker, evtl. veraltet. Das Item seltener Visitors ("JERRY;4" usw.) kommt über den NEU-Lookup; der Name wird immer angezeigt.
+- Der Mutations-Knopf erscheint nur, wenn Slot 9 leer oder eine namenlose Glasscheibe ist.
+- Alles nur live auf Hypixel prüfbar, im Dev-Client nicht getestet.
+- Stereo: "Now Playing:" lore in slot 4 / vacuum, "When playing, X Pests" lore, Jacob crop from the scoreboard line "○/☘ <Crop> <time>" (from SkyHanni/Skyblocker regexes); Melon vs "Melon Slice" matched by prefix.
+- Visitor Chat: formats taken from SkyHanni (OFFER ACCEPTED line, "  REWARDS", 4-space reward lines); NPC hide only hides names that appeared under "Visitors: (n)" in the tab list and have a colour other than §e.
+- Visitor Stats: Accept Offer slot 29 / Refuse Offer slot 33, lore sections "Items Required:" / "Rewards:"; coins spent = bazaar insta-buy of the required items; counted only when the OFFER ACCEPTED line follows within 5s.
+- Rare Crop Tracker: item ids for pest crop items (CARROT_ZEST, CHEESE_FUEL …) taken from SkyHanni names; price lookup may miss some.
+- Speed Presets sign relies on line 4 = "speed cap!" (Skyblocker).
+- Plot borders use SkyHanni's geometry (96-block plots, y 66–102, build limit y 77).
+- Alles nur live auf Hypixel prüfbar, kein runClient gemacht.
+- GAR-064: Scoreboard-Zeile "Cleanup: x%" (Format von Skytils); Scan-Radius 24 horizontal, -8/+16 vertikal, max. 4000 Boxen.
+- GAR-066: Contest-Menü per Titel "Your Contests" + Slot 50 Lore "Claim multiple farming contest", claimbar = letzte Lore-Zeile "Click to claim reward!" (SkyHanni-Formate). Den Umhang liest EquipmentDisplay aus /equipment (Capture läuft jetzt auch, wenn nur der Zorro-Schutz an ist). Wurde /equipment noch nie geöffnet, wird geblockt, mit dem Hinweis es einmal zu öffnen. Braucht die Inventory-Section an.
+- GAR-067: Pitch 0.61–0.62 und Volume aus SoundInstance.getVolume() (SkyHanni nimmt das Paket-Volume); Toleranz 0.001 wie bei SkyHanni, rechnet nur im Stillstand.
+- GAR-068: Visitor-Liste aus SkyHanni-REPO Garden.json (mode = HypixelModApi.mode()); Einfärbung als dunkelrote Outline-Glow statt Model-Tint; Bingo-Erkennung über Ⓑ in Tab/Scoreboard.
+- GAR-069: Lore "Times Visited:" / "Offers Accepted:"; Denied = visited - accepted - aktuelle Visitors aus der Tab-Liste.
+- GAR-070: Shopping-Liste aus der "Items Required:"-Lore von Slot 29, Namen über SkyblockItems.idForName, Sack-Mengen aus ItemIndex/SackApi (Sacks müssen einmal geöffnet worden sein), Rezepte aus NeuRecipeIndex. Der Accept-Key klickt Slot 29 (max. alle 300 ms, gesperrt im Legit Mode).
+- Farming-Tooltip-Kürzung: Zeilen "Bonus ..." (dunkelgrau), "Logarithmic Counter"/"Collection Analysis", "Blessed/Bountiful Bonus" aus SkyHanni übernommen (dort selbst deaktiviert), aktuelles Hypixel-Format nicht live gesehen
+- Configure Plots: "Cost:"/"Pasting in progress:"-Lore, Pest-Anzahl aus Lore ("N Pests"), sonst 1 wenn Plot in Tab "Plots:"; Spray-Restzeit aus Chat "SPRAYONATOR! You sprayed Plot - X with ..." (Dauer nach gehaltenem Sprayonator 30/45/60 min) + Tab-Korrektur nur für aktuellen Plot; nur Session-Speicher
+- Next Plot Price: Kostenzeile nach "Cost" als "Name xN"/"Nx Name" geparst
+- Shift+Rechtsklick in Configure Plots wird abgefangen (kein Paket) — prüfen, ob Hypixel dort sonst etwas damit macht
+- Farming HUD: Counter aus custom_data "farmed_cultivating" bzw. "mined_crops"; Contest-Zeile aus Scoreboard "Collected N"/"GOLD with N" (NEU-Regex)
+- Uptime: Visitor-Zeit erkannt über "Accept Offer" in Slot 29, Pest-Zeit über "You received ... for killing a ..."
+- Farm Keys: Blockieren der ursprünglichen Tasten, Maus-Tasten als Ziel, Zusammenspiel mit FishCatchKeySwap
+- Pest Chance disabled: Strikethrough-Erkennung (§m) im Tab-Widget "Bonus Pest Chance:"
+- Carrolyn: Lore "Bring 3,000 of these to Carrolyn", Rechtsklick über UseItemCallback clientseitig; Tracer braucht NPC Finder an
+- Jacob's Contest tab widget format (Crop-Zeilen mit ○/Fortune-Icon, "◆ Top x%", "Starts") und Scoreboard-Cropzeile nur aus SkyHanni/Skyblocker-Regexen übernommen
+- Kalender-Lesen (/calendar Titel "<Monat>, Year N", Items "Day N" mit Lore "Jacob's Farming Contest") und EliteSkyblock-Antwortformat (/contests/at/now, contests: {ts:[crops]})
+- Plot-Geometrie (Plot-Nummer -> 5x5-Slot, Grenzen -240..240) und /plottp mit gescrapten Plot-Namen; Pest-Zahl pro Plot nur aus Spawn-Chat + Scoreboard, sonst "?"
+- Klick auf Pest-Finder-Zeilen geht nur mit "Move Panels From Inventory" im Inventar
+- Pest-Trap Tab-Zeilen "Pest Traps: a/b", "Full Traps: #1, #2", "No Bait: ..."; Release-Slot 16 aus SkyHanni
+- Offline-Spawn-Zeile "While you were offline, ... Pests spawned in Plots 12, 9 and 3!" und das Ausblenden der "CLICK HERE"-Folgezeile
+- Pest-Kill-Coins per Purse-Differenz (2.5 s nach Kill), Rare-Drop-Zuordnung zum zuletzt getöteten Pest, Spray-Zeile "SPRAYONATOR! You sprayed Plot - X with N Spray!"
+- Stereo-Harmony-Menü ("Click to stop playing!") und Vinyl-IDs; Perk-Name "Pest Eradicator" über ElectionApi
+- Desk-Lore "This plot has N Pests!" (Regex aus SkyOcean, mit Glyphen dazwischen) und Chat "N Pests have spawned in Plot - X!" für die Anzahl pro Plot
+- Tab-Liste: Visitor-Namen = die N Zeilen nach "Visitors: (N)" in getOrderedLines (SkyHanni-Logik); Reihenfolge der Tab-Einträge live prüfen
+- Spray-Chat "SPRAYONATOR! You sprayed Plot - N with …!" und "SPLASH! …" (SkyHanni-Regex); Dauer 30/45/60 min je nach zuletzt gehaltenem Sprayonator, Tab korrigiert bei >90 s Abweichung
+- Auto-Schwelle 8 Pests für den Fortune-Debuff ist SkyOceans Fallback-Wert, nicht live verifiziert
+- Today/Mayor-Fenster zählen erst ab Installation (farm_profit_periods.json), Mayor-Term-Formel wie in Tracker
+- Vacuum-Sound-ID minecraft:entity.wither.shoot
+- Commissions-Tab-Widget-Format ("Commissions:" + "Name: 12.3%"/"DONE") nach Skyblocker/Bax, nicht live gesehen; Chatzeile "<NAME> Commission Complete!" nach Bax.
+- Glacite-Erkennung für Waypoints über Spieler-Z > 200 (keine Sub-Area-Abfrage); Koordinaten aus Skyblocker.
+- Nucleus-Loot-Chatformat (Start "CRYSTAL NUCLEUS LOOT BUNDLE", Lootzeilen mit 4 Leerzeichen, Ende 64x ▬, "Nx Name"/"Name xN") nach SkyHanni; Bücher nur mit "(Name Stufe)" im Text erkannt, unbenannte Bücher fehlen (SkyHanni hat dafür einen Inventar-Fallback). Bal-Pet-IDs BAL;3/BAL;4 für Preise unklar.
+- Mob-Highlight: Namen/Max-HP aus SkyHanni (Goblin, Ice Walker, Treasuer Hunter, Automaton 15k/20k, Yog 35k, Thyst 5k, Sludge, Corleone 1M) — prüfen, ob Hypixel die Max-HP-Attribute so setzt.
+- Treasure-Chest-Lockpick: CRIT-Partikel, XP-Orb-Pickup (Pitch 1), Villager-No, Chest-Open nach Skyblocker.
+- Hollows-Map: Kartenbild von Skyblocker (621px, Weltbereich 202..823), Spielerpfeil = vanilla map decoration texture.
+- Commission Tips: Tooltip-Zeile hängt hinter der ersten Lorezeile, die exakt einem Commission-Namen entspricht.
+- MIN-013: chest bar colour detection (yellow/pink ▬ bar, from HypixelSimpleChat test data) and the 4-space gain indent, never seen live here. Non-chest blocks are re-emitted if the next line doesn't fit. Closing bar is rewritten to the summary.
+- MIN-014: Corleone skin hash copied from MobVisualBosses/GanKura; title fires on first sight per appearance.
+- MIN-015: corpse type from helmet ids (MINERAL=Tungsten, YOG=Umber, VANGUARD=Vanguard; Lapis skipped, needs no key); announces once per mineshaft 3s after the first corpse armor stand shows up, so only corpses in entity range get counted. Keys by ids TUNGSTEN_KEY/UMBER_KEY/SKELETON_KEY and sack names "Tungsten Key"/"Umber Key"/"Skeleton Key".
+- MIN-016: learns only from chat (Professor Robot / Keeper lines, CRYSTAL FOUND, "You placed the X Crystal!", "Crystal Loot Bundle" reset) — formats from SkyHanni's CrystalNucleusChatFilter. NEU source wasn't available locally, so it's built from the description. Parts in storage = ender chest/backpack pages from StorageCache (matched by item name). No API sync, so the state starts empty (Reset button in the config).
+- MIN-017/018: block strengths and breaking powers are hardcoded (NEU repo isn't available offline); gemstone/metal-specific speed boni (Professional, Strong Arm, Lapidary) are NOT added — base Mining Speed from the Stats tab widget only. Values for pure ores/hard stone are best-known guesses. /tmap blockstrength <speed> lets you enter a speed by hand.
+- MIN-018: mixin wraps new BlockBreakingRenderState in LevelRenderer.extractBlockDestroyAnimation (checked with javap); only shows when Hypixel actually sends a destroy stage for the block.
+- MIN-019: quad geometry taken from SkyHanni's constants (mid 513, nucleus 463-560 / 460-563, heat Y 65); simplified, only depth-tested walls.
+- Alles nur live prüfbar. Chat-Formate aus SkyHanni übernommen und für gestrippten Text umgeschrieben (MONOLITH!, Nucleus-Meldungen, "You do not have an active Crystal Hollows pass!", Gwendolyn-Zeile, Lift-Operator-Zeile).
+- Nucleus-Filter: ▬-Trennlinien werden per Farbe unterschieden (lila = Kristall gefunden, dunkeltürkis = Run fertig) — aus der Component-Farbe bzw. §-Codes; falls die Farbe anders ankommt, greifen die Blöcke nicht. 3-s-Timeout gegen hängenbleibende Blöcke.
+- Hollows-Pass: Renew-Befehl /purchasecrystallhollowspass und Zeilen "Click here to purchase a new 6 hour pass…" / "You purchased a new pass…" stammen aus den SkyblockExtras-Jar-Strings. Timer startet beim Kauf, sonst beim ersten Betreten der Hollows mit 6 h (Schätzung).
+- Todeswegpunkt: Todeszeile wird als "☠ You …" erkannt, Position = 1 s vor der Zeile.
+- Commission Blocks: tauscht Block-Modelle beim Chunk-Meshing (BlockStateModelSet.get) und lädt Chunks bei jeder Änderung/Schleichen neu (wie SkyHanni) — Performance und Kompatibilität mit Sodium o. ä. prüfen. Tab-Commission-Zeilen "<Name>: xx%" / "DONE" erwartet; Glacite-Zone über Scoreboard "Glacite Tunnels"/"Great Glacite Lake".
+- Dark Monolith: Sichtprüfung per Raycast auf 5 Seiten; Sektions-Palette-Vorfilter (maybeHas) für den 40-Block-Scan.
+
+## Welle 15 (10 Gruppen)
+
+### Neu
+- **Don Expresso Reminder** — a clickable chat line teleports you to Don Expresso when he is full and you still carry Tasty Mithril (Settings: Mining)
+- **Forge Slot HUD** — every Forge slot with its item and time left, read from the tab widget and remembered from the Forge menu so it counts down anywhere, with an optional ready alert (Settings: Mining)
+- **Dwarven Overlay** — one mining HUD with commission %, powders, forge slots, pickaxe cooldown, the next Star Cult and today's Sky Mall perk (Settings: Mining)
+- **Metal Detector Solver** — narrows down the Mines of Divan treasure from the action-bar distance and marks it with a waypoint and a line, plus an ALL TOOLS alert (Settings: Mining)
+- **Drill Fuel Display** — fuel and Pickonimbus durability bars under the item icon and a movable fuel bar while holding a drill (Settings: Mining)
+- **Fossil Excavator Solver** — colours every hidden tile by fossil chance, marks the best one green and adds patterns, minimum tiles and the fossil name to the tooltip (Settings: Mining)
+- **Glacite & Mineshaft Waypoints** — show all Glacite gemstone spots or only the nearest one, and a green Exit waypoint where you entered the Mineshaft (Settings: Mining)
+- **Forge Reminder**: once forge items are done, a chat line lists them with a clickable warp or Call Fred link, repeated every few minutes (Settings: Mining)
+- **Mineshaft Cave-in Timer**: counts down the 60 seconds until a Glacite Mineshaft entrance caves in, and can show time inside plus a cold-based freeze estimate (Settings: Mining)
+- **Custom Commissions Screen**: the Commissions menu becomes one card per commission with a progress bar that turns green when done. Click a card to claim it (Settings: Mining)
+- **Flowstate Helper**: shows the time until your Flowstate streak breaks, the streak out of 200, the mining speed bonus and your best streak (Settings: Mining)
+- **Fossil Excavation Profit Tracker**: tracks Fossil Excavator loot against the Suspicious Scrap spent, with profit per dig and an optional chat summary. Glacite Powder shows as a short stack number in the menu (Settings: Mining)
+- **Gemstone Money per Hour**: coins per hour while gemstone mining, from Pristine procs and rough gems going into your sacks, priced at the tier you sell (Settings: Mining)
+- **Glacite Cold Overlay**: a frost vignette that gets stronger as your Cold rises, so you notice before you freeze (Settings: Mining)
+- **King Talisman Helper** — shows which of the 7 Dwarven kings you have talked to and when each missing king is up next (Settings: Mining)
+- **HotM Powder Reminder** — left-click a perk you can't afford in the HotM menu, and a clickable chat line tells you once you have enough powder for it (Settings: Mining)
+- **Golden Goblin Highlight** — highlights the Golden or Diamond Goblin that spawned for you, with an optional line to it (Settings: Mining)
+- **Ender Node Tracker** — counts Ender Nodes, Endermite Nests, node loot, Enderman pets and Ender armor in The End, with coin value (Settings: The End)
+- **Red Carpets / Dark Mist** — draws Dwarven Mines carpets red so Titanium stands out, and can make The Mist darker (Settings: Mining)
+- **Mute High Heat Sound** — silences the Crystal Hollows heat warning sound (Settings: Mining)
+- **Fossil Excavator Helpers** — hides the Dirt tooltips while digging and adds a "Get Scrap from Sacks" button to the excavator menu (Settings: Mining)
+- **Glacite Tunnels Maps** — path through the Glacite Tunnels to any gemstone type, the campfire or a fairy soul, follows your Collector commission, with campfire and next-spot hotkeys; /tmap tunnels lists the places (Settings: Mining)
+- **Dwarven Mines Map** — overview map of the Dwarven Mines with your position and your open commission areas (Settings: Mining)
+- **Effective Gemstone Powder** — the treasure chest powder line shows what you really get, hover for every multiplier (Settings: Mining)
+- **Hollows Item Info** — tooltips show unlocked gemstone chambers on Divan's armor and blocks walked on a Prehistoric Egg (Settings: Mining)
+- **Powder Tracker** — treasure chest loot, powder and chests per hour and profit while powder grinding (Settings: Mining)
+- **Powder HUD** — your mithril, gemstone and glacite powder with the last gain, without opening the HotM menu (Settings: Mining)
+- **Dwarven NPC Solvers** — marks the Puzzler block and shows Fetchur's item and the Fossil Muncher's fossil instead of their riddles (Settings: Mining)
+- **Mineshaft Type Announce** — on entering a Glacite Mineshaft shows its type and corpses ("Topaz 1 | 2T, 1U"), optional title with the needed keys, since-last stats and party announce (Settings: Mining)
+- **Mining Notifications** — title and sound for mineshaft portals, Suspicious Scrap, Golden/Diamond Goblins, Powder Ghast, nearby Titanium, cold and Sky Mall changes, plus a click-to-grab Ascension Rope line (Settings: Mining)
+- **Mining Events Display** — HUD with the mining events running in your lobby and their time left, Star Cult countdown, raffle ending warning and a Raffle Box waypoint (Settings: Mining)
+- **Corpse Profit Tracker** — tracks Glacite Mineshaft corpse loot minus keys, per corpse type, with a profit line after every corpse (Settings: Mining)
+- **Treasure Chest Timer** — keeps uncovered Crystal Hollows chests with a 60 s countdown, lines to the nearest ones and a count HUD (Settings: Mining)
+- **Powder Mining Chat Filter** — hides cheap treasure chest rewards and chest notices, keeps the rest as short one-liners (Settings: Mining)
+- **Mute Treasure Chest Sounds** — silences the chest discover jingle and open sound in the Crystal Hollows (Settings: Mining)
+- **Mute Metal Detector**: silences the harp ping in the Mines of Divan while the Metal Detector is (or just was) in your hand (Settings: Mining)
+- **Mute Organ Donor**: silences the Organ Donor ping in a Glacite Mineshaft once every corpse has been seen (Settings: Mining)
+- **Wishing Compass Solver**: use a Wishing Compass twice, 8+ blocks apart, and get a waypoint where the trails cross, labelled with the likely target (Settings: Mining)
+- **Pickobulus Helper**: outlines the blocks Pickobulus would break where you aim, with a HUD showing the block count and expected drops (Settings: Mining)
+- **Scatha Alerts**: worm/Scatha spawn title, a ping while the worm is alive, a 30 s spawn-cooldown title and a Scatha pet drop line that shows the rarity (Settings: Mining)
+- **HotM Perk Level**: shows each perk's level on its slot in the Heart of the Mountain menu, gold at max level (Settings: Mining)
+- **Precision Mining Highlight**: boxes the tiny Precision Mining particle on the block you mine, cyan normally and green while you look at it (Settings: Mining)
+- **Unbreakable Carpet Highlight** — fills the grey and light blue carpets on sea lanterns in Dwarven Mines ore veins that can't be mined (Settings: Mining)
+- **HotM / HotF Planner** — click target levels into a Heart of the Mountain/Forest tree and see the total powder and whisper cost; current levels are read from /hotm and /hotf (Settings: Mining, /tmap planner)
+- **Superprotectron Highlight** — highlights the Superprotectron during Goblin Raids (Settings: Mining)
+- **Vanguard Gambling** — a slot machine spins on Vanguard corpse loot and lands on the best drop, with optional spoiler cover over chat (Settings: Mining)
+- **Crystal Hollows Named Waypoints** — waypoints from coords in chat, manual /tmap chwp add, party sharing, scoreboard areas, kept per lobby (Settings: Mining > Crystal Hollows Scanner)
+- **Blocks Per Second HUD** — movable BPS counter for any block you break, anywhere (Settings: Mining, position in /tmap gui)
+- **Commission Status Icons** — Commissions menu shows not started / started / claimable as different books (Settings: Inventory > Commission Highlight)
+- **HotM Menu Helpers** — unused tokens on the heart item, powder spent/total plus shift-click and to-max costs in perk tooltips, and a movable Sky Mall buff HUD (Settings: Mining)
+- **Mineshaft Waypoints** — entrance and ladder waypoints when you enter a mineshaft, labelled corpse waypoints that turn green once looted, party corpse sharing and a key to share the nearest waypoint (Settings: Mining)
+- **Mineshaft Route Auto-Load** — Ordered Waypoints loads the route named like the mineshaft type (e.g. TOPA_1) and can unload it when you leave, plus adjustable trace line thickness (Settings: Ordered Waypoints)
+- **Pigeon Swapper** — switches back to your drill after using the Royal Pigeon in the mines (Settings: Mining)
+- **More Crystal Hollows Structures** — 26 extra landmarks, optional background-thread scanning and a switch for every single structure (Settings: Mining)
+- **Ghost Visuals** — makes Mist ghosts visible, removes their lightning layer and adds a level/HP nametag with Runic ghosts in purple (Settings: Mining)
+- **Slayer Carry Mode** — middle click a slayer boss to track it for boss ESP and the slayer HUDs, or auto-track bosses of a chosen tier (Settings: Combat)
+- **Fire Pillar Countdown** — big purple title for the last 5 seconds of your Inferno Demonlord's fire pillar, optional sound (Settings: Combat)
+- **Blaze Dagger HUD** — shows the active and inactive attunements of your Twilight/Firedust daggers and marks the one matching the nearest Hellion Shield (Settings: Combat)
+- **Bloodfiend Helper** — STEAK! and TWINCLAWS titles plus Blood Ichor / Killer Spring highlights for the Riftstalker Bloodfiend (Settings: Combat)
+- **Fire Pits Warning** — title and sound when your T3/T4 Inferno Demonlord drops below 33% HP (Settings: Combat)
+- **Carry Tracker** — tracks slayer carry customers, counts their boss kills by the "Spawned by" tag and books trade coins as paid, /tmap carry (Settings: Combat)
+- **Hide Hellion Shield Lines** — hides the "hit was reduced by Hellion Shield" and "Strike using the X attunement" spam (Settings: Chat)
+- **Remaining Slayer Kills** — HUD with how many mob kills are left until your slayer boss spawns, measured from your real XP per kill (Settings: Combat)
+- **Active Boss Transparency** — during your boss fight, other mobs (and players, if you want) turn see-through; Magma Cubes in the Burning Desert can fade during a Blaze quest (Settings: Combat)
+- **Blaze Slayer Clear View** — hides particles and fireballs when an Inferno Demonlord, Quazii or Typhoeus is close (Settings: Combat)
+- **Inferno Totem Display** — timer and hit count of the Demonlord totem, with an optional "Totem!" title at a chosen second (Settings: Combat)
+- **Atoned Horror TNT Ping** — pings while you stand on a Rev T5 TNT target block (Settings: Combat)
+- **Gummy Polar Bear Warning + Timer** — warns when you hit with blaze gear and no Gummy Polar Bear is active (with a Bazaar button), plus a 60 min timer HUD (Settings: Combat)
+- **Arachne's Keeper Spawns** — numbered waypoints for the 9 Keeper spawns, and a focus mode that hides all other name tags (Settings: Combat)
+
+### Teilweise
+- MIN-043: Mining > HotM Perk Highlight > Powder Reminder (Title, Repeat, Interval, Clear). Fehlt: NEUs "/Ziel"-Anhang im Tab-Powder-Widget und ein Tooltip-Hinweis auf dem Perk
+- MIN-050: Mining > Dwarven Mines Map (+ Show Commission Areas). SBE map image + SBE world-to-map scale, player arrow, dots for open Dwarven commission areas. Event positions are missing.
+- MIN-059: Mining > Mining Events Display (+ Star Cult, Ending Warning, Raffle Box, Mute Wind). Nur Events der eigenen Lobby (Bossbar + Chat); "kommende Events"/fremde Lobbys fehlen bewusst, das ginge nur über SkyHannis Soopy-Server
+- MIN-061: Mining > Treasure Chest Helper > Chest Timer (Timer über Truhe, Farbe nach Restzeit, Linien zu N nächsten, HUD mit Anzahl). Option "nur mit max Great Explorer" fehlt
+- MIN-077: Mining > Crystal Hollows Scanner > Named Waypoints (Chat / Manual / Shared) + 3 sub-options; /tmap chwp [add|addat|remove|share|list|clear]. Missing: SBE breadcrumbs
+- SLA-011: Combat > Slayer Helpers > Remaining Slayer Kills. Missing: per-mob list with level/max HP/xp from SkyHanni repo data (not available locally). Instead, XP per kill is measured from the scoreboard progress (median of the last 8 gains), so wisdom/combo/pets/mayor are already included. Shows kills left, xp/kill, missing XP, and "Next kill spawns the boss!"
+
+### Live auf Hypixel prüfen
+- Alles nur live prüfbar, kein runClient gemacht.
+- Forge: Tab-Zeilen "1) Item: 1h 2m" / "EMPTY" / "LOCKED" (Skyblocker/NEU-Format), im Forge-Menü Slots 10-16 mit "Time Remaining: ..." im Lore; gesperrte Slots werden an der roten Namensfarbe von "Slot #n" erkannt.
+- Dwarven Overlay: Tab-Widget "Powders:" mit Zeilen "Mithril:/Gemstone:/Glacite:". Sky Mall erscheint erst nach dem nächsten Chat "New day! Your Sky Mall buff changed!" + "New buff: ...". Star Cult nach NEU berechnet (Tag 7/14/21/28, 5 min).
+- Metal Detector: Actionbar "TREASURE: x.xm", Armor-Stands "Keeper of X", Scoreboard "Mines of Divan", die 42 Kisten-Offsets aus Skyblocker.
+- Drill Fuel: Lore "Fuel: 2,345/3k", Actionbar "x/y Drill Fuel", custom_data "pickonimbus_durability" (Max 2000 wie bei Skyblocker).
+- Fossil: Menütitel "Fossil Excavator", weiße Scheibe = Fossil, braune = verdeckt, Lore "Fossil Excavation Progress: x%" / "Chisel Charges Remaining: n".
+- Mineshaft Exit: nimmt die Spawn-Position beim Weltwechsel, wenn das Tab-Area innerhalb von 15 s "Mineshaft" meldet.
+- Don Expresso: Befehl /tptodonexpresso und Item-ID MITHRIL_GOURMAND aus SkyHanni.
+- Alle Chat-/Lore-Formate stammen aus SkyHanni/Skyblocker/Bax/SkyOcean, keins wurde hier live gesehen: "EXCAVATION COMPLETE" + 4-Leerzeichen-Lootzeilen + ▬-Ende, "You didn't find anything. Maybe next time!", Menütitel "Fossil Excavator" / "Start Excavator", Slotname "Glacite Powder x<n>", "PRISTINE! You found ☘ Flawed X Gemstone xN!", Sack-Hover "+N Rough X Gemstone", "Cold: -N❄" auf dem Scoreboard, Campfire-Zeile, Menütitel "Commissions" und dessen Lore (Leerzeile, dann Typ; "COMPLETED", x/y oder %)
+- Cave-in Timer startet, sobald die Tab-Area "Mineshaft" enthält (SkyHanni nutzt dafür den Scoreboard-Mineshaft-Typ), kann also ein paar Sekunden spät starten
+- Excavator-HUD erscheint nur, wenn das Scoreboard "Fossil Research" enthält (oder im Excavator-Menü)
+- Flowstate zählt den Block im Fadenkreuz plus Blöcke, die bis 300 ms danach brechen (wie MineshaftPity); Blöcke, die andere Spieler in der Nähe abbauen, fließen so nicht ein, echte Spread-Blöcke aber schon. Streak-Länge gegen das Spiel prüfen
+- Commissions-Screen: Nav-Buttons werden an Barrier/"Close", "milestone", "filter"/"type" im Namen erkannt, Glass-Panes und Pfeile ignoriert. Karten-Layout und Claim-Klick live prüfen
+- Forge Reminder: /call fred und /warp forge laufen erst nach Klick auf die Chatzeile
+- King Talisman: Rotation/Zeiten 1:1 von SkyHanni (Tag des Monats + 5, mod 7); die Königsposition (129.6/196.5/194.1, 10 Blöcke) und der Chat "You have received a King Talisman!" wurden nie live geprüft
+- Powder Reminder: HotM-Lore-Formate ("You don't have enough ...", Kostenzeile "12,345 Mithril Powder") und Tab-Zeilen "Mithril: 1,234" wurden nie live gesehen. Die Ziele sind @Global, also nicht pro SkyBlock-Profil
+- Golden Goblin: die Zuordnung Nametag/Entity (Name direkt am Mob oder Armor-Stand darüber) und die Chatzeilen "A Golden/Diamond Goblin has spawned!"
+- Ender Node Tracker: Chat "ENDER NODE! You found [Nx ]<item>!" und das Farbformat der Pet-/Rare-Drop-Zeile (Pet-Seltenheit kommt aus dem Farbcode). Mite Gel zählt über Inventar- und Sack-Zuwachs, ein /gfs von Mite Gel im End könnte fälschlich mitzählen
+- Red Carpets / Dark Mist: laufen über einen neuen Mixin auf RenderSectionRegion.getBlockState (Chunk-Rebuild beim Umschalten). Dark Mist gilt wie bei Skytils für alles bis y 76 in den Dwarven Mines
+- High Heat: wolf.pant mit Pitch < 0.55 unter y 66 in den Crystal Hollows; ohne Heat-Wert (den liest TeslaMaps nicht)
+- Excavator: Titel "Fossil Excavator" und das Item "Start Excavator" für die Menü-Erkennung, Button-Position links neben der Kiste; der Sackbestand kommt aus SackApi (braucht die Sack-API an)
+- Tunnels Maps: node names/color codes of SkyHanni's GLACITE_TUNNELS graph (Campfire/Fairy/gem grouping), Commissions menu lore ("X Collector", "- N Glacite Powder", "COMPLETED"), scoreboard ⏣ area names, /warp basecamp key
+- Dwarven Mines Map: SBE calibration checked only against the King's throne coordinates; arrow/dots position live
+- Effective Gemstone Powder: drill lore wording ("Grants +X% Gemstone Powder", "Earn +X% Powder from all sources"), "Powder Buff" HotM item name, "New buff:" Sky Mall chat line
+- Powder Tracker: chest block format ("CHEST LOCKPICKED", 4-space reward lines, gem symbol prefix, ▬ end bar) taken from SkyHanni/Skyblocker regexes
+- Powder HUD: tab lines "Mithril: n" / "Gemstone: n" / "Glacite: n"
+- NPC Solvers: Puzzler arrow direction mapping and y=195 block, Fetchur/Fossil riddle texts from Skyblocker
+- Hollows Item Info: NBT keys blocks_walked and gems.unlocked_slots
+- Mineshaft-Typ: Scoreboard-Format der Shaft-ID (TOPA_1 / TOPA1 / JASP_C ...) nur aus SkyHannis Enum/Migration abgeleitet; Regex nimmt beides
+- Mineshaft-Korpse werden 2 s nach Typ-Erkennung gezählt; Leichen in nicht geladenen Chunks fehlen evtl. in der Zählung
+- Party-Echo-Ausblenden, Wind-Mute und Powder-Filter hängen in ChatFilter.process und brauchen den Chat-Sektionsschalter an
+- Chatzeilen aus fremden Mods: "WOW! You found a Glacite Mineshaft portal!", "EXCAVATOR! You found a Suspicious Scrap!", "Find the Powder Ghast near the", "New day! Your Sky Mall buff changed!" + "New buff:", Cold-Scoreboard "Cold: -N❄", "12:00am"-Scoreboardzeile
+- Wind-Mute: Text "The wind has changed direction" geraten (keine Referenz)
+- Mining-Events: Bossbar-Format "(PASSIVE )EVENT X ACTIVE IN Y for mm:ss / RUNNING FOR mm:ss" und "X STARTED!/ENDED!" aus SkyHanni-Regex-Tests; Raffle-Box-Chat "You registered ... in the raffle event!" aus Skytils
+- Star Cult: angenommen 7./14./21./28. jedes SkyBlock-Monats, 00:00–06:00 (5 min real)
+- Corpse-Loot-Parsing (Gem-Symbol vor Gemstones, "Glacite Powder xN", Enchanted-Book-Namen) und Resourceful-Zeile nur aus SkyHanni übernommen
+- Titanium-Alarm: Blockupdate zu Polished Diorite ≤12 Blöcke in den Dwarven Mines (NEU-Logik ohne Commission-Bedingung)
+- Treasure-Chest-Mute: Pitch/Volume 1.0 exakt wie SkyHanni, live prüfen, ob echte Level-ups anders klingen
+- MIN-064: Mines-of-Divan-Erkennung über die Scoreboard-Zeile "Mines of Divan"; Item-ID DWARVEN_METAL_DETECTOR (aus SkyHanni)
+- MIN-065: Gesamtzahl der Leichen aus den Tab-Widget-Zeilen " Lapis: NOT LOOTED" (SkyHanni-Regex); "gefunden" = Leichen-Armor-Stand war einmal in Sichtlinie (SkyHanni verlangt 10 Ticks). Mutet danach jeden Harfen-Sound im Mineshaft
+- MIN-066: Partikelspur (HAPPY_VILLAGER, 25 pro Linie), Zonen-Boxen und Tab-Zeilen "Crystals:"/"Amethyst: ✖ Not Found"/"King's Scent" alle aus Skyblocker. Anders als Skyblocker wird die Kompass-Nutzung nie gecancelt, es gibt nur einen Chat-Hinweis. Der Wegpunkt verschwindet in 8 Blöcken Nähe oder beim Weltwechsel
+- MIN-067: Cooldown aus der Tab-Zeile "Pickobulus: <state>"; Ability-Check sucht die Lore-Zeile "Ability: Pickobulus"; Glacite Tunnels über das Scoreboard ("Glacite Tunnels"/"Great Glacite Lake"). Die Drop-Werte sind Skyblockers Schätzungen
+- MIN-068: Wurm-Erkennung über Skull-Textur-Hash df03ad96… + Max-HP des Armor Stands 5 (Wurm) / 10 (Scatha), aus SkyOcean; keine Derpy-Behandlung. Pet-Drop-Format "PET DROP! Scatha (+X% ✯ Magic Find)", Rarität aus dem Farbcode vor "Scatha"
+- MIN-069: Lore-Zeile 1 "Level a/b" (Max = ohne "/b"); Kohle (gesperrte Perks) ausgenommen, nur Slots 0-44
+- MIN-071: CRIT/HAPPY_VILLAGER-Partikel im anvisierten Block bei gedrückter Angriffstaste, nur auf Mining-Inseln
+- Carpet: colors/sea-lantern rule taken from Skyblocker, never seen live here
+- Planner: HotM/HotF menu perk names + "Level N/M" lore matched against perks.json names; cost uses cost(level) per step L->L+1, level 1 free (token) — verify against the game's numbers
+- Superprotectron: matched by entity name or armor-stand nametag "Superprotectron" + nearest mob below; entity type unknown
+- Vanguard: chat format (" VANGUARD CORPSE LOOT!", indented item lines "Name xN", 64x ▬ end) from SkyOcean; item name -> id via PriceManager/SkyblockItems; Frostbitten Dye/Shattered Pendant/Caged Wisp ids guessed from SkyOcean fallback
+- CH waypoints: player chat parsing (text after first ": "), lobby id from Mod API serverName or scoreboard date line, subzone names from the ⏣ line; click menu runs client command via RunCommand
+- BPS: counts the crosshair block turning into air/bedrock (client block update); Hypixel mining with server-side breaking never tested
+- Commission icons: last lore line "0%" / "Click to claim rewards!" per SkyOcean
+- HotM: Token-Zeile "Token(s) of the Mountain: n", Sky-Mall-Lore unter "Your Current Effect" und Chat "New buff: ..." (Chat-Hook könnte hinter ChatFilters Kompakt-Rewrite liegen, dann liest nur das Menü); Powder-Formeln aus SkyHannis HotmData, Blue-Egg-Bonuslevel nicht abgezogen
+- Mineshaft: Spawn = erster absoluter Teleport pro Welt (handleMovePlayer), Leiter-Offset 7 vor / 2 rechts / 15 runter nach SkyHanni; "Mineshaft" im Scoreboard als Erkennung. Überschneidet sich mit MineshaftExitWaypoint (andere Gruppe, auch Spawn-Wegpunkt) — beide getrennt schaltbar
+- Corpse-Waypoints nutzen CorpseFinder (Line of Sight), Party-Koordinaten "x: y: z: | (Lapis Corpse)" erzeugen neue Waypoints nur mit Typ in Klammern
+- Shaft-Typ-Token (TOPA_1 etc.) im Scoreboard-Serverline laut SkyHanni, live nie gesehen
+- Pigeon: skyblock id ROYAL_PIGEON, Drill = Hotbar-Item mit "Drill" im Namen, Area aus Tab (dwarven/crystal hollows/mineshaft)
+- Landmark-Muster aus legitcatmod (dekompiliert, Yarn->Mojang übersetzt), Quartiere teils geraten (Jungle-Namen = Jungle-Quartier, Rest ANY); Off-Thread liest Chunk-Sections parallel zum Main-Thread
+- Ghosts: Erkennung max HP >= 1M oder jeder Creeper in den Dwarven Mines; Runic = max HP exakt 4M; HP-Werte hängen davon ab, dass Hypixel echte Health-Attribute schickt
+- Carry Mode: Middle-Click-Erkennung über GLFW-Poll + crosshairPickEntity, Boss-Tier-Parse aus dem Nametag ("... Demonlord IV") nie live gesehen
+- Fire Pillar: Nametag-Format "Ns N hits" aus Skyblocker/SkyHanni; Titel nur bei eigener Inferno-Quest (Scoreboard "Slay the boss!") und <=22 Blöcke
+- Dagger HUD: Hypixel-Attunement-Titel muss stripped exakt ASHEN/SPIRIT/CRYSTAL/AURIC sein; Lore "Attuned: X"; Schild-Tag "SPIRIT ♨n" im 10er-Radius; Rechtsklick-Toggle über UseItemCallback
+- Fire Pits: Max-HP = höchste gesehene HP des eigenen Boss-Tags (kein Tabellenwert); nur T3/T4
+- Bloodfiend: Steak über "҉" im Boss-Tag (Skyblocker), TWINCLAWS-Stand im 2.5er-Radius des Boss-Tags; Ichor/Spring über Skull-Textur-Hash aus SkyHanni-Repo (Skulls.json)
+- Carry Tracker: Kill = Boss-Tag endet auf " 0❤" oder wird innerhalb von 24 Blöcken entfernt; Trade-Zeilen "Trade completed with [RANK] Name!" + "+ 500k coins" (SkyHanni-Format, stripped); falls der Inferno-Boss-Tag in Demon-Phasen verschwindet, würde fälschlich gezählt
+- Hellion-Filter: Regex aus Skyblocker
+- Scoreboard progress format "(120/1,500) Combat XP" for Remaining Slayer Kills (taken from SkyHanni's regex)
+- Totem armor stand name "12s 5 hits" (from Skytils' totemRegex); which totem is yours is picked as the one nearest your boss
+- Burning Desert detection through the scoreboard "⏣ Burning Desert" line; the NPC check for transparency (player entity whose tag has no ❤)
+- Rev5 TNT danger blocks (white/light gray/red terracotta, quartz/acacia slab and stairs, bedrock), translated from Skytils' 1.8 colour ids
+- Blaze dagger ids (*DUST_DAGGER / *FIRE_DAGGER / *MAW_DAGGER) and the habanero enchant key "ultimate_habanero_tactics"
+- The Gummy check also reads EffectTimers' Smoldering Polarization expiry (new accessor EffectTimers.expiresAt), but only while Effect Timers is on
+- Keeper coordinates come straight from DulkirMod (1.8 era); they may have moved since
+
+## Welle 16 (10 Gruppen)
+
+### Neu
+- **Hide Enderman Particles** — in The End, smoke/flame/witch particles around Endermen are dropped for a clearer Zealot/Voidgloom grind (Settings: Combat)
+- **Hide Slayer Mob Names** — name tags of normal slayer mobs at full or 0 HP are hidden, only damaged mobs still show HP (Settings: Combat)
+- **Hide Pacified Blazes** — with Smoldering Polarization during your Inferno Demonlord fight, blazes more than 3 blocks away are not rendered (Settings: Combat)
+- **Hide Others' Broken Heart Radiation** — while your Voidgloom Seraph is alive, other Seraphs' guardian lasers are hidden (Settings: Combat)
+- **Vengeance Timer** — first Pyrochaos Dagger hit on your Inferno boss starts a "Veng proc" countdown, optional "Veng DMG" chat line for big splashes (Settings: Combat)
+- **Block Not Spawnable Slayers** — the Slayer menu ignores clicks on bosses that can't be spawned here (Settings: Combat)
+- **Slayer Boss HUD** — movable panel with the tracked boss's name, HP bar, quest timer and "Spawned by" (Settings: Combat)
+- **Slayer RNG Stats** — the slayer Profit Tracker now shows bosses and time since your last RNG drop plus your recent kill times; /tmap undolastslayer takes back a miscounted boss (Settings: Interface)
+- **Boss Spawn Soon Warning** — title, beep and chat message once your slayer quest passes a set percentage (Settings: Combat)
+- **Slayer Quest Warning** — warns you when you hit slayer mobs without an active quest or with the wrong quest for the area (Settings: Combat)
+- **Slayer Level HUD** — shows your slayer level, XP to the next level and how many bosses are left until level up (Settings: Combat)
+- **Slayer RNG Meter Display** — "<item> in N bosses!" for your selected RNG Meter drop, and the meter percentage in chat when it drops (Settings: Combat)
+- **Voidgloom Laser Timer** — countdown over your Voidgloom Seraph during the laser phase (Settings: Combat)
+- **Clean Slayer Nametag** — a tidy nametag over slayer bosses with name, HP, hits, laser and quest timer, and an option to hide Hypixel's own tags (Settings: Combat)
+- **Slayer Items On Ground** — shows name and price above dropped items near you during a slayer quest, with an optional minimum price (Settings: Combat)
+- **Unclaimed Slayer Rewards** — rewards you can still claim in the Slayer LVL Rewards menu get a green background (Settings: Inventory > Progress Highlight)
+- **Tarantula Highlights** — marks Egg Sacs and the Broodfather while its hatchlings make it invincible (Settings: Combat)
+- **Soulflow Display** — HUD with your internalized soulflow plus an optional "Low Soulflow" title below a threshold (Settings: Skills > Deployable Overlay)
+- **Hide Slayer Spawn Particles** — hides enchant/witch/effect particles around mobs that just died during a slayer quest (Settings: Combat)
+- **Hide Sven Pup Nametags** — hides the Sven Pup name tags in the Sven fight (Settings: Combat)
+- **Compact Slayer Quest Chat** — quest started + objective and quest complete + level line are merged into one block each (Settings: Combat)
+- **Slayer Tier Lock** — blocks clicks on a different slayer type or tier than your last quest in Maddox's menu, hold Ctrl to override (Settings: Combat)
+- **Slayer Armor Progress** — shows kill progress to the next defense upgrade for worn Revenant/Tarantula/Final Destination/Reaper pieces (Settings: Combat)
+- **Voidgloom HUD** — boss HP or hits left, beacon held/placed with timer and Nukekubi skulls nearby in one panel (Settings: Combat)
+- **Nukekubi Skull Highlight** — Nukekubi skulls near a Voidgloom fight glow in a configurable style (Settings: Combat)
+- **Hide Voidgloom Laser** — hides the guardian beam of all, your own, your carries' or other players' Voidgloom bosses (Settings: Combat)
+- **Hide Mobs at the Seraph** — summons, pets and players within 5 blocks of a Voidgloom Seraph are not drawn (Settings: Combat)
+- **Zealot / Bruiser Spawn Points** — shows the fixed spawn points in Dragon's Nest and the Bruiser Hideout with an 8 s respawn timer and optional boxes (Settings: The End)
+- **Killer Spring Lines** — draws a line from your Bloodfiend's head to every Killer Spring tower (Settings: Combat)
+- **Killer Spring Sound Fix** — drops duplicate wither spawn sounds in the Rift so the Killer Spring no longer silences every other sound (Settings: Combat)
+- **Demon Attunement Colors** — Inferno demons like Quazii and Typhoeus get their Hellion Shield colour in the Boss ESP, IMMUNE shows red (Settings: Combat)
+- **Tracer To Boss** — optional line from your crosshair to the tracked slayer boss (Settings: Combat)
+- **Flare Demon** — now counts as an Inferno miniboss for the miniboss ESP and tracers (Settings: Combat)
+- **Arachne QOL** — while Arachne is loaded, hides other players and lets hits go through cobwebs (Settings: Combat)
+- **Slayer Stats** — average kill and spawn time plus slayer XP/h in the Tracker HUD, reset when you switch slayer type (Settings: Skills)
+- **Miniboss Tracer Options** — tracer width, max range, line-of-sight filter and cocoon marking for slayer minibosses (Settings: Combat)
+- **Slayer Sound Mutes** — one-click mutes for blaze sounds on the Crimson Isle, wolf sounds in the Park/Hub and spider/skeleton sounds in the Spider's Den (Settings: Sounds)
+- **Call Maddox After Fail** — a failed slayer quest posts a clickable chat line that runs /call slayer (Settings: Combat)
+- **Voidgloom Beacon Helper** — "Yang Glyph!" title when your Voidgloom throws its beacon, red flight line, and the landed beacon highlighted through walls with an explosion countdown (Settings: Combat)
+- **Enderman QoL** — hide the red hurt flash on endermen, color Special/chest Zealots, and optionally stop endermen from visually teleporting (Settings: The End)
+- **Build Helper** — Kuudra build HUD with build %, builders, freshers and a start countdown, beams over unfinished piles, optional ballista text and a "Go to stun" alert from T3 up (Settings: Kuudra)
+- **Kuudra Danger Warning** — "DANGER / JUMP!" title in the stage colour when the floor under you is about to break (Settings: Kuudra)
+- **Fresh Tools** — announces FRESH to party, lists your party's fresh timers in a HUD, timers above heads and optional glow (Settings: Kuudra)
+- **Hide Damage Title** — hides Kuudra's "240M/240M" damage title (Settings: Kuudra)
+- **Block Useless Perks** — blocks misclicks on useless perks in the Kuudra Perk Menu (Settings: Kuudra)
+- **Ichor Pool Area** — draws the 8-block Ichor Pool circle for 20 s when you or a party member casts it (Settings: Kuudra)
+- **Compact Supply Message** — short supply recovered line with run time and count, pickup spam hidden (Settings: Kuudra)
+- **Elle Highlight** — box around Elle during the build phase (Settings: Kuudra)
+- **Kuudra Distance Display**: shows your distance to Kuudra during the fight phases, green inside Bonemerang range (Settings: Kuudra)
+- **Kuudra Run Tracking**: TeslaMaps now tracks Kuudra tier and phases (supplies, build, eaten, stun, DPS, skip, lair), and the other Kuudra features build on it (Settings: Kuudra)
+- **Kuudra Splits**: per-phase splits HUD with PBs per tier, a chat line per split, T5 pace and time lost to lag (Settings: Kuudra)
+- **Kuudra Alerts**: titles with sound for SOS reminder, supplies, build start and end, Ichor, cannonball, "No <spot>" calls, missing key and more (Settings: Kuudra)
+- **Kuudra Spawn Direction**: big RIGHT/LEFT/FRONT/BACK title where Kuudra surfaces in P4 (Settings: Kuudra)
+- **No Pre Callouts**: registers your pre spot, tells the party if your pre or second spot is missing a supply, and shows where to go on other players' calls (Settings: Kuudra)
+- **Kuudra Tick Timers**: server-tick countdowns until the supplies spawn and until the build starts (Settings: Kuudra)
+- **Kuudra Hider**: hides mob level tags, nameless armor stands and the Kuudra bossbar, shrinks the island's zombies and turns P4 tentacles into wireframes (Settings: Hide)
+- **Kuudra Profit Tracker** — adds up every opened Kuudra chest (loot minus key and Kismet), paid/free chests, runs, fails and profit per hour, per session and in total (Settings: Croesus)
+- **Arrow Poison Warning** — title and sound when you swap to a bow in the Kuudra DPS phase with no or low Toxic Arrow Poison (Settings: Kuudra)
+- **Backbone / Rend Helpers** — Bonemerang backbone timer bar, ferocity proc message and rend pull damage in Kuudra's lair (Settings: Kuudra)
+- **Infernal Key & Pending Run Tracker** — counts bought Infernal keys and chests still waiting at Vesuvius (Settings: Kuudra)
+- **Supply Splits** — HUD list of who placed each supply and when (Settings: Kuudra > Splits)
+- **Kuudra QoL** — hide Kuudra while holding Aspect/etherwarp in P3, cannon frames, P1 menu misclick block, supply-taken sound, useless perks marked red (Settings: Kuudra)
+- **Supply Helper** — supply waypoints from the giants, drop-off pads, giant and crate boxes with the reachable part, pre-spawn circles for your fishing hook (Settings: Kuudra)
+- **Supply Progress HUD** — movable pick-up bar instead of the centre title, plus an "Already Picking" alert (Settings: Kuudra)
+- **Stun Waypoint**: after buying the Human Cannonball, a box marks the belly block to break (offset to you before launch, fixed inside Kuudra) (Settings: Kuudra > Build Helper)
+- **Block Profile Viewer**: right-clicking real players in Kuudra (optionally dungeons) no longer opens the profile viewer; item abilities still fire (Settings: Kuudra)
+- **Pile Waypoints**: beam boxes on the supply piles during supplies, and the pile of a "No <pre>!" callout turns red (Settings: Kuudra > Supplies)
+- **Double Pearl Warning**: while picking up a supply, you get a DOUBLE PEARL title, a sound and a red box when your pearl would spawn inside a supply giant (Settings: Kuudra > Supplies)
+- **Shop Helper**: Shop / X Cannon tentacles get named S1-S5 / XC1-XC3, boxed and called out, with the safe spot for that combo shown (Settings: Kuudra > Supplies)
+- **Lag Tracker**: prints how many seconds of a Kuudra run were lost to server lag, optionally to party chat (Settings: Kuudra)
+- **Kuudra Auto Requeue**: auto requeue now also fires after Kuudra; !dt / .dt [reason] cancels it with a REQUEUE CANCELLED title, and it can pause after very fast runs (Settings: Party > Auto Requeue)
+- **Vesuvius Highlights**: the Croesus run highlights now also work in Vesuvius' Kuudra chest menu (Settings: Croesus)
+
+### Teilweise
+- SLA-026: Interface > Profit Tracker > "  Slayer: Bosses Since RNG + Recent Kills". Drops, mob coins, Questkosten, Bosse, Profit/Boss und Profit/h gab es schon im ProfitTracker (Slayer-Presets). Neu dazu: Bosse und Zeit seit dem letzten RNG pro Slayer (bleibt gespeichert), die letzten 5 Kill-Zeiten und /tmap undolastslayer. Was fehlt: kein eigener Tracker pro Tier (Slayer-Typ reicht, schlank gehalten) und keine Drop-Rate im Hover.
+- SLA-030: Combat > Slayer RNG Meter Display (+ Warn Without Selected Item, Hide RNG Meter Chat Lines), verschiebbar in /tmap gui. Was fehlt: HUD ist nicht klickbar für /rng, und das Item wird nur aus dem RNG-Meter-Menü gelesen (nicht aus Slot 35 im Slayer-Menü).
+
+### Live auf Hypixel prüfen
+- SLA-023: Proc-Dauer unbekannt (Zen-Quelle nicht lokal) — Default 6.0 s, per Slider "Proc Delay (s)" einstellbar; bitte live messen. Pyrochaos-Erkennung über Itemname "Pyrochaos Dagger".
+- SLA-023: Veng DMG = jeder Damage-Splash >500k innerhalb 5 Blöcken vom eigenen Boss, sobald im Kampf einmal mit Pyrochaos getroffen wurde — normale Treffer >500k (T4) können mitgezählt werden; Splash-Format (✧, Kommas) nicht live gesehen.
+- SLA-022: Zuordnung Guardian -> Seraph geraten (Beam-Ziel == eigener Boss bleibt sichtbar, ohne Ziel: <5 Blöcke vom eigenen Boss bleibt sichtbar). Skytils-Quelle nicht vorhanden.
+- SLA-020: Nametag-Regex inkl. Mob-Icon-Zeichen aus SkyHanni übernommen, live nicht gesehen.
+- SLA-025: Timer-Stand ("02:59") und "Spawned by" über Nachbar-ArmorStands (±1.5 Blöcke) gefunden; Max-HP-Tabelle aus Skyblocker (bei höherer gelesener HP, z. B. Inferno-Schild, wächst Max mit).
+- SLA-024: Menü-Titel muss exakt "Slayer" sein (wie bei SkyHanni).
+- SLA-021: nutzt InfernoHelper.gummyActive() (Gummy-Timer oder Effekt "Smoldering Polarization I").
+- Alle Chat-Formate stammen aus SkyHanni/Skyblocker und wurden hier nie live gesehen: "RNG Meter - X Stored XP", "<Type> Slayer LVL n - Next LVL in X XP!", "LVL UP! ➜ ...", "SLAYER QUEST FAILED!", Anfänge von RNG-Drop-Zeilen (CRAZY RARE / INSANE / PRAY TO RNGESUS / RNGESUS INCARNATE / "RNG METER! ")
+- RNG-Meter-Menü: Titel "<Boss> RNG Meter", Lore-Marker "SELECTED" und die Zeile "x/y" nach "Progress:" bzw. "Slayer XP:". Bei Enchanted Books steht evtl. nur "Enchanted Book" als Name
+- Quest Warning: die Namen der Scoreboard-Subgebiete (Graveyard, Coal Mine, Ruins, Howling Cave, Burning Desert, Smoldering Tomb) und die Inselnamen in der Tab-Liste; Vampire bewusst weggelassen
+- Laser-Timer: Start, sobald der Boss auf einem ArmorStand reitet (so macht es Skyblocker), 8,2 s lang, 10 s Sperre gegen Doppelstart
+- Nametag: Hypixel-Tag im Hits-Phase-Format "X Hits", Quest-Timer-Stand "mm:ss" um den Boss-Tag herum, Position/Abstand der Zeilen
+- Boss Soon: Muster der Fortschrittszeile "(x/y) Combat XP" bzw. "x/y Kills"
+- "Bosses since RNG" kommt vom Chat-Timing: ein Drop bis 5 s vor "NICE! SLAYER BOSS SLAIN!" zählt noch zu diesem Boss
+- SLA-033: item id / hover name of ground ItemEntities on Hypixel (SkyHanni reads the internal name the same way); area mapping per boss (Hub / Spider's Den + Crimson Isle / The End / Crimson Isle / The Rift)
+- SLA-034: exact menu title ending "Slayer LVL Rewards" and last lore line "Click to claim rewards!" (from Skyblocker)
+- SLA-035: egg sac timer format "12s 3/4" next to "SHOOT ME!" and unnamed part stands within 1.2 blocks (from SkyHanni); invincible target = last Spider you hit before the hatchlings message
+- SLA-036: lore line "Internalized: ..." on SOULFLOW_PILE/BATTERY/SUPERCELL (from Skytils, 1.8-era); HUD and warning only run while Deployable Overlay is on (structure hint)
+- SLA-037: dead-mob detection relies on health metadata reaching 0 before Hypixel removes the entity
+- SLA-039: chat formats "» Slay X Combat XP worth of Y." and "<Mob> Slayer LVL n - Next LVL in X XP" (from HypixelSimpleChat); multi-line replacement via "\n"; unmatched "started"/"complete" fall back to a short emitted line (complete after 3 s)
+- Merge note: w16-00-sla also created slayer/SlayerHiders.java, so my class is slayer/SlayerSpawnHiders.java; both are registered and wired
+- SLA-040: Maddox menu item names ("Revenant Horror IV" etc.) and titles ("Slayer" or containing the boss name) are assumed, never seen live. Last quest is taken from the scoreboard; Atoned Horror/Conjoined Brood map to "Revenant Horror V"/"Tarantula Broodfather V".
+- SLA-041: lore regex "Next Upgrade: +N❈ (a/b)" from SkyblockAddons (1.8.9), may have changed.
+- SLA-043: hit-phase tag format "<n> Hits" assumed; beacon-placed = beacon block within 10 blocks of the boss, 5 s countdown (SkyHanni value); holding = EnderMan carried block is a beacon.
+- SLA-044: Nukekubi texture hash from Skyblocker's HeadTextures.NUKEKUBI; glow on marker armor stands untested.
+- SLA-045: GuardianBeamMixin clears attackTargetPosition in GuardianRenderer.extractRenderState; guardian->boss mapping = nearest Seraph within 20 blocks, owner via "Spawned by"; carries = names in the Carry Tracker list.
+- SLA-047: coordinates from Zen 1.2.0 (one typo fixed: -96,55,-216 -> -596,55,-216); area detection by distance to the spawn clusters instead of the scoreboard subarea; spawn = a new "Zealot"/"Zealot Bruiser" nametag with ❤.
+- Overlap to review: master already has SlayerHiders "Hide Others' Broken Heart Radiation" (hides other Seraphs' guardians while your own boss lives) and SlayerBossHud (generic boss HUD); mine are the filtered laser hider and the Voidgloom-specific HUD, both kept.
+- Flare Demon nametag format (Pattern jetzt "(♨ )?Flare Demon <hp>❤") nie live gesehen.
+- Demon-Attunement: Nametag-Wörter ASHEN/SPIRIT/CRYSTAL/AURIC/IMMUNE in Stands bis 2.5 Blöcke über dem Mob (Skyblocker-Logik); normale Blazes direkt neben dem Boss könnten dessen Farbe erben.
+- Cocoon-Erkennung: Armor Stand mit RIFT_LARVA-Skull (Hash aus SkyHanni-Repo Skulls.json) max. 2 Blöcke von einer Miniboss-Position der letzten 3 s.
+- Killer-Spring-Sound-Fix greift in der ganzen Rift (SkyHanni: nur Stillgore Chateau), dedupliziert "entity.wither.spawn" pro Client-Tick.
+- Spring-Linie geht vom eigenen/getrackten Boss zu allen Springs im 30er-Radius (SkyHanni ordnet per Partikel zu).
+- Arachne-Erkennung: Stand-Name enthält "Arachne " + "❤", nicht "Arachne's", nur in Spider's Den. Cobweb-Durchklicken via ClipContext.getBlockShape (ToS grau, laut Regeln ohne cw, aber nur mit Toggle aktiv).
+- Slayer-XP/h: feste Tabelle (T1-5: 5/25/100/500/1500, Vampire 10/25/60/120/150), Aatrox-Perk "Slayer XP Buff" +25% aus ElectionApi.
+- Yang-Glyph-Erkennung über den Carry-State (Beacon -> leer) des eigenen Voidgloom-Bosses; verlässt sich darauf, dass SlayerHUD den eigenen Boss als EnderMan paart und Hypixel/Via den Carried-Block synct
+- Beacon-ArmorStand-Erkennung (Beacon auf dem Kopf) und Beacon-Block-Update, Timer 5 s aus Skyblocker
+- Sound-IDs und Area-Namen ("Crimson Isle", "The Park", "Hub", "Spider's Den", Rift = Area enthält "Rift") live prüfen
+- Stop Enderman Teleport: fängt TeleportEntity/EntityPositionSync > 4 Blöcke ab, hält 3 s, schiebt danach auf die echte Position; wie Via die 1.8-Teleports übersetzt, ist ungeprüft
+- Stage Colors: Special Zealot = END_PORTAL_FRAME, Chest Zealot = ENDER_CHEST als Carried Block (SkyHanni-Logik)
+- Alles nur live in Kuudra prüfbar. Phasen kommen aus Odins Elle-Chatzeilen, Tier aus der Scoreboard-Zeile "Kuudra's Hollow (Tn)", Area-Check = Tab-Area enthält "Kuudra".
+- Armorstand-Formate "Building Progress n% (k Players Helping)" / "PROGRESS: n%" aus Odin/IQ übernommen; Ballista-Textposition (-101.5, 82, -105.5) aus Odin.
+- Start-Countdown = feste 6,2 s ab Phase-2-Zeile (IQ-Wert).
+- Fresh: Party-Format "Party > [RANK] Name: FRESH" (Odin); mit "Include Build %" wird "FRESH! (n%)" gesendet, das Odin-Nutzer evtl. nicht erkennen.
+- Danger: Terracotta-Farbstufen aus Skyblocker; setzt kurze Titelzeiten (0/10/5) und resettet sie beim Verlassen der Gefahrenzone.
+- Damage-Title-Regex aus IQ, geprüft auf Title und Subtitle.
+- Ichor: erkennt eigenes "Casting Spell: Ichor Pool!" (eigene Position) und Party-Ansagen im IQ-Format sowie im Format unseres Spell-Announce ("Ichor Pool cast at x: .., y: .., z: ..").
+- Elle: Nametag-Armorstand mit "elle" im Namen, Box um den nächsten NPC-Spieler darunter (Fallback: der Armorstand selbst).
+- Neue Kategorie "Kuudra" (Sidebar Skyblock, mit Master). FeatureRegistry.category() ist jetzt idempotent, damit parallele Kuudra-Gruppen sie gefahrlos erneut deklarieren können.
+- Alles nur live prüfbar. Phasen-Chatzeilen stammen aus Odin/IQ/Shizo: "has been eaten by Kuudra!", "destroyed one of Kuudra's pods!", Lair-Zeile, "KUUDRA DOWN!"/"Good job everyone.", "DEFEAT"
+- T1–T4: ob nach der DPS-Phase die POW-Zeile kommt (Cleared-Split); sonst endet DPS direkt bei KUUDRA DOWN
+- Tier-Regex auf der Scoreboard-Zeile "Kuudra's Hollow (Tn)"; Kuudra-Erkennung = Tab-Area enthält "kuudra" ODER Scoreboard-Zeile
+- Boss-Entity: MagmaCube Größe 30 mit 100k Max-HP-Basiswert (so wie Odin/Shizo), Spawn-Richtung bei 24.9k–25k HP
+- Supply-Zeilen: "(name) recovered ... (n/6)", "dropped Elle's supplies back into the lava! Oops!", "You are already currently picking up" (Wortlaut geraten, Shizo hat einen Tippfehler)
+- "Buy Upgrades" feuert bei Elles Fish-up-Zeile, "No Kuudra Key" am Run-Ende (Item-ID enthält KUUDRA_KEY): Trigger selbst gewählt, die Odin-Forge-Quelle liegt nicht lokal vor
+- No Pre: Pre-Spot-Radien und Giant-Positionen von Odin, die Prüfung läuft 1,5 s nach "Not again!"; /pc geht über die Announce-Queue
+- Tiny Mobs skaliert alle Zombies auf der Insel (EntityType.ZOMBIE, wie legitcatmod); die Tentakel-Box gilt nur in der BOSS-Phase (nach der Lair-Zeile)
+- Parallel dazu hat w16-06 in KuudraBuild einen eigenen kleinen Phasen-Zähler (phase 0–4). Beide laufen nebeneinander; FeatureRegistry.category() lässt doppelte Kategorie-Einträge jetzt aus
+- Everything is Hypixel-only, nothing tested live.
+- Profit tracker: chest GUI titles "Paid Chest"/"Free Chest", the "Contents" lore on the open button and the "PAID/FREE CHEST REWARDS" chat line come from Shizo; "KUUDRA DOWN!"/"DEFEAT" matched as exact trimmed lines.
+- Key tracker: "You bought Infernal Kuudra Key!" (Shizo). A key is subtracted only when the opened paid chest's cost lore shows "Infernal Kuudra Key". NPC detection matches entity names Vesuvius / Barbarian Emissary / Mage Emissary within 10 blocks.
+- Supply progress: the "[|||] n%" text is caught on title, subtitle and action bar (Shizo checks all three). The "Someone else is currently trying to pick up these supplies!" text comes from legitcatmod.
+- Supply waypoint formula (giant yaw+130, 3.7 blocks, y 73) is from Odin/Shizo. The drop-off "✓ SUPPLIES RECEIVED ✓" x/z coords come from Odin.
+- Backbone: 22 server ticks after the Bonemerang right-click (Shizo). Ferocity: iron_golem.attack sound within 35 ticks of a STARRED_BONE_BOOMERANG use.
+- Rend pull: HP drop > 1666 per client tick in the BOSS phase, x9600.
+- DPS helper: "Aspect" in the item name, or an ethermerge/ETHERWARP_CONDUIT tag.
+- Menu block: item names containing "SkyBlock Menu" or "Elle" in slot 9 during supplies.
+- Supply progress title format "[||||   ] 50%" (from IQ): checked as title AND subtitle via the new GuiAccessor title accessor. If another feature cancels that title (e.g. a supply-progress HUD replacing it), Double Pearl never triggers
+- Double pearl hit test: eye height inside the giant box plus a 0.3 pearl margin (Shizo), using Kuudra.giants() (giants holding a "...Head")
+- Stun marker positions (IQ A/B/C, default B) and the Human Cannonball / "destroyed one of Kuudra's pods!" lines; box uses Shizo's block-corner convention
+- Pile positions (IQ JSON), the "SUPPLIES RECEIVED" armor stand removal and "No X!" party callout formats (mapped through KuudraNoPre.canonical)
+- Shop helper: without Shizo's priority task, shop/XC comes from player distance (35 blocks) to each area; the spawn regions and the 9-15s window are Shizo's
+- Profile viewer blocker: interact returns PASS (no entity packet, item use continues); players = UUID v4
+- Kuudra requeue: end triggers are "KUUDRA DOWN!" / Elle's "Good job everyone..." (20s dedupe), at least 1s delay; drops the requeue when you leave the instance first. DEFEAT does not requeue
+- Vesuvius menu: title contains "Vesuvius"; run items count when they carry "Click to view chests!", or when the name contains "Kuudra" plus a "No more chests"/"No chests opened yet" lore line. Needs the Croesus Profit overlay on, like Croesus
+- Structure notes: FeatureRegistry.category() is now idempotent (several Kuudra groups declare "Kuudra"). My helpers read phase/start/giants from the w16-07 Kuudra state machine; one config line was added each to KuudraBuild (stun rows) and KuudraSupply (supply rows)
+
+## Welle 17 (10 Gruppen)
+
+### Neu
+- **Kuudra Etherwarp Spots** — phase-filtered warp spots with part-block shapes (edge, slab, plate, pillar), editable in config/teslamaps/kuudra_etherwarp.json with per-category toggles (Settings: Kuudra)
+- **Ballista Build Sounds** — mutes the anvil hammering (or every sound) only during the build phase, or swaps it for a sound of your choice (Settings: Kuudra)
+- **Better Cannon Close** — closes the Perk Menu right after buying Human Cannonball, with optional middle-click conversion in that menu (Settings: Kuudra)
+- **Kuudra Highlight & HP** — box or glow on Kuudra plus its HP above the boss and in a movable HUD, as scaled T5 value, percent or raw (Settings: Kuudra)
+- **Pearl Waypoints** — pearl start spots and lineup blocks per supply, optional computed high/flat aim points with a throw timer (Settings: Kuudra)
+- **Pearl Block Interact** — right-clicking a block with an Ender Pearl throws the pearl instead of using the block (Settings: Kuudra)
+- **Honeyhive Navigation** — after looting a hive a chat line paths you to every other ready hive; the refill reminder warps you to Torrhus on click (Settings: Foraging)
+- **Foraging Tracker** — tree gift loot, XP, whispers and sack logs with profit per gift and per hour, per tree type (Settings: Foraging)
+- **Hunting Profit Tracker** — shards caught, looted or charmed with bazaar value, shards per catch and profit per hour (Settings: Shards)
+- **Foraging Beacon Solver** — marks the right Tune Frequency / Signal Strength buttons green, shows the clicks still needed and blocks over-clicks (Settings: Foraging)
+- **Beacon Ready Alert** — title and sound when the Moonglade Beacon cooldown is over (Settings: Foraging)
+- **Hide Throwing Axe Particles** — removes the wax trail of flying Throwing Axes, Safari sparkles stay (Settings: Foraging)
+- **Foraging Block Highlighter** — boxes on Lushlilac, Sea Lumies, Ruby Veilshroom and lootable Honeyhives (Settings: Foraging)
+- **Compact Starlyn Contest** — contest results and collection PBs as one clickable line each (Settings: Foraging)
+- **Frog Mask Helper** — shows today's Frog Mask region with the time left and warns with a title when you chop in the wrong Park area (Settings: Foraging)
+- **Desert Temple Puzzle** — numbers the 12 buttons in the right order and draws arrows for the animal statues (Settings: Torrhus Canyon)
+- **Forest Temple Puzzle** — shows how many rotations each floor terracotta needs, positive = right click, negative = left click (Settings: Foraging)
+- **Fusion Display** — in the Fusion Machine, shows the last fused shard with its Hunting Box amount and your PURE REPTILE procs (Settings: Shards)
+- **Fusion Keybinds** — one key for Repeat in the Fusion Box and one for Confirm, one click per press (Settings: Shards)
+- **Beeheemoth & Macaw Titles** — big title when a Beeheemoth spawns (with its sub-area) or Macaws come to the Birdfeeder (Settings: Foraging)
+- **Ender Node Finder** — highlights Ender Nodes in The End from their particles (Settings: The End)
+- **Foraging Tutorial Guide** — waypoint to the next Park quest NPC or portal on new profiles, with a path if Island Navigation is on (Settings: Foraging)
+- **Trevor the Trapper Helper** — highlights your pelt animal, marks the area Trevor names, draws Talbot's Theodolite circles and shows Trevor's cooldown with a ready title (Settings: Garden)
+- **Tree Felled Notification** — big TIMBER! / WOODPECKER! / PETALFALL! label above the crosshair when a whole tree falls (Settings: Foraging)
+- **Tree Progress HUD** — shows the break progress of the closest Fig, Mangrove or Helix tree (Settings: Foraging)
+- **Sweep Overlay** — marks the logs your Sweep stat will fell, including a landing preview for throwing axes (Settings: Foraging)
+- **Shulker Finder** — one key walks you along a route of Hideonleaf / Hideonsun spots and skips empty ones (Settings: Foraging)
+- **Shining Coins through Slot Lock** — Q still throws Shining Coins from a locked slot in the Safari's Haunted biome (Settings: Inventory)
+- **Moonglade Beacon Color** — the Moonglade beacon beam turns red while inactive and green while active (Settings: Foraging)
+- **Treecapitator Break Cooldown** — Jungle Axe / Treecapitator cooldown after breaking a log, with Monkey pet and break-time prediction (Settings: Inventory)
+- **Compact Safari Summary** — the SAFARI REWARD SUMMARY block becomes one line: shards, essence and Hunting XP (Settings: Critter Safari)
+- **Safari Biome Names** — big Forest/Haunted/Icy/Cavern labels at the hub exits while you stand in no biome (Settings: Critter Safari)
+- **Park Rain Timer** — HUD with a water bucket showing how long the Park rain lasts (Settings: Foraging)
+- **Theodolite Visualizer** — draws the ring from each Talbot's Theodolite reading so you know where Trevor's animal is (Settings: Garden)
+- **Invisibug Box** — filled box on detected Invisibugs while you can see them (Settings: Mob Visuals)
+- **Hide Caught Critters** — Safari critters already caught this run drop out of Mob Visuals, with a keep-shown list, plus a capsule counter on Wumpa and Doomspiral (Settings: Mob Visuals)
+- **HotF Whisper Reminder** — click an unaffordable HotF perk to get pinged once you have enough Forest Whispers, plus a "rest until max" tooltip line (Settings: Foraging / Mining)
+- **Hunting Box Slots** — owned shard count in the slot corner and bazaar sell value in the tooltip (Settings: Shards)
+- **Lasso Display** — can hide the floating bar and REEL over the leashed animal while the HUD shows them, plus an optional background (Settings: Foraging)
+- **Safari Checklist "All"** — shows all four biomes side by side with a Captured Critters x/y count (Settings: Critter Safari)
+- **Lotum Helper** — Lotum highlights only frogs confirmed by their nametag, and a green line leads back to the Lotum you clicked (Settings: Mob Visuals)
+- **Hideyho Finder** — after "No peeking!" a waypoint walks you through all known hiding spots until Hideyho is in sight (Settings: Critter Safari)
+- **Tree Mob Title** — "A Phantom fell from the Tree!" now pops up as a red title (Settings: Foraging)
+- **Sweep Details HUD** — tree, toughness, sweep, logs and throw/style penalties on the HUD for 5s instead of chat (Settings: Foraging)
+- **Wumpa Extras** — spawn title, a Re-enter waypoint back into the arena, and a capsules-used line when Wumpa or Doomspiral is caught (Settings: Critter Safari)
+- **Tiki Spawn Points** — marks all 24 fixed Tiki spawn spots in Torrhus, built or not (Settings: Torrhus Canyon)
+- **Tree Gift Totals** — the compact Tree Gift line's hover now also sums every gift's rewards this session per tree type, /tmap treegift shows or resets them (Settings: Foraging)
+- **Mute Phantoms in Safari** — the phantom mute can now also silence phantoms in the Critter Safari (Settings: Foraging)
+- **Scrappy Fish Highlight** — highlights the fish you feed to Scrappy, optionally stopping once Scrappy is caught (Settings: Critter Safari)
+- **Sparkling HUD & Focus** — a movable "Sparkling Alert" label stays on screen while a sparkling critter is near, and Focus mode draws a box and tracer to it while hiding other Safari ESP (Settings: Critter Safari)
+- **Mark Unknown Hotspot** — the Hotspot Radar guess turns red when you get close and no hotspot is actually there (Settings: Fishing)
+- **Hide Other Players' Bobbers** — only your own bobber and line are drawn, optionally without their wake particles (Settings: Fishing)
+- **Bobber Fix** — your bobber floats on lava and stops rubberbanding to Hypixel's countdown label (Settings: Fishing)
+- **Bait Display** — shows the bait you fish with and how much is left, with bait-changed, no-bait and low-bait warnings (Settings: Fishing)
+- **Golden Fish Timer** — spawn window, chance, rod reset countdown, interactions and despawn timer for the Golden Fish on the Crimson Isle (Settings: Fishing)
+- **Hotspot Circle** — draws the exact hotspot radius in the perk's color and can hide the hotspot particles (Settings: Fishing)
+- **Times Fished** — the Fishing profit tracker now counts catches and shows profit per catch (Settings: Interface)
+- **Fishing Chat Tweaks**: shortens sea creature catch lines to "You caught a <name>!", merges "It's a Double Hook!" into the catch line, can hide catch lines completely and plays a sound on every Double Hook (Settings: Fishing)
+- **Fished Item Names**: with a rod in hand, dropped items nearby show "+ x64 <name>" above them (Settings: Fishing)
+- **Legion / Bobbin' Overlay**: live count of nearby players and bobbers with the real Legion and Bobbin' Time buff your armor gets (Settings: Fishing)
+- **Full Bottle Warning**: reminds you while fishing when your Thunder, Storm or Hurricane in a Bottle is full and you have no empty one (Settings: Fishing)
+- **Geyser Box**: marks the active geyser in the Blazing Volcano with a flat box where the bobber has to land (Settings: Fishing)
+- **Lootshare Range Sphere**: 30-block sphere around rare sea creatures, green when you are in lootshare range (Settings: Fishing)
+- **Trophy Frog Pity**: shows the pity counter of the last trophy frog you caught at Lotus Atoll (Settings: Fishing)
+- **Coral Fish Helper** — in Galatea's Fish Family menu, lists the fish you still miss sorted by lowest BIN; click to search them on the AH (Settings: Fishing)
+- **Dolphin & Expertise Display** — HUD with sea creature kills towards the next Dolphin milestone and the expertise kills of your held rod (Settings: Fishing)
+- **Sea Creature Tracker** — counts every sea creature you catch plus catches and time since the last rare one like Jawbus, Thunder or Emperor (Settings: Fishing)
+- **Alive Sea Creature Counter** — shows your living sea creatures against the cap and when the oldest despawns, with cap and timer alerts (Settings: Fishing)
+- **Trophy Fish Display** — live table of every trophy fish with Bronze/Silver/Gold/Diamond counts, fresh catches glow green (Settings: Fishing)
+- **Trophy Fish Chat Messages** — rewrites TROPHY FISH lines to "FIRST" / "your 12th", hides duplicate Bronze/Silver and alerts on Gold/Diamond (Settings: Fishing)
+- **Totem of Corruption** — time left, owner and 16-block range of the nearest or your own totem in the Deployable Overlay (Settings: Skills)
+
+### Teilweise
+- FOR-024: Garden > Trevor the Trapper Helper (Tier-ESP/Glow über Pelt-Nametag, Gebiets-Beam mit Talbot-Höhe, Talbot-Kreise, Mob-Died-/Saw-/Ready-Titel mit Sound, Cooldown über Trevor + HUD, Warp-Taste). Fehlt: Pelt-Tracker (Pelts/h, Quests), Quest-annehmen per Taste, Max-HP-Erkennung (nur Nametag)
+- FOR-027: Foraging > Sweep Overlay (+ Color, Thrown Axe Preview). Skyblocker-Kern komplett (Flood-Fill, Sweep-Tabellen, Helix-Holzfarbe, Wurfbahn); fehlt Skysoft-Extras (mögliche Extra-Logs, frühere Wurfziele halten, Überschneidung rot, Axt-Partikel ausblenden) und Cooldown-Check vor der Wurfvorschau
+- FOR-035: Foraging > Park Rain Timer (HUD in /tmap gui); only reads the tab "Rain:" line, the +60s per own Rainmaker purchase is missing (SkyblockAddons source not local, chat format unknown)
+- FIS-003: Fishing > Hotspot Radar > Guess Hotspot > Mark Unknown Hotspot (neu: rotes "UNKNOWN HOTSPOT" wenn man nah dran ist und kein HOTSPOT-Stand an der Schätzung steht; Schätzungen außerhalb der Weltgrenze werden verworfen). Echte Inselgrenzen fehlen weiter (SkyHanni nimmt die aus Repo-Daten, die es lokal nicht gibt); Reuse-Guard/Insel-Ausschlüsse/Snap waren schon in 2.1.74 drin
+- FIS-009: Fishing > Golden Fish > Golden Fish Timer (+ Titles, Throw Rod Warning, Goldfin Shard Level). HUD mit Spawnfenster, Chance, Rod-Reset-Countdown, Interaktionen 0/3 mit PULL, Despawn-Countdown; Goldfin-Level wird aus dem Attribute Menu gelesen. Fehlt: Highlight/Tracer auf den Fisch selbst (GanKura-Extra)
+- FIS-011: Interface > Profit Tracker > Fishing: Times Fished + Profit/Catch. Es gab schon einen Profit Tracker mit Fishing-Tracker (Items, Sacks, Coins per Purse inkl. CATCH-Coins, Profit/h, nur beim Fischen sichtbar). Neu: Fang-Zähler und Profit pro Fang. Fehlt: Trophy Fish zum Fillet-Wert (keine Fillet-Daten lokal), Repo-Kategorien
+- FIS-017: Fishing > Lootshare Range Sphere (+ Creatures: Rare Flag/Epic+/Legendary+); keine Auswahl pro einzelner Sea Creature und kein lootshare_sphere_override aus dem Repo, Filter nur über Rarity/Rare-Flag
+- FIS-024: Fishing > Trophy Fish Chat Messages - fehlt: "identische Zeilen ersetzen" (vorherige Chatzeile überschreiben); Rewrite, Total, Hover, Bronze/Silver-Duplikat-Hider, Gold/Diamond-Titel+Sound sind drin
+
+### Live auf Hypixel prüfen
+- Alles live in Kuudra; nichts auf Hypixel gesehen.
+- Etherwarp-Koordinaten stammen 1:1 aus IQs Default-Datei (Slash-Kategorie dort leer); Datei wird beim ersten Laden nach config/teslamaps/kuudra_etherwarp.json kopiert.
+- Pearl-Timer: Pickup-Balken-Format "[||||...] NN%" aus legitcatmod, per Title UND Subtitle gelesen; Start nur bei 0%. Offset-Slider zum Nachjustieren. Wurfzeiten aus Odins Formel.
+- Lineup-Koordinaten + Drop-Off-Punkte aus Odin; "missing" für Square-Lineups kommt aus Party-"No X!"-Calls.
+- Pearl Block Interact: PASS aus useItemOn (wie IQ) — prüfen, dass danach wirklich die Pearl geworfen wird und Truhen/NPC-Blöcke ohne Pearl normal gehen.
+- Build-Sounds: Anvil-Erkennung per ANVIL_LAND-ID aus dem Sound-Paket (IQ-Logik); "Mute All" schluckt in der Build-Phase jedes Server-Sound-Paket.
+- Kuudra-HP: World-Text-Position (lookAngle*13 + 10 hoch) und Default-Größe 4 aus Odin, evtl. anpassen.
+- Perk Menu Middle Click / Cannon Close: Titel "Perk Menu" und Chatzeile "You purchased Human Cannonball!" aus IQ.
+- FOR-003: needs Island Navigation on; route goes to the graph nodes nearest each ready/unchecked hive (not the hive block itself). Warp command "/warp torrhus" taken from SkyHanni.
+- FOR-009: tree-gift hover format (Item xN / Item (p%)) and "[Sacks] Added" hover for Fig/Mangrove/Helix logs taken from SkyHanni regexes, never seen live. Item names go through PriceManager/SkyblockItems name lookup; unknown names show as raw text rows. Stretching Sticks only counted from the bonus-gift line (no inventory diff).
+- FOR-010: shard gain chat lines (You caught / CATCH! / LOOT SHARE / CHARM! / CAPTURE!) from SkyHanni; hunting-tool detection by item category LASSO/FISHING_NET or id containing LASSO/_NET/BLACK_HOLE/HUNTING.
+- FOR-011: entire solver untested live: slot layout (10-16 ref, 28-34 ours, controls 46/48/50, upgrade menu normal set -9), lore "Current color/speed/pitch:", bass pitch values, speed via ServerTickTimer intervals; the pitch assignment (note within 1 tick of the reference pane move and not ours) is a simplification of SkyHanni's timing logic. Left click assumed to step forward; the stack number is signed (negative = step backward).
+- FOR-012: tab widget header "Moonglade Beacon" + line "Cooldown: AVAILABLE" within the next 6 tab lines.
+- FOR-013: packet signature (WAX_ON, count 2, speed 1, no offset, no override limiter) from Skysoft.
+- FOR-014: Moonglade = Lushlilac/Sea Lumies, Torrhus = Veilshroom/Honeyhives, depth-tested filled boxes alpha 0.4, chunk scan 4 chunks/tick + block updates.
+- FOR-015: chat texts matched stripped of colors (from SkyHanni regexes); bracket colors guessed; click runs /starlynsisterlevels.
+- Frog Mask: lore "Today's region: X" and the scoreboard sub-area names (must equal the region text) from SkyHanni, never seen live; HUD icon is the mask itself (lily pad in preview)
+- Desert/Forest Temple: fixed coordinates and sub-area names ("Torrhus Springs"/"Desert Temple", "Forest Temple") from Skyblocker
+- Fusion Display: amount comes from ShardData (only as good as Hunting Box data + "Track Fusions"); titles "Fusion Box"/"Confirm Fusion"/"Shard Fusion" and "PURE REPTILE" line from SkyHanni
+- Fusion Keybinds: slots 47/33 middle click (CLONE) from SkyHanni; only fires with the key pressed inside those menus, 150 ms min gap
+- Spawn titles: chat texts from GanKura; ChatCompactRulesIslands also has a BEEHEEMOTH compact rule, check both still work together
+- Ender Node Finder: particle fractions 0.25/0.75 from Skyblocker; area check "The End" via tab list
+- Tutorial Guide: all quest names, NPC positions and end-of-step messages (raw § codes) from SkyHanni; path needs Island Navigation on and SkyHanni graph for Hub/The Park; added IslandNavigation.navigate(Vec3, label)
+- Trevor: Tab-Zeilen "Time Left:" / "Location: <zone>", Pelt-Nametags ("Trackable Cow" usw.), Trevor-Nametag exakt "Trevor", Chat-Zeilen aus SkyHannis Regexen; Gebietskoordinaten von SkyHanni übernommen
+- Tree Felled: Chat "TIMBER!/WOODPECKER!/PETALFALL! You felled the entire ... Tree!" (ChatCompactRulesIslands kompaktet TIMBER ebenfalls; prüfen, dass der Handler die Zeile noch bekommt)
+- Tree Progress: Nametag "<TYP> TREE n%" und Owner-Stands (Spielername / "x players")
+- Sweep Overlay: Tab-Zeile "Sweep: ∮N" (braucht Sweep-Stat in /tablist), Holzblöcke der Custom-Trees
+- Shulker Finder: Graph wird beim ersten Druck async geladen (evtl. zweimal drücken); Shulker-Check 4 Blöcke um den Spot
+- Moonglade Beacon: Tab-Widget-Aufbau "Moonglade Beacon" + eingerückte " Cooldown: AVAILABLE"-Zeile, Beacon-Position (-688,128,65), Beam-Alpha 0x20 wie SkyOcean
+- Slot Lock Shining Coin: Item-ID SHINING_COIN, Haunted-Biom per Biom-ID
+- Treecap: Break-Erkennung über MultiPlayerGameMode.destroyBlock, Monkey-Erkennung über PetTracker (internalName MONKEY, LEGENDARY)
+- FOR-033: block format from HypixelSimpleChat (header, blanks, "+N Shards/Safari Essence/Hunting Exp", closing ▬ bar); opening bar stays visible by design
+- FOR-034: hub coordinates from SkyHanni; "in no biome" = current biome not one of hypixel:cavern/forest/haunted/icy
+- FOR-035: tab line "Rain: 4m 20s" format assumed (SBA regex), shown whenever that tab line exists
+- FOR-036: SkyHanni chat patterns "The target is around N blocks above/below, at a A degrees angle!"; reset on new quest/out of time/mob died lines and world change
+- FOR-037: box position/size tuned by eye; whether Invisibug stands pass the bare-stand check live
+- FOR-038: capsule chat "You threw a Critter Capsule at the Wumpa!" from GanKura; count resets once the boss has not been seen for 60s; caught state = SafariTracker's per-run caught list
+- FOR-039: HotF cost line "N Forest Whispers" and "You don't have enough ..." line, whispers read from tab "Whispers:/Forest Whispers:" or the Heart of the Forest item; the click on an unaffordable/reminded perk is swallowed (no packet)
+- FOR-040: slot index mapping from HuntingBox.boxEntries; price = bazaar instant sell
+- FOR-041: Nametag-Hide über MobIconsMixin (extractRenderState TAIL) auf die im Tick gefundenen Bar/REEL-Stands; live prüfen, ob der Balken wirklich verschwindet.
+- FOR-043: Lotum-Nametag-Text ("Lotum" im Armorstand-Namen) und Klick-Tracking (attack + interact) nur live prüfbar; Line-of-sight per hasLineOfSight.
+- FOR-044: Chatformat "[MOB] Hideyho: Hehe, you found me! / No peeking! / Aah! You found me!" aus SkyHanni; 20 Spots aus SkyHanni-REPO SAFARI.json (Stand heute) fest eingebaut; "gefunden" = Armorstand mit "Hideyho" im Namen in 5 Blöcken und sichtbar (SkyHanni nutzt Skin-Textur).
+- FOR-047: Zeilenformate aus Skyblocker ("Sweep Details: n∮ Sweep", "<Tree> Tree Toughness: a b Logs", "Axe throw: -n% Sweep", "Wrong Style: -n% Sweep … <Style>!!"); HUD hat Vorrang vor Compact Sweep, wenn beides an ist.
+- FOR-048: Capsule-Zahl = eigene Würfe auf Wumpa/Doomspiral in diesem Run (THREW-Pattern); Re-enter-Box bei (-95,84,-65) aus GanKura, sichtbar von Footsteps bis Fang/"The cave opens up again".
+- FOR-049: Tiki ESP ist in CoreFeatures zweimal als World-Render registriert (Torrhus Canyon + Mining) — sind beide Sektionen an, wird die gefüllte Box doppelt gezeichnet (kräftigeres Orange). Altes Verhalten, nicht angefasst.
+- FOR-042: Spaltenansicht nur im Zeilenmodus des Safari-HUD, nicht im Panel-Modus.
+- FOR-050: Hover-Zeilenformat "Item xN" / "Item xN-M" aus HypixelSimpleChat übernommen, nie live gesehen; Summen zählen nur, solange Compact Tree Gifts an ist
+- FOR-029: Critter-Fische werden über "unsichtbar" + Critter-Label in 3 Blöcken ausgeschlossen, live prüfen, ob nur Futterfische leuchten; "gefangen" = im aktuellen Run (SafariTracker.hasCaught)
+- FOR-046: Erkennung über WAX_ON-Partikel (64 Blöcke, 30 Ticks) + Namen mit "sparkling"; die Box geht auf den Mob unter dem Label (nächster in 3 Blöcken), sonst auf die Partikelposition. Die Unteroptionen greifen nur, wenn der Hauptschalter Sparkling Alert an ist. Der Thread-Verstoß war im bestehenden SafariTracker schon behoben (Queue + Tick)
+- Bait: Lore "Bait Remaining: n" auf Hotbar-Slot 9 beim Halten einer Rute (GanKura/SkyHanni-Format), nie live gesehen
+- Golden Fish: Chat-Texte aus GanKura, Lava-Rod-Erkennung über Lore-Zeile "Lava Rod", Attribute-Menu-Lore "Source: Goldfin Shard" / "Attribute Level: n"
+- Hotspot Circle: Randpartikel-Erkennung (DUST Farbe 1/0.41/0.71 count 0, bzw. SMOKE count 5/2 auf der Crimson Isle) aus GanKura; Perk-Nametag-Texte
+- Bobber Fix: Mixin-Wraps nur per javap geprüft, Verhalten nur live prüfbar
+- Times Fished: Fang = Rute eingeholt innerhalb 0,6 s vom experience_orb.pickup-Sound (SkyHanni-Logik ohne Lautstärke-Check), kann bei fremden XP-Orbs daneben liegen
+- Mark Unknown Hotspot: HOTSPOT-Stand muss innerhalb 40 Blöcken geladen sein
+- FIS-012: Kürzen/Ausblenden läuft über ChatFilter.process und braucht daher die Chat-Section an (steht in der Beschreibung); ohne Short Catch Message verliert die Zeile beim Double-Hook-Merge ihre Originalfarben (wird §b). Double-Hook-Fenster: 1 s vor der Fangmeldung.
+- FIS-013: Coins werden als "Kopf ohne SkyBlock-ID" erkannt (SkyHanni nutzt Skull-Texturen aus dem Repo). Köder = ID endet auf _BAIT. Hub-Ausnahmen über die Scoreboard-Zeile ⏣ (Museum/Atrium/Fashion Shop/Shen's Auction/Auction House).
+- FIS-014: echte Spieler = UUID v4 und nicht unsichtbar; Multiplikatoren fest (0.07 / 0.2, Limit 20 / 5, Radius 30) statt aus SkyHanni-Repo.
+- FIS-015: "Fishing" = Bobber in den letzten 30 s draußen; Flaschen über SkyBlock-IDs THUNDER/STORM/HURRICANE_IN_A_BOTTLE(_EMPTY).
+- FIS-016: Partikel-Signatur (CLOUD, count 15, speed 0.05, offset 0.1/0.6/0.1) und Area-Namen "Crimson Isle" + "Blazing Volcano" von SkyHanni übernommen, nie live gesehen. Lava-Rod-Liste: STARTER_LAVA_ROD, INFERNO/MAGMA/HELLFIRE_ROD, POLISHED_TOPAZ_ROD.
+- FIS-017: "eigener Mob" = neuer Nametag des gerade gefangenen Creature-Namens innerhalb von 3 s und 16 Blöcken; Nametag-Format "[LvX] Name hp❤" wie beim Common Sea Creature Hider.
+- FIS-018: Menütitel "Lotus Atoll Pity", Lore "Progress to GOLD/DIAMOND: a/b", Chat "♔ TROPHY FROG! You caught ..." und Tab-Zeilen " ●●○○ <Frosch>" aus Devonian übernommen; Pity-Stand ist @Global in der Config gespeichert.
+- Alles nur auf Hypixel prüfbar, nichts live gesehen.
+- Coral Fish: Menütitel "(n/m) Fish Family", Slot 4 "Fish Shown: x/y", fehlende Fische = GRAY_DYE mit Namen "X the Fish" (aus SkyHanni); Preis nur wenn SkyblockItems.idForName den Namen kennt. Suche = vorhandene Container-Searchbar (Searchbar.query()).
+- Dolphin: Milestone-Stufen 250/1000/2500/5000/10000 aus dem Gedächtnis; Lore-Zeile "Sea Creatures Killed: N" (SkyblockExtras-String) - wo genau sie auftaucht unklar; Kill-Schätzung zählt verschwundene eigene Creatures in <24 Blöcken vor Ablauf des Despawn-Timers. Expertise liest custom_data "expertise_kills" der Rute in der Hand.
+- Alive Creatures: Paarung Fang-Chatzeile -> Nametag (ArmorStand, tickCount<60, Name enthält Kreaturnamen, <30 Blöcke) wie Skyblocker; Cap-Default 10, Timer-Default 300s.
+- Sea Creature Tracker: "Since"-Zähler zählen alle Fänge derselben Repo-Gruppe (SkyHanni SeaCreatures.json Top-Level-Keys) seit dem letzten rare-Flag-Fang.
+- Trophy Fish: Chatformat "TROPHY FISH! You caught a <Name> <TIER>!" und Odger-Lore "Gold ✔ (1)" / "Diamond ✖" aus SkyHanni; Obfuscated-Fische über die Ziffer am Ende gemappt; Duplikat-Hide läuft über ChatFilter und braucht die Chat-Sektion an.
+- Totem: Nametags "Totem of Corruption" / "Remaining: 2m 30s" / "Owner: <name>" im Umkreis 2 Blöcke (SkyHanni); Radius 16, Zentrum Stand+1.
+
+## Welle 18 (10 Gruppen)
+
+### Neu
+- **Thunder Spark Highlight** — boxes and labels the Thunder Sparks on the Crimson Isle, up close even through lava (Settings: Fishing)
+- **Sea Creature Cocoon Warning** — title, plings and a chat line when a sea creature gets cocooned, optional party share (Settings: Fishing)
+- **Sea Creature Kill Time** — tells you in chat how long your own sea creature took to die (Settings: Fishing)
+- **Wormhole Helper** — draws wormholes on Lotus Atoll and the Crimson Isle, warns when yours despawns and shows the Froggles arrow direction (Settings: Fishing)
+- **Sulphur Skitter Box** — shows the 9x9x9 area around the nearest sponge where Sulphur Skitter bites (Settings: Fishing)
+- **Odger Helpers** — total caught per trophy fish in Odger's menu, a waypoint to Odger and the Magmafish you get for filleting (Settings: Fishing)
+- **Diamond Trophy Discovery Effect** — a totem-style item pop with particles and sound for a new DIAMOND trophy fish or frog (Settings: Fishing)
+- **Translucent Lava quick toggle** — `/tmap lava` switches it on/off, and a new "Crimson Isle Only" option keeps lava normal in Dungeons and Kuudra (Settings: Fishing)
+- **Bigger hook countdown** — enlarges Hypixel's 3.0 / !!! label over your own bobber in the world, other bobbers stay untouched (Settings: Fishing)
+- **Nearby rare sea creature alert** — "<Name> NEARBY!" title and sound when someone else's rare sea creature shows up near you (Settings: Fishing)
+- **Sea Creature Health HUD** — lists living sea creatures near you with their HP, green for yours and red for others' (Settings: Fishing)
+- **Fishing sound mutes** — one-click toggles to mute the Banshee wail in Backwater Bayou and the rod cast sound (Settings: Fishing)
+- **Diana Burrow Guess**: after a spade right click, the particle trail is fitted to a curve and the next burrow gets a waypoint with a beam. Old guesses stay in their own color, and a line to the guess is optional (Settings: Events)
+- **Diana Burrow Waypoints**: burrows found by their particles are marked as Start, Mob or Treasure in custom colors and disappear once dug (Settings: Events)
+- **Diana Arrow Guess**: after digging a burrow, the dust arrow is read and the next burrow is guessed without using the spade (Settings: Events)
+- **Diana Nearest Warp**: shows "Warp to X" when a Hub warp saves walking to the guess or to a shared rare mob. A key runs the warp, and locked warps are learned automatically (Settings: Events)
+- **Diana Rare Mob Sharing**: your Inquisitor, Manticore, King Minos or Sphinx is shared to party chat, and party pings show as a waypoint with a title. Which mobs are shared or shown is set separately (Settings: Events)
+- **Diana Particle Quality Help**: when the spade gives no guess, you get a hint, then a clickable line that sets /pq extreme. The bugged spade music can be muted too (Settings: Events)
+- **Diana Lootshare Helper**: shows red/green "Lootshare" over other players' rare mobs based on your own damage, with an optional party message, checkmarks and a 30-block circle (Settings: Events)
+- **Diana Lobby Compromised Alert** — during Diana's Mythological Ritual, warns with a title and/or party message when the Hub lobby holds too many players outside your party (Settings: Events)
+- **Black Hole Reminder** — shows a "Black Hole" title when you dig out a Cretan Bull, Harpy or Minotaur (Settings: Events)
+- **Chocolate Factory Helper & Stats** — marks the best upgrade by cost per chocolate/s, shows levels and time-until-affordable tooltips, a stats panel and an upgrade-available warning (Settings: Events)
+- **Stray Rabbit Alerts** — highlights strays with a ding, optional screen flash and close protection by rarity, plus a 30 s stray timer and a caught-stray tracker (Settings: Events)
+- **Chocolate Factory Extras** — Time Tower charge/full/expired warnings, barn-full warning, duplicate-rabbit production time, coins per million chocolate in the shop, Hitman slot info, a /cf block without Mythic Rabbit/Cookie/Mixin, 7 rabbit keybinds and a compact chocolate tooltip (Settings: Events)
+- **Chocolate Goal Reminder** — click an upgrade or milestone to set it as goal; a HUD counts down and you get a chat ping once it is affordable, plus an Open Chocolate Factory button in the SkyBlock Menu (Settings: Events)
+- **Egglocator Next Egg Time** — when no egg is found, a self-replacing chat line tells when the next egg or the next Hoppity's Hunt comes (Settings: Events)
+- **Zombie Shootout / Catch a Fish Helper** — Carnival zombies glow in their armor colour with despawn timers, lit lamps are boxed with an optional line and HUD timer, and yellow fish glow in Catch a Fish (Settings: Events)
+- **Token Shop Helper** — Carnival token shops show every upgrade's remaining cost, total tokens needed and still missing, plus an all-shops overview in the Souvenir Shop (Settings: Events)
+- **Carnival Goals** — HUD with the Carnival goals you still need, a daily Carnival Ticket reminder and double-click on a game NPC to start straight away (Settings: Events)
+- **Fruit Digging Solver** — reads the field and dowsing hints, estimates every cell and recommends the next dig and shovel mode (Settings: Events)
+- **Cake Team Finder** — holding a Slice of Cake highlights players of that team, everyone else in a wrong-team colour (Settings: Events)
+- **Party Invitation Helper** — holding the Century Party Invitation highlights players whose level colour is still missing (Settings: Events)
+- **Hide Other Players' Presents** — hides gifts in Jerry's Workshop that are not for or from you (Settings: Events)
+- **Frozen Treasure Highlighter** — boxes the ice blocks holding a Frozen Treasure in the Glacial Cave (Settings: Events)
+- **Calendar Real Dates** — the Calendar menus show the local start time under every "Starts in" countdown and the real date on every day (Settings: Events)
+- **Bingo Quick Toggle** — sneak with the SkyBlock Menu in hand to cycle the Bingo Card HUD between full, step helper only and hidden (Settings: Inventory)
+- **Cake Counter Stats** — joining your Private Island tells you how many Century Cakes were eaten and Cake Souls found while you were away, plus a line when someone finds a soul live (Settings: Events)
+- **Mythological Tracker** — Diana HUD with burrows, every creature, drops, coins, profit per hour and "since last Inquisitor/Chimera/..." counters, optional dig-message hiding and party !commands (Settings: Events)
+- **Rare Diana Mob Highlight** — Sphinx, Minos Inquisitor, Manticore and King Minos get a highlight and a configurable sound when they spawn (Settings: Events)
+- **Hidden Jerry Alert** — title and sound for hidden Jerrys, a 6-minute cooldown timer and a tracker for Jerry colors and Jerry Box loot (Settings: Events)
+- **Griffin Pet Warning** — title and clickable reminder when you dig with a Diana spade in the Hub without a Griffin pet (Settings: Events)
+- **Hoppity Call Warning** — the screen flashes and a sound plays while Hoppity is calling, and picking up with too few coins can be blocked (Settings: Events)
+- **Primal Fear Solvers** — Quick Maths gets its answer and Public Speaking gets a sentence, each with a click-to-send button (Settings: Events)
+- **Great Spook Timers** — Primal Fear cooldown HUD with your Fear stat, a ready sound, and the real time left in The Great Spook (Settings: Events)
+- **Frozen Treasure Tracker** — counts Glacial Cave treasures with total ice, ice/hr and Compact procs (Settings: Events)
+- **Gift Profit Tracker** — tracks gift rewards, coins, North Stars and skill XP minus the gifts you used, and can hide gift error spam (Settings: Events)
+- **Highlight Jerries** — Jerrypocalypse Jerrys glow in their color, with optional lines to them (Settings: Mob Visuals)
+- **Perkpocalypse Mayor** — while Jerry is mayor, the Mayor Overlay shows the current Perkpocalypse mayor and when it changes; open /calendar once to read it (Settings: Interface)
+- **Gaia Construct Hit Counter** — shows "Hits: x / needed" above Gaia Constructs, red until the phase has enough hits (Settings: Combat)
+- **Rabbit the Fish Protection** — marks Rabbit the Fish red in the meal egg menu and stops you closing it before you claim it, Shift bypasses (Settings: Inventory)
+- **Hoppity Shop Highlight + Reminder** — tradeable shop items are marked green, and during spring you get a reminder with a Hub waypoint until you opened the shop that year (Settings: Inventory)
+- **Mythic Rabbit Pet Warning + Egg Sounds** — warns when you use the Egglocator without a Mythic Rabbit pet, and lets you mute or revert the meal egg sounds (Settings: Inventory)
+- **Share Egg Locations** — spotted eggs get a [Share] chat button, and positions shared by others show up as "Shared Egg" waypoints (Settings: Inventory)
+- **Transparent Players at Eggs** — other players standing on an egg become see-through (Settings: Inventory)
+- **Calendar Extras** — the Calendar and Events menu shows the current minister and their perk on the mayor, plus which legendary pet the Traveling Zoo brings (Settings: Inventory)
+- **New Year Cake Tracker** — new option to flip the AH colors so already-owned cake years show red (Settings: Inventory)
+- **New Year Cake Reminder / Reindrake Warp** — chat reminder to claim the free New Year Cake, and a click-to-warp message when a Reindrake spawns (Settings: Timers / Fishing)
+- **Clean Gift Name Tags** — placed gifts only show CLICK TO OPEN, the From/To tags are hidden (Settings: Hide)
+- **Fruit Bowl Helper** — with the Fruit Bowl in hand, players you have not clicked yet glow, and a HUD lists missing names and duplicates (Settings: Render)
+- **Carnival & Dojo Glow** — Zombie Shootout zombies glow by value, yellow fish glow in Catch a Fish, Dojo Force/Discipline zombies glow (Settings: ESP)
+- **Lobby Event Waypoints** — waypoints to Easter Eggs, Halloween Baskets and Christmas Presents in the main Hypixel lobby (Settings: Secrets & Waypoints)
+- **Hoppity Unclaimed Eggs** — HUD with all six meal eggs, time until they spawn or "Ready", found egg spots on the island, and a warning with a clickable warp when all six are ready (Settings: Events)
+- **Time Tower Reminder** — reminds you when your Time Tower runs out, even after a restart (Settings: Events)
+- **Unique Gifting** — in December, glows players you have not gifted yet and shows your "Unique Players Gifted: n/600" counter (Settings: Events)
+- **Sphinx Answer Helper** — highlights the correct answer to the Sphinx question in chat during Diana (Settings: Events)
+- **Spooky Chest Alert** — title and sound when a Trick or Treat Chest or Party Chest appears (Settings: Events)
+- **Spooky Candy Display** — shows your green/purple candy and points during the Spooky Festival without holding Tab (Settings: Events)
+- **Shark Counter** — counts sharks caught per type during the Fishing Festival, with a summary when it ends (Settings: Fishing)
+
+### Teilweise
+- FIS-029: Fishing > Wormhole Helper (Partikel-Kreis, Despawn-Warnung, Closed-Alert komplett); Froggles-Finder ohne SkyHannis Island-Graph: Linie in Pfeilrichtung + Box nur auf bereits per Partikel erkanntem Wormhole, kein Pathfinding
+- EVT-009: Events > Diana > Lootshare Helper (+ Party Message, Checkmarks, 30 Block Circle). Only melee hits (AttackEntityCallback) count as your attacks; bow and ability damage is not attributed. Scoring is simpler than Skysoft's: any splash within 5 blocks and 900 ms of your hit counts.
+- EVT-030: Events > Mythological Tracker (Burrows, alle Mobs, Drops, Coins, Profit/h, Since-Zähler, Last MF, Loot-Share-Zähler, Dig-Chat ausblenden, ~20 Party-Befehle). Fehlt: Lootshare-Drops getrennt zählen, Shards, "(since)"-Suffix an der Chatzeile, Black-Hole-Titel (ist EVT-011 einer anderen Gruppe)
+- EVT-038: Events > Gift Profit Tracker + Gift Error Filter; Droprates als Prozentzeilen statt Hover (Tracker hat keinen Hover), used gifts per /tmap gift add <type> [n]
+- EVT-046: Inventory > Hoppity Event > Transparent Players at Eggs — wir haben keinen Egglocator-Guess, Anker sind sichtbare Ei-Stände (ESP-Scan) + geteilte Eier
+
+### Live auf Hypixel prüfen
+- Thunder Spark: Skull-Textur-Hash aus SkyHannis Skulls.json (7b3328d3...), nie live gesehen
+- Cocoon: Chatformat "CAUGHT! You cocooned a <name>!" aus SkyHanni; Name muss in SeaCreatureList stehen
+- Kill Time: Tod = Nametag-ArmorStand verschwindet innerhalb 24 Blöcken; ein Hypixel-Despawn in der Nähe würde auch als Tod gemeldet
+- Wormhole: Partikel-Signaturen (ENCHANT count 4 speed -1.2 / PORTAL count 5 speed 0.25) aus SkyOcean; Area-Namen "Lotus Atoll"/"Crimson Isle"; Froggles-Pfeilrichtung per TextDisplay-leftRotation; Teleport-Sound pitch 0.698
+- Odger: Fillet-Panel erscheint bei Container-Titeln mit "Fillet", "Odger" oder "Trophy Fish" — echter Titel des Filetier-Menüs unbekannt; Total-Zeile braucht "Discovered" + "Bronze..." im Lore; Odger-Koordinate -373 207 -808 aus SkyHanni
+- Diamond-Effekt: "NEW DISCOVERY: <Fisch> DIAMOND" aus Skyblocker; Item-IDs aus dem Namen abgeleitet (Frösche ungeprüft)
+- Sea creature nametag format "[LvX] Name cur/max❤" (NearbySeaCreatures matcht auf ❤ + Name aus SeaCreatureList); Eigen/Fremd-Erkennung per Echo-Zähler aus dem Fang-Chat (5 s Fenster, Double Hook = 2) — prüfen, dass eigene Fänge keinen NEARBY-Titel auslösen und im HUD grün sind
+- Hydra-Ausnahme (halbe HP beim Erstsichten) nur aus SkyHanni übernommen
+- World Label Scale: Mixin auf EntityRenderer.submitNameDisplay (Pose um nameTagAttachment skaliert) — Größe/Position des Labels am Bobber live prüfen
+- Banshee-Pitches aus SkyHanni (Toleranz 0.001), Areaname "Backwater Bayou" aus der Tab-Liste
+- Crimson Isle Only: kurzes Umschalten beim Weltwechsel, solange die Area noch leer ist (allChanged nur bei Zustandswechsel)
+- Everything needs a live Mythological Ritual on the Hub; none of it was seen in game.
+- Particle signatures come from Devonian/SkyHanni: guess trail DRIPPING_LAVA count 2 speed -0.5 zero spread; burrows ENCHANTED_HIT 4 / CRIT 3 (0.5,0.1,0.5) and DRIPPING_LAVA 2 (0.35,0.1,0.35); arrow DUST count 0 speed 1.0 with the colour in the offset fields (0,128,0 / 255,255,0 / 255,0,0).
+- The spade guess uses SkyHanni's Bezier fit through our existing utils/BezierFitter, not Devonian's RANSAC. The first trail particle must be within 4 blocks of your eyes, which filters out other people's particles.
+- The Hub bounds for the arrow ray (x -300..210, y 55..130, z -240..210) are an estimate; SkyHanni reads them from its repo.
+- Chat formats: "You dug out a Griffin Burrow!", "You finished the Griffin burrow chain!", "Poof! You have cleared your griffin burrows!", "You dug out a <Mob>!", "You haven't unlocked this fast travel destination!", "Maximum Particles per Tick now: …". Party shares: "x: 1, y: 2, z: 3 | Mob", "A MINOS INQUISITOR has spawned near […] at Coords x y z", "Found a <Mob>! @ x y z", "Rare Diana Mob dead!" / "Inquisitor dead!".
+- Warp coordinates come from Skysoft's DianaWarpPoint. By default Crypt, Wizard Tower and Taylor are on the ignore list.
+- Rare mob detection reads name armor stands that contain the mob name and ❤. Max HP comes from "cur/max❤", and the lootshare threshold is 1% of max HP (Skysoft).
+- Spade-music mute: an id path starting with "music" that is not at 0,0,0 with pitch 1 and volume 1 (SkyHanni logic).
+- Alles nur live prüfbar; Factory-Lore-Formate (Cost/CPS/Multiplier/Barn/Charges/Status/Next Charge/Hitman) aus SkyHanni-Regex + Skyblocker übernommen, Slots werden per Name statt fester Indexe gefunden.
+- Chocolate-Schätzung außerhalb der Factory = letzter Menüwert + cps pro Sekunde in SkyBlock (Time-Tower-Ende nicht berücksichtigt); Time-Tower-Ladezeit fest 8 h.
+- Stray-Rarität für CLICK ME! kommt aus gelernten Skull-Texturen (Hoppity's Collection öffnen bzw. gefangene Strays, gespeichert in config/teslamaps/rabbit_rarities.json); unbekannte zählen nur bei "All". Rarität gefangener Strays aus der Lore-Farbe nach "You caught a stray".
+- Stray-Timer-Mechanik (30 s nach Eifund, Reset beim Schließen) wie SkyHanni; Close-Schutz blockt Esc/Inventar-Taste und "Close"/"Go Back"-Items (SkyHanni nutzt Repo-destructiveSlots). Hinweis wird über dem Container gezeichnet.
+- Chocolate-Shop-Preis rechnet nur Schokolade vs. Itempreis (keine Zusatz-Item-Kosten), "nicht kaufbar" per Lore-Heuristik.
+- Hitman-Menü: Titel "Rabbit Hitman", Kosten aus "Cost X Coins"-Lore (keine Repo-Kostentabelle).
+- Block-Open: Mythic-Rabbit-Erkennung über PetTracker (Name enthält "Rabbit" + MYTHIC), Cookie über Tab-Footer, Mixin über EffectTimers (muss an sein, sonst immer blockiert); ein zweites /cf innerhalb 5 s geht durch.
+- Rabbit-Keybinds klicken per Middle-Click (CLONE) wie SkyHanni, 200 ms Sperre; Default-Tasten 1-7 ersetzen im Factory-Menü den Hotbar-Tausch.
+- Diana-Lobby: Spielerzahl aus Tab-Zeile "Players (N)", Party-Mitglieder zählen als freundlich wenn sie einen PlayerInfo in der Lobby haben (15 s Gnadenfrist); Mayor-Perk "Mythological Ritual" via ElectionApi; 2 s stabil vor dem Alarm.
+- Egglocator-Chat: Ei-Spawns bei SB-Stunde 7/14/21 berechnet; eigene Zeile ersetzt die vorige (Suche in den letzten 30 Chatzeilen). Hypixels Originalzeile bleibt stehen.
+- Überschneidung: w18-09 hat einen eigenen "Time Tower Reminder" (TimeTowerReminder), unabhängig von meinem "Time Tower Expired Reminder"; beide default aus.
+- Alles nur live prüfbar (Carnival läuft nur mit Foxy-Perk "Chivalrous Carnival"). Carnival-Erkennung: Tab "Area: Hub" + Scoreboard "⏣ Carnival" + Perk aus ElectionApi (wenn ElectionApi nicht geladen: nur Area).
+- Chat-Formate von SkyHanni übernommen: "[NPC] Carnival Cowboy: Good luck, pal!" / "[NPC] Carnival Pirateman: Good luck, matey!" (Start), Ende = Zeile "Zombie Shootout" / "Fruit Digging", TREASURE!/ANCHOR!/MINES!-Hinweise, Goal-Abschlusszeilen, "You claimed Carnival Ticket x25!", "Select an option:", "Profile ID: ", "PARTY! ... SkyBlock level color is [a] - [b] ...", "This person has had too much cake today!".
+- Zombie-Typ über Helm (SkyHanni) oder Brustplatte (Skyblocker); Lampen-Box über Block-Update (BlockUpdateMixin, eine Zeile) redstone_lamp LIT false->true; Lampen-Timer 6s, Zombie-Lebenszeit 8/7/6/5s.
+- Catch a Fish: Gelber Fisch per Kopftextur (Skyblocker-Hash), Bereich (-87..-68, 65..85, 25..53).
+- Fruit Digging: Grid-Koordinaten (-112, 72, 19), Frucht-Texturen aus SkyHanni-Repo (Skulls.json); Anchor-Items per ItemEntity-Scan statt DataWatcher-Event, Reveal-Namen per ArmorStand-Scan. Solver = 1:1-Port (Monte-Carlo 500 Samples / 20k Versuche), läuft im Tick nur bei Änderung.
+- Token Shop: Kosten live aus NEU-Repo constants/carnivalshops.json; Upgrades in Slots 11-15, "Carnival Tokens" in Slot 32 ("Your Tokens: N"). Anzeige als Tooltip-Zusatz am Carnival-Tokens-Item (statt Slot-8-Ersatzitem wie bei SkyHanni); in Souvenir Shop / Carnival Perks am Tokens-Item und an den Shop-Items. Speicherung pro SkyBlock-Profil (Profil-ID aus der "Profile ID:"-Chatzeile, sonst "default").
+- Carnival Goals: Menü "Carnival Goals", Items Sand/Kabeljau/Pfeil, letzte Lore-Zeile "COMPLETE"; Reset pro SkyBlock-Jahr.
+- Quick Start: zweiter Rechtsklick auf Carnival Cowboy/Fisherman/Pirateman innerhalb 5s nach dem Dialog sendet /selectnpcoption <npc> r_2_1 (nur nach explizitem Klick, kein Cheat); NPC-Erkennung über Nametag-ArmorStand nahe dem geklickten Entity.
+- Century Team Finder: Teamfarbe = Farbe des ⛃-Emblems im Nametag (Team-Suffix), Slice-IDs SLICE_OF_*; Party Invitation: Level aus Nametag "[123]", fehlende Bereiche aus Lore nach "Level colors missing:".
+- Jerry Presents: ArmorStands "From: X" + darunter "To: X"/"CLICK TO OPEN" + Kopf-Stand, nur in Area "Jerry's Workshop".
+- Kategorie "Events" (gated, Skyblock-Sidebar) teilen sich mehrere w18-Gruppen; nach dem Master-Merge ohne Konflikt.
+- Alles nur live prüfbar. Kategorie "Events" (gated, Sidebar Skyblock) teilen sich jetzt mehrere w18-Gruppen, Deklaration ist idempotent.
+- Frozen Treasure: ArmorStand-Erkennung (genau 1 Ausrüstungsteil, Block 2 über dem Stand = Eis) aus SkyHanni übernommen; Sub-Area "Glacial Cave" aus Scoreboard.
+- Calendar: Monatsansicht nimmt Stack-Count als Tag, Datum = SB-Epoch + Jahr/Monat/Tag; Zeile wird unter dem Itemnamen eingefügt (Skyblocker hängt sie an Zeilen mit " (").
+- Cake Counter: Namen "Cakes Eaten: n" / "Souls Found: n" aus SkyHanni-Regex; erster Besuch speichert nur (keine Meldung).
+- Mythological: Chat-Formate aus SkyHanni/Devonian/Skysoft ("Woah! You dug out a Minos Inquisitor!", "RARE DROP! ... (+x% ✯ Magic Find)", "Wow! You dug out n coins!"); Item-IDs für Mythological Dye/Myth the Fish geraten; Loot-Share zählt nur im Hub bis 5 min nach Diana-Aktivität. Chat-Ausblenden läuft über ChatFilter (Chat-Sektion muss an sein).
+- Rare Diana Mobs: Namens-Matching auf ArmorStand-Nametag + NametagMobs.mobForTag, nur im Hub.
+- Hidden Jerry: "☺ ... Green Jerry" und "☺ You claimed X from the Jerry Box!" aus Skytils; Tracker-HUD nur wenn Jerry Mayor ist oder schon ein Jerry kam.
+- Alle Chat-Formate stammen aus SkyHanni-Regexes (gestrippt): "✆ Hoppity ✆", "[NPC] Hoppity: ✆", "QUICK MATHS! Solve: ", "[FEAR] Public Speaking Demon: Speak ...!", "FEAR. A Primal Fear has been summoned!", "FROZEN TREASURE! You found X!", "COMPACT! You found an Enchanted Ice!", Gift "<RARITY>! <reward> gift with <player>!" und "EXTRA! +N North Stars"
+- Hoppity-Sperre sitzt auf dem ServerboundChatCommandPacket ("selectnpcoption hoppity r_2_1") in PacketSendMixin, weil geklickte Chat-Optionen ALLOW_COMMAND umgehen; Purse aus der Scoreboard-Zeile
+- Griffin-Warnung liest das Pet aus dem Tab-Widget über PetTracker (braucht die Skills-Sektion an; PetTracker läuft jetzt auch mit nur griffinPetWarning an)
+- Fear-Stat-Parsing aus der Tab-Liste ("Fear: <icon><wert>") geraten; Great-Spook-Zeitraum aus SkyHanni-REPO constants/Events.json
+- Jerry-Zuordnung: Nametag-Stand "Green/Blue/Purple/Golden Jerry" zum nächsten Mob darunter, keine Owner-Prüfung (SkyHanni prüft belongsToPlayer)
+- Gift-Item-Ids für Bücher/XP-Boost-Tränke geraten (ENCHANTMENT_X_N, POTION_X_XP_BOOST;N) -> evtl. ohne Preis
+- Calendar-Lore von "Mayor Jerry": Zeile "Perkpocalypse Perks:" + erster Perk innerhalb der nächsten 4 Zeilen (SkyHanni-Format, nie live gesehen); 6h-Raster ab letzter Wahl wie SkyHanni
+- Gaia: Anvil-Land-Sound mit Lautstärke 0.8 als Treffer-Signal, Reset bei hurtTime==10, Phasen über MAX_HEALTH-Basiswert (alles aus Skytils)
+- Meal-Egg-Menütitel "Chocolate <Meal> Egg", Item "Rabbit the Fish", Lore "Click to open Chocolate Factory!"; Schließ-Sperre nur für Esc/Inventar-Taste (Server-Close geht durch); Titel erscheint hinter dem Menü
+- Hoppity-Shop: Menütitel "Hoppity", Lore "Click to trade!"; SkyBlock-Jahr aus Epoch berechnet
+- Pet-Warnung liest das Tab-Widget "Pet:" (Mythic = §d vor "Rabbit"), Fallback PetTracker; ohne Pet-Daten keine Warnung
+- Egg-Sound: note_block.bit, Volume 1.0, <2 Blöcke, bis 2 s nach dem Meal-Egg-Menü
+- Share-Format "[TeslaMaps] <Meal> Chocolate Egg located at x: …, y: …, z: …"; empfangen werden TeslaMaps-, SkyHanni- und Skyblocker-Format; ein [Share]-Knopf pro neu gesichtetem Ei (nur Frühling)
+- Transparenz nutzt den bestehenden LivingEntityAlphaMixin-Pfad (HidePlayers.alpha)
+- Calendar: Mayor-Slot per Name "Mayor ..." erkannt; Zoo-Pet-Rotation (SkyHanni-Formel year*2 + Halbjahr) und "Starts in:"-Lore nur aus SkyHanni übernommen.
+- Minister-Info braucht die Election-API (wird jetzt auch geladen, wenn Calendar Extras + Minister an sind).
+- Cake Reminder: Scoreboard-Zeile "New Year Event!" und Menütitel "Baker" aus SkyHanni; Claimed-Jahr ist @Global (pro Spieler, nicht pro SB-Profil). /openbaker nur per Klick.
+- Reindrake: Chat "WOAH! ... summoned a Reindrake / TWO Reindrakes from the depths!" aus SkyHanni; Area-Check auf "Jerry".
+- Gift-Tags: blendet ganze ArmorStands mit "From:"/"To:" aus (nur in SkyBlock).
+- Fruit Bowl: Lore "Names missing:" (gestrippt, kommagetrennt) und die Chat-Formate aus SkyHanni; Klick-Liste nur pro Session.
+- Carnival: Boxen/Kopftextur aus Skyblocker, Erkennung über Area "Hub" statt Mayor-Perk; Dojo-Start / "Test of X OBJECTIVES" / "CHALLENGE COMPLETED|FAILED" und Zombie-Namen (Discipline endet auf Wood/Iron/Gold/Diamond, Force enthält "-") aus Skyblocker. Glow auf Fisch-ArmorStands evtl. unsichtbar.
+- Lobby: Easter-Egg-Koordinaten von SkyHanni (Easter 2024, ändern sich evtl. jährlich), Baskets/Presents aus SkyHanni-REPO (nur Hauptlobby). Erkennung: Scoreboard-Titel "HYPIXEL" + "Easter Eggs:" / "Baskets Found:" / Dezember. Gefunden-Status nur pro Session.
+- Neue gated Kategorie "Events" (Sidebar "Skyblock") über FeatureRegistry.category; andere w18-evt-Gruppen legen evtl. dieselbe an (idempotent, erste Deklaration gewinnt, gated/ungated könnte abweichen).
+- Hoppity: Spawn-/Alt-Day-Rechnung nach SkyHanni-Formel (Frühling 1-3, Alt-Day = (Monat%2==1)==(Tag%2==0)), Claim-Erkennung aus "You found a Chocolate X Egg", "already collected" und "no hidden eggs nearby". Vor dem ersten Fund eines Eis gilt es als bereit, auch wenn es vorher ohne Mod abgeholt wurde.
+- Time Tower: Chatformat "TIME TOWER! Your Chocolate Factory production has increased by +Xx for Nh!" aus Skyblocker.
+- Unique Gifting: Chat "+1 Unique Gift given! To X!", Nametag-Symbol "ꤥ" in Rot, Generow-Slot 40 Lore "Unique Players Gifted: N"; NPC-Filter über UUID-Version 4 + Tab-Liste; Ironman/Bingo-Filter über ♲/Ⓑ am Displaynamen (eigener Name wird verglichen).
+- Sphinx: Frage-Header "Question", Antwortzeilen "A) ...", Tabelle mit 15 Fragen aus Skysoft/WpcMod; Klick-Event der Zeile bleibt erhalten.
+- Spooky Chest: Chatzeilen "SPOOKY! A Trick or Treat Chest has appeared!" / "PARTY! A Party Chest has appeared!".
+- Spooky Candy: Footerformat "Your Candy: N Green, N Purple (N pts.)" nie live gesehen.
+- Shark Counter: Catch-Erkennung über SeaCreatureList (Repo-Liste), Festival-Ende-Zeile aus SkyHanni; Zähler nur für die Sitzung.
+
+## Welle 19 (10 Gruppen)
+
+### Neu
+- **Snow Minion Gift Alert** — big aqua "Snow Minion!" title and a beep when a gift drops a Snow Minion (Settings: Render > Rare Drop Effects)
+- **Beach Ball Tracker** — counts balls used, Fishy Treats earned, treats per ball and per hour during Year of the Seal (Settings: Events)
+- **Fishy Treat Profit** — Lukas the Aquarist's shop shows the coin profit per Fishy Treat for every item, sorted (Settings: Events)
+- **Beach Ball Catch Helper** — predicted flight path of your beach ball, landing spot at head height and a bounce counter with rating (Settings: Events)
+- **Witches Stew Helper** — ingredients for the stews you haven't eaten yet with sack amounts, eaten/ready stews highlighted (Settings: Events)
+- **Shiny Orb Tracker** — Shiny Orb loot, coins and skill XP minus orb cost, plus lines to your Shiny Pig and its orb (Settings: Events)
+- **Hoppity Server Switch Reminder** — reminds you to change lobbies so your Chocolate Factory leaderboard rank updates; the event summary shows your rank change (Settings: Inventory > Hoppity's Hunt)
+- **Century Raffle Colors** — Raffle Tasks and Previous Raffles marked green (done/claimed) and red (open/unrevealed) (Settings: Inventory > Guide Highlight)
+- **Egglocator Guess** — the Egglocator's particle trail is turned into a waypoint on the nearest known egg spot, plus optional waypoints for every egg spot of the island with already-found spots marked red; `/tmap hoppityeggs import` loads your found spots from the API (Settings: Events)
+- **Hoppity Egg ESP: Exact Meals & Respawn Timer** — egg labels show Brunch/Déjeuner/Supper on alternate days, and collected eggs show when they respawn (Settings: ESP)
+- **Upcoming Events** — HUD with countdowns to the next SkyBlock events (Dark Auction, Jacob with crops, Star Cult, Zoo with pet, Spooky, Jerry, New Year, ...), optional reminder before they start and a "next event" line above containers (Settings: Events)
+- **Tab Event Countdown** — the Contest Timer HUD also shows the tab list's current event with its "Ends in"/"Starts in" time (Settings: Contest Timers)
+- **Click Through Grass** — in the Hub your clicks go through grass and flowers onto the block behind, handy for Diana burrows (Settings: Events)
+- **Mark Clicked Egg Exactly** — right-clicking a Hoppity egg marks exactly that egg as collected (Settings: ESP)
+- **Enigma Soul Waypoints** — boxes on all 52 Rift enigma souls, found souls are remembered per profile (Settings: Rift)
+- **Rift Timer** — your Rift time as a HUD with max time, percentage and a +/- popup for every gain or loss, optionally readable rift time in player nametags (Settings: Rift)
+- **Motes Price in Tooltip** — every Rift item shows its Motes NPC price including McGrubber burger stacks, which are detected automatically (Settings: Rift)
+- **Blood Effigies** — Stillgore Château effigy markers with break prompts and respawn countdowns (Settings: Rift)
+- **Rift Inventory Value** — panel next to containers in the Rift listing the motes value per item and the total (Settings: Rift)
+- **Parkour Guides: Hide Players** — hides other players in the Mirrorverse while the parkour guides are on (Settings: Ordered Waypoints)
+- **Dance Room Helper** — shows the Dance Room moves as Now / Next / Later with a countdown (Settings: Rift)
+- **Kloon Hacking Solver** — marks the right button per row in Kloon's Hacking menu, highlights the nearest terminal's color in the color picker, and with the Retro-Encabulating Visor shows boxes on the terminals you have not done yet (Settings: Rift)
+- **Crux Talisman Progress** — HUD with your Crux Talisman progress in percent and kills per crux, optional compact mode and bonus lines (Settings: Rift)
+- **Punchcard Highlight** — players you have not punched yet with the Punchcard Artifact glow, with a x/20 overlay (Settings: Rift)
+- **Motes Orb Highlight** — Motes Orbs get a purple box and label, grey once picked up, their particles can be hidden (Settings: Rift)
+- **Living Metal Helper** — a box follows the Living Metal to the block it jumps to after you hit it (Settings: Rift)
+- **Defense Blocks** — Living Cave defense blocks are marked with "Break!" and a line to the Auto mob they protect, which gets colored too (Settings: Rift)
+- **Living Metal Snakes** — tracks the Living Cave snakes and colors head and tail by state while you hold a Pungi or Rift pickaxe (Settings: Rift)
+- **Living Metal Suit Progress** — HUD showing the evolution progress of each worn Living Metal piece with a bar (Settings: Rift)
+- **Timite Helper** — Time Gun evolution countdown and red expiry timers above blue panes on the Mountaintop (Settings: Rift)
+- **Sun Gecko Helper** — Time Chamber HUD with boss HP, combo, combo timer and active modifiers; real boss glows green, clones red (Settings: Rift)
+- **Bacte Tentacle Waypoints** — red beacon on each ground tentacle with the hits it still needs, tracking Bacte's phase (Settings: Rift)
+- **Kill Zone Warning** — title with countdown and a sound when Bacte's arena warns you to get back in (Settings: Rift)
+- **Blobbercyst Highlight** — Blobbercysts glow in a color of your choice (Settings: Rift)
+- **Wilted Berberis Helper** — Dreadfarm: boxes the dead bush the Wilted Berberis sparks are on (Settings: Rift)
+- **Agaricus Cap Timer** — looking at a brown mushroom with the Farming Wand in Dreadfarm or West Village shows a timer above it, then "Click!" once it turns red (Settings: Rift)
+- **Larva Highlight** — while holding the Larva Hook, larvae on the Wyld Woods trees glow (Settings: Rift)
+- **Larva Silk Lines** — the first Larva Silk click marks the start block and a line shows where the wire will go (Settings: Rift)
+- **Odonata Highlight** — while holding an empty Odonata Bottle, Odonatas glow (Settings: Rift)
+- **Shy Crux Warning** — a "Look away!" title while a Shy is within 8 blocks (Settings: Rift)
+- **Splatter Hearts Highlight** — red boxes on the hearts Splatter Cruxes drop in Stillgore Château (Settings: Rift)
+- **Gunther's Rift Race Route** — the race route with look-ahead waypoints appears once a Rift Race starts, and other players can be hidden during the race (Settings: Rift)
+- **Crafting Room Holograms** — mirrors the Mirrorverse crafting-room mobs onto your side of the wall as see-through holograms, with optional name/health and hiding other players (Settings: Rift)
+- **Enigma Rose Flowerpot Drop** — a white "Drop" beacon in the Rose's End parkour shows where to jump down to the flowerpot (Settings: Rift)
+- **Motes Per Session** — when you leave the Rift, a chat line shows the motes gained this visit and motes/h, with details on hover (Settings: Rift)
+- **Horsezooka Hider** — hides horses in the Rift while you hold the Horsezooka (Settings: Rift)
+- **Nearly Coherent Rod Radius** — draws the rod's 8 block radius around you while you hold it (Settings: Rift)
+- **Ubik's Cube Reminder** — tracks the 2h Split or Steal cooldown per profile, tells you when it is ready and can show a cube timer HUD (Settings: Rift)
+- **Volt Crux Helper** — colours Volts by mood and shows the 7 block lightning range with a strike countdown (Settings: Rift)
+- **Wooden Buttons Helper** — marks the nearest "Hit Buttons Here!" spot and its wooden buttons for the Buttons Enigma Soul; hit buttons disappear, optional navigation to the next spot (Settings: Rift)
+- **Timite Tracker** — tracks mined Youngite, Timite and Obsolite with motes value, craftable Highlite and rift time gained (Settings: Rift)
+- **Vermin Tracker** — counts vacuumed Flies, Spiders and Silverfish per session and total, synced when you open the Vermin Bin; can hide the vacuum chat (Settings: Rift)
+- **Vermin Highlighter** — highlights vermin in West Village and the Infested House while holding the Turbomax Vacuum (Settings: Rift)
+- **Ubik Quick Close** — after the Split or Steal game, clicking anywhere in the menu closes it (Settings: Rift)
+- **Rift Guide Highlight** — Guide Highlight now also marks unfinished entries in the Rift Guide (Settings: Inventory)
+- **Reputation Helper** — daily faction quests with progress, sack stock for fetch quests, daily bosses and daily Kuudra x/5, optional waypoints and hold-to-show key (Settings: Crimson Isle)
+- **Miniboss Respawn Timers** — HUD for Bladesoul, Mage Outlaw, Barbarian Duke X, Ashfang and Magma Boss: spawned, 2-minute respawn timer, soon, killed (Settings: Crimson Isle)
+- **Vanquisher Alert** — title and sound when a Vanquisher spawns, share your coords to party/all chat instantly or by key, waypoints for shared Vanquishers (Settings: Crimson Isle)
+- **Ashfang Helper** — freeze and next-reset timers, Blazing Soul markers and Gravity Orb rings (Settings: Crimson Isle)
+- **Crimson Boss Drops** — alert and loot tracker for keys, urchins, Ragnarock, fire staffs and Magma Cube pets dropped by Crimson minibosses (Settings: Render > Rare Drop Effects)
+- **Dojo Helper** — help for all seven Dojo tests, each one switchable (Settings: Crimson Isle)
+- **Heavy Pearl Helper** — highlights the Matriarch's Heavy Pearls with a route line and a daily reminder (Settings: Crimson Isle)
+- **Volcano Explosivity HUD** — volcano status from the tab list plus a Matcho alert once the volcano wakes up (Settings: Crimson Isle)
+- **Pablo / Sirih / Avorius Sack Links**: when Pablo wants a flower, Sirih wants Sulphur or Avorius wants a Cup of Blood and you have none, a click-to-get-from-sacks line shows up (Settings: Crimson Isle)
+- **Ashfang Hider**: hides particles, glowstone armor stands and damage splashes during the Ashfang fight (Settings: Crimson Isle)
+- **Magma Boss Stages**: a title on every Magma Boss stage change, an optional stage/progress HUD, and the sidebar HP on the Magma Boss nameplate (Settings: Crimson Isle)
+- **Atom Hitboxes**: coloured hitboxes and names on Exe, Wai and Zee atoms near you (Settings: Crimson Isle)
+- **Dojo Rank Display**: a panel next to the Dojo Challenges menu with rank and points per test, your total, your belt and the points to the next belt (Settings: Crimson Isle)
+- **Ashfang Blaze Names**: hides the nametags of Ashfang's blazes while they are at full health (Settings: Mob Visuals)
+- **Rescue Mission Navigation**: paths you to your faction's Undercover Agent and back to the Quest Board, plus a single-colour option for the parkour path (Settings: Crimson Isle)
+- **Crimson Fog Color**: Crimson Isle fog keeps its normal colour under Night Vision instead of turning bright (Settings: Hide)
+
+### Teilweise
+- EVT-071: Events > Egglocator Guess (+ Line To Crosshair, Mark Found Spots Nearby) / All Hoppity Egg Spots (+ Hide Found Spots); /tmap hoppityeggs import|clear. Kein Pfadfinder (kein Island-Graph vorhanden)
+- RIF-006: existierte schon als ParkourGuides (Ordered Waypoints > Rift Parkour Guides, SkyHanni-Port mit Look Ahead/Regenbogen/Reset). Ergänzt: "  Hide Players in Mirrorverse". Skyblockers statische Wegpunkte nicht zusätzlich gebaut (Duplikat)
+- RIF-021: Rift > Wilted Berberis Helper (+ Color); nur Partikel-Modus, kein Lernen der Respawn-Reihenfolge (SkyHanni braucht dafür Feld-Mittelpunkte aus dem Repo)
+- CRI-001: Crimson Isle > Reputation Helper (Hide Done, Waypoints, Only While Key Held + Key, Reset). Fehlt: Item-Icons im HUD, Graph-Navigation (nur Wegpunkte)
+
+### Live auf Hypixel prüfen
+- Snow Minion: Zeilenformat "SWEET! Snow Minion I gift with ...!" nur aus Oringo/GiftProfitTracker-Regex abgeleitet.
+- Beach Ball Catch Helper: Ball-Erkennung ohne SkyHanni-Skull-Texture (nicht lokal verfügbar) — nimmt nach der "BOUNCE BONANZA!"-Zeile (nicht EX) das nächste frisch gespawnte Armor Stand mit Player-Head in 6 Blöcken. Kann falsches Stand greifen; Vorhersage-Modell gekürzt (SmallPoly + SpreadPoly, AveragePoly weggelassen).
+- Beach Ball Tracker / Fishy Treat Profit: Chat-Regex aus SkyHanni, Shop-Titel "Lukas the Aquarist", Kostenzeile "Fishy Treat xN" über LoreCosts.
+- Stew Helper: Menü-Titel "Witches Stew", "Requires:"-Zeile, Status-Zeilen aus SkyHanni; Sack-Mengen nur mit aktivem Sack API (sonst "?").
+- Shiny Orbs: Orb-Erkennung ohne Skull-Texture (nächstes Player-Head-Armor-Stand 5 Blöcke um das Schwein, 1 s nach Klick mit SHINY_ORB); Orb-Kosten fest 5k wie SkyHanni.
+- Hoppity Reminder: Leaderboard-Lore "You are #N in all-time Chocolate." / "You are in the top X% of players!" aus SkyHanni-Regex; Serverwechsel wird über Welt-Wechsel erkannt (kein Server-ID-Helfer vorhanden).
+- Raffle Colors: letzte Lore-Zeilen aus Skyblocker, Event nicht aktiv.
+- Egglocator-Partikel (HAPPY_VILLAGER, count 1, speed 0) und Treffsicherheit des Guess nur live prüfbar; Egg-Spots aus SkyHanni-Repo (apiEggLocations, Stand tmapaa-Profil 2026-09-25) gebündelt als assets/teslamaps/data/hoppity_eggs.json; Inselnamen auf unsere Tab-"Area:"-Namen gemappt ("Lotus Atoll", "Gold Mine", "Spider's Den" geraten)
+- API-Import: Pfad member.events.easter.rabbits.collected_locations (aus SkyHanni), nie live gesehen
+- Tab-Widget-Format "Event: <name>" + " Ends In:/Starts In:" aus SkyHanni-Regex übernommen
+- Event-Zeitplan (Star Cult Tag 7/14/21/28 für 6 SB-Stunden, Spooky Autumn 29-31, Jerry Late Winter 24-26, New Year Late Winter 29-31, Zoo Early Summer/Early Winter 1-3, Fishing Festival Tag 1-3 bei Marina) aus dem SkyBlock-Kalender berechnet, nicht gegen /calendar verglichen
+- Click Through Grass: Mixin auf ClipContext.Block.get (OUTLINE); in-game prüfen, dass Burrows hinter Gras klickbar sind und Hub-Weizenfelder weiter abbaubar
+- Mark Clicked Egg Exactly: UseEntityCallback auf die Egg-Armorstands
+- Alles nur live im Rift prüfbar. Sub-Area kommt aus der Scoreboard-Zeile "ф <Ort>" / "⏣ <Ort>" (features/rift/RiftZone) — Mirrorverse/Stillgore-Erkennung prüfen.
+- Rift Timer: Actionbar-Format "12m 30sф" bzw. mit Icon U+E020 (aus SkyHanni-Regex); Nametag-Umschreibung erwartet scoreText "3150 ф".
+- Blood Effigies: Farbe der ⧯ wird aus Team-Prefix/Suffix via ChatText.formatted gelesen (§7 = steht, §c = kaputt, wie SkyHanni); Positionen aus Skyblocker; Armorstand-Namen "Respawn 14m59s (or click!)" / "Break it!".
+- Motes: Feld motes_sell_price aus der Hypixel-Items-API (im Cache vorhanden, 73 Items); Grubber-Menü-Lore "X Motes" und "Total Progress: N%" ungesehen; Ausschluss rift_transferred + "Rift-Export"-Lore.
+- Dance Room: Sound-Sync (note_block.bass Pitch 0.698/0.524, burp 0.8, levelup 1.841) und Raum-AABB aus SkyHanni; Anweisungen per SkyHanni-REPO DanceRoomInstructions.json (RepoCache).
+- Enigma-Soul-Chatzeilen "SOUL! You unlocked an Enigma Soul!" / "You have already found that Enigma Soul!".
+- Alles nur live im Rift prüfbar; alle Chat-/Lore-/Titel-Formate stammen aus SkyHanni-Regexen (stripped nachgebaut).
+- Kloon: Menü-Titel "Hacking"/"Hacked Terminal Color Picker", Slot-Layout (Lösung in Slots 2-6, Diagonale 11+10*Reihe), Terminal-Koordinaten, Chat "You've set the color of this terminal to X!". Erledigte Terminals werden in config (kloonDoneTerminals) gespeichert, nicht pro SkyBlock-Profil. SkyHanni's Middle-Click-Umleitung und Tooltip-Ausblenden wurden bewusst weggelassen (schlank).
+- Crux: Lore-Format "3 Shy: 88/100 kills" / "4 Puff: MAXED" / "Total Bonuses", Item-ID-Präfix CRUX_TALISMAN.
+- Punchcard: Chat "PUNCHCARD! You punched ... and both regained", AWKWARD!/UH OH!; Reset bei Wechsel des Rift-Servers (Server-ID aus Scoreboard). Glow auf Spielern über EntityGlow.
+- Motes Orb: Erkennung über ENTITY_EFFECT-Partikelpakete 60-90/s; Chat "ORB! Picked up +... Motes".
+- Living Cave (Metal/Defense/Snakes): Unterbereich aus Scoreboard ("Living Cave"/"Living Stillness"); Block-Änderungen kommen über Level.setBlock (auch Client-Vorhersage), Linksklick über startDestroyBlock; Defense-Mobnamen "Autonull/Autocap/Autochest/Autopants/Autoboots"; Pickaxe-IDs + FROZEN_WATER_PUNGI aus SkyHanni.
+- Alles nur live prüfbar. Area-Erkennung über Tab "Area: The Rift" + Scoreboard-Sub-Area (ф-Zeile): "Time Chamber", "Colosseum", "Dreadfarm", Mountaintop-Liste aus SkyHanni.
+- Living Metal: NBT-Key lm_evo (SkyHanni); ein Teil zählt, wenn es lm_evo hat oder die ID LIVING_METAL enthält.
+- Timite: tick-basiert (Use-Taste gehalten + vanilla hitResult, also nur in Reichweite wie bei SkyHanni); Expiry scannt 1x/s einen 31er-Würfel nach BLUE_STAINED_GLASS_PANE.
+- Sun Gecko: HP aus dem Nametag "x/y❤" (Fallback Entity-HP), Klone = Name mit "?"; Actionbar-Format "[⬛⬛… x2 …]" + §c-Erkennung über ChatText.formatted; Chat "ACTIVE MODIFIERS!" bis ▬-Linie; Modifiers-Menü Slots 19–25 limegrün; Combo-Timer-Werte sind SkyHanni-Schätzung.
+- Bacte: Phase aus Nametag "[LvN] Ba… x/y❤" bzw. Chat "X is growing into Y!"; Tentakel = Slime Größe 4–8 bei ceil(y)=68; Treffer über neuen handleDamageEvent-Hook (nur DamageTypes.GENERIC, Wandschaden raus).
+- Kill Zone: Chat "Get back in the arena or you will DIE!!!", Deadline 250 ms x (12 − Anzahl !).
+- Blobbercyst: Spieler-Entity mit Name "Blobbercyst" irgendwo im Rift.
+- Berberis: FIREWORK-Partikel innerhalb 20 Blöcken über Dead Bush auf Farmland, Box verschwindet 0,8 s nach dem letzten Partikel. Zens Datei war lokal nicht vorhanden, gebaut nach Beschreibung + SkyHanni.
+- Neue gated Kategorie "Rift" (FeatureRegistry.category("Rift","Skyblock",true)) in features/rift/. Andere Rift-Gruppen nutzen wahrscheinlich denselben Namen, der Aufruf ist idempotent.
+- Sub-Area-Erkennung über die Scoreboard-Zeile ⏣ (FishingHelpers.subArea): "Dreadfarm", "West Village", "Stillgore Château"/"Oubliette" wurden live nie gesehen.
+- Larva/Odonata: Die Skin-Hashes stammen aus SkyHanni-REPO Skulls.json (RIFT_LARVA = Kopf-Slot, MOB_ODONATA = Main-Hand-Slot). Glow auf unsichtbaren Armor Stands sollte die Kopf-/Hand-Items umranden, das ist ungeprüft.
+- Larva Silk: Zen-Quelle liegt nicht lokal, deshalb aus der Beschreibung gebaut. Item-ID LARVA_SILK, Chatzeile "You cancelled the wire", Klick über UseItem/UseBlock-Callbacks (pro Tick dedupliziert).
+- Shy Crux: sucht nur benannte Armor Stands (die Namen "Eek!", "Look away!" usw.) im Umkreis von 8 Blöcken.
+- Splatter Hearts: Filter auf HEART-Partikel mit count 3 und speed 0 (wie SkyHanni).
+- Rift Race: Route wird von SkyHanni-REPO constants/rift/RiftRace.json geladen (RepoCache), ParkourHelper mit inOrder, Reichweite 5. Die Chatzeilen "RIFT RACING Race started!/finished in/cancelled!" sind aus den SkyHanni-Regex übernommen. Spieler ausblenden läuft über HidePlayers.matches (gleicher Weg wie bei Arachne).
+- Alles nur live im Rift prüfbar. Rift-Erkennung: Hypixel Mod-API mode "rift", Fallback Tab-Area enthält "Rift".
+- RIF-029: Mirror-Rendering über extrahierte Entity-States (eine Zeile in PetDragonMixin), Raum-Koordinaten und Wand z=-116.5 von SkyHanni; Blickrichtung wird mitgespiegelt (bei SkyHanni ein TODO). Hide Players versteckt alle RemotePlayer im Raum (wie SkyHanni, also auch NPCs).
+- RIF-031: Tab-Zeile "Lifetime Motes: 593,922" (SkyHanni-Regex), braucht das Rift-Info-Tab-Widget; die Nachricht kommt beim ersten Tick außerhalb des Rift (wer in eine Nicht-SkyBlock-Lobby geht, bekommt sie evtl. erst beim nächsten Island-Join).
+- RIF-034: Chatzeile "SPLIT! You need to wait … before you can play again." und GUI-Titel "Split or Steal" aus SkyHanni; Icon über SkyblockItems "UBIKS_CUBE".
+- RIF-035: Volt-Skull-Texturhashes aus dem SkyHanni-Repo (Skulls.json); Countdown startet beim Helmwechsel auf die Blitz-Textur (12s); Mood Meter nutzt Outline-Glow (EntityGlow) statt SkyHannis Tint.
+- Wooden Buttons: kein Enigma-Soul-Tracking vorhanden, daher Anzeige sobald man in der Rift < 120 Blöcke von einem Spot mit offenen Knöpfen steht (SkyHanni: nur wenn die Buttons-Soul getrackt wird). Treffer-Erkennung = Knopf wird POWERED + Chat "You have hit x/56 of the wooden buttons!" innerhalb 3 s (Fallback: nächster offener Knopf < 6 Blöcke). Spots/Knöpfe aus SkyHanni-Repo (RiftWoodenButtons.json). Fortschritt wird beim Weltwechsel zurückgesetzt (wie SkyHanni). Navigation nur, wenn Island Navigation an ist und der Rift-Graph lädt.
+- Timite: Erkennung per Inventar-Diff (kein Container offen, nur Rift); Motes-Werte fest 50/100/200, Highlite 25k + Rezept 32/32/16 (Hypixel-API/NEU). Anzeige nur in Mountaintop-Unterbereichen laut Scoreboard (SkyHanni-Liste). Profit-Zeile ist in Motes, auch wenn das Tracker-Layout sie wie Coins formatiert.
+- Vermin: Chat "You vacuumed a <Silverfish|Spider|Fly>!", Vermin-Bin-Lore "Vermin Bin: N <Typ>" in Slot 13, Vacuum-NBT vacuumed_silverfish/spider/mosquito — Formate aus SkyHanni, nie live gesehen.
+- Vermin Highlighter: Fly/Spider per Kopf-Textur-Hash (SkyHanni Skulls.json), Silverfish per MaxHP 8; ESP-Default gefüllt, durch Wände.
+- Ubik: Menü "Split or Steal", Ende erkannt wenn Slot 4 keine Uhr ist (wie SkyHanni); schließt nur bei Klick auf einen Slot.
+- Rift Guide: Erkennung am Zurück-Knopf Slot 40 mit einzeiliger Lore "To Rift Guide", markiert Lore-Zeile "✖ Not completed yet!"; nutzt die bestehende Missing-Farbe.
+- Alles nur live prüfbar, Code nie auf Hypixel gelaufen.
+- CRI-001: Tab-Widget-Format " ✖ Name xN" unter "Faction Quests:" (SkyHanni-Regex), Town-Board-Menütitel (Fishing/Rescue/Miniboss/Fetch/Dojo/Kuudra) + "COMPLETE" in Slot 22, Miniboss-Anzahl-Fix aus Lore, Quest-Reset erst wenn eine 6. Quest im Tab auftaucht (wie SkyHanni), Kuudra-Tier kommt aus Kuudra.tier() beim KUUDRA DOWN!. Town-Board-Wegpunkt braucht die Fraktion aus dem Tab. Dojo-Quest-Highlight im Menü "Challenges".
+- CRI-002: Boss-Erkennung über Nametag "<Name> <HP>" in der SkyHanni-Area-Box, Chatzeilen "<BOSS> DOWN!" und "BEWARE - <Name> Is Spawning."
+- CRI-003: Share-Format "x: X, y: Y, z: Z | Vanquisher", eigene Position beim Spawn-Text (nicht die des Mobs).
+- CRI-004: Skull-Texturen aus SkyHannis Repo (Skulls.json), Freeze-Chatzeile, Reset-Timer ab erster Sichtung eines "Ashfang ..."-Nametags.
+- CRI-005: Drop-Nametags am Boden, Magma-Cube-Pet-Farbe (Gold/Lila) im Nametag.
+- CRI-006: Chatzeilen (Master Tao Start, "Test of X OBJECTIVES", "CHALLENGE COMPLETED/FAILED"), Discipline-Nametags enden auf " Wood/Iron/Gold/Diamond", Control/Tenacity-Vorhersage wie Skyblocker.
+- CRI-007: Heavy-Pearl-Textur (2dbd4e5d…), Slime im Armorstand, Subarea "Belly of the Beast" vom Scoreboard; "erledigt" nach 3 eingesammelten Perlen (Slime verschwindet in < 6 Blöcken) oder /tmap crimson matriarchdone. Tageswechsel = UTC-Mitternacht.
+- CRI-008: Tabzeile "Volcano: <STATUS>".
+- Pablo/Sirih/Avorius chat lines come from SkyHanni's regexes; the Sulphur/Cup of Blood link sends /gfs SULPHUR_ORE / CUP_OF_BLOOD. The Pablo flower name goes through SackItems.resolve
+- Faction for Sirih/Avorius comes from RescueMission.faction() (tab-list reputation line or the forced Rescue faction setting)
+- Ashfang detection: a named armor stand containing "Ashfang" (not Follower/Underling/Acolyte) within 80 blocks. Damage-splash regex is the same as SadanFeatures'. Glowstone = equipment named exactly "Glowstone"
+- Magma Boss: sidebar labels ("Boss: n%", "Damage Soaked:", "Kill the Magmas:", "Boss Health:", "The boss is reforming!") come from GanKura. The sidebar is read sorted by score, and the bar is the line below each label
+- Atom textures: URL hashes decoded from SkyHanni-REPO constants/Skulls.json (CRIMSON_ATOM_X/Y/Z), matched on the HEAD slot of armor stands
+- Dojo: container title "Challenges", item "Test of X", lore "Your Rank: S (123)" (stripped). Belt thresholds come from SkyHanni-REPO Belts.json (0/1000/2000/4000/6000/7000). The PV's CrimsonIslePage uses different thresholds and was not changed
+- Rescue: Agent/Quest Board coordinates come from SkyHanni's CRIMSON_ISLE graph node positions. The retry link runs "/tmap navigate Quest Board (Barbarian|Mage)"
+- Fog: the WrapOperation targets GameRenderer.getNightVisionScale inside FogRenderer.computeFogColor (checked with javap), but the visual result has not been seen in game
+
+## Welle 20 (7 Gruppen)
+
+### Neu
+- **Damage Indicator** — big coloured HP, DPS and time-to-kill above slayer, dungeon, Diana, sea-creature and other bosses (Settings: Combat)
+- **Ender Dragon Tracker** — egg/eyes/type status HUD, live weight, "SUPERIOR DRAGON!" spawn title, DPS and loot quality after the kill (Settings: The End)
+- **Damage Splash** — shortens damage numbers (12.35M), colours crits with a gradient, or hides splashes everywhere/in dungeons (Settings: Combat)
+- **Arachne Spawn Timer** — quick/normal spawn prediction, altar countdown, status HUD, kill timer and hidden brood nametags (Settings: Combat)
+- **Broodmother Tracker** — stage countdown HUD, stage chat, imminent warning, spawn alert with click-to-warp and a Bal alert in the Crystal Hollows (Settings: Combat)
+- **Mob Health List** — HUD list of nearby tracked rare mobs (Inquisitor, Jawbus, Thunder, ...) with their health (Settings: Mob Visuals)
+- **Deployable Reminder** — warns when no power orb is up in a slayer fight, no lantern in a Mineshaft or no Umberella while trophy fishing (Settings: Skills)
+- **Dragon Drop Tracker** — dragons since Superior/AOTD/pet, last 3 types, Ender Dragon pet and AOTD counts with a DROP! alert (Settings: The End)
+- **Broken Hype Warning** — title and anvil sound when your wither blade's kills go up but its Champion XP does not (Settings: Combat)
+- **Area Miniboss Highlight** — glow on Golden Ghoul, Old Wolf, Soul of the Alpha, Voidling Extremist and Millennia-Aged Blaze, with an optional respawn countdown at nearby spawn points (Settings: Combat)
+- **Ghost Profit Tracker** — drops, coins, kills, ghosts since Sorrow, max kill combo, combat XP and average Magic Find while in The Mist (Settings: Combat)
+- **Cocoon Overlay** — shows which mob is inside a cocoon and a countdown until it hatches (Settings: Combat)
+- **Better Shurikens** — green check under mobs with your shuriken debuff, red cross on chosen mobs that still need one, and the ✯ nametag marker hidden (Settings: Combat)
+- **Fire Freeze Visuals** — clean circle and countdown for Fire Freeze Staff casts, plus a box and 10s timer on frozen mobs (Settings: Combat)
+- **Implosion Damage HUD** — enemies hit and damage of your last Implosion / Guided Bat while holding the item, with the chat line hidden (Settings: Combat)
+- **Bestiary Alarms** — title and mob sound at 8pm (Zombie Villager) and 9pm (Ghast) SkyBlock time (Settings: Timers)
+- **Damage Tracker** — records the damage splashes around the mob you hit and shows total, max and average per damage type in /tmap damage (Settings: Combat)
+- **Healing Pool Marker** — draws a line from your crosshair to your Wisp pet's healing pool on the Crimson Isle (Settings: Combat)
+- **Ragnarock Alerts** — titles when you cast Ragnarock or it gets cancelled, plus the strength gained, optionally sent to party chat (Settings: Combat)
+- **Special Zealot Highlight** — the Special Zealot that drops the Summoning Eye glows red (Settings: The End)
+- **Zealot Counter** — HUD with Zealot kills, kills since the last Summoning Eye, Eyes and average per Eye, plus big alerts for Eye drops and Special Zealots (Settings: The End)
+- **Summoning Mobs** — HUD list of your Necromancer summons with health, green highlight, hidden nametags, death message and soul names (Settings: Combat)
+- **Spider's Den Rain Timer** — shows how long the Spider's Den rain lasts (Settings: Combat)
+- **Ticker / Charges Display** — Scorpion Foil ticker charges from the action bar as a row of dots (Settings: Combat)
+- **Bestiary Menu Overview** — percent on every family in the Bestiary menu plus a sortable panel of the page's categories and families; the container searchbar filters it (Settings: Combat)
+- **Mob Highlights** — glow for Special/Chest Zealots, Zealots & Bruisers, Runic and Corrupted mobs and Arachne's Keeper (Settings: Mob Visuals)
+- **Flare Extras** — flare range ring or sphere, timer text at the flare, mana regen buff, expiry warning with optional screen flash and flame particle hiding (Settings: Skills)
+- **Mob Health Bars** — a colored health bar under every mob nametag with a health value (Settings: Combat)
+- **Protector Extras** — tracer to the End Stone Protector spawn, a day-30 lobby restart warning and per-drop alert skipping (Settings: The End)
+- **Dead Mobs Not Clickable** — corpses stop catching clicks and hits so the attack reaches the mob behind (Settings: Hide)
+- **Reveal Hidden Mobs** — invisible Fels, Shadow Assassins and stealthy blood mobs render with their real model in dungeons (Settings: ESP)
+- **Pet HUD extras** — sortable/hideable lines, an inventory panel that opens /pets on click, and the pet's level after Kat's rarity upgrade (Settings: Skills)
+- **Better pet XP estimate** — now also counts Battle Experience and spreads XP to your Exp Share pets (Settings: Skills)
+- **Pet HUD Exp Share pets** — small icons of your Exp Share pets (dimmed when the slot is off) plus an animated XP ring (Settings: Skills)
+- **Pet Swap Title** — a big movable title with the new pet when Autopet swaps it, optionally on summon too (Settings: Skills)
+- **Pet Maxed Title** — "Pet is Maxed!" title and sound when a pet reaches max level (Settings: Skills)
+- **Pet Level On Slots** — every pet item shows its level, optionally its level progress % (Settings: Skills)
+- **Pet Keybinds** — keys pick pets in the Pets menu, Shift+key binds a pet on any page; the Pets menu can also be a radial wheel (Settings: Inventory)
+- **Pet XP Tooltip** — progress to max level with a bar and the total pet XP in pet tooltips (Settings: Skills)
+- **Favorite Pets** — mark pets with a key in the Pets menu to give them a colored background (Settings: Skills)
+- **Confirm Pet Item Use** — right-clicking a pet item, pet candy or pet skin is blocked until you click the chat line, which unlocks it for 5s (Settings: Inventory)
+- **Pet Candy On Icon** — shows used Pet Candies as a red number on pet icons and restores the hidden "(n/10) Pet Candy Used" line on max-level pets (Settings: Skills)
+- **Pet Item Symbol** — a small symbol for the held pet item on every pet icon, customizable with /tmap petsymbol (Settings: Skills)
+- **George Helper** — level 1 pets show George's sell price, and George's "Offer Pets" menu lists the pets still needed for Taming 60 with the cheapest price and a click-to-search (Settings: Skills)
+- **Exp Share Slots** — disabled Exp Share slots are marked red with a tooltip while Sharing is Caring is not active, and exp-shared pets get tinted in the Pets menu (Settings: Skills)
+- **Pet Nametags** — hide the "[Lv100]" on floating pet names (always or only at max level) and hide other players' pet names (Settings: Skills)
+- **Visible Pet Position** — stops your own pet from bouncing and lets you move it up or down (Settings: Skills)
+- **Rock Pet Milestone** — HUD with ores mined towards the next Rock pet milestone, synced from the Mining skill menu (Settings: Mining)
+- **Trevor Auto Call & Accept** — calls Trevor once his cooldown is over after a finished hunt and accepts his quest prompt, with a fixed + random delay (Settings: Garden)
+- **Auto Reel Lasso** — reels the lasso when REEL shows over your leashed animal, after a fixed + random delay (Settings: Foraging)
+- **Auto Sprint conditions** — Auto Sprint can now stay off on the Garden and pause while a farming tool is in hand (Settings: Auto)
+
+### Teilweise
+- COM-013: Combat > Ghost Profit Tracker — Sack- und Shard-Drops (Veil Shard) fehlen; Drops aus Chat, Coins (Purse), Bag of Cash, Bestiary-Kills, Since Sorrow, Max Combo, Combat XP (Actionbar), Ø MF, Widget-Warnung sind drin
+- COM-015: Combat > Better Shurikens — Treffer nur über Hypixels ✯-Nametag-Marker, keine Projektil-/Sound-Korrelation; Marker-Ausblenden, grünes ✔-Badge, rote ✖ für Reminder Mobs sind drin
+- COM-016: Combat > Fire Freeze Visuals — Hypixels Skull-ArmorStands werden nicht versteckt (Texture-Hash fehlt lokal); Partikel werden ersetzt, Kreis, Countdown, Box + Timer an eingefrorenen Mobs sind drin
+- COM-018: Timers > Bestiary Alarms (Title Color / Volume / Test-Buttons) — Titelgröße nicht einstellbar (Vanilla-Titel)
+- COM-034: Combat > Mob Health Bars (Hide Full, Mobs ohne Max-HP, Größe, 3 Farben). HP aus dem Namen entfernen fehlt absichtlich: andere Features (DeadMobHider, Mob-Visuals-Nameplates, Slayer) lesen die HP aus dem Nametag
+- PET-004: Skills > Pet HUD > Exp Share Pets / Animate XP Ring / Lines; fehlt: vom Entity gelernte animierte Skins, Orbit-Layouts und eigener Konfig-Screen mit Live-Vorschau (Vorschau läuft über /tmap gui)
+- PET-015: Skills > Mark Disabled Exp Share Slots / Highlight Exp-Shared Pets (+ Color); Autopet-Regel-Färbung (SkyblockExtras) fehlt, Lore-Format unbekannt
+
+### Live auf Hypixel prüfen
+- COM-003: Boss-Erkennung per Namensliste + "﴾ ﴿"-Klammer; ob Dungeon-Bosse (Bonzo, Thorn, Livid ...) überhaupt HP im Nametag tragen, unbekannt. Spezialanzeigen pro Boss (Voidgloom-Hits, Blaze-Phasen usw.) bewusst weggelassen (schlank halten).
+- COM-004: Chat-/Tab-Formate aus GanKura/SkyHanni (Summoning Eye, "Dragon: (Type)", Tab-Damage-Zeilen, Scoreboard "Your Damage:"); Dragon-Loot-Quality nach GanKuras Formel (300/250/200 Platzierung, 450/449 für Pets). Liegt unter dem Protector-Tracker-Schalter (endProtector muss an sein, Default an).
+- COM-005: Custom-Name-Umschreibung nur beim Rendern (getNameTag); Erkennung nur für unsichtbare ArmorStands mit reinem Zahlen-Namen.
+- COM-006: Partikel-Schwelle (≤20 schwarze DUST = Quick) und Cobweb-Position aus GanKura, Chatzeilen aus SkyHanni; Sanctuary-Erkennung über Scoreboard-Zeile.
+- COM-007: braucht das Broodmother-Tab-Widget; Bal = Magma Cube Größe > 10 in Crystal Hollows (Größe live unbestätigt).
+- COM-008: Nametag-Format "cur/max❤" (Bax-Regex).
+- COM-009: Mineshaft über Area "Mineshaft", Trophy über "TROPHY FISH!" im Crimson Isle, Slayer über SlayerQuest.bossActive (Combat-Sektion muss an sein).
+- COM-010: Pet-Drop über ArmorStand "[Lvl 1] Ender Dragon" gold/lila (GanKura); AOTD-Drop über ArmorStand/Item-Nametag "Aspect of the Dragons" ist geraten. Zählt nur Drachen, bei denen man selbst Eyes platziert hat (wie SkyblockAddons).
+- Broken Hype: CUSTOM_DATA-Keys stats_book / champion_combat_xp (aus Dulkir-Beschreibung), nur wirksam mit Book of Stats + Champion
+- Area Minibosses: Nametag-Namen, Area-Namen aus Tab (Hub / The Park / The End / Crimson Isle), Spawnkoordinaten aus SkyHanni
+- Ghost Tracker: Scoreboard "The Mist", Tab-Zeile "Ghost N: x/y", RARE-DROP-Format mit "✯ Magic Find", Actionbar "+X Combat (", Purse-Delta 200..15000 als Kill-Coins
+- Cocoon Overlay: Larva-Skull-Hash aus SlayerMarks, 6.4s Lebensdauer, Gürtel-Check braucht einmal /equipment
+- Better Shurikens: Marker-Format " ✯" am Nametag-Ende (aus Skysoft)
+- Fire Freeze: Elder-Guardian-Sound vol 0.2 / Anvil vol 0.6 pitch 0.4920635, Partikel-Offset 3.92e-4 (aus SkyHanni)
+- Implosion HUD: Chatformat "Your Implosion|Guided Bat hit N enemies for X damage.", Item-ID BAT_WAND für Spirit Sceptre
+- Bestiary Alarms: Scoreboard-Uhr-Format (wie Day/Night Reminder)
+- COM-019: Splash-Format (✧ Crit, ✯ Overload, Farbcode §6 = Fire) und 3-Block-Zuordnung nur live prüfbar; Zen-Quelle nicht lokal, aus Beschreibung gebaut
+- COM-020: Ring-Erkennung (12 CLOUD-Partikel, Radius 1,5) aus Skysoft übernommen, nie live gesehen
+- COM-023: Wolf-Death-Sound mit Pitch 1.4920635 (Pfad enthält "wolf" und endet auf "death") und Lore-Zeile "Strength: +X"
+- COM-025: Kill-Erkennung = Enderman mit Health 0 / Death-Event, den du geschlagen hast oder der max. 1,5 s nach dem Verschwinden deines Explosive-Bow-Pfeils in 4,6 Blöcken stirbt; Gebietsnamen aus der Scoreboard-Zeile ("Dragon's Nest", "Zealot Bruiser Hideout"); Special-Zealot-Zeile wird nur umgeschrieben, wenn die Chat-Sektion an ist
+- COM-028: Summon-Nametag "<Name>'s <Mob> <HP>" (SkyHanni-Regex); Seelen ohne Skull-Textur erkannt (Armorstand mit Player-Head, frisch gespawnt, nahe einem gerade verschwundenen Mob) – kann falsch zuordnen; Spawn/Despawn-Chatzeilen aus SkyHanni
+- COM-029: Keine Referenz-Implementierung (Skytils hat nur den Config-Eintrag). Nutzt eine "Rain:/Thunder:"-Zeile aus Tab/Scoreboard, sonst Dauer seit Beginn des Welt-Regens, sonst "No rain"
+- COM-030: Ticker-Symbole Ⓞ (voll) / ⓞ (leer) aus SBA, nur live prüfbar
+- Bestiary-Lore-Formate (Progress to Tier, Overall Progress + Balkenzeile a/b, Families Found/Completed, HIDDEN) aus SkyHanni-Regexen, nie live gesehen; Panel-Position kollidiert evtl. mit anderen Container-Panels rechts
+- Zealot/Bruiser-Erkennung über MAX_HEALTH-Basisattribut (13k/65k, x4 runic) wie SkyHanni; Runic = Nametag beginnt dunkellila; Corrupted = "Corrupted" im Nametag; Body-Zuordnung = nächstes LivingEntity bis 3,5 Blöcke unter dem Tag
+- Special/Chest-Zealot-Glow läuft parallel zum älteren Tint in EndermanQol (Outline vs Modellfarbe), beides getrennt schaltbar
+- Flare-Flammenpartikel-Filter (FLAME im Umkreis ~2,9 Blöcke) und Welttext-Position über der Flare
+- Health-Bar-Position (Augenhöhe + 0,25 wie Skyblocker) und Billboard-Ausrichtung nur im Build geprüft
+- Day-30-Tag = max(getDefaultClockTime, getOverworldClockTime)/24000 — ob Hypixels End-Lobby dort die Lobby-Zeit liefert, ist ungeprüft (GanKura nimmt die erste Uhr aus dem SetTime-Paket)
+- Dead Mobs Not Clickable nutzt das Todessignal von DeadMobHider (Rüstung weg / HP 0 / Event 3), 4 s Fenster
+- Reveal Hidden Mobs: Blood-Mob-Namen aus Devonians Liste (NoammAddons lädt sie remote), Livid bewusst ausgenommen
+- Kat-Menütitel ("Pet Sitter"/"Kat") geraten, NEU nicht lokal; ohne Treffer bleibt das Kat-Panel einfach weg
+- Exp-Sharing-Menü: Titel "Exp Sharing", Slots 30-32, "No pet in slot" aus Skysoft übernommen, nie live gesehen
+- Battle Experience / Why Not More kommen aus den Hunting-Box-Daten (Tier aus syphoned); ob "enabled" wird nicht geprüft
+- Tooltip-Einfügeposition ("MAX LEVEL"+2 / "Progress to Level"+3) nach SkyHanni, fällt sonst ans Ende
+- Pet Swap Title nutzt die vorhandene AUTOPET/SUMMON-Regex von PetTracker; Max-Titel nutzt LEVEL_UP und liest die Raritätsfarbe aus den §-Codes vor dem Namen
+- Pet-Keybinds: Default-Slots (10-16,19,20) aus Odin; Radial-Pets-Menü filtert Slots 10-43 ohne Rand + Pfeile/Barriere unten
+- Inventar-Panel sitzt über dem Inventar (y-26), kann mit anderen Overlays dort kollidieren
+- PET-011: Erkennung über Item-ID (PET_ITEM_*, *CARROT_CANDY, PET_CANDY, PET_SKIN_*) bzw. "PET ITEM" in den letzten Lore-Zeilen — PET_CANDY-ID geraten; ob Hypixel das Anwenden per Rechtsklick über UseItem/UseBlock auslöst, live prüfen
+- PET-012/013/015: petInfo-Felder candyUsed/heldItem/uuid aus Skyblocker/SkyHanni übernommen; Standard-Symbol-IDs (PET_ITEM_TIER_BOOST, MINOS_RELIC …) teils geraten
+- PET-014: George-Preise von hysky.de/api/georgeprices (Key TYPE;Tier-Index, per curl bestätigt); Taming-60-Liste liest Slot 41 im "Offer Pets"-Menü (SkyHanni-Regex), Preise = LVL_1 Lowest BIN aus PetValue; Klick sendet /ahs <pet>
+- PET-015: Exp-Sharing-Slots 30/31/32 (Skysoft) und Perk "Sharing is Caring" über ElectionApi; die Exp-Share-Pets liest jetzt PetStore (w20-04) aus, dessen Tick läuft auch mit dem Highlight-Toggle
+- PET-016: Pet-Nametag-Format "[Lv99] Name" aus SkyHanni; eigenes Pet = Name passt zum Tab-Widget-Pet und ≤6 Blöcke entfernt
+- PET-017: sucht nur ArmorStands mit Spielerkopf (Skysoft prüft auch ItemDisplays); Textur-Abgleich gegen gebündelte pets.json-Köpfe, sonst unsichtbarer Kopf-Stand mit passendem Namensschild in der Nähe
+- PET-018: "Ores mined: n" Lore-Zeile (SkyHanni) zum Syncen; Live-Zählung = Block im Fadenkreuz war *_ore und wird zu etwas anderem (zählt nur nach einmaligem Sync); Meilensteine 2.5k/7.5k/20k/100k/250k aus sblevels.json
+- Trevor: Format der Prompt-Zeile "Click an option: [YES] - [NO]" + RunCommand mit "YES" (aus SkyHanni übernommen), vorherige Zeile "[NPC] Trevor: ..." innerhalb 5 s als Absicherung; "/call Trevor" braucht den Abiphone-Kontakt. Call wartet auf Trevors 20-s-Cooldown ab Quest-Start (Finnegan-Verkürzung nicht berücksichtigt). Funktioniert auch ohne eingeschalteten Trevor Helper.
+- Auto Reel Lasso: erkennt das geleinte Tier über Leashable.getLeashHolder()==Spieler und den "REEL"-ArmorStand bis 3 Blöcke darüber; startUseItem verhält sich evtl. anders, wenn man dabei auf einen Block/eine Entity schaut.
+- Auto Sprint: ACHTUNG Verhaltensänderung laut User-Wunsch: im Garden ist Auto Sprint jetzt standardmäßig aus, bis "In Garden" eingeschaltet wird.
+
+## Abschluss (Reviews w12–w20 + Fixliste, 2026-09-26)
+
+Stand über alle 1313 freigegebenen Einträge: **1167 gebaut, 127 teilweise, 12 übersprungen, 7 zurückgehalten** (w12-04, PERF-016..022, Branch `worktree-agent-a8a55317fd4fe49f9`, wartet auf Entscheidung).
+
+Nacharbeiten aus Reviews/Fixliste (Auswahl):
+- Doppelte Features zusammengelegt: Crop-/Milestone-Daten (Garden), Kuudra-Phasen-Tracker, Seraph-Laser-Hider, Mineshaft-Wegpunkt, Sky-Mall-Parser, Time-Tower-Erinnerung, Talbot-Kreise, Special-Zealot-Glow, Rift-Gebietserkennung (eine Quelle `RiftSpot`).
+- Kategorien aufgeräumt: „Events“, „Rift“, „Kuudra“, „Crimson Isle“ je einmal deklariert, sortierte Blöcke, keine doppelten Überschriften; irreführend eingerückte Unteroptionen korrigiert.
+- Legit Mode: alle ESP/Glow durch Wände sind im Legit Mode gesperrt; Raytrace-Änderungen (Cobwebs, Gras) mit Cheat-Warnung; Auto Reel Lasso Mindestverzögerung 150 ms.
+- Befehle `/rp /reparty /rboop /ahs /ahsearch /bzs` nur registriert, wenn ihr Feature an ist (sonst normal an Hypixel).
+- Perf: Hot-Path-Mixins (isPickable, extractRenderState, getBlockState, ClipContext, DataComponentHolder.get) steigen per statischem Boolean aus; Commission-Blockfarben laden Chunks höchstens 1×/s und nur bei echter Änderung; diverse per-Frame-Allokationen entfernt.
+- Bugs: Tiki ESP doppelt gerendert; Factory-Block sperrte immer; Hoppity-Spieler blieben durchsichtig; PV Crimson-Isle-Gürtelschwellen falsch; NPE bei alter config.json (Trevor-ESP).
+- Verhaltensänderung: Auto Sprint sprintet im Garden standardmäßig nicht mehr (Wunsch CHEAT-052).

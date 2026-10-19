@@ -478,6 +478,16 @@ public class DungeonScore {
         mimicKilled = true;
     }
 
+    public static void setPrinceKilledFromSync() {
+        princeKilled = true;
+        lastScoreCalcTime = 0L;
+    }
+
+    public static void setBatKilledFromSync() {
+        batKilled = true;
+        lastScoreCalcTime = 0L;
+    }
+
     public static void register() {
         com.teslamaps.registry.Feature.of("CryptReminder")
                 .when(() -> cryptReminderAt > 0L)

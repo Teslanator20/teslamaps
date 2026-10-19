@@ -396,6 +396,33 @@ public class TMapCommand {
                                             : "§cRemoved §f" + name + " §cfrom the chat command whitelist"));
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("discord")
+                        .then(ClientCommands.literal("token")
+                                .then(ClientCommands.argument("token", StringArgumentType.greedyString())
+                                        .executes(context -> {
+                                            TeslaMapsConfig.get().discordBotToken = StringArgumentType.getString(context, "token").trim();
+                                            TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal("§aDiscord bot token saved"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("user")
+                                .then(ClientCommands.argument("id", StringArgumentType.word())
+                                        .executes(context -> {
+                                            TeslaMapsConfig.get().discordUserId = StringArgumentType.getString(context, "id").trim();
+                                            TeslaMapsConfig.save();
+                                            context.getSource().sendFeedback(Component.literal("§aDiscord user id saved"));
+                                            return 1;
+                                        })))
+                        .then(ClientCommands.literal("test")
+                                .executes(context -> discordTest(context.getSource(), false)))
+                        .then(ClientCommands.literal("ring")
+                                .executes(context -> discordTest(context.getSource(), true)))
+                        .then(ClientCommands.literal("stop")
+                                .executes(context -> {
+                                    com.teslamaps.features.DiscordAlert.stop();
+                                    context.getSource().sendFeedback(Component.literal("§7Discord ring stopped"));
+                                    return 1;
+                                })))
                 .then(ClientCommands.literal("apikey")
                         .then(ClientCommands.literal("clear")
                                 .executes(context -> {
@@ -2471,6 +2498,17 @@ public class TMapCommand {
             default -> t.resetSession();
         }
         source.sendFeedback(Component.literal("§b[TeslaMaps] §f" + id + ": " + (action.equals("view") ? "showing " + t.view() : action + " reset")));
+        return 1;
+    }
+
+    private static int discordTest(FabricClientCommandSource source, boolean ring) {
+        if (!com.teslamaps.features.DiscordAlert.configured()) {
+            source.sendFeedback(Component.literal("§cSet /tmap discord token <token> and /tmap discord user <id> first"));
+            return 0;
+        }
+        if (ring) com.teslamaps.features.DiscordAlert.ring("TeslaMaps test ring");
+        else com.teslamaps.features.DiscordAlert.message("TeslaMaps test DM");
+        source.sendFeedback(Component.literal("§7Sent, errors land in latest.log"));
         return 1;
     }
 }

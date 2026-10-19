@@ -44,6 +44,11 @@ public class MapRenderer {
     private static final List<PlayerMarker> playerMarkers = new ArrayList<>();
     public static List<PlayerMarker> getPlayerMarkers() { return playerMarkers; }
 
+    // hud map snapshot, the leap overlay map overwrites the shared state
+    public static int hudX, hudY, hudW, hudH;
+    public static long hudTime;
+    public static final List<PlayerMarker> hudMarkers = new ArrayList<>();
+
     private static String highlightName = null;
     /** Player whose map head is drawn twice as large (leap overlay hover), null for none. */
     public static void setHighlight(String name) { highlightName = name; }
@@ -63,6 +68,9 @@ public class MapRenderer {
         if (config.mapOnlyInBoss && !DungeonManager.isInBoss()) return;
         if (config.mapHideInBoss && isInBossArea(mc)) return;
         renderAt(context, config.mapX, config.mapY, config.mapScale, false);
+        hudX = lastMapX; hudY = lastMapY; hudW = lastMapW; hudH = lastMapH;
+        hudMarkers.clear(); hudMarkers.addAll(playerMarkers);
+        hudTime = System.currentTimeMillis();
     }
 
     // Boss area = scoreboard boss state, or being outside the dungeon room grid while still in catacombs

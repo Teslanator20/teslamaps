@@ -239,7 +239,7 @@ public class CapeSync {
                 body.addProperty("username", auth[0]);
                 body.addProperty("serverId", auth[1]);
 
-                HttpResponse<String> response = send(body);
+                HttpResponse<String> response = send("cape", body);
                 if (response.statusCode() != 200) return;
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                 JsonArray rows = json.getAsJsonArray("capes");
@@ -546,7 +546,7 @@ public class CapeSync {
             if (auth == null) return "§cMojang auth failed";
             body.addProperty("username", auth[0]);
             body.addProperty("serverId", auth[1]);
-            HttpResponse<String> response = send(body);
+            HttpResponse<String> response = send("cape", body);
             if (response.statusCode() == 401) {
                 // cached session went stale - one fresh handshake, then give up
                 synchronized (CapeSync.class) { authServerId = null; }
@@ -554,7 +554,7 @@ public class CapeSync {
                 if (auth == null) return "§cMojang auth failed";
                 body.addProperty("username", auth[0]);
                 body.addProperty("serverId", auth[1]);
-                response = send(body);
+                response = send("cape", body);
             }
             if (response.statusCode() != 200) {
                 String message = null;
@@ -573,9 +573,30 @@ public class CapeSync {
         }
     }
 
-    private static HttpResponse<String> send(JsonObject body) throws Exception {
+    public static boolean serverConfigured() {
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        return !cfg.capeServerUrl.isBlank() && !cfg.capeServerKey.isBlank();
+    }
+
+    /** Mojang-authed call to any edge function, null when auth fails. */
+    public static HttpResponse<String> callAuthed(String function, JsonObject body) throws Exception {
+        String[] auth = auth();
+        if (auth == null) return null;
+        body.addProperty("username", auth[0]);
+        body.addProperty("serverId", auth[1]);
+        HttpResponse<String> response = send(function, body);
+        if (response.statusCode() != 401) return response;
+        synchronized (CapeSync.class) { authServerId = null; }
+        auth = auth();
+        if (auth == null) return null;
+        body.addProperty("username", auth[0]);
+        body.addProperty("serverId", auth[1]);
+        return send(function, body);
+    }
+
+    private static HttpResponse<String> send(String function, JsonObject body) throws Exception {
         return HTTP.send(
-                HttpRequest.newBuilder(URI.create(baseUrl() + "/functions/v1/cape"))
+                HttpRequest.newBuilder(URI.create(baseUrl() + "/functions/v1/" + function))
                         .timeout(Duration.ofSeconds(30))
                         .header("Content-Type", "application/json")
                         .header("apikey", anonKey())

@@ -1090,5 +1090,6 @@ final class Features {
         com.teslamaps.features.AutoSprint.register();
         // review-w20
         com.teslamaps.features.DeadMobHider.register();
+        com.teslamaps.features.secretsync.SecretSync.register();
     }
 }

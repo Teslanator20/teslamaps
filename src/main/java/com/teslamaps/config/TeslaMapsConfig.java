@@ -1813,6 +1813,11 @@ public class TeslaMapsConfig {
     public boolean contestTicketAnnounce = false;   // "Ticket Acquired!" once the Miria score clears the threshold
     public int contestTicketScore = 250;            // score that earns the ticket in Miria's Contest
     public boolean contestHideAtTicket = true;      // Drop the foraging line once the ticket score is in
+    public boolean contestDiscordAlert = false;     // bot DM at 5 min, re-pinging DMs from 2 min until replied
+    @Global
+    public String discordBotToken = "";
+    @Global
+    public String discordUserId = "";
 
     public boolean hoveredSlotOutline = true;       // outline the slot under the cursor in every container
     public String colorHoveredSlot = "#FF00FF";     // hovered slot outline color
@@ -4526,6 +4531,8 @@ public class TeslaMapsConfig {
     // w12-03-perf
     public boolean suppressLogSpam = false;
     public boolean hypixelModApi = false;
+    public boolean secretSync = true;
+    public boolean secretSyncSkyblocker = true;
     public boolean hideFarEntities = false;
     public int hideFarEntitiesMinDistance = 10;
     public int hideFarEntitiesMaxAmount = 30;

@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.features.capes.CapeSync;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -54,6 +55,28 @@ public class HypixelApi {
         if (key == null) return null;
         key = key.trim();
         return key.replace("-", "").length() == 32 ? key : null;
+    }
+
+    private record Reply(int status, String body) {}
+
+    /** Own key straight to Hypixel, otherwise the teslamaps proxy. null = neither available. */
+    private static Reply hypixel(String path) throws Exception {
+        String apiKey = configuredKey();
+        if (apiKey != null) {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(HYPIXEL_API + path))
+                    .timeout(Duration.ofSeconds(15))
+                    .header("API-Key", apiKey)
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return new Reply(response.statusCode(), response.body());
+        }
+        if (!CapeSync.serverConfigured()) return null;
+        JsonObject body = new JsonObject();
+        body.addProperty("path", path);
+        HttpResponse<String> response = CapeSync.callAuthed("hypixel", body);
+        return response == null ? null : new Reply(response.statusCode(), response.body());
     }
 
     public static CompletableFuture<String> nameToUuid(String playerName) {
@@ -132,29 +155,18 @@ public class HypixelApi {
                 return cached.data;
             }
 
-            String apiKey = configuredKey();
-            if (apiKey == null || apiKey.isBlank()) {
-                return profilesViaPv(uuid, cacheKey);
-            }
-
             try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(HYPIXEL_API + "/skyblock/profiles?uuid=" + uuid))
-                        .timeout(Duration.ofSeconds(15))
-                        .header("API-Key", apiKey)
-                        .GET()
-                        .build();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                Reply response = hypixel("/skyblock/profiles?uuid=" + uuid);
+                if (response == null) return profilesViaPv(uuid, cacheKey);
 
                 // a dead key should not kill the viewer, the pv backend still works
-                if (response.statusCode() == 403) {
+                if (response.status() == 403) {
                     TeslaMaps.LOGGER.warn("Hypixel rejected the API key, falling back to the PV API");
                     return profilesViaPv(uuid, cacheKey);
                 }
-                if (response.statusCode() == 429) return error("Rate limited - try again later");
-                if (response.statusCode() != 200) {
-                    TeslaMaps.LOGGER.warn("Hypixel API returned {}", response.statusCode());
+                if (response.status() == 429) return error("Rate limited - try again later");
+                if (response.status() != 200) {
+                    TeslaMaps.LOGGER.warn("Hypixel API returned {}", response.status());
                     return profilesViaPv(uuid, cacheKey);
                 }
 
@@ -280,21 +292,9 @@ public class HypixelApi {
                 return cached.data;
             }
 
-            String apiKey = configuredKey();
-            if (apiKey == null || apiKey.isBlank()) {
-                return extraViaPv(pvPath, kind, cacheKey);
-            }
-
             try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(HYPIXEL_API + path))
-                        .timeout(Duration.ofSeconds(15))
-                        .header("API-Key", apiKey)
-                        .GET()
-                        .build();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() != 200) return extraViaPv(pvPath, kind, cacheKey);
+                Reply response = hypixel(path);
+                if (response == null || response.status() != 200) return extraViaPv(pvPath, kind, cacheKey);
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                 if (json.has("success") && json.get("success").getAsBoolean()) {
@@ -316,19 +316,9 @@ public class HypixelApi {
             CacheEntry cached = cache.get(cacheKey);
             if (cached != null && !cached.isExpired()) return cached.data;
 
-            String apiKey = configuredKey();
-            if (apiKey == null || apiKey.isBlank()) return new JsonObject();
-
             try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(HYPIXEL_API + "/player?uuid=" + uuid))
-                        .timeout(Duration.ofSeconds(15))
-                        .header("API-Key", apiKey)
-                        .GET()
-                        .build();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() != 200) return new JsonObject();
+                Reply response = hypixel("/player?uuid=" + uuid);
+                if (response == null || response.status() != 200) return new JsonObject();
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                 if (!json.has("player") || !json.get("player").isJsonObject()) return new JsonObject();
@@ -383,19 +373,9 @@ public class HypixelApi {
                 return cached.data.has("name") ? cached.data.get("name").getAsString() : null;
             }
 
-            String apiKey = configuredKey();
-            if (apiKey == null || apiKey.isBlank()) return null;
-
             try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(HYPIXEL_API + "/guild?player=" + uuid))
-                        .timeout(Duration.ofSeconds(15))
-                        .header("API-Key", apiKey)
-                        .GET()
-                        .build();
-
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                if (response.statusCode() != 200) return null;
+                Reply response = hypixel("/guild?player=" + uuid);
+                if (response == null || response.status() != 200) return null;
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
                 JsonObject result = new JsonObject();
@@ -419,24 +399,15 @@ public class HypixelApi {
             CacheEntry cached = cache.get(cacheKey);
             if (cached != null && !cached.isExpired()) return cached.data;
             JsonObject guild = null;
-            String apiKey = configuredKey();
-            if (apiKey != null) {
-                try {
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create(HYPIXEL_API + "/guild?player=" + uuid.replace("-", "")))
-                            .timeout(Duration.ofSeconds(15))
-                            .header("API-Key", apiKey)
-                            .GET()
-                            .build();
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    if (response.statusCode() == 200) {
-                        JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
-                        if (json.has("guild") && json.get("guild").isJsonObject()) guild = json.getAsJsonObject("guild");
-                        else guild = new JsonObject();
-                    }
-                } catch (Exception e) {
-                    TeslaMaps.LOGGER.warn("Guild lookup for {} failed: {}", uuid, e.toString());
+            try {
+                Reply response = hypixel("/guild?player=" + uuid.replace("-", ""));
+                if (response != null && response.status() == 200) {
+                    JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                    if (json.has("guild") && json.get("guild").isJsonObject()) guild = json.getAsJsonObject("guild");
+                    else guild = new JsonObject();
                 }
+            } catch (Exception e) {
+                TeslaMaps.LOGGER.warn("Guild lookup for {} failed: {}", uuid, e.toString());
             }
             if (guild == null) {
                 JsonObject viaPv = PvApi.get("/guild/" + PvApi.dashed(uuid), "guild").join();

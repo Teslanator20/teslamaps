@@ -65,6 +65,16 @@ public final class ContestTimersCategory {
         b.slider("Volume", 0f, 4f,
                 () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2);
         b.info("The two timers only fire while the ticket score is missing");
+        b.label("Discord");
+        b.toggle("Discord Ticket Alert",
+                () -> config.contestDiscordAlert, v -> config.contestDiscordAlert = v).fresh()
+                .desc("Bot DMs you at 5 min left without ticket; from 2 min it pings every 10s until you reply in the DM")
+                .tags("discord", "dm", "bot", "ticket", "call");
+        b.info("Setup: /tmap discord token <bot token>, /tmap discord user <your user id>");
+        b.buttonRow(new String[] { "Test DM", "Test Ring", "Stop" }, new Runnable[] {
+                () -> com.teslamaps.features.DiscordAlert.message("TeslaMaps test DM"),
+                () -> com.teslamaps.features.DiscordAlert.ring("TeslaMaps test ring"),
+                com.teslamaps.features.DiscordAlert::stop });
         b.label("Party Chat");
         b.toggle("Contest Announce",
                 () -> config.contestAnnounceParty, v -> config.contestAnnounceParty = v);

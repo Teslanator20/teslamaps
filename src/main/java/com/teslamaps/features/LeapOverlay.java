@@ -225,9 +225,9 @@ public class LeapOverlay {
         boolean link = TeslaMapsConfig.get().leapHoverLink;
         boolean mouseInMap = leapMapShown && leapMapW > 0 && mouseX >= leapMapX && mouseX <= leapMapX + leapMapW
                 && mouseY >= leapMapY && mouseY <= leapMapY + leapMapH;
-        String headHover = link && mouseInMap ? hoveredHead(mouseX, mouseY) : null;
+        String headHover = mouseInMap ? hoveredHead(mouseX, mouseY) : null;
         int linkQuad = -1;
-        if (headHover != null) {
+        if (link && headHover != null) {
             for (int i = 0; i < 4; i++) if (leapPlayers[i] != null && headHover.equals(leapPlayers[i].name)) linkQuad = i;
         }
 
@@ -307,7 +307,8 @@ public class LeapOverlay {
 
     // Skyblocker DungeonMap.isPlayerHovered: nearest head under the cursor
     private static String hoveredHead(int mouseX, int mouseY) {
-        float r = Math.max(4f, 5f * TeslaMapsConfig.get().mapScale * TeslaMapsConfig.get().playerHeadScale);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        float r = Math.max(4f, 5f * (c.leapMapCustomScale ? c.leapMapScale : c.mapScale) * c.playerHeadScale);
         String best = null;
         double bestD = r * r;
         for (MapRenderer.PlayerMarker m : leapMarkers) {
@@ -562,6 +563,19 @@ public class LeapOverlay {
                 "§c[TeslaMaps] Cannot leap - " + p.name + " is " + (p.isDead ? "dead" : "offline")));
     }
 
+    private static void leapToNearest(ContainerScreen screen, List<MapRenderer.PlayerMarker> markers,
+                                      List<String> targets, double mouseX, double mouseY) {
+        String nearest = null;
+        double best = Double.MAX_VALUE;
+        for (MapRenderer.PlayerMarker m : markers) {
+            if (m.self() || m.name() == null || !targets.contains(m.name())) continue;
+            double d = (m.x() - mouseX) * (m.x() - mouseX) + (m.y() - mouseY) * (m.y() - mouseY);
+            if (d < best) { best = d; nearest = m.name(); }
+        }
+        if (nearest == null && targets.size() == 1) nearest = targets.get(0);
+        if (nearest != null) leapToPlayer(screen, nearest);
+    }
+
     private static boolean trigger(ContainerScreen screen, double mouseX, double mouseY) {
 
         if (leapMapShown) {
@@ -578,17 +592,16 @@ public class LeapOverlay {
             }
 
             if (inMap) {
-                String nearest = null;
-                double best = Double.MAX_VALUE;
-                for (MapRenderer.PlayerMarker m : leapMarkers) {
-                    if (m.self() || m.name() == null || !targets.contains(m.name())) continue;
-                    double d = (m.x() - mouseX) * (m.x() - mouseX) + (m.y() - mouseY) * (m.y() - mouseY);
-                    if (d < best) { best = d; nearest = m.name(); }
-                }
-                if (nearest == null && targets.size() == 1) nearest = targets.get(0);
-                if (nearest != null) leapToPlayer(screen, nearest);
+                leapToNearest(screen, leapMarkers, targets, mouseX, mouseY);
                 return true; // consume the click whether or not a player was found
             }
+        }
+
+        if (System.currentTimeMillis() - MapRenderer.hudTime < 250 && MapRenderer.hudW > 0
+                && mouseX >= MapRenderer.hudX && mouseX <= MapRenderer.hudX + MapRenderer.hudW
+                && mouseY >= MapRenderer.hudY && mouseY <= MapRenderer.hudY + MapRenderer.hudH) {
+            leapToNearest(screen, MapRenderer.hudMarkers, leapTargetNames(screen), mouseX, mouseY);
+            return true;
         }
 
         if (mapOnly() && leapMapShown) return true;
