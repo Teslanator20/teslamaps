@@ -55,7 +55,7 @@ public final class TeamStats {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("TeamStats").section("Score & Splits").when(() -> cfg().teamStats)
+        Feature.of("TeamStats").section("Score & Splits").when(() -> cfg().teamStats && !com.teslamaps.adm.Adm.overrides(cfg().admClearBreakdown))
                 .tick(TeamStats::tick)
                 .serverChat(TeamStats::onChat)
                 .config("Score & Splits", b -> {

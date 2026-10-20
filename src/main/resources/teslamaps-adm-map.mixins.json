@@ -3,6 +3,8 @@
   "package": "com.teslamaps.adm.map.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "AdmClearClickMixin",
+    "AdmClearPacketsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

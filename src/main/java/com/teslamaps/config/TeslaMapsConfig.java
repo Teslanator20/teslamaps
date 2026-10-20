@@ -742,6 +742,45 @@ public class TeslaMapsConfig {
     // --- adm: misc ---
 
     // --- adm: map ---
+    public boolean admMap = false;
+    public int admMapX = 10;
+    public int admMapY = 10;
+    public float admMapScale = 1.0f;
+    public boolean admMapDisableInBoss = true;
+    public String admMapBgOutline = "000000";
+    public String admMapBgColor = "1A000000";
+    public String admMapRoomText = "Both";
+    public float admMapTextScaling = 0.45f;
+    public float admMapPlayerNamesScaling = 0.75f;
+    public String admMapPlayerNameColor = "464646";
+    public boolean admMapOwnHead = false;
+    public String admMapNormalRoom = "6B3A11";
+    public String admMapPuzzleRoom = "750085";
+    public String admMapTrapRoom = "D87F33";
+    public String admMapBloodRoom = "FF0000";
+    public String admMapEntranceRoom = "148500";
+    public String admMapFairyRoom = "E000FF";
+    public String admMapChampionRoom = "FEDF00";
+    public String admMapUnknownRoom = "282828";
+    public String admMapNormalDoor = "4A280B";
+    public String admMapWitherDoor = "000000";
+    public String admMapBloodDoor = "FF0000";
+    public String admMapFairyDoor = "9C00B2";
+    public String admMapUnknownDoor = "1C1C1C";
+    public boolean admMapDisablePred = false;
+    public boolean admLcmStyle = false;
+    public boolean admRoomPrediction = false;
+    public boolean admPredSplitContents = true;
+    public boolean admPredHiddenHints = true;
+    public boolean admPredShowChances = false;
+    public float admPredMinChance = 0.3f;
+    public float admPredDeadEndChance = 60f;
+    public float admPredBloodFairyChance = 60f;
+    public float admPredBigChance = 70f;
+    public float admPredOneChance = 70f;
+    public float admPredDoorChance = 70f;
+    public boolean admPredExactRooms = true;
+    public boolean admClearBreakdown = false;
 
     // --- adm: leap ---
 

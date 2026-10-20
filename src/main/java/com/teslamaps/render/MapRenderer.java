@@ -64,6 +64,7 @@ public class MapRenderer {
         if (mc.player == null || mc.level == null) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.mapEnabled) return;
+        if (com.teslamaps.adm.Adm.overrides(config.admMap)) return;
         if (config.onlyShowInDungeon && !DungeonManager.isInDungeon()) return;
         if (config.mapOnlyInBoss && !DungeonManager.isInBoss()) return;
         if (config.mapHideInBoss && isInBossArea(mc)) return;
