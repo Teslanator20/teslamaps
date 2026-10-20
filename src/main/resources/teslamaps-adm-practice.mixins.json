@@ -6,7 +6,7 @@
     "AdmBlockPacketMixin",
     "AdmBlockUpdateMixin",
     "AdmInputMixin",
-    "MinecraftAccessor",
+    "AdmPracticeMinecraftAccessor",
     "TerminalNumberMixin",
     "WandDropMixin",
     "WandScrollMixin"

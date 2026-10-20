@@ -12,7 +12,7 @@ public final class AdmPractice {
         AdmTerms.register();
         BladeHighlight.register();
         BrBoxes.register();
-        LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register(context -> {
+        LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
             if (!SsPractice.practicing()) return;
             Perf.begin("AdmSsPractice");
             try {

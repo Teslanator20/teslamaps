@@ -2,7 +2,7 @@ package com.teslamaps.adm.practice;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.adm.Adm;
-import com.teslamaps.adm.practice.mixin.MinecraftAccessor;
+import com.teslamaps.adm.practice.mixin.AdmPracticeMinecraftAccessor;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.render.ESPRenderer;
@@ -143,6 +143,7 @@ public final class SsPractice {
     public static void register() {
         Feature.of("AdmSsPractice").section(Adm.SECTION).when(() -> cfg().admSsPractice)
                 .tickAlways(SsPractice::tick)
+                .world(SsPractice::renderOverlay)
                 .serverChat(SsPractice::onChat)
                 .config("ADM Terminals & Practice", b -> {
                     b.label("SS Practice");
@@ -165,19 +166,35 @@ public final class SsPractice {
                 });
     }
 
-    /** Called from the level render hook: draws the device (needs the submit collector). */
+    private static View frameView(Placement p) {
+        Minecraft mc = Minecraft.getInstance();
+        float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+        Vec3 cam = mc.gameRenderer.getMainCamera().position();
+        return view(p, pt, mc.options.getCameraType().isFirstPerson() ? cam : null);
+    }
+
+    /** Fabric's collect-submits stage: the device's blocks and signs (only drawn when submitted there). */
     public static void render(LevelRenderContext context) {
         if (!Adm.on() || !cfg().admSsPractice) return;
         Placement p = placed;
-        if (p == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (p.level != mc.level) return;
-        float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        Vec3 cam = mc.gameRenderer.getMainCamera().position();
-        View v = view(p, pt, mc.options.getCameraType().isFirstPerson() ? cam : null);
-        PracticeUtil.safely("ss practice draw", () -> draw(p, v, context, cam));
+        if (p == null || p.level != mc.level) return;
+        View v = frameView(p);
+        PracticeUtil.safely("ss practice draw", () -> draw(p, v, context, mc.gameRenderer.getMainCamera().position()));
+    }
+
+    /** World pass: the outline of the block you look at, and the solver's boxes. */
+    private static void renderOverlay(PoseStack pose, Vec3 cam) {
+        Placement p = placed;
+        if (p == null || p.level != Minecraft.getInstance().level) return;
+        View v = frameView(p);
+        BlockPos target = target();
+        BlockState state = target == null ? null : p.blocks.get(target);
+        if (state != null) {
+            VoxelShape shape = shapeOf(target, state);
+            if (!shape.isEmpty()) ESPRenderer.drawBoxOutline(pose, v.box(shape.bounds().move(target)), 0x66000000, 2f, cam, false);
+        }
         if (!(cfg().solveSimonSays || AdmSimonSays.overrides())) return;
-        PoseStack pose = context.poseStack();
         if (Inf.on) {
             for (int i = 0; i < Inf.queue.size(); i++) {
                 AdmSimonSays.drawSolverBox(pose, v.box(solverBox(p, lampAt(Inf.queue.get(i)))), AdmSimonSays.color(i), cam);
@@ -774,13 +791,6 @@ public final class SsPractice {
             s.lightCoords = light;
             at(pose, v, e.getKey(), cam, () -> signs.submit(s, pose, out, camera));
         }
-        BlockPos target = target();
-        if (target == null) return;
-        BlockState state = p.blocks.get(target);
-        if (state == null) return;
-        VoxelShape shape = shapeOf(target, state);
-        if (shape.isEmpty()) return;
-        ESPRenderer.drawBoxOutline(pose, v.box(shape.bounds().move(target)), 0x66000000, 2f, cam, false);
     }
 
     private static void at(PoseStack pose, View v, BlockPos pos, Vec3 cam, Draw draw) {
@@ -857,7 +867,7 @@ public final class SsPractice {
         });
         Minecraft mc = Minecraft.getInstance();
         if (button && mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, false);
-        ((MinecraftAccessor) mc).teslamaps$setRightClickDelay(4);
+        ((AdmPracticeMinecraftAccessor) mc).teslamaps$admPracticeRightClickDelay(4);
         return true;
     }
 
