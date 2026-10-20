@@ -1091,5 +1091,6 @@ final class Features {
         // review-w20
         com.teslamaps.features.DeadMobHider.register();
         com.teslamaps.features.secretsync.SecretSync.register();
+        com.teslamaps.adm.Adm.register();
     }
 }

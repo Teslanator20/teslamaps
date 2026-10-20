@@ -739,6 +739,18 @@ public class TeslaMapsConfig {
         return on == null || on;
     }
 
+    // --- adm: misc ---
+
+    // --- adm: map ---
+
+    // --- adm: leap ---
+
+    // --- adm: practice ---
+
+    // --- adm: adr ---
+
+    // --- adm: sim ---
+
     // --- /tmap customize --- keyed by the Hypixel per-item uuid, so they follow the item, not the slot
     @Global
     public java.util.Map<String, com.teslamaps.features.customize.ArmorTrimId> customArmorTrims = new java.util.HashMap<>();
@@ -7205,6 +7217,7 @@ public class TeslaMapsConfig {
         if (c.terminalPbs == null) c.terminalPbs = new java.util.HashMap<>();
         if (c.kingRelicPbs == null) c.kingRelicPbs = new java.util.HashMap<>();
         if (c.sectionEnabled == null) c.sectionEnabled = new java.util.HashMap<>();
+        c.sectionEnabled.putIfAbsent("ADM", false);
         if (c.kloonDoneTerminals == null) c.kloonDoneTerminals = new java.util.ArrayList<>();
         Boolean oldGeneral = c.sectionEnabled.remove("General"); // category renamed to Skills
         if (oldGeneral != null) c.sectionEnabled.putIfAbsent("Skills", oldGeneral);

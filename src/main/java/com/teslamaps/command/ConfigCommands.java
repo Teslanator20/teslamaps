@@ -81,6 +81,11 @@ public final class ConfigCommands {
                                     }
                                     return 1;
                                 })))
+                .then(ClientCommands.literal("adg")
+                        .executes(c -> {
+                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(MapConfigScreen.openAdm()));
+                            return 1;
+                        }))
                 .then(ClientCommands.literal("newfeatures")
                         .executes(c -> {
                             Minecraft.getInstance().schedule(com.teslamaps.features.NewOptions::open);

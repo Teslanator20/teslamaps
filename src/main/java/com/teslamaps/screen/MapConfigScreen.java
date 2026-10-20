@@ -58,9 +58,10 @@ public class MapConfigScreen extends Screen {
     protected static String lastSearch = "";
     protected static String lastSearchNew = "";
     private static String lastCategoryNew = null;
+    private static String lastCategoryAdm = null;
 
-    /** OLD = /tmap (what existed up to 2.1.77), NEW = /tmap all (the feature-gap build-out), ALL = both. */
-    public enum View { OLD, NEW, ALL }
+    /** OLD = /tmap (what existed up to 2.1.77), NEW = /tmap all (the feature-gap build-out), ALL = both, ADM = /tmap adg. */
+    public enum View { OLD, NEW, ALL, ADM }
     protected View view = View.OLD;
     private final java.util.Set<SettingsEntry> freshEntries = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     // every row of both views, for checks that must see all of them
@@ -83,11 +84,13 @@ public class MapConfigScreen extends Screen {
     protected String collapsePrefix() { return view == View.NEW ? "new:" : ""; }
 
     private String rememberedCategory() {
+        if (view == View.ADM) return lastCategoryAdm;
         return view == View.NEW ? lastCategoryNew : TeslaMapsConfig.get().lastConfigCategory;
     }
 
     private void rememberCategory(String c) {
         if (view == View.NEW) { lastCategoryNew = c; return; }
+        if (view == View.ADM) { lastCategoryAdm = c; return; }
         TeslaMapsConfig.get().lastConfigCategory = c;
         TeslaMapsConfig.save();
     }
@@ -169,6 +172,11 @@ public class MapConfigScreen extends Screen {
     /** /tmap all: only the rows of the feature-gap build-out. */
     public static MapConfigScreen openAll() {
         return open(View.NEW);
+    }
+
+    /** /tmap adg: only the ADM group. */
+    public static MapConfigScreen openAdm() {
+        return open(View.ADM);
     }
 
     public static MapConfigScreen open(View view) {
@@ -626,6 +634,15 @@ public class MapConfigScreen extends Screen {
     private void applyView() {
         allCategories.clear();
         allCategories.putAll(categories);
+        List<String> adm = sections.getOrDefault(com.teslamaps.adm.Adm.SECTION, List.of());
+        if (view == View.ADM) {
+            sections.keySet().removeIf(k -> !k.equals(com.teslamaps.adm.Adm.SECTION));
+            categories.keySet().removeIf(c -> !adm.contains(c));
+            groups.keySet().removeIf(g -> !adm.contains(g));
+            return;
+        }
+        sections.remove(com.teslamaps.adm.Adm.SECTION);
+        for (String c : adm) { categories.remove(c); groups.remove(c); }
         if (view == View.ALL) return;
         boolean wantFresh = view == View.NEW;
         for (java.util.Iterator<Map.Entry<String, List<SettingsEntry>>> it = categories.entrySet().iterator(); it.hasNext(); ) {
@@ -1071,6 +1088,7 @@ public class MapConfigScreen extends Screen {
         GuiStyle.sidebarPanel(context, 0, 0, SIDEBAR_WIDTH, this.height);
         context.text(font, "TeslaMaps", 10, 8, 0xFFFFFFFF);
         if (view == View.NEW) context.text(font, "New Features", 10, 22, 0xFFFFAA00);
+        if (view == View.ADM) context.text(font, "ADM", 10, 22, 0xFFFFAA00);
         else context.text(font, "Categories", 10, 22, GuiStyle.accent());
 
         int sbTop = SIDEBAR_TOP, sbBottom = sidebarBottom();
