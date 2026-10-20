@@ -35,8 +35,14 @@ public final class AdmWorld {
     private static final Set<Integer> minions = new HashSet<>();
     private static final Set<Integer> seen = new HashSet<>();
 
+    private static volatile boolean listening;
+
+    /** Block/entity hooks only while the splits tracking runs in a dungeon. */
+    public static boolean listening() { return listening; }
+
     /** Client tick: world change resets everything that keys off one world. */
     public static void tick() {
+        listening = com.teslamaps.adm.leap.splits.DungeonSplits.tracking() && com.teslamaps.dungeon.DungeonManager.isInDungeon();
         ClientLevel level = Minecraft.getInstance().level;
         if (level == lastLevel) return;
         lastLevel = level;
@@ -85,7 +91,7 @@ public final class AdmWorld {
 
     /** Mixin: ClientLevel.addEntity. */
     public static void onEntityAdd(Entity e) {
-        if (!Adm.on()) return;
+        if (!listening) return;
         if (e instanceof WitherBoss && seen.add(e.getId())) {
             ClientLevel level = Minecraft.getInstance().level;
             if (level != null) {
@@ -99,13 +105,13 @@ public final class AdmWorld {
 
     /** Mixin: ClientLevel.removeEntity, before it goes. */
     public static void onEntityRemove(Entity e) {
-        if (!Adm.on()) return;
+        if (!listening) return;
         com.teslamaps.adm.leap.splits.DungeonSplits.onEntityRemove(e);
     }
 
     /** Mixin: Level.setBlock on the client. */
     public static void onBlockUpdate(BlockPos pos, BlockState old, BlockState now) {
-        if (!Adm.on()) return;
+        if (!listening) return;
         com.teslamaps.adm.leap.splits.DungeonSplits.onBlockUpdate(pos, old, now);
     }
 }

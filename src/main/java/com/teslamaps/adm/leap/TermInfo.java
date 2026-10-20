@@ -85,6 +85,28 @@ public final class TermInfo {
         return System.currentTimeMillis() - shownAt <= seconds * 1000 ? shownText : null;
     }
 
+    /** P3 sim starting at section 2-4 (5 = the core): the earlier ones counted done. */
+    public static void simStart(int section) {
+        reset();
+        shownText = null;
+        Recore.simStart(section);
+        if (section < 1 || section > 4) return;
+        for (int i = 0; i < section - 1; i++) {
+            Section s = sections[i];
+            s.termsDone = s.terms; s.leversDone = 2; s.deviceDone = true; s.gateDestroyed = true;
+        }
+        active = section - 1;
+        sectionStart = ServerTickTimer.now();
+    }
+
+    public static void simClearTime() { shownText = null; }
+
+    /** P3 sim: a section's time as the sim measured it (server ticks). */
+    public static void simSectionTime(int ticks) {
+        shownText = "§5" + String.format(Locale.ROOT, "%.2f", ticks / 20.0);
+        shownAt = System.currentTimeMillis();
+    }
+
     private static void reset() {
         for (Section s : sections) {
             s.termsDone = 0; s.deviceDone = false; s.leversDone = 0; s.gateDestroyed = s.number == 4;

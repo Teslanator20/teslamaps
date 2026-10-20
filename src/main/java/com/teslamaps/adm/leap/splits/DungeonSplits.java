@@ -5,7 +5,6 @@ import com.mojang.authlib.properties.Property;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.adm.Adm;
 import com.teslamaps.adm.leap.AdmWorld;
-import com.teslamaps.adm.leap.Recore;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.features.LegitMode;
