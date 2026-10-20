@@ -129,6 +129,11 @@ public final class AdmInvincibility {
                 });
     }
 
+    /** P3 Sim restarting its masks: everything ready again, nothing used this run. */
+    public static void resetTimers() {
+        for (Type t : Type.values()) { t.reset(); t.used = false; }
+    }
+
     private static void tick() {
         int n = pump.poll();
         for (int i = 0; i < n; i++) for (Type t : Type.values()) t.tick();

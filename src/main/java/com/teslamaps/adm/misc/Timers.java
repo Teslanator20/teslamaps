@@ -247,6 +247,16 @@ public final class Timers {
         }
     }
 
+    /** A section's time measured elsewhere (P3 Sim), shown as Section Time. */
+    public static void showSectionTime(int ticks) {
+        shownTime = "§5" + String.format(Locale.ROOT, "%.2f", ticks / 20.0);
+        shownAt = System.currentTimeMillis();
+    }
+
+    public static void clearSectionTime() {
+        shownTime = null;
+    }
+
     private static void sectionDone() {
         shownTime = "§5" + String.format(Locale.ROOT, "%.2f", (serverTicks - sectionStart) / 20.0);
         shownAt = System.currentTimeMillis();

@@ -167,6 +167,11 @@ public final class AdmTickTimers {
         }
     }
 
+    /** The sim stopped (or a practice started): every tick timer off, as if no boss line had come. */
+    public static void stopAll() {
+        reset();
+    }
+
     private static void reset() {
         goldorStartTime = -1; goldorTickTime = -1; padTickTime = -1; lightningTickTime = -1;
         pyTickTime = -1; pyTriggered = false; necronTime = -1; secretsCounter = 0; stormTick = -1;
