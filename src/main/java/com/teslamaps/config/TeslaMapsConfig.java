@@ -748,6 +748,13 @@ public class TeslaMapsConfig {
     // --- adm: practice ---
 
     // --- adm: adr ---
+    public boolean admAdr = true;
+    public boolean admAdrPrivateRuns = true;
+    public boolean admAdrHidePrivateChats = true;
+    public boolean admAdrRecordAds = true;
+    public boolean admAdrHidePartyChat = false;
+    public boolean admAdrSavedMessage = true;
+    public int admAdrCameraFps = 30;
 
     // --- adm: sim ---
 
