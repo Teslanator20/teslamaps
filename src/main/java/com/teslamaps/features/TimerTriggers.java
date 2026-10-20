@@ -41,6 +41,7 @@ public class TimerTriggers {
             return proc >= 0 && tnow() - proc < cd;
         }
         void tick(boolean enabled, String mode, int marker) {
+            if (com.teslamaps.adm.misc.AdmInvincibility.overrides()) { DungeonTimers.clear(key); return; }
             long dt = proc < 0 ? 0 : tnow() - proc;
             if (proc >= 0 && dt >= cd + READY_LINGER) proc = -1;
             boolean active = proc >= 0 && dt < imm;
@@ -284,6 +285,7 @@ public class TimerTriggers {
     }
 
     private static void procced(Mask mask, String name) {
+        if (com.teslamaps.adm.misc.AdmInvincibility.overrides()) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         if (c.invincibilityTitle) {
@@ -319,6 +321,7 @@ public class TimerTriggers {
 
     /** Cooldown drawn over the mask items in a container slot. */
     public static void drawSlot(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.world.inventory.Slot slot) {
+        if (com.teslamaps.adm.misc.AdmInvincibility.overrides()) { com.teslamaps.adm.misc.AdmInvincibility.drawSlot(g, slot); return; }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.invincibilityItemOverlay || !c.invincibilityTimer || !c.section("Timers")) return;
         if (BONZO.proc < 0 && SPIRIT.proc < 0 && PHOENIX.proc < 0) return;
@@ -468,6 +471,7 @@ public class TimerTriggers {
     }
 
     private static void show(String key, String prefix, String value) {
+        if (com.teslamaps.adm.misc.AdmTickTimers.overrides(key)) { hide(key); return; }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String text = c.tickTimerNoPrefix ? value : prefix + value;
         if (c.tickTimersSeparate && BossTickHuds.owns(key)) {
