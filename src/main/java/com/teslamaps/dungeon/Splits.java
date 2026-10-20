@@ -261,6 +261,7 @@ public class Splits {
     private static void renderCurrent(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = currentLine;
         if (l == null || currentHud == null) return;
+        if (com.teslamaps.adm.leap.splits.AdmSplitsHud.overridesOurs()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.options.hideGui) return;
         drawCurrent(g, mc, currentHud.x(), currentHud.y(), currentHud.scale(), l);
@@ -336,6 +337,7 @@ public class Splits {
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.splitsEnabled || active.isEmpty()) return;
+        if (com.teslamaps.adm.leap.splits.AdmSplitsHud.overridesOurs()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 

@@ -89,6 +89,7 @@ public class LeapOverlay {
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().leapOverlay) return false;
+        if (com.teslamaps.adm.leap.AdmLeapMenu.overrides()) return false;
         if (!DungeonManager.isInDungeon()) return false;
         if (mc.screen == null) return false;
 
@@ -152,7 +153,7 @@ public class LeapOverlay {
         Matcher m = LEAPED_PATTERN.matcher(clean);
         if (m.find()) {
             com.teslamaps.features.HidePlayers.onLeap();
-            if (TeslaMapsConfig.get().leapAnnounce && mc.getConnection() != null) {
+            if (TeslaMapsConfig.get().leapAnnounce && mc.getConnection() != null && !com.teslamaps.adm.leap.AdmLeapMenu.overrides()) {
                 com.teslamaps.features.ChatQueue.command("pc " + announceText(m.group(1)));
             }
         }
