@@ -3,6 +3,10 @@
   "package": "com.teslamaps.adm.adr.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "AdrChunkMixin",
+    "AdrPacketMixin",
+    "AdrUseItemMixin",
+    "GameModeRecordMixin"
   ],
   "injectors": {
     "defaultRequire": 1

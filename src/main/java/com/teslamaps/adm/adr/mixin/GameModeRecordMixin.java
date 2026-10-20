@@ -1,0 +1,29 @@
+package com.teslamaps.adm.adr.mixin;
+
+import com.teslamaps.adm.adr.Adr;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.phys.BlockHitResult;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+// Ported from ADM's GameModeRecordMixin: every slot click sent and every block right-clicked, recording only
+@Mixin(MultiPlayerGameMode.class)
+public class GameModeRecordMixin {
+
+    @Inject(method = "handleContainerInput", at = @At("HEAD"))
+    private void teslamaps$adrSlotClick(int containerId, int slot, int button, ContainerInput input, Player player, CallbackInfo ci) {
+        Adr.onSlotClick(slot, button, input.name());
+    }
+
+    @Inject(method = "useItemOn", at = @At("HEAD"))
+    private void teslamaps$adrBlockUse(LocalPlayer player, InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<?> cir) {
+        Adr.onBlockUse(hit.getBlockPos());
+    }
+}
