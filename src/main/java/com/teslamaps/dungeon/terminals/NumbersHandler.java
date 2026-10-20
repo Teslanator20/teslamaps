@@ -15,6 +15,8 @@ public class NumbersHandler extends TerminalHandler {
 
     @Override
     public List<Integer> solve(List<Slot> slots, int updatedIndex) {
+        List<Integer> inf = com.teslamaps.adm.practice.AdmTerms.numbersOrder();
+        if (inf != null) return inf;
         List<Integer> out = new ArrayList<>();
         for (int i = 0; i < slots.size(); i++) {
             if (slots.get(i).getItem().getItem() == Items.RED_STAINED_GLASS_PANE) out.add(i);
@@ -42,7 +44,7 @@ public class NumbersHandler extends TerminalHandler {
             case 2 -> TerminalSolver.orderColor3();
             default -> 0x00000000;
         };
-        String text = TerminalSolver.showNumbers()
+        String text = TerminalSolver.showNumbers() && !com.teslamaps.adm.practice.AdmTerms.hideNumberText()
                 ? String.valueOf(Math.abs((solution.size() - 14) - solutionIndex) + 1) : null;
         return new SlotRender(color, text);
     }

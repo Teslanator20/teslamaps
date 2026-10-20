@@ -86,6 +86,7 @@ public abstract class TerminalHandler {
     }
 
     public boolean shouldProtect() {
+        if (com.teslamaps.adm.practice.AdmTerms.noProtection()) return false;
         Minecraft mc = Minecraft.getInstance();
         boolean simExempt = TerminalSimulator.disableFirstClickProtection() && mc.screen instanceof TermSimGUI;
         if (simExempt) return false;
