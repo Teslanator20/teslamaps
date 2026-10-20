@@ -3,6 +3,22 @@
   "package": "com.teslamaps.adm.misc.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "AdmArmorFoilMixin",
+    "AdmArrowInGroundInvoker",
+    "AdmBlockUpdateMixin",
+    "AdmBlurMixin",
+    "AdmChatHideMixin",
+    "AdmContainerTooltipMixin",
+    "AdmFogColorMixin",
+    "AdmGuiMixin",
+    "AdmGuiRenderStateBlurMixin",
+    "AdmItemFoilMixin",
+    "AdmOwnArrowsMixin",
+    "AdmPacketListenerMixin",
+    "AdmPauseMenuMixin",
+    "AdmScoreboardMixin",
+    "AdmScreenBlurMixin",
+    "AdmSignEnterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
