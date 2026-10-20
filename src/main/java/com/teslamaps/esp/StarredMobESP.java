@@ -652,7 +652,7 @@ public class StarredMobESP {
 
         if (entity.isInvisible()) return false;
 
-        if (!inDungeon || !TeslaMapsConfig.get().starredMobESP) {
+        if (!inDungeon || !TeslaMapsConfig.get().starredMobESP || com.teslamaps.adm.practice.BladeHighlight.replacesOurs()) {
             return false;
         }
 

@@ -3,6 +3,13 @@
   "package": "com.teslamaps.adm.practice.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "AdmBlockPacketMixin",
+    "AdmBlockUpdateMixin",
+    "AdmInputMixin",
+    "AdmPracticeMinecraftAccessor",
+    "TerminalNumberMixin",
+    "WandDropMixin",
+    "WandScrollMixin"
   ],
   "injectors": {
     "defaultRequire": 1

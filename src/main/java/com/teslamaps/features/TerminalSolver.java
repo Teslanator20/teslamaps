@@ -220,8 +220,8 @@ public class TerminalSolver {
         }
 
         if (TeslaMapsConfig.get().terminalTimes) {
-            TerminalUtils.modMessage("§a" + handler.type.termName + (isSim ? " §7(termsim)" : "")
-                    + " §7solved in §6" + String.format("%.2f", time) + "s§7! " + suffix);
+            TerminalUtils.modMessage(com.teslamaps.adm.practice.AdmTerms.format("§a" + handler.type.termName + (isSim ? " §7(termsim)" : "")
+                    + " §7solved in §6" + String.format("%.2f", time) + "s§7! " + suffix));
         }
     }
 

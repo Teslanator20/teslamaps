@@ -266,6 +266,7 @@ public class SimonSaysSolver {
     // true = swallow the click: it's a device button but not the next one in the sequence (sneak overrides)
     public static boolean blockClick(BlockPos pos) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
+        if (com.teslamaps.adm.practice.AdmSimonSays.overrides()) return c.simonSaysBlockWrongClicks && com.teslamaps.adm.practice.AdmSimonSays.blockClick(pos);
         if (!c.solveSimonSays || !c.simonSaysBlockWrongClicks) return false;
         if (pos.getX() != 110 || pos.getY() < 120 || pos.getY() > 123 || pos.getZ() < 92 || pos.getZ() > 95) return false;
         if (pos.equals(START_BUTTON)) return false;
@@ -282,6 +283,7 @@ public class SimonSaysSolver {
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
+        if (com.teslamaps.adm.practice.AdmSimonSays.overrides()) return;
         if (!TeslaMapsConfig.get().solveSimonSays) return;
         if (clickSequence.isEmpty() || clickIndex >= clickSequence.size()) return;
 

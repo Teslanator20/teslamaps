@@ -927,6 +927,41 @@ public class TeslaMapsConfig {
     // --- adm: leap ---
 
     // --- adm: practice ---
+    public boolean admBetterSs = true;
+    public boolean admSsPractice = true;
+    public int admSsPracticeKey = -1;
+    public float admSsShowSpeed = 1.0f;
+    public boolean admSsInstantShow = false;
+    public boolean admSsFullBlockHitboxes = false;
+    public boolean admSsTriggerBot = false;
+    public boolean admSsFollow = false;
+    public float admSsSize = 1.0f;
+    public boolean admHoverTerms = false;
+    public boolean admTwoDecimals = false;
+    public boolean admHideTermNumbers = false;
+    public boolean admBladeHighlight = false;
+    public com.teslamaps.render.EspStyle admBladeStar = com.teslamaps.adm.practice.BladeHighlight.defaultStar();
+    public String admBladeTankColor = "FFFF0000";
+    public String admBladeMiniColor = "FFFFFF00";
+    public String admBladeFelColor = "FF00FFFF";
+    public String admBladeAssassinColor = "FF800080";
+    public String admBladeMimicColor = "FFFFFFFF";
+    public boolean admBladeHideInvisible = true;
+    public boolean admBladeNotWhileBlind = true;
+    public boolean admBrRoles = false;
+    public String admBrMyRole = "Role 2";
+    public String admBrKillers = "Duo";
+    public String admBrDoorKills = "Never";
+    public boolean admBrDropBottom = false;
+    public boolean admBrRecolorDone = false;
+    public String admBrDoneColor = "A679FF79";
+    public float admBrOpacity = 0.03f;
+    public boolean admBrSpawnMarkers = false;
+    public boolean admBrAllRooms = false;
+    public boolean admBrDebug = false;
+    public boolean admBrEditMode = false;
+    public int admBrEditKey = -1;
+    public String admBrWand = "";
 
     // --- adm: adr ---
     public boolean admAdr = true;

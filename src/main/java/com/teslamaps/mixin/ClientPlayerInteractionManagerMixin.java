@@ -72,6 +72,7 @@ public class ClientPlayerInteractionManagerMixin {
 
         BlockPos pos = hitResult.getBlockPos();
         com.teslamaps.features.rift.LivingCaveSnakes.onClick(pos);
+        com.teslamaps.adm.practice.SsPractice.realClick(pos, com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos));
 
         if (com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos)
                 || com.teslamaps.dungeon.puzzle.TicTacToe.blockClick(pos)
