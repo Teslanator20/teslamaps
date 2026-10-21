@@ -9,7 +9,7 @@ out/
 .vscode/
 
 # Minecraft
-run/
+/run/
 logs/
 
 # OS
