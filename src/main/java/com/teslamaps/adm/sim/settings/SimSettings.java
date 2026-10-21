@@ -79,7 +79,7 @@ public final class SimSettings {
                         x::getFloat, v -> x.set(v), x.integral() ? 0 : decimals(x.step)).desc(x.desc);
                 case SelSetting x -> b.dropdown(x.name, x.options.toArray(new String[0]), x::get, x::set).desc(x.desc);
                 case KeySetting x -> b.keybind(x.name, x::key, x::setKey).desc(x.desc);
-                case StrSetting x -> b.info(x.name + ": " + x.get()).desc(x.desc);
+                case StrSetting x -> b.info(x.name + ": " + x.get());
                 default -> {}
             }
         }

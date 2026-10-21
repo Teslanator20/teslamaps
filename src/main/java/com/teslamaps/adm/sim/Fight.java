@@ -282,6 +282,8 @@ public final class Fight {
         });
     }
 
+    public static void resetArrowsDevice() { com.teslamaps.dungeon.F7Devices.resetArrows(); }
+
     private static void resetI4Solver() { later(2, "i4 solver reset", () -> PartyClient.send("arrowsReset")); }
 
     public static int speedStat(ServerPlayer player) {

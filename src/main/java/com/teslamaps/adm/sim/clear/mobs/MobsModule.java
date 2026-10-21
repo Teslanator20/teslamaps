@@ -164,7 +164,7 @@ public final class MobsModule implements AdsModule, MobService {
     public static Supplier<DamageService> damage = () -> Services.damage();
     public static Consumer<String> chat = it -> Services.channels().chat(it);
     public static BiConsumer<UUID, String> bar = (p, text) ->
-            Services.channels().actionBarSegment("combat-xp", text, com.teslamaps.adm.sim.clear.hud.ActionBarModel.REPLACES_DEFENSE, COMBAT_BAR_TTL, new Audience.Only(p));
+            Services.channels().actionBarSegment("combat-xp", text, com.teslamaps.adm.sim.clear.hud.ActionBarModel.REPLACES_DEFENSE, MobsModule.COMBAT_BAR_TTL, new Audience.Only(p));
 
     public static final double COMBAT_XP_MIN = 600.0;
     public static final double COMBAT_XP_MAX = 780.0;

@@ -279,7 +279,7 @@ public final class P3Sim {
 
     /** True in a sim: your own, or a party's you joined over LAN (client side). */
     public static boolean inSim() {
-        return localSim() || (P3Party.joined && Minecraft.getInstance().level != null);
+        return localSim() || (P3Party.joined() && Minecraft.getInstance().level != null);
     }
 
     /** ADM master and the ADM Simulator toggle. */

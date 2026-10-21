@@ -119,7 +119,7 @@ public final class F7Devices {
         }
     }
 
-    private static void resetArrows() {
+    public static void resetArrows() {
         marked.clear();
         target = null;
         aims = List.of();
