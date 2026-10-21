@@ -204,7 +204,7 @@ public class ReplayFile {
             Double yaw = dbl(j, "yaw");
             JsonElement tg = j.get("tag");
             if (tg == null) continue;
-            String tag = tg.getAsString().trim();
+            String tag = ReplayFileKt.trim(tg.getAsString());
             Double hp = dbl(j, "hp");
             mobs.add(new Mob(mid, type, kk != null ? (int) (double) kk : 0, x, y != null ? y : 0.0, z != null ? z : 0.0,
                     yaw != null ? (float) (double) yaw : 0f, tag, hp != null ? hp : 0.0));

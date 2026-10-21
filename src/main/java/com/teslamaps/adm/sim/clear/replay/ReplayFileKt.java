@@ -25,6 +25,19 @@ public final class ReplayFileKt {
         return e != null && e.isJsonPrimitive() ? e.getAsString() : null;
     }
 
+    /** Kotlin's String.trim(): strips whitespace and space characters (NBSP included). */
+    public static String trim(String s) {
+        int a = 0, b = s.length();
+        while (a < b && ws(s.charAt(a))) a++;
+        while (b > a && ws(s.charAt(b - 1))) b--;
+        return s.substring(a, b);
+    }
+
+    /** Kotlin's String.isBlank(). */
+    public static boolean isBlank(String s) { return trim(s).isEmpty(); }
+
+    private static boolean ws(char c) { return Character.isWhitespace(c) || Character.isSpaceChar(c); }
+
     public static JsonObject o(JsonArray a, int i) {
         if (i >= a.size()) return null;
         JsonElement e = a.get(i);
