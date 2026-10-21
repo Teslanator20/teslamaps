@@ -740,39 +740,40 @@ public class TeslaMapsConfig {
     }
 
     // --- adm: misc ---
-    public boolean admRandomStuff = true;
+    public boolean migratedAdmDefaultsOff = false;
+    public boolean admRandomStuff = false;
     public boolean admForceCursorReset = false;
-    public boolean admPartyFinderStats = true;
-    public boolean admEnterConfirmsSign = true;
+    public boolean admPartyFinderStats = false;
+    public boolean admEnterConfirmsSign = false;
     public boolean admHideItemNames = false;
     public boolean admHideActionBar = false;
-    public boolean admBlessOnLeave = true;
-    public boolean admBlackSky = true;
+    public boolean admBlessOnLeave = false;
+    public boolean admBlackSky = false;
     public boolean admBlurInGui = false;
     public int admBlurStrength = 4;
-    public boolean admNoGlint = true;
-    public boolean admHideOwnArrows = true;
+    public boolean admNoGlint = false;
+    public boolean admHideOwnArrows = false;
     public boolean admAutoJoinSkyblock = false;
     public float admSkyblockJoinDelay = 0.2f;
-    public boolean admHubNametags = true;
+    public boolean admHubNametags = false;
     public String admPbFloor = "F7";
     public float admNametagGap = 0f;
-    public boolean admCleanMenus = true;
-    public boolean admCleanLoadingScreen = true;
+    public boolean admCleanMenus = false;
+    public boolean admCleanLoadingScreen = false;
     public boolean admCleanScoreboard = false;
     public boolean admSbHideCatacombs = true;
     public boolean admSbHideElapsed = false;
     public boolean admSbHideCleared = false;
-    public boolean admCleanChat = true;
+    public boolean admCleanChat = false;
     public boolean admLogHiddenLines = false;
     @Global
     public String admLastKnownClass = null;
 
-    public boolean admAgroSphere = true;
+    public boolean admAgroSphere = false;
     public String admSphereColor = "2EFF5555";
     public String admAggroColor = "2E55FF55";
 
-    public boolean admHealthMana = true;
+    public boolean admHealthMana = false;
     public boolean admHideHealthManaAbove = false;
     public int admHealthManaThreshold = 50;
     public boolean admHealthBar = true;
@@ -794,7 +795,7 @@ public class TeslaMapsConfig {
     public boolean admLcmPlaySound = true;
     public int admLcmRepeatTicks = 10;
 
-    public boolean admTimers = true;
+    public boolean admTimers = false;
     public boolean admClearCountdown = true;
     public boolean admPortalText = true;
     public boolean admExitCoreText = false;
@@ -925,7 +926,7 @@ public class TeslaMapsConfig {
     public boolean admClearBreakdown = false;
 
     // --- adm: leap ---
-    public boolean admLeapMenu = true;
+    public boolean admLeapMenu = false;
     public String admLeapSorting = "Odin Sorting";
     public boolean admLeapOnRelease = false;
     public boolean admLeapOnlyClass = false;
@@ -963,8 +964,8 @@ public class TeslaMapsConfig {
     public int admPovCostY = 207;
     public float admPovCostScale = 2.0f;
 
-    public boolean admRecore = true;
-    public boolean admRecorePasteLast = true;
+    public boolean admRecore = false;
+    public boolean admRecorePasteLast = false;
     public boolean admRecoreCoreLeap = true;
     public boolean admRecoreAllInCore = true;
     public boolean admRecorePreview = false;
@@ -991,13 +992,13 @@ public class TeslaMapsConfig {
     public boolean admRecoreOverLeap = true;
     public boolean admRecoreHideInCore = true;
 
-    public boolean admTermInfo = true;
+    public boolean admTermInfo = false;
     public boolean admTermInfoSimple = false;
     public int admTermInfoX = 316;
     public int admTermInfoY = 208;
     public float admTermInfoScale = 2.05f;
 
-    public boolean admSplits = true;
+    public boolean admSplits = false;
     public String admSplitsLook = "ADM";
     public boolean admSplitsColorByTime = true;
     public boolean admSplitsShowPb = false;
@@ -1046,8 +1047,8 @@ public class TeslaMapsConfig {
     public String admRecentM7 = "";
 
     // --- adm: practice ---
-    public boolean admBetterSs = true;
-    public boolean admSsPractice = true;
+    public boolean admBetterSs = false;
+    public boolean admSsPractice = false;
     public int admSsPracticeKey = -1;
     public float admSsShowSpeed = 1.0f;
     public boolean admSsInstantShow = false;
@@ -1083,7 +1084,7 @@ public class TeslaMapsConfig {
     public String admBrWand = "";
 
     // --- adm: adr ---
-    public boolean admAdr = true;
+    public boolean admAdr = false;
     public boolean admAdrPrivateRuns = true;
     public boolean admAdrHidePrivateChats = true;
     public boolean admAdrRecordAds = true;
@@ -1092,7 +1093,7 @@ public class TeslaMapsConfig {
     public int admAdrCameraFps = 30;
 
     // --- adm: sim ---
-    public boolean admSim = true;
+    public boolean admSim = false;
     /** ADS settings by name (the ADS module's Odin settings in ADM), values as strings. */
     public java.util.Map<String, String> admSimSettings = new java.util.LinkedHashMap<>();
     public boolean admSimPracticeHud = true;
@@ -7610,6 +7611,32 @@ public class TeslaMapsConfig {
         if (c.kingRelicPbs == null) c.kingRelicPbs = new java.util.HashMap<>();
         if (c.sectionEnabled == null) c.sectionEnabled = new java.util.HashMap<>();
         c.sectionEnabled.putIfAbsent("ADM", false);
+        if (!c.migratedAdmDefaultsOff) {
+            c.migratedAdmDefaultsOff = true;
+            c.admRandomStuff = false;
+            c.admPartyFinderStats = false;
+            c.admEnterConfirmsSign = false;
+            c.admBlessOnLeave = false;
+            c.admBlackSky = false;
+            c.admNoGlint = false;
+            c.admHideOwnArrows = false;
+            c.admHubNametags = false;
+            c.admCleanMenus = false;
+            c.admCleanLoadingScreen = false;
+            c.admCleanChat = false;
+            c.admAgroSphere = false;
+            c.admHealthMana = false;
+            c.admTimers = false;
+            c.admLeapMenu = false;
+            c.admRecore = false;
+            c.admRecorePasteLast = false;
+            c.admTermInfo = false;
+            c.admSplits = false;
+            c.admBetterSs = false;
+            c.admSsPractice = false;
+            c.admAdr = false;
+            c.admSim = false;
+        }
         if (c.kloonDoneTerminals == null) c.kloonDoneTerminals = new java.util.ArrayList<>();
         Boolean oldGeneral = c.sectionEnabled.remove("General"); // category renamed to Skills
         if (oldGeneral != null) c.sectionEnabled.putIfAbsent("Skills", oldGeneral);
