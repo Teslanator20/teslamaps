@@ -131,7 +131,9 @@ public final class HotbarLayout {
 
     private static Layout layout(boolean p3) {
         Layout s = savedLayout(p3);
-        return s != null ? s : lives().get(key(p3));
+        if (s == null) s = lives().get(key(p3));
+        if (s == null && saved().roles != null) for (Layout o : saved().roles.values()) if (o.slots != null) return o;
+        return s;
     }
 
     public static Loadouts.Worn worn(boolean p3) {
@@ -216,8 +218,25 @@ public final class HotbarLayout {
         LinkedHashMap<String, Layout> roles = new LinkedHashMap<>();
         if (s.roles != null) s.roles.forEach((k, v) -> { if (!isSkillKey(k, p3)) roles.put(k, v); });
         roles.put(key(p3), l);
+        for (Layout o : roles.values()) if (o != l) sync(o, l);
+        if (s.p12 != null) sync(s.p12, l);
+        if (s.p3 != null) sync(s.p3, l);
+        for (Layout o : lives().values()) if (o != l) sync(o, l);
         write(s.withRoles(roles).withLive(new LinkedHashMap<>(lives())));
         return "§7saved your §f" + part(p3) + "§7 hotbar (" + l.slots.size() + " items, holding slot " + (l.selected + 1) + ") with your armour, helmet and pet; Reset Items brings it back";
+    }
+
+    // items both layouts have go where the saved one has them; whatever sat there swaps into the old slot
+    private static void sync(Layout target, Layout src) {
+        if (target.slots == null || src.slots == null) return;
+        LinkedHashMap<String, Integer> t = new LinkedHashMap<>(target.slots);
+        src.slots.forEach((id, slot) -> {
+            Integer old = t.get(id);
+            if (old == null || old.equals(slot)) return;
+            for (Map.Entry<String, Integer> e : t.entrySet()) if (e.getValue().equals(slot)) { e.setValue(old); break; }
+            t.put(id, slot);
+        });
+        target.slots = t;
     }
 
     public static String reset(boolean p3) {
