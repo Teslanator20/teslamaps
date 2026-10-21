@@ -383,20 +383,25 @@ public final class P3Sim {
         List<AbstractWidget> widgets = Screens.getWidgets(screen);
         List<Button> buttons = new ArrayList<>();
         for (AbstractWidget a : widgets) if (a instanceof Button b) buttons.add(b);
-        Button single = null;
+        AbstractWidget single = null;
         for (Button b : buttons) if ("menu.singleplayer".equals(key(b))) { single = b; break; }
+        boolean below = false;
+        if (single == null) for (AbstractWidget b : widgets) {
+            if (b.getMessage().getContents() instanceof TranslatableContents t && "menu.singleplayer".equals(t.getKey())) { single = b; below = true; break; }
+        }
+        int rowY = single == null ? 0 : below ? single.getY() + single.getHeight() + 4 : single.getY() - single.getHeight() - 4;
         int runW = 44;
         int runRoom = Ec.BETA ? runW + 4 : 0;
         Button.Builder ab = Button.builder(Component.literal(FULL_NAME), b -> SimWorld.open());
         Button ads = (single != null
-                ? ab.bounds(single.getX(), single.getY() - single.getHeight() - 4, single.getWidth() - runRoom, single.getHeight())
+                ? ab.bounds(single.getX(), rowY, single.getWidth() - runRoom, single.getHeight())
                 : ab.bounds(w - 164, 4, 160 - runRoom, 16)).build();
         widgets.add(ads);
         if (Ec.BETA) {
             Button.Builder rb = Button.builder(Component.literal("§bRun"), b -> com.teslamaps.adm.sim.clear.ui.UiModule.openStartScreen())
                     .tooltip(Tooltip.create(Component.literal("Starts a full F7 run: countdown, the dungeon, the blood room, then the boss. Choose the layout, party and lag first.")));
             Button run = (single != null
-                    ? rb.bounds(single.getX() + single.getWidth() - runW, single.getY() - single.getHeight() - 4, runW, single.getHeight())
+                    ? rb.bounds(single.getX() + single.getWidth() - runW, rowY, runW, single.getHeight())
                     : rb.bounds(w - 4 - runW, 4, runW, 16)).build();
             widgets.add(run);
             int gx = single != null ? run.getX() + run.getWidth() + 4 : ads.getX() - 40;

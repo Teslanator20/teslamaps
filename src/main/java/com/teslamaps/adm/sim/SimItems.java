@@ -800,8 +800,20 @@ public final class SimItems {
 
     public static ItemStack hy(ItemStack s, String model, String style, boolean unbreakable) { return hy(s, model, style, unbreakable, Lore.HIDDEN); }
 
+    /** Hypixel's item model, only when the game has it (Hypixel's pack loaded); else the vanilla look instead of a missing texture. */
+    static void hyModel(ItemStack s, String path) {
+        Identifier id = Identifier.parse("hypixel_skyblock:" + path);
+        try {
+            var rm = net.minecraft.client.Minecraft.getInstance().getResourceManager();
+            if (rm.getResource(Identifier.fromNamespaceAndPath(id.getNamespace(), "items/" + id.getPath() + ".json")).isEmpty()) return;
+        } catch (Throwable t) {
+            return;
+        }
+        s.set(DataComponents.ITEM_MODEL, id);
+    }
+
     public static ItemStack hy(ItemStack s, String model, String style, boolean unbreakable, List<String> hidden) {
-        if (model != null) s.set(DataComponents.ITEM_MODEL, Identifier.parse("hypixel_skyblock:item/" + model));
+        if (model != null) hyModel(s, "item/" + model);
         s.set(DataComponents.TOOLTIP_STYLE, Identifier.parse("hypixel_skyblock:" + style));
         LinkedHashSet<DataComponentType<?>> types = new LinkedHashSet<>();
         for (String h : hidden) {
@@ -881,7 +893,7 @@ public final class SimItems {
             "§9Ferocity: §a+10", "", "§7§8This item can be reforged!", "",
             "§6Ability: Showtime  §e§lRIGHT CLICK", "§7Shoots balloons that create a large explosion", "§7on impact, dealing up to §c16,956.3 §7damage.", "§8Mana Cost: §341", "",
             "§5§lEPIC DUNGEON SWORD"), true);
-        it.set(DataComponents.ITEM_MODEL, Identifier.parse("hypixel_skyblock:item/island_relevant/dungeons/bonzos_staff_fragged"));
+        hyModel(it, "item/island_relevant/dungeons/bonzos_staff_fragged");
         it.set(DataComponents.TOOLTIP_STYLE, Identifier.parse("hypixel_skyblock:epic"));
         return it;
     }
@@ -986,7 +998,7 @@ public final class SimItems {
         ItemStack s = new ItemStack(Items.FEATHER);
         s.setCount(Math.clamp(quiverArrows.get(), 1, 64));
         s.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-        s.set(DataComponents.ITEM_MODEL, Identifier.parse("hypixel_skyblock:item/uncategorized/flint_arrow"));
+        hyModel(s, "item/uncategorized/flint_arrow");
         s.set(DataComponents.CUSTOM_NAME, Component.literal("Flint Arrow").withStyle(it -> it.withItalic(false).withColor(ChatFormatting.WHITE)));
         List<String> lore = List.of("§7Damage: §c+1", "", "§8Stats added when shot!", "§f§lCOMMON ARROW", "§8§m                                ",
             "§7Arrows Remaining: §a" + String.format(Locale.ROOT, "%,d", quiverArrows.get()), "", "§8This item is a preview of your", "§8currently selected arrow.");
