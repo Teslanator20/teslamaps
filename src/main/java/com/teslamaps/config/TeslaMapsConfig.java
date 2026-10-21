@@ -1092,6 +1092,21 @@ public class TeslaMapsConfig {
     public int admAdrCameraFps = 30;
 
     // --- adm: sim ---
+    public boolean admSim = true;
+    /** ADS settings by name (the ADS module's Odin settings in ADM), values as strings. */
+    public java.util.Map<String, String> admSimSettings = new java.util.LinkedHashMap<>();
+    public boolean admSimPracticeHud = true;
+    public int admSimPracticeHudX = 10;
+    public int admSimPracticeHudY = 210;
+    public float admSimPracticeHudScale = 1.5f;
+    public boolean admSimPracticeTimeHud = true;
+    public int admSimPracticeTimeHudX = 420;
+    public int admSimPracticeTimeHudY = 300;
+    public float admSimPracticeTimeHudScale = 5f;
+    public boolean admSimPracticeStartHud = true;
+    public int admSimPracticeStartHudX = 440;
+    public int admSimPracticeStartHudY = 250;
+    public float admSimPracticeStartHudScale = 4f;
 
     // --- /tmap customize --- keyed by the Hypixel per-item uuid, so they follow the item, not the slot
     @Global
@@ -7327,6 +7342,8 @@ public class TeslaMapsConfig {
     static void normalize(TeslaMapsConfig c) {
         if (c.petItemSymbols == null) c.petItemSymbols = new java.util.HashMap<>();
         c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
+        if (c.admSimSettings == null) c.admSimSettings = new java.util.LinkedHashMap<>();
+        c.admSimSettings.values().removeIf(java.util.Objects::isNull);
         if (c.dragonAlertTypes == null) c.dragonAlertTypes = new java.util.ArrayList<>();
         if (c.dragonTrackLast == null) c.dragonTrackLast = new java.util.ArrayList<>();
         if (c.mobHealthHudMobs == null) c.mobHealthHudMobs = new java.util.ArrayList<>();

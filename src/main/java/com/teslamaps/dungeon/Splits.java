@@ -325,6 +325,7 @@ public class Splits {
 
     private static void updatePb(String name, long durationMs) {
         if (durationMs <= 0) return;
+        if (com.teslamaps.adm.sim.P3Sim.inSim()) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String key = pbKey(name);
         Long pb = c.splitPbs.get(key);

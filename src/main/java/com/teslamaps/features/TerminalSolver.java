@@ -211,7 +211,9 @@ public class TerminalSolver {
         float time = (System.currentTimeMillis() - handler.timeOpened) / 1000f;
         Float oldPB = pbs.get(handler.type.name());
         String suffix;
-        if (oldPB == null || oldPB > time) {
+        if (com.teslamaps.adm.sim.P3Sim.inSim() && !isSim) {
+            suffix = oldPB == null ? "" : "§8(PB " + oldPB + ", not saved in ADS)";
+        } else if (oldPB == null || oldPB > time) {
             pbs.put(handler.type.name(), time);
             TeslaMapsConfig.save();
             suffix = oldPB == null ? "§7(§d§lNew PB§r§7)" : "§7(§d§lNew PB§r§7) Old PB was §8" + oldPB;

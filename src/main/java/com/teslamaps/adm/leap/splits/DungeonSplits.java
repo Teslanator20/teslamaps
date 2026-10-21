@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Function;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -190,6 +191,38 @@ public final class DungeonSplits {
         watcherId = -1; watcherPos = null;
         barriers.clear(); cleared.clear(); keysSeen.clear(); crystalsSeen.clear(); watchedMobs.clear(); necronTnt.clear();
     }
+
+    /** ADS starting a fight at label's phase: a fresh run that keeps no bests, earlier phases at their Pace targets. */
+    public static void simStart(String label, int termsDone) {
+        resetRun();
+        realRun = false;
+        Function<String, SplitTracker.Clock> before = l -> {
+            SplitPace.Clocks r = SplitPace.ref(l);
+            long ms = r != null ? r.ms() : 0L;
+            return new SplitTracker.Clock(ms, (int) (ms / 50));
+        };
+        List<SplitPace.Clocks> head = new ArrayList<>();
+        for (int i = 1; i <= termsDone; i++) {
+            SplitPace.Clocks c = SplitPace.subRef("terms.s" + i);
+            if (c != null) head.add(c);
+        }
+        long hms = 0, hticks = 0;
+        for (SplitPace.Clocks c : head) { hms += c.ms(); hticks += c.ticks(); }
+        SplitTracker.Clock headClock = new SplitTracker.Clock(hms, (int) hticks);
+        if (termsDone > 0) {
+            Stamp at = now();
+            tracker.startAt(label, before, at, headClock);
+            if (head.size() == termsDone) {
+                int[] back = new int[termsDone + 1];
+                for (int s = termsDone; s >= 1; s--) back[s - 1] = back[s] + (int) head.get(s - 1).ticks();
+                List<Stamp> st = new ArrayList<>();
+                for (int b : back) st.add(at.minus(b));
+                subs.startTerms(termsDone + 1, st);
+            }
+        } else tracker.startAt(label, before, null, null);
+    }
+
+    public static void simStop() { resetRun(); }
 
     public static void onWorldChange() {
         resetRun();

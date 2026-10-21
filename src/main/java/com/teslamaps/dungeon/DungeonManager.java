@@ -98,6 +98,11 @@ public class DungeonManager {
     }
 
     private static DungeonState detectCurrentState() {
+        DungeonState sim = com.teslamaps.adm.sim.P3Sim.bridgeState();
+        if (sim != null) {
+            currentFloor = DungeonFloor.F7;
+            return sim;
+        }
         if (!SkyblockUtils.isOnHypixel()) {
             return DungeonState.NOT_IN_DUNGEON;
         }
