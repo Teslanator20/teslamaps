@@ -738,7 +738,7 @@ public class SimRestartScreen extends Screen {
         if (P3Party.hosting()) {
             List<String> names = P3Party.players();
             String code = P3Party.code();
-            line.accept("Party code: " + (code != null ? "§b§l" + code : "§7..."));
+            line.accept("Address: " + (code != null ? "§b§l" + code : "§7..."));
             String joined = String.join(", ", names);
             line.accept("§7" + (joined.isEmpty() ? "Just you" : joined) + " §8" + Math.max(names.size(), 1) + "/5");
             addRenderableWidget(Button.builder(Component.literal("Close Party"), b -> { P3Party.stopHosting(); rebuildWidgets(); })
@@ -758,14 +758,14 @@ public class SimRestartScreen extends Screen {
         }
         if (!Ec.BETA) return;
         addRenderableWidget(Button.builder(Component.literal("Host Party"), b -> { P3Party.host(); rebuildWidgets(); })
-                .tooltip(tip("Friends join your sim: you get a 4-letter code to send them.")).bounds(x, y[0], PARTY_W, 20).build());
+                .tooltip(tip("Opens your sim on your network: you get your ip:port to send to friends.")).bounds(x, y[0], PARTY_W, 20).build());
         y[0] += ROW;
         EditBox box = new EditBox(font, x, y[0], PARTY_W - 42, 20, Component.literal("Code"));
-        box.setMaxLength(4);
-        box.setHint(Component.literal("§8Code"));
+        box.setMaxLength(64);
+        box.setHint(Component.literal("§8ip:port"));
         addRenderableWidget(box);
         addRenderableWidget(Button.builder(Component.literal("Join"), b -> { if (!box.getValue().isBlank()) { mc().setScreen(null); P3Party.join(box.getValue()); } })
-                .tooltip(tip("Joins a friend's sim by its party code.")).bounds(x + PARTY_W - 40, y[0], 40, 20).build());
+                .tooltip(tip("Joins a friend's sim by the ip:port their Host Party showed.")).bounds(x + PARTY_W - 40, y[0], 40, 20).build());
     }
 
     private void text(String t) { panel.addChild(new StringWidget(Component.literal(t), font)); }
