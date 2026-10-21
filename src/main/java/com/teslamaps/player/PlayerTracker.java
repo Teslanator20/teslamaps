@@ -40,8 +40,34 @@ public class PlayerTracker {
             return;
         }
 
+        if (simTeam()) return;
         updatePlayerList();
         updatePlayers();
+    }
+
+    // ADM boss sim sends no tab list; take the party from the sim instead
+    private static boolean simTeam() {
+        if (com.teslamaps.adm.sim.P3Sim.bridgeState() == null) return false;
+        var me = com.teslamaps.adm.sim.PartyClient.me;
+        var team = com.teslamaps.adm.sim.PartyClient.team;
+        Minecraft mc = Minecraft.getInstance();
+        if (me == null || team.isEmpty() || mc.player == null) return false;
+        List<String[]> all = new ArrayList<>();
+        all.add(new String[]{mc.player.getName().getString(), simClass(me)});
+        for (var m : team) all.add(new String[]{m.name, simClass(m.clazz)});
+        for (int i = 0; i < 5; i++) {
+            if (i >= all.size()) { players[i] = null; continue; }
+            String name = all.get(i)[0], clazz = all.get(i)[1];
+            if (players[i] != null && players[i].getName().equals(name)) players[i].update(clazz);
+            else players[i] = new DungeonPlayer(name, clazz);
+        }
+        return true;
+    }
+
+    private static String simClass(com.teslamaps.adm.sim.DungeonClass c) {
+        String n = c.name();
+        if (c == com.teslamaps.adm.sim.DungeonClass.EMPTY) return n;
+        return n.charAt(0) + n.substring(1).toLowerCase();
     }
 
     private static void updatePlayerList() {
