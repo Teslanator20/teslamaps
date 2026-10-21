@@ -1092,5 +1092,9 @@ final class Features {
         com.teslamaps.features.DeadMobHider.register();
         com.teslamaps.features.secretsync.SecretSync.register();
         com.teslamaps.adm.Adm.register();
+        com.teslamaps.features.PlayersLeaped.register();
+        com.teslamaps.features.F7TickTimers.register();
+        com.teslamaps.dungeon.BlessingDisplay.register();
+        com.teslamaps.features.NoammTweaks.register();
     }
 }

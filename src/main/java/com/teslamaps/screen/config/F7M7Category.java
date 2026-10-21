@@ -127,17 +127,12 @@ public final class F7M7Category {
         b.toggle("Send Dragon Time Alive", () -> config.witherDragonSendTime, v -> config.witherDragonSendTime = v);
         b.toggle("Send Ice Sprayed", () -> config.witherDragonSendSpray, v -> config.witherDragonSendSpray = v);
         b.label("Priority & Splits");
-        b.toggle("Dragon Priority (split)", () -> config.witherDragonPriority, v -> config.witherDragonPriority = v);
-        b.slider("  Normal Power (split)", 0f, 32f,
-                () -> (float) config.witherDragonNormalPower, v -> config.witherDragonNormalPower = Math.round(v));
-        b.slider("  Easy Power (purple split)", 0f, 32f,
-                () -> (float) config.witherDragonEasyPower, v -> config.witherDragonEasyPower = Math.round(v));
-        b.toggle("  Healer Solos Purple (off=Tank)", () -> config.witherDragonSoloDebuff == 1, v -> config.witherDragonSoloDebuff = v ? 1 : 0);
-        b.toggle("  Solo Debuff on All Splits", () -> config.witherDragonSoloDebuffAll, v -> config.witherDragonSoloDebuffAll = v);
-        b.toggle("  Paul Buff (×1.25 power)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v);
-        b.toggle("  Auto Paul Buff (Election API)", () -> config.witherDragonPaulAuto, v -> config.witherDragonPaulAuto = v);
-        b.toggle("  Custom Priority Strings", () -> config.witherDragonCustomPrio, v -> config.witherDragonCustomPrio = v);
-        b.button("    Edit Priority Strings", () -> Minecraft.getInstance().setScreen(new DragonPrioScreen(Minecraft.getInstance().screen)));
+        b.toggle("Dragon Priority", () -> config.witherDragonPriority, v -> config.witherDragonPriority = v)
+                .desc("Dragons spawn one after another: the solo class takes the later dragon, everyone else the earlier one.");
+        b.dropdown("  Solo Priority", com.teslamaps.dungeon.DragonPriority.SOLO_CLASSES,
+                () -> config.witherDragonSoloClass, v -> config.witherDragonSoloClass = v).fresh();
+        b.toggle("  First Dragon Only", () -> config.witherDragonFirstOnly, v -> config.witherDragonFirstOnly = v).fresh()
+                .desc("After the first two dragons everyone goes to the earliest spawn.");
         b.toggle("Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v);
         b.slider("  Tracer Width", 1f, 5f,
                 () -> config.witherDragonTracerWidth, v -> config.witherDragonTracerWidth = v, 1).fresh();

@@ -19,13 +19,15 @@ import java.util.regex.Pattern;
 /** Party melody progress: only the newest line per player stays, or all get muted. */
 public final class MelodyCompact {
 
-    private static final Pattern FRAC = Pattern.compile("\\b([0-3])/4\\b");
-    private static final Pattern PERC = Pattern.compile("\\b([27]5|[50]?0)%(?=[\\s\\W]|$)");
+    private static final Pattern FRAC = Pattern.compile("\\b([0-3])/[34]\\b");
+    private static final Pattern PERC = Pattern.compile("\\b([27]5|[50]?0|33|6[67])%(?=[\\s\\W]|$)");
     private static final Set<String> KNOWN = new HashSet<>(List.of(
             "melody", "Melody Terminal start", "Melody Terminal Start",
             "Melody terminal is at 25%", "Melody terminal is at 50%", "Melody terminal is at 75%",
             "Melody ♪ Terminal [1/4]!", "Melody ♪ Terminal [2/4]!", "Melody ♪ Terminal [3/4]!",
-            "Melody 25%", "Melody 50%", "Melody 75%"));
+            "Melody 25%", "Melody 50%", "Melody 75%",
+            "Melody terminal is at 33%", "Melody terminal is at 67%",
+            "Melody ♪ Terminal [1/3]!", "Melody ♪ Terminal [2/3]!", "Melody 33%", "Melody 67%"));
     private static final Map<String, String> lastMessage = new HashMap<>();
     private static final Map<String, String> prevLine = new HashMap<>();
 

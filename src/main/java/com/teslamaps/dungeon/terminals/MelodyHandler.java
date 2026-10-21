@@ -29,13 +29,14 @@ public class MelodyHandler extends TerminalHandler {
         List<Integer> out = new ArrayList<>();
         out.add(greenPane);
         out.add(magentaPane);
+        out.add(magentaPane + 36);
         if (greenPane % 9 == magentaPane % 9) out.add(greenClay);
         return out;
     }
 
     @Override
     public boolean canClick(int slotIndex, int button) {
-        return slotIndex == 16 || slotIndex == 25 || slotIndex == 34 || slotIndex == 43;
+        return slotIndex == 16 || slotIndex == 25 || slotIndex == 34;
     }
 
     @Override

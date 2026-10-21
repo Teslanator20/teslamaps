@@ -23,16 +23,14 @@ public class MelodyGui extends TermGui {
         buildTerminalGrid(screen, 5, 7, 0, 1, index -> {
             int row = index / 9;
             int col = index % 9;
-            if (!(row == 0 || (col == 7 && row >= 1 && row <= 4) || (col >= 1 && col <= 5))) return null;
+            boolean border = row == 0 || row == 4 || col == 6;
 
             return new SlotVisual(() -> {
-                boolean inSolution = currentSolution().contains(index);
-                if (row == 0) {
-                    return inSolution ? new TerminalHandler.SlotRender(TerminalSolver.melodyColumColor(), null) : null;
+                if (currentSolution().contains(index)) {
+                    int color = row == 0 || row == 4 ? TerminalSolver.melodyColumColor() : TerminalSolver.melodyPointerColor();
+                    return new TerminalHandler.SlotRender(color, null);
                 }
-                return new TerminalHandler.SlotRender(
-                        inSolution ? TerminalSolver.melodyPointerColor() : TerminalSolver.melodyBackgroundColor(),
-                        null);
+                return border ? null : new TerminalHandler.SlotRender(TerminalSolver.melodyBackgroundColor(), null);
             });
         });
     }

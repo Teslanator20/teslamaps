@@ -61,9 +61,9 @@ public class MelodySim extends TermSimGUI {
         currentRow++;
         updateRow(0);
         updateRow(oldRow);
-        if (currentRow <= 4) updateRow(currentRow);
+        if (currentRow <= 3) updateRow(currentRow);
 
-        if (currentRow >= 5) onComplete(TerminalUtils.getLastTermOpened());
+        if (currentRow > 3) onComplete(TerminalUtils.getLastTermOpened());
         super.slotClick(slot, button);
     }
 
@@ -77,12 +77,12 @@ public class MelodySim extends TermSimGUI {
     private ItemStack generateItemStack(Slot slot) {
         int col = slot.index % 9;
         int row = slot.index / 9;
-        if (col == magentaColumn && (row < 1 || row > 4)) return named(Items.MAGENTA_STAINED_GLASS_PANE);
+        if (col == magentaColumn && (row == 0 || row == 4)) return named(Items.MAGENTA_STAINED_GLASS_PANE);
         if (col == limeColumn && row == currentRow) return named(Items.LIME_STAINED_GLASS_PANE);
         if (col >= 1 && col <= 5 && row == currentRow) return named(Items.RED_STAINED_GLASS_PANE);
         if (col == 7 && row == currentRow) return named(Items.LIME_TERRACOTTA);
-        if (col == 7 && row >= 1 && row <= 4) return named(Items.RED_TERRACOTTA);
-        if (col >= 1 && col <= 5 && row >= 1 && row <= 4) return named(Items.WHITE_STAINED_GLASS_PANE);
+        if (col == 7 && row >= 1 && row <= 3) return named(Items.RED_TERRACOTTA);
+        if (col >= 1 && col <= 5 && row >= 1 && row <= 3) return named(Items.WHITE_STAINED_GLASS_PANE);
         return blackPane;
     }
 }

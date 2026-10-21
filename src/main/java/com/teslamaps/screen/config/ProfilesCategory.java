@@ -25,6 +25,8 @@ public final class ProfilesCategory {
                             com.teslamaps.config.ConfigProfiles.reset(com.teslamaps.config.ConfigProfiles.active());
                             b.screen().rebuild();
                         }});
+        b.button("Share Settings With a Friend", com.teslamaps.config.ConfigShare::share)
+                .desc("Uploads this profile and gives you a code. Your friend runs /tmap config import <code>. PBs, keybinds, cape and API keys stay with you.");
         b.info("PBs, keybinds and your API key are shared by every profile");
         b.info("Presets and the active profile have no x - switch away first");
         // the same three pickers as the Interface category, kept narrow so the controls stay

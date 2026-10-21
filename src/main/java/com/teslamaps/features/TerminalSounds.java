@@ -43,7 +43,7 @@ public class TerminalSounds {
         if (term == null || !term.canClick(slot, button)) return;
         if (TerminalSolver.enabled() && term.shouldProtect()) return;
         TeslaMapsConfig c = cfg();
-        boolean last = term.solution.size() == 1 || (term.type == TerminalTypes.MELODY && slot == 43);
+        boolean last = term.solution.size() == 1 || (term.type == TerminalTypes.MELODY && slot == 34);
         if (last && c.terminalCompleteSound) {
             if (!c.terminalCancelLastClick) playClick(c);
             LoudSound.play(SoundOptions.resolve(c.terminalCompleteSoundId), c.terminalCompleteVolume, c.terminalCompletePitch);

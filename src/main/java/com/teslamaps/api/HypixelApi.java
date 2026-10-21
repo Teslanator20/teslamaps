@@ -157,23 +157,23 @@ public class HypixelApi {
 
             try {
                 Reply response = hypixel("/skyblock/profiles?uuid=" + uuid);
-                if (response == null) return profilesViaPv(uuid, cacheKey);
+                if (response == null) return profilesViaPv(uuid, cacheKey, "no Hypixel key or proxy");
 
                 // a dead key should not kill the viewer, the pv backend still works
                 if (response.status() == 403) {
                     TeslaMaps.LOGGER.warn("Hypixel rejected the API key, falling back to the PV API");
-                    return profilesViaPv(uuid, cacheKey);
+                    return profilesViaPv(uuid, cacheKey, "Hypixel rejected the key");
                 }
                 if (response.status() == 429) return error("Rate limited - try again later");
                 if (response.status() != 200) {
                     TeslaMaps.LOGGER.warn("Hypixel API returned {}", response.status());
-                    return profilesViaPv(uuid, cacheKey);
+                    return profilesViaPv(uuid, cacheKey, "Hypixel API returned " + response.status());
                 }
 
                 JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
 
                 if (!json.has("success") || !json.get("success").getAsBoolean()) {
-                    return profilesViaPv(uuid, cacheKey);
+                    return profilesViaPv(uuid, cacheKey, "Hypixel API said no");
                 }
                 if (!json.has("profiles") || json.get("profiles").isJsonNull()) {
                     return error("Player has no Skyblock profiles");
@@ -197,7 +197,7 @@ public class HypixelApi {
         return viaPv;
     }
 
-    private static JsonObject profilesViaPv(String uuid, String cacheKey) {
+    private static JsonObject profilesViaPv(String uuid, String cacheKey, String why) {
         // the pv backend regularly whiffs the first request (cold auth) - retry while the
         // screen still says Loading instead of parking the user on "No profile data"
         JsonObject viaPv = null;
@@ -214,7 +214,7 @@ public class HypixelApi {
             if (got != null && got.has("profiles") && !got.get("profiles").isJsonNull()) viaPv = got;
         }
         if (viaPv == null) {
-            return error("No profile data (PV API gave nothing, and no working Hypixel key)");
+            return error("No profile data (" + why + ", PV API fallback failed too)");
         }
         JsonObject transformed = transform(viaPv, uuid);
         cache.put(cacheKey, new CacheEntry(transformed, TeslaMapsConfig.get().pvCacheDurationSeconds * 1000));

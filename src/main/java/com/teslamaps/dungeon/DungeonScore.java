@@ -389,7 +389,7 @@ public class DungeonScore {
         if (!batKilled && (clean.startsWith(BAT_KILL_MESSAGE) || BAT_PATTERN.matcher(clean).matches())) {
             batKilled = true;
             lastScoreCalcTime = 0L;
-            if (clean.startsWith(BAT_KILL_MESSAGE) && cfg.batBonusScore)
+            if (clean.startsWith(BAT_KILL_MESSAGE))
                 com.teslamaps.features.Announce.send(cfg.batKilledChannel, "Bat Killed!");
         }
 
@@ -455,6 +455,13 @@ public class DungeonScore {
             princeDeadMessageSent = true;
             com.teslamaps.features.Announce.party("Prince Dead!");
         }
+    }
+
+    public static void markBatKilledManually() {
+        if (batKilled || !DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
+        batKilled = true;
+        lastScoreCalcTime = 0L;
+        com.teslamaps.features.Announce.send(TeslaMapsConfig.get().batKilledChannel, "Bat Killed!");
     }
 
     public static void markBlazeDone() {
@@ -572,7 +579,7 @@ public class DungeonScore {
     }
 
     private static int batBonus() {
-        return batKilled && TeslaMapsConfig.get().batBonusScore ? 1 : 0;
+        return batKilled ? 1 : 0;
     }
 
     public static double getNeededSecretsPercentFor300(int cryptsFound) {

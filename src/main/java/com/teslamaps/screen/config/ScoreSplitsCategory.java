@@ -27,9 +27,10 @@ public final class ScoreSplitsCategory {
                 .desc("Title text and the chat/party message for 270 and 300 score.");
         b.toggle("Mimic Dead Message", () -> config.mimicDeadMessage, v -> config.mimicDeadMessage = v);
         b.toggle("Prince Dead Message", () -> config.princeDeadMessage, v -> config.princeDeadMessage = v);
-        b.buttonRow(new String[]{"Mimic Killed", "Prince Killed"}, new Runnable[]{
+        b.buttonRow(new String[]{"Mimic Killed", "Prince Killed", "Bat Killed"}, new Runnable[]{
                 com.teslamaps.dungeon.MimicDetector::markKilledManually,
-                com.teslamaps.dungeon.DungeonScore::markPrinceKilledManually});
+                com.teslamaps.dungeon.DungeonScore::markPrinceKilledManually,
+                com.teslamaps.dungeon.DungeonScore::markBatKilledManually});
         b.info("Sets the bonus by hand and sends the message if it was missed");
         b.toggle("Crypt Reminder (<5 at boss)", () -> config.cryptReminder, v -> config.cryptReminder = v);
         b.soundDropdown("  Crypt Reminder Sound",

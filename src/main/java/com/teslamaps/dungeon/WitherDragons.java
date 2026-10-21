@@ -70,6 +70,7 @@ public class WitherDragons {
             state = State.ALIVE;
 
             timesSpawned++;
+            aliveCount++;
             spawnedTime = currentTick;
             isSprayed = false;
 
@@ -83,7 +84,8 @@ public class WitherDragons {
             entityUUID = null;
             DragonCheck.lastDragonDeath = this;
 
-            if (priorityDragon == this) priorityDragon = null;
+            spawnOrder.remove(this);
+            if (priorityDragon == this) updatePriority();
 
             TeslaMapsConfig config = TeslaMapsConfig.get();
             if (config.witherDragonSendTime && config.witherDragons && realTime)
@@ -100,6 +102,8 @@ public class WitherDragons {
             "^\\[BOSS] Wither King: (Oh, this one hurts!|I have more of those\\.|My soul is disposable\\.)$");
 
     public static Dragon priorityDragon = null;
+    public static final List<Dragon> spawnOrder = new ArrayList<>();
+    public static int aliveCount = 0;
     public static long currentTick = 0;
 
     /** Blessing of Power / Time levels, read off the tab footer (Odin reads the same lines). */
@@ -132,41 +136,40 @@ public class WitherDragons {
                 || packet.getXDist() != 2f || packet.getYDist() != 3f || packet.getZDist() != 2f
                 || packet.getMaxSpeed() != 0f || packet.getX() % 1 != 0.0 || packet.getZ() % 1 != 0.0) return;
 
-        int spawned = 0;
-        List<Dragon> dragons = new ArrayList<>();
-
+        // Ported from Odin's handleSpawnPacket (post M7 update: dragons spawn one after another)
         for (Dragon dragon : Dragon.values()) {
-            spawned += dragon.timesSpawned;
-
             boolean inRange = !(packet.getX() < dragon.xMin || packet.getX() > dragon.xMax
                     || packet.getZ() < dragon.zMin || packet.getZ() > dragon.zMax);
-
+            if (!inRange) continue;
             if (dragon.state == State.SPAWNING) {
-                if (high && inRange) dragon.high = true;
-                if (!dragons.contains(dragon)) dragons.add(dragon);
+                if (high) dragon.high = true;
                 continue;
             }
-
-            if (!inRange) continue;
+            if (dragon.state != State.DEAD) continue;
 
             dragon.state = State.SPAWNING;
             dragon.timeToSpawn = 100;
             dragon.high = high;
-            dragons.add(dragon);
+            spawnOrder.add(dragon);
+            updatePriority();
+            return;
         }
+    }
 
-        if (dragons.isEmpty() || (dragons.size() != 2 && spawned < 2) || priorityDragon != null) return;
-
-        priorityDragon = DragonPriority.findPriority(dragons);
+    static void updatePriority() {
+        Dragon old = priorityDragon;
+        priorityDragon = DragonPriority.findPriority(spawnOrder);
+        Dragon p = priorityDragon;
+        if (p == null || p == old || p.state != State.SPAWNING) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         if (config.witherDragonTitle)
-            alert("§" + priorityDragon.colorCode + priorityDragon.dispName + " is spawning!"
-                    + (config.witherDragonShowHigh && priorityDragon.high ? " §" + priorityDragon.colorCode + "§lHIGH" : ""));
+            alert("§" + p.colorCode + p.dispName + " is spawning!"
+                    + (config.witherDragonShowHigh && p.high ? " §" + p.colorCode + "§lHIGH" : ""));
 
-        if (config.witherDragonPriority && dragons.size() > 1) {
-            String list = dragons.stream().map(d -> "§" + d.colorCode + d.dispName).collect(Collectors.joining(", "));
-            msg(list + "§r -> §" + priorityDragon.colorCode + priorityDragon.dispName + " §7is your priority dragon!");
+        if (config.witherDragonPriority && spawnOrder.size() > 1) {
+            String list = spawnOrder.stream().map(d -> "§" + d.colorCode + d.dispName).collect(Collectors.joining(", "));
+            msg(list + "§r -> §" + p.colorCode + p.dispName + " §7is your priority dragon!");
         }
     }
 
@@ -215,15 +218,11 @@ public class WitherDragons {
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "");
         if (!WITHER_KING_REGEX.matcher(clean).matches()) return;
 
+        // no setDead here: it hit spawning dragons and restarted their timer (Odin dropped it too)
         Dragon dragon = DragonCheck.lastDragonDeath;
-        if (dragon == null) {
-            for (Dragon d : Dragon.values()) if (d.state != State.DEAD) { dragon = d; break; }
-        }
         if (dragon == null) return;
-
         if (TeslaMapsConfig.get().witherDragonConfirm)
             msg("§" + dragon.colorCode + dragon.dispName + " dragon counts.");
-        if (dragon.state != State.DEAD) dragon.setDead(false);
         DragonCheck.lastDragonDeath = null;
     }
 
@@ -363,6 +362,8 @@ public class WitherDragons {
                 dragon.state = State.DEAD;
                 dragon.timesSpawned++;
             }
+            spawnOrder.clear();
+            priorityDragon = null;
             return;
         }
 
@@ -375,6 +376,8 @@ public class WitherDragons {
             dragon.spawnedTime = 0;
         }
         priorityDragon = null;
+        spawnOrder.clear();
+        aliveCount = 0;
         DragonCheck.lastDragonDeath = null;
         blessingPower = 0;
         blessingTime = 0;
@@ -382,30 +385,13 @@ public class WitherDragons {
 
     public static void debugDump() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        double totalPower = blessingPower * (WitherDragons.paulBuff() ? 1.25 : 1.0) + (blessingTime > 0 ? 2.5 : 0.0);
         String playerClass = PlayerTracker.getLocalClass();
 
         msg("§6=== Dragon Priority Debug ===");
         msg("§7In dungeon: §f" + DungeonManager.isInDungeon() + " §7| P5: §f" + p5() + " §7| active: §f" + active());
-        msg("§7Power: §a" + blessingPower + " §7Time: §a" + blessingTime + " §7Paul: §f" + paulBuff()
-                + " §7-> totalPower: §6" + totalPower);
-        msg("§7Your class: §f" + (playerClass == null ? "Unknown" : playerClass));
-
-        msg("§7Party classes:");
-        for (PlayerTracker.DungeonPlayer player : PlayerTracker.getPlayers()) {
-            msg("  §f" + player.getName() + " §7- §f" + player.getDungeonClass());
-        }
-
-        boolean wouldSplit = totalPower >= config.witherDragonNormalPower || totalPower >= config.witherDragonEasyPower;
-        msg("§7Thresholds: normal §f" + config.witherDragonNormalPower + " §7easy §f" + config.witherDragonEasyPower
-                + " §7-> would split (this power): §f" + wouldSplit);
-
-        boolean bersOrMage = "Berserk".equals(playerClass) || "Mage".equals(playerClass);
-        Dragon[] order = !wouldSplit ? DragonPriority.DEFAULT_ORDER
-                : (bersOrMage ? DragonPriority.DRAGON_LIST : DragonPriority.reversed(DragonPriority.DRAGON_LIST));
-        StringBuilder sb = new StringBuilder();
-        for (Dragon dragon : order) sb.append("§").append(dragon.colorCode).append(dragon.dispName.charAt(0)).append(" ");
-        msg("§7Order for your class: " + sb);
+        msg("§7Your class: §f" + (playerClass == null ? "Unknown" : playerClass) + " §7| solo class: §f"
+                + config.witherDragonSoloClass + " §7| first only: §f" + config.witherDragonFirstOnly + " §7| spawned: §f" + aliveCount);
+        msg("§7Spawn order: §f" + spawnOrder.stream().map(d -> d.dispName).collect(Collectors.joining(", ")));
 
         msg("§7Dragon states:");
         for (Dragon dragon : Dragon.values()) {

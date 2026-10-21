@@ -22,7 +22,7 @@ public final class ScoreHud {
             "§7Score: §a287 §8(§eS§8)",
             "§7Deaths: §c1 §8| §7Puzzles: §a0 missing",
             "§7Secrets: §b62.4% §8/ §a70.0%",
-            "§7Crypts: §a5§7/5 §8| §7Mimic: §a✔ §8| §7Prince: §c✖",
+            "§7Crypts: §a5§7/5 §8| §7Mimic: §a✔ §8| §7Prince: §c✖ §8| §7Bat: §a✔",
             "§7Skill §a98 §8| §7Explore §a92 §8| §7Speed §a100 §8| §7Bonus §a8");
 
     private static volatile List<String> lines = List.of();
@@ -81,6 +81,7 @@ public final class ScoreHud {
                 StringBuilder sb = new StringBuilder("§7Crypts: ").append(crypts >= 5 ? "§a" : "§c").append(crypts).append("§7/5");
                 if (DungeonScore.floorHasMimics()) sb.append(" §8| §7Mimic: ").append(DungeonScore.isMimicKilled() ? "§a✔" : "§c✖");
                 sb.append(" §8| §7Prince: ").append(DungeonScore.isPrinceKilled() ? "§a✔" : "§c✖");
+                sb.append(" §8| §7Bat: ").append(DungeonScore.isBatKilled() ? "§a✔" : "§c✖");
                 out.add(sb.toString());
                 out.add("§7Skill " + part(DungeonScore.getSkillScore(), 100) + " §8| §7Explore " + part(DungeonScore.getExploreScore(), 100)
                         + " §8| §7Speed " + part(DungeonScore.getTimeScore(), 100) + " §8| §7Bonus §a" + DungeonScore.getBonusScore());

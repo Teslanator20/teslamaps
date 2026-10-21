@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 
 public class MelodyDisplay {
 
-    private static final String SAMPLE = "§bSteve §fhas §e2/4 §fmelody";
+    private static final String SAMPLE = "§bSteve §fhas §e2/3 §fmelody";
 
     private static String line = null;
     private static long shownAt = 0;
@@ -41,13 +41,20 @@ public class MelodyDisplay {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null && m.author().equals(mc.player.getName().getString())) return;
         String msg = m.message();
-        int progress = -1;
-        for (int i = 4; i >= 0; i--) {
-            if (msg.contains(i + "/4") || msg.contains((i * 25) + "%")) { progress = i; break; }
+        // 3 rows since the october melody change; old 4-row senders still parse
+        int progress = -1, max = 3;
+        for (int i = 3; i >= 0 && progress < 0; i--) if (msg.contains(i + "/3")) progress = i;
+        if (progress < 0 && (msg.contains("67%") || msg.contains("66%"))) progress = 2;
+        if (progress < 0 && msg.contains("33%")) progress = 1;
+        if (progress < 0) {
+            max = 4;
+            for (int i = 4; i >= 0; i--) {
+                if (msg.contains(i + "/4") || msg.contains((i * 25) + "%")) { progress = i; break; }
+            }
         }
         if (progress < 0) return;
-        line = TerminalProgress.classColor(m.author()) + m.author() + " §fhas " + (progress == 4 ? "§a" : "§e")
-                + progress + "/4 §fmelody";
+        line = TerminalProgress.classColor(m.author()) + m.author() + " §fhas " + (progress == max ? "§a" : "§e")
+                + progress + "/" + max + " §fmelody";
         shownAt = System.currentTimeMillis();
         if (cfg().melodyDisplaySound) LoudSound.play(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f, 1f);
     }

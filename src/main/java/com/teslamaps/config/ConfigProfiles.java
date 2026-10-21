@@ -121,6 +121,31 @@ public class ConfigProfiles {
         switchTo(name);
     }
 
+    /** Writes a shared config as profile {@code name} and switches to it; own @Global fields are kept. */
+    public static boolean importShared(String name, com.google.gson.JsonObject tree) {
+        if (name == null || name.isBlank() || isPreset(name)) return false;
+        try {
+            TeslaMapsConfig c = GSON.fromJson(ConfigMigrator.migrate(tree, "shared " + name, null), TeslaMapsConfig.class);
+            if (c == null) return false;
+            TeslaMapsConfig.normalize(c);
+            if (name.equals(active())) {
+                carryGlobals(TeslaMapsConfig.get(), c);
+                c.activeProfile = name;
+                write(name, c);
+                TeslaMapsConfig.setInstance(c);
+                TeslaMapsConfig.save();
+                return true;
+            }
+            carryGlobals(TeslaMapsConfig.get(), c);
+            write(name, c);
+            switchTo(name);
+            return true;
+        } catch (Exception e) {
+            TeslaMaps.LOGGER.error("Failed to import shared config {}", name, e);
+            return false;
+        }
+    }
+
     /** Resets a profile back to its preset values. */
     public static void reset(String name) {
         write(name, preset(name));

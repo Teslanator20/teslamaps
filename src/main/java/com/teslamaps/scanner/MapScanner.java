@@ -88,8 +88,7 @@ public class MapScanner {
         if (mapCornerX < 0 || mapCornerY < 0) {
             return;
         }
-        TeslaMapsConfig tc = TeslaMapsConfig.get();
-        if (tc.mapHypixelFallback && tc.mapFallbackTyped) com.teslamaps.map.MapTileTypes.update(colors);
+        com.teslamaps.map.MapTileTypes.update(colors);
 
         boolean shouldLog = (debugLogCounter++ % 500 == 0);
 

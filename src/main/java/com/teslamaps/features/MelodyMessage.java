@@ -7,7 +7,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-// F7/M7 melody terminal helper: announces the terminal opening and the 25/50/75% progress to party
+// F7/M7 melody terminal helper: announces the terminal opening and the 33/67% progress to party
 // chat (driven by the lime-terracotta progress marker). Ported from Odin's MelodyMessage.
 public class MelodyMessage {
     private static final String TITLE = "Click the button on time!";
@@ -43,10 +43,10 @@ public class MelodyMessage {
         int row = slot / 9;
         if (row == lastClayRow) return;
         lastClayRow = row;
-        if (row < 2 || row > 4) return;
+        if (row < 2 || row > 3) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String prefix = c.melodyProgressText == null || c.melodyProgressText.isBlank() ? "Melody" : c.melodyProgressText.trim();
-        String pct = prefix + " " + (c.melodyProgressFormat == 1 ? (row - 1) + "/4" : ((row - 1) * 25) + "%");
+        String pct = prefix + " " + (c.melodyProgressFormat == 1 ? (row - 1) + "/3" : (row == 2 ? "33%" : "67%"));
         if (Minecraft.getInstance().getConnection() != null) {
             com.teslamaps.features.ChatQueue.command("pc " + pct);
         }

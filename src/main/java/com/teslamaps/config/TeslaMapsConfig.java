@@ -2248,7 +2248,9 @@ public class TeslaMapsConfig {
     public float witherDragonHudScale = 1.0f;       // Dragon timer HUD scale
     @Global
     public java.util.Map<String, Float> dragonPbs = new java.util.HashMap<>(); // per-dragon best time alive (seconds)
-    public boolean witherDragonPriority = true;      // Split: pick your priority dragon by class+power
+    public boolean witherDragonPriority = true;      // solo class takes the later of the first two dragons
+    public String witherDragonSoloClass = "Healer";  // Healer / Tank
+    public boolean witherDragonFirstOnly = true;     // after 2 spawns everyone goes earliest
     public boolean witherDragonPriorityTracer = true; // Tracer to your priority dragon
     public int witherDragonNormalPower = 0;          // Power needed to split (0-32)
     public int witherDragonEasyPower = 0;            // Power needed to split when Purple + another (0-32)
@@ -2387,6 +2389,7 @@ public class TeslaMapsConfig {
     public String terminalOrderColor1 = "FF55FF55";           // Order terminal, 1st item
     public String terminalOrderColor2 = "FF2B802B";           // Order terminal, 2nd item
     public String terminalOrderColor3 = "FF154015";           // Order terminal, 3rd item
+    public String terminalOrderColor4 = "FF0A200A";           // Order terminal, 4th item
     public String terminalStartsWithColor = "FF55FF55";       // Starts with terminal
     public String terminalSelectColor = "FF55FF55";           // Select all terminal
     public String terminalMelodyColumnColor = "FFAA00AA";     // Melody column indicator
@@ -7239,6 +7242,36 @@ public class TeslaMapsConfig {
     public boolean guardianHealth = false;
     public boolean dimensionalSlashAlert = false;
     public boolean f7Titles = false;
+    public boolean blessingDisplay = false;
+    public boolean blessingPower = true, blessingTime = true, blessingWisdom = false, blessingLife = false, blessingStone = false;
+    public String blessingPowerColor = "AA0000", blessingTimeColor = "AA00AA", blessingWisdomColor = "55FFFF",
+            blessingLifeColor = "FF5555", blessingStoneColor = "AAAAAA";
+    public int blessingDisplayX = 10;
+    public int blessingDisplayY = 200;
+    public float blessingDisplayScale = 1.0f;
+    public boolean timeChanger = false;
+    public int timeChangerMode = 0;
+    public boolean arrowFix = false;
+    public boolean nametagNoBackground = false;
+    public boolean nametagShadow = false;
+    public boolean hideDinnerboneNametag = false;
+    public int requeueMinParty = 1;
+    public boolean playersLeaped = false;
+    public boolean playersLeapedAlert = true;
+    public int playersLeapedX = 440;
+    public int playersLeapedY = 200;
+    public float playersLeapedScale = 1.0f;
+    public boolean f7TickTimers = false;
+    public boolean f7TickPrefix = true;
+    public boolean f7TickSuffix = true;
+    public int f7TickFormat = 0;
+    public boolean f7TickMaxor = true;
+    public boolean f7TickGoldor = true;
+    public boolean f7TickPad = true;
+    public boolean f7TickPy = true;
+    public int f7TickTimersX = 440;
+    public int f7TickTimersY = 215;
+    public float f7TickTimersScale = 1.0f;
     public boolean f7CrystalTitles = true;
     public boolean f7BossTitles = true;
     public boolean f7BossSounds = false;

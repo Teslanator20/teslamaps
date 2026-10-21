@@ -98,6 +98,11 @@ public final class CataCard {
         out.append(hover("§6Normal", floorHover(dd.getNormalFloors(), "§6§lNormal Floors", "§eF")));
         out.append(" §8| ");
         out.append(hover("§cMaster", floorHover(dd.getMasterFloors(), "§c§lMaster Floors", "§cM")));
+        DungeonData.FloorData m7 = dd.getMasterFloors().get("7");
+        if (m7 != null && (m7.getFastestSPlusTime() > 0 || m7.getFastestTime() > 0)) {
+            String t = m7.getFastestSPlusTime() > 0 ? "§a" + m7.getFormattedSPlusTime() + " §7S+" : "§7" + m7.getFormattedFastestTime();
+            out.append(" §8(§cM7 " + t + " §8· §b" + completions(m7) + "§8)");
+        }
         out.append(" §8| ");
         JsonObject bag = obj(member, "accessory_bag_storage");
         JsonObject tunings = obj(obj(bag, "tuning"), "slot_0");

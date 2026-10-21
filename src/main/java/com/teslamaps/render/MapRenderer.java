@@ -322,7 +322,7 @@ public class MapRenderer {
 
             int scoreWidth = textRenderer.width(scoreText);
             context.text(textRenderer, scoreText, lw - scoreWidth - 4, line2Y, scoreColor);
-            if (config.batBonusScore && DungeonScore.isBatKilled()) {
+            if (DungeonScore.isBatKilled()) {
                 int batWidth = textRenderer.width("Bat ✔");
                 context.text(textRenderer, "Bat ✔", lw - scoreWidth - batWidth - 10, line2Y, 0xFF55FF55);
             }
@@ -473,13 +473,15 @@ public class MapRenderer {
         return Math.max((int) (w * scale), Math.max(1, Math.round(w * 5f / 8f)));
     }
 
-    // Hypixel's map shows a wither door where our scan saw a normal one
+    // Hypixel's map decides wherever it shows both cells: drops phantom doors, adds missed ones
     private static DoorType mapFixDoor(DoorType type, int gx, int gz, boolean right) {
-        if (type != DoorType.NORMAL) return type;
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.mapHypixelFallback || !c.mapFallbackTyped) return type;
+        int nx = right ? gx + 1 : gx, nz = right ? gz : gz + 1;
+        if (com.teslamaps.map.MapTileTypes.type(gx, gz) == null || com.teslamaps.map.MapTileTypes.type(nx, nz) == null) return type;
+        if (com.teslamaps.map.MapTileTypes.unopened(gx, gz) && com.teslamaps.map.MapTileTypes.unopened(nx, nz)) return type;
         DoorType m = right ? com.teslamaps.map.MapTileTypes.doorRight(gx, gz) : com.teslamaps.map.MapTileTypes.doorDown(gx, gz);
-        return m == DoorType.WITHER ? DoorType.WITHER : type;
+        if (m == null) return DoorType.NONE;
+        if (type == DoorType.NONE) return m;
+        return type == DoorType.NORMAL && m == DoorType.WITHER ? DoorType.WITHER : type;
     }
 
     private static int typedCellColor(int gx, int gz) {

@@ -42,10 +42,11 @@ public class NumbersHandler extends TerminalHandler {
             case 0 -> TerminalSolver.orderColor();
             case 1 -> TerminalSolver.orderColor2();
             case 2 -> TerminalSolver.orderColor3();
+            case 3 -> TerminalSolver.orderColor4();
             default -> 0x00000000;
         };
         String text = TerminalSolver.showNumbers() && !com.teslamaps.adm.practice.AdmTerms.hideNumberText()
-                ? String.valueOf(Math.abs((solution.size() - 14) - solutionIndex) + 1) : null;
+                ? String.valueOf(Math.abs((solution.size() - 10) - solutionIndex) + 1) : null;
         return new SlotRender(color, text);
     }
 }

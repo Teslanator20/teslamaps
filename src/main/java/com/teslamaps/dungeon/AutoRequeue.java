@@ -186,6 +186,10 @@ public class AutoRequeue {
             feedback("party size changed (" + startSize + " -> " + PartyTracker.size() + ")");
             return;
         }
+        if (c.requeueMinParty > 1 && Math.max(1, PartyTracker.size()) < c.requeueMinParty) {
+            feedback("not enough players in party (" + Math.max(1, PartyTracker.size()) + "/" + c.requeueMinParty + ")");
+            return;
+        }
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() != null) mc.getConnection().sendCommand("instancerequeue");
     }

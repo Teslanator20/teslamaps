@@ -24,7 +24,7 @@ public enum TerminalTypes {
             RubixSim::get, () -> TermGui.simple(3, 3, 1, 3)),
 
     NUMBERS("Click in order!", "^Click in order!$", 36,
-            NumbersSim::get, () -> TermGui.simple(2, 7, 1, 1)),
+            NumbersSim::get, () -> TermGui.simple(2, 5, 1, 2)),
 
     STARTS_WITH("What starts with: \"*\"?", "^What starts with: '(\\w)'\\?$", 45,
             StartsWithSim::new, () -> TermGui.simple(3, 7, 1, 1)),

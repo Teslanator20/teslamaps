@@ -3,6 +3,9 @@
   "package": "com.teslamaps.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "TimeChangerMixin",
+    "ArrowFixMixin",
+    "NameTagTweaksMixin",
     "BlockStateModelSetMixin",
     "NoGrassRaycastMixin",
     "FishingHookFixMixin",

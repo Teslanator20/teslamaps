@@ -28,13 +28,13 @@ public class NumbersSim extends TermSimGUI {
     @Override
     public void create() {
         List<Integer> used = new ArrayList<>();
-        for (int i = 1; i <= 14; i++) used.add(i);
+        for (int i = 1; i <= 10; i++) used.add(i);
         Collections.shuffle(used);
 
         setSlots(slot -> {
             int row = slot.index / 9;
             int col = slot.index % 9;
-            if (row >= 1 && row <= 2 && col >= 1 && col <= 7) {
+            if (row >= 1 && row <= 2 && col >= 2 && col <= 6) {
                 int number = used.remove(0);
                 ItemStack stack = new ItemStack(Items.RED_STAINED_GLASS_PANE, number);
                 stack.set(DataComponents.CUSTOM_NAME, Component.literal("§a" + number));

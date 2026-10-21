@@ -112,6 +112,7 @@ public class TerminalSolver {
     public static int orderColor() { return color(TeslaMapsConfig.get().terminalOrderColor1); }
     public static int orderColor2() { return color(TeslaMapsConfig.get().terminalOrderColor2); }
     public static int orderColor3() { return color(TeslaMapsConfig.get().terminalOrderColor3); }
+    public static int orderColor4() { return color(TeslaMapsConfig.get().terminalOrderColor4); }
     public static int startsWithColor() { return color(TeslaMapsConfig.get().terminalStartsWithColor); }
     public static int selectColor() { return color(TeslaMapsConfig.get().terminalSelectColor); }
     public static int melodyColumColor() { return color(TeslaMapsConfig.get().terminalMelodyColumnColor); }

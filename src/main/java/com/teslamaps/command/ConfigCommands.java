@@ -45,6 +45,11 @@ public final class ConfigCommands {
 
         dispatcher.register(ClientCommands.literal("tmap")
                 .then(ClientCommands.literal("config")
+                        .then(ClientCommands.literal("share")
+                                .executes(c -> { com.teslamaps.config.ConfigShare.share(); return 1; }))
+                        .then(ClientCommands.literal("import")
+                                .then(ClientCommands.argument("code", StringArgumentType.word())
+                                        .executes(c -> { com.teslamaps.config.ConfigShare.importCode(StringArgumentType.getString(c, "code")); return 1; })))
                         .then(ClientCommands.literal("get")
                                 .then(ClientCommands.argument("field", StringArgumentType.word()).suggests(anyField)
                                         .executes(c -> get(c.getSource(), StringArgumentType.getString(c, "field")))))

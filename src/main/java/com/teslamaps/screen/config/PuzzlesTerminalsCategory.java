@@ -14,8 +14,8 @@ public final class PuzzlesTerminalsCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Terminals");
         b.toggle("Melody Message (/pc on open)", () -> config.melodyMessage, v -> config.melodyMessage = v);
-        b.toggle("Melody Progress (/pc 25/50/75%)", () -> config.melodyProgress, v -> config.melodyProgress = v);
-        String[] progressFormats = {"25%", "1/4"};
+        b.toggle("Melody Progress (/pc 33/67%)", () -> config.melodyProgress, v -> config.melodyProgress = v);
+        String[] progressFormats = {"33%", "1/3"};
         b.dropdown("  Progress Format", progressFormats,
                 () -> progressFormats[config.melodyProgressFormat == 1 ? 1 : 0],
                 v -> config.melodyProgressFormat = v.equals(progressFormats[1]) ? 1 : 0).fresh();
@@ -250,6 +250,7 @@ public final class PuzzlesTerminalsCategory {
         b.color("Order 1", () -> config.terminalOrderColor1, v -> config.terminalOrderColor1 = v);
         b.color("Order 2", () -> config.terminalOrderColor2, v -> config.terminalOrderColor2 = v);
         b.color("Order 3", () -> config.terminalOrderColor3, v -> config.terminalOrderColor3 = v);
+        b.color("Order 4", () -> config.terminalOrderColor4, v -> config.terminalOrderColor4 = v).fresh();
         b.color("Starts With", () -> config.terminalStartsWithColor, v -> config.terminalStartsWithColor = v);
         b.color("Select", () -> config.terminalSelectColor, v -> config.terminalSelectColor = v);
         b.color("Melody Column", () -> config.terminalMelodyColumnColor, v -> config.terminalMelodyColumnColor = v);
