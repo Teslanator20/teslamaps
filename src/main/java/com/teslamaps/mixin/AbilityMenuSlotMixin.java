@@ -14,7 +14,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// Ported from GanKura's HeldSlotSyncMixin
+// Ported from GanKura's HeldSlotSyncMixin.
+// require = 0 everywhere: with GanKura installed its HeldSlotSyncMixin redirects the same ensureHasSentCarriedItem()
+// calls, ours then finds no target and the hard failure disconnected the player on login ("Packet handling error",
+// Mixin transformation of MultiPlayerGameMode failed). Now ours just doesn't apply and GanKura's does the job.
 @Mixin(MultiPlayerGameMode.class)
 public class AbilityMenuSlotMixin {
 
@@ -23,20 +26,20 @@ public class AbilityMenuSlotMixin {
         throw new AssertionError();
     }
 
-    @Redirect(method = "tick", at = @At(value = "INVOKE",
+    @Redirect(method = "tick", require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;ensureHasSentCarriedItem()V"))
     private void teslamaps$holdSlotChange(MultiPlayerGameMode instance) {
         if (AbilityMenuFix.holdSlotChange()) return;
         ensureHasSentCarriedItem();
     }
 
-    @Inject(method = "useItem", at = @At(value = "INVOKE",
+    @Inject(method = "useItem", require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;ensureHasSentCarriedItem()V", shift = At.Shift.AFTER))
     private void teslamaps$abilityUse(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
         AbilityMenuFix.onUseItem(player.getItemInHand(hand));
     }
 
-    @Inject(method = "useItemOn", at = @At(value = "INVOKE",
+    @Inject(method = "useItemOn", require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;ensureHasSentCarriedItem()V", shift = At.Shift.AFTER))
     private void teslamaps$abilityUseOn(LocalPlayer player, InteractionHand hand, BlockHitResult hit,
                                         CallbackInfoReturnable<InteractionResult> cir) {
