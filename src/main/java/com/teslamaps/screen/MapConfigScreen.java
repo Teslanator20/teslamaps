@@ -736,7 +736,7 @@ public class MapConfigScreen extends Screen {
     }
 
     /** Toggles the user turned on (on now, off by default), with the sub-options of top-level ones. */
-    private List<SettingsEntry> activeEntries(List<SettingsEntry> in) {
+    List<SettingsEntry> activeEntries(List<SettingsEntry> in) {
         List<SettingsEntry> out = new ArrayList<>();
         boolean carry = false;
         for (SettingsEntry e : visibleChildren(in)) {
@@ -904,7 +904,7 @@ public class MapConfigScreen extends Screen {
     private List<SettingsEntry> searchCache;
     private String searchCacheQuery;
     private int searchCacheBuild = -1;
-    private int buildCount;
+    int buildCount;
 
     protected List<SettingsEntry> getEntriesToShow() {
         if (!searchQuery.isEmpty() && searchCache != null && searchQuery.equals(searchCacheQuery) && searchCacheBuild == buildCount) {
@@ -1514,9 +1514,9 @@ public class MapConfigScreen extends Screen {
         private final String label;
         private final Supplier<Boolean> getter;
         private final Consumer<Boolean> setter;
-        private boolean legitGated = false;
-        private boolean cheat = false;
-        private String sectionGate = null;
+        boolean legitGated = false;
+        boolean cheat = false;
+        String sectionGate = null;
 
         public ToggleEntry(int x, int w, String label, Supplier<Boolean> getter, Consumer<Boolean> setter) {
             this.x = x; this.width = w; this.label = label; this.getter = getter; this.setter = setter;
@@ -1607,8 +1607,8 @@ public class MapConfigScreen extends Screen {
     public class ButtonEntry extends DescribedEntry<ButtonEntry> {
         private int x, width;
         private final String label;
-        private final Runnable action;
-        private boolean active = false;   // draws a check and a green border, for the picked profile
+        final Runnable action;
+        boolean active = false;   // draws a check and a green border, for the picked profile
 
         public ButtonEntry(int x, int w, String label, Runnable action) {
             this.x = x; this.width = w; this.label = label; this.action = action;
@@ -1816,7 +1816,7 @@ public class MapConfigScreen extends Screen {
     public class KeybindEntry extends DescribedEntry<KeybindEntry> {
         private int x, width;
         private final String label;
-        private final IntSupplier getter;
+        final IntSupplier getter;
         private final IntConsumer setter;
 
         public KeybindEntry(int x, int w, String label, IntSupplier getter, IntConsumer setter) {
@@ -2120,10 +2120,10 @@ public class MapConfigScreen extends Screen {
     public class SliderEntry extends DescribedEntry<SliderEntry> {
         private int x, width;
         private final String label;
-        private final float min, max;
+        final float min, max;
         private final Supplier<Float> getter;
         private final Consumer<Float> setter;
-        private final int decimals;
+        final int decimals;
         private int lastNotch = Integer.MIN_VALUE;
 
         public SliderEntry(int x, int w, String label, float min, float max, Supplier<Float> getter, Consumer<Float> setter) {
@@ -2302,7 +2302,7 @@ public class MapConfigScreen extends Screen {
     public class DropdownEntry extends DescribedEntry<DropdownEntry> {
         private int x, width;
         private final String label;
-        private final String[] options;
+        final String[] options;
         private final Supplier<String> getter;
         private final Consumer<String> setter;
         private boolean expanded = false;
@@ -2378,7 +2378,7 @@ public class MapConfigScreen extends Screen {
     public class SoundDropdownEntry extends DescribedEntry<SoundDropdownEntry> {
         private int x, width;
         private final String label;
-        private final String[] options;
+        final String[] options;
         private final Supplier<String> getter;
         private final Consumer<String> setter;
 
