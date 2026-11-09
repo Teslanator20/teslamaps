@@ -108,7 +108,7 @@ public final class TrophyFishMessages {
         for (int j = i; j < raw.length() - 1; j++) {
             if (raw.charAt(j) != '§') continue;
             ChatFormatting fmt = ChatFormatting.getByCode(raw.charAt(j + 1));
-            if (fmt != null && fmt.isColor() && fmt != ChatFormatting.WHITE) return "§" + raw.charAt(j + 1);
+            if (fmt != null && net.minecraft.network.chat.TextColor.fromLegacyFormat(fmt) != null && fmt != ChatFormatting.WHITE) return "§" + raw.charAt(j + 1);
         }
         return f.color();
     }

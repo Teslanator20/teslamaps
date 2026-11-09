@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class EntityRenderDispatcherMixin {
 
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
-    private void teslamaps$hidePlayers(Entity entity, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir) {
+    private void teslamaps$hidePlayers(Entity entity, Frustum frustum, double x, double y, double z, float pt, CallbackInfoReturnable<Boolean> cir) {
         com.teslamaps.debug.Perf.begin("mixin:shouldRender");
         try {
             teslamaps$hideCheck(entity, cir);

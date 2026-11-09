@@ -10,7 +10,7 @@ import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.render.TeslaRenderLayers;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.teslamaps.render.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
@@ -141,9 +141,7 @@ public final class AgroSphere {
 
     private static void drawSphere(PoseStack pose, Vec3 cam, Vec3 center, double radius, int argb) {
         if (radius <= 0.05) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource src = com.teslamaps.render.WorldBuffers.INSTANCE;
         float r = ((argb >> 16) & 0xFF) / 255f, g = ((argb >> 8) & 0xFF) / 255f, bl = (argb & 0xFF) / 255f;
         float a = ((argb >>> 24) & 0xFF) / 255f;
         pose.pushPose();

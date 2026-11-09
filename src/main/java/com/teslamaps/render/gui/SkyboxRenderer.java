@@ -1,7 +1,7 @@
 package com.teslamaps.render.gui;
 
 import com.mojang.renderpearl.api.buffers.GpuBuffer;
-import com.mojang.renderpearl.api.buffers.Std140Builder;
+import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;

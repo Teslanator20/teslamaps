@@ -3,10 +3,10 @@ package com.teslamaps.features;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.textures.FilterMode;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
-import com.mojang.renderpearl.api.textures.TextureFormat;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.TeslaRenderPipelines;
@@ -15,7 +15,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import java.util.OptionalInt;
+import java.util.Optional;
 
 /**
  * Frame accumulation blur. Runs once the world is on the render target but before
@@ -51,7 +51,7 @@ public class MotionBlur {
             primed = false;
             return;
         }
-        RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
+        RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
         if (!ensure(main.width, main.height)) return;
 
         try {
@@ -71,13 +71,13 @@ public class MotionBlur {
                 new Matrix4f(), new Vector4f(1f, 1f, 1f, retention()), new Vector3f(), new Matrix4f());
 
         try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-                () -> "teslamaps motion blur", main.getColorTextureView(), OptionalInt.empty())) {
-            pass.setPipeline(TeslaRenderPipelines.MOTION_BLUR);
+                () -> "teslamaps motion blur", main.getColorTextureView(), Optional.empty())) {
+            pass.setPipeline(RenderSystem.getCompiledPipeline(TeslaRenderPipelines.MOTION_BLUR));
             RenderSystem.bindDefaultUniforms(pass);
             pass.setUniform("DynamicTransforms", transforms);
-            pass.bindTexture("InSampler", accumView,
+            pass.setUniform("InSampler", accumView,
                     RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
-            pass.draw(0, 3);
+            pass.draw(3, 1, 0, 0);
         }
     }
 
@@ -102,7 +102,7 @@ public class MotionBlur {
         try {
             accum = RenderSystem.getDevice().createTexture("teslamaps motion blur",
                     GpuTexture.USAGE_COPY_DST | GpuTexture.USAGE_TEXTURE_BINDING,
-                    TextureFormat.RGBA8, w, h, 1, 1);
+                    GpuFormat.RGBA8_UNORM, w, h, 1, 1);
             accumView = RenderSystem.getDevice().createTextureView(accum);
         } catch (Exception e) {
             TeslaMaps.LOGGER.warn("Motion blur disabled, texture allocation failed", e);

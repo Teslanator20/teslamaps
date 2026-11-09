@@ -278,7 +278,7 @@ public final class JacobContestMenus {
     private static void open(String path, String what) {
         Minecraft mc = Minecraft.getInstance();
         try {
-            net.minecraft.util.Util.getPlatform().openUri(ELITE + path);
+            com.mojang.blaze3d.Blaze3D.openUri(java.net.URI.create(ELITE + path));
         } catch (Exception ignored) {
         }
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fOpening " + what + " on eliteskyblock.com"));

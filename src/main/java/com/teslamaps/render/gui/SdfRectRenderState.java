@@ -1,14 +1,12 @@
 package com.teslamaps.render.gui;
 
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fc;
-import org.lwjgl.system.MemoryUtil;
 
 /**
  * A single SDF quad. The rect is expanded on all sides by {@code pad} so the
@@ -81,17 +79,7 @@ public class SdfRectRenderState implements GuiElementRenderState {
 
     private void vertex(VertexConsumer consumer, float x, float y,
                         float localX, float localY, int color) {
-        consumer.addVertexWith2DPose(pose, x, y).setUv(localX, localY);
-        if (consumer instanceof BufferBuilder builder) {
-            long ptr = builder.beginElement(TeslaVertexFormats.SDF_PARAMS);
-            if (ptr != -1L) {
-                MemoryUtil.memPutFloat(ptr, halfWidth);
-                MemoryUtil.memPutFloat(ptr + 4L, halfHeight);
-                MemoryUtil.memPutFloat(ptr + 8L, radius);
-                MemoryUtil.memPutFloat(ptr + 12L, extra);
-            }
-        }
-        consumer.setColor(color);
+        TeslaVertexFormats.vertex(consumer, pose, x, y, localX, localY, halfWidth, halfHeight, radius, extra, color);
     }
 
     @Override

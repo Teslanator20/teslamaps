@@ -4,7 +4,6 @@ package com.teslamaps.features;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.renderpearl.api.textures.FilterMode;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.gui.TeslaGuiPipelines;
@@ -16,7 +15,6 @@ import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
 import net.minecraft.client.renderer.state.gui.GuiRenderState;
 import net.minecraft.world.item.ItemStack;
-import org.lwjgl.system.MemoryUtil;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -98,17 +96,7 @@ public final class RarityContour {
         }
 
         private void vertex(VertexConsumer consumer, float x, float y, float u, float v) {
-            consumer.addVertexWith2DPose(item.pose(), x, y).setUv(u, v);
-            if (consumer instanceof BufferBuilder builder) {
-                long ptr = builder.beginElement(TeslaVertexFormats.SDF_PARAMS);
-                if (ptr != -1L) {
-                    MemoryUtil.memPutFloat(ptr, view.u0());
-                    MemoryUtil.memPutFloat(ptr + 4L, view.v0());
-                    MemoryUtil.memPutFloat(ptr + 8L, view.u1());
-                    MemoryUtil.memPutFloat(ptr + 12L, view.v1());
-                }
-            }
-            consumer.setColor(color);
+            TeslaVertexFormats.vertex(consumer, item.pose(), x, y, u, v, view.u0(), view.v0(), view.u1(), view.v1(), color);
         }
     }
 }

@@ -99,7 +99,7 @@ public final class CommissionBlockColor {
             applied = sig;
             cooldown = 20;
             cache.clear();
-            if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.allChanged();
+            if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.invalidateCompiledGeometry(mc.level, mc.options, mc.gameRenderer.mainCamera(), mc.getBlockColors());
         }
     }
 

@@ -1,8 +1,10 @@
 package com.teslamaps.render.gui;
 
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.resources.Identifier;
 
 public class TeslaGuiPipelines {
@@ -27,36 +29,37 @@ public class TeslaGuiPipelines {
     public static final RenderPipeline BG_WAVES = register("bg_waves", "core/teslamaps_bg_waves");
 
     // Rarity silhouette: samples the gui item atlas, bounds of the atlas cell ride in SdfParams.
-    public static final RenderPipeline RARITY_CONTOUR = RenderPipelines.register(
-            RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
-                    .withLocation("pipeline/teslamaps_rarity_contour")
-                    .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
-                    .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_rarity_contour"))
-                    .withSampler("Sampler0")
-                    .withVertexFormat(TeslaVertexFormats.SDF, VertexFormat.Mode.QUADS)
-                    .build()
-    );
+    public static final RenderPipeline RARITY_CONTOUR = gui()
+            .withLocation("pipeline/teslamaps_rarity_contour")
+            .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
+            .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_rarity_contour"))
+            .withBindGroupLayout(BindGroupLayouts.SAMPLER0)
+            .build();
 
     // Frosted HUD panel: samples the world copy of PanelBlur.
-    public static final RenderPipeline PANEL_BLUR = RenderPipelines.register(
-            RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
-                    .withLocation("pipeline/teslamaps_panel_blur")
-                    .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
-                    .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_panel_blur"))
-                    .withSampler("Sampler0")
-                    .withVertexFormat(TeslaVertexFormats.SDF, VertexFormat.Mode.QUADS)
-                    .build()
-    );
+    public static final RenderPipeline PANEL_BLUR = gui()
+            .withLocation("pipeline/teslamaps_panel_blur")
+            .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
+            .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_panel_blur"))
+            .withBindGroupLayout(BindGroupLayouts.SAMPLER0)
+            .build();
+
+    private static RenderPipeline.Builder gui() {
+        return RenderPipeline.builder()
+                .withBindGroupLayout(BindGroupLayouts.GLOBALS)
+                .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+                .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
+                .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+                .withVertexBinding(0, TeslaVertexFormats.SDF)
+                .withPrimitiveTopology(PrimitiveTopology.QUADS);
+    }
 
     private static RenderPipeline register(String name, String fragmentShader) {
-        return RenderPipelines.register(
-                RenderPipeline.builder(RenderPipelines.GUI_SNIPPET)
-                        .withLocation("pipeline/teslamaps_" + name)
-                        .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
-                        .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", fragmentShader))
-                        .withVertexFormat(TeslaVertexFormats.SDF, VertexFormat.Mode.QUADS)
-                        .build()
-        );
+        return gui()
+                .withLocation("pipeline/teslamaps_" + name)
+                .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_sdf"))
+                .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", fragmentShader))
+                .build();
     }
 
     public static void init() {

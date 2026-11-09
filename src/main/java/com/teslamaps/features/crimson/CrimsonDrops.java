@@ -120,8 +120,9 @@ public final class CrimsonDrops {
     }
 
     private static boolean hasColor(Component c, ChatFormatting f) {
-        Integer rgb = f.getColor();
-        if (rgb == null) return false;
+        TextColor fc = TextColor.fromLegacyFormat(f);
+        if (fc == null) return false;
+        int rgb = fc.getValue();
         TextColor col = c.getStyle().getColor();
         if (col != null && col.getValue() == rgb) return true;
         for (Component s : c.getSiblings()) if (hasColor(s, f)) return true;

@@ -1,7 +1,6 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.features.MotionBlur;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GameRenderer.class)
 public class MotionBlurMixin {
 
-    @Inject(method = "render", at = @At(value = "INVOKE", shift = At.Shift.AFTER,
-            target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(Lnet/minecraft/client/DeltaTracker;)V"))
-    private void teslamaps$motionBlur(DeltaTracker delta, boolean renderLevel, CallbackInfo ci) {
+    @Inject(method = "render()V", at = @At(value = "INVOKE", shift = At.Shift.AFTER,
+            target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel()V"))
+    private void teslamaps$motionBlur(CallbackInfo ci) {
         com.teslamaps.debug.Perf.begin("MotionBlur");
         try {
             MotionBlur.apply();

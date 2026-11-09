@@ -6,29 +6,29 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.features.TransparentArmor;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.UvMapping;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(EquipmentLayerRenderer.class)
 public class TransparentEquipmentMixin {
     private static final String LAYERS = "renderLayers(Lnet/minecraft/client/resources/model/EquipmentClientInfo$LayerType;Lnet/minecraft/resources/ResourceKey;Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/resources/Identifier;II)V";
 
-    @Unique
-    private static RenderType teslamaps$trims;
-
     @WrapOperation(method = LAYERS, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/rendertype/RenderTypes;armorCutoutNoCull(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/rendertype/RenderType;"))
     private RenderType teslamaps$translucentArmor(Identifier tex, Operation<RenderType> original) {
-        return TransparentArmor.armor < 255 ? RenderTypes.armorTranslucent(tex) : original.call(tex);
+        return TransparentArmor.armor < 255 ? RenderTypes.entityTranslucent(tex) : original.call(tex);
+    }
+
+    @WrapOperation(method = LAYERS, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/rendertype/RenderTypes;armorCutoutNoCullGlint(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/client/renderer/rendertype/RenderType;"))
+    private RenderType teslamaps$translucentGlintArmor(Identifier tex, Operation<RenderType> original) {
+        return TransparentArmor.armor < 255 ? RenderTypes.entityTranslucent(tex) : original.call(tex);
     }
 
     @WrapOperation(method = LAYERS, at = @At(value = "INVOKE",
@@ -39,20 +39,18 @@ public class TransparentEquipmentMixin {
     }
 
     @WrapOperation(method = LAYERS, at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/Sheets;armorTrimsSheet(Z)Lnet/minecraft/client/renderer/rendertype/RenderType;"))
-    private RenderType teslamaps$translucentTrims(boolean decal, Operation<RenderType> original) {
-        if (TransparentArmor.armor >= 255) return original.call(decal);
-        if (teslamaps$trims == null) teslamaps$trims = RenderTypes.armorTranslucent(Sheets.ARMOR_TRIMS_SHEET);
-        return teslamaps$trims;
+            target = "Lnet/minecraft/client/renderer/rendertype/RenderTypes;armorTrim(Lnet/minecraft/resources/Identifier;Z)Lnet/minecraft/client/renderer/rendertype/RenderType;"))
+    private RenderType teslamaps$translucentTrims(Identifier tex, boolean decal, Operation<RenderType> original) {
+        return TransparentArmor.armor < 255 ? RenderTypes.entityTranslucent(tex) : original.call(tex, decal);
     }
 
     @WrapOperation(method = LAYERS, at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/OrderedSubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
-            ordinal = 2))
+            target = "Lnet/minecraft/client/renderer/OrderedSubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/UvMapping;I)V",
+            ordinal = 1))
     private <S> void teslamaps$trimAlpha(OrderedSubmitNodeCollector collector, Model<? super S> model, S state, PoseStack pose,
-                                         RenderType type, int light, int overlay, int color, TextureAtlasSprite sprite, int outline,
-                                         ModelFeatureRenderer.CrumblingOverlay crumbling, Operation<Void> original) {
+                                         RenderType type, int light, int overlay, int color, UvMapping uv, int outline,
+                                         Operation<Void> original) {
         int c = TransparentArmor.armor < 255 ? TransparentArmor.apply(TransparentArmor.armor, color) : color;
-        original.call(collector, model, state, pose, type, light, overlay, c, sprite, outline, crumbling);
+        original.call(collector, model, state, pose, type, light, overlay, c, uv, outline);
     }
 }

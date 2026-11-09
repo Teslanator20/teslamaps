@@ -1,4 +1,5 @@
 #version 330
+#extension GL_ARB_separate_shader_objects : require
 
 // In-world sky: same procedural body, driven by a uniform block because this
 // one runs as a post pass inside the level frame graph.
@@ -14,11 +15,11 @@ layout(std140) uniform SkyboxConfig {
 
 #define u_Speed u_Scale
 
-in vec2 texCoord;
+layout(location = 0) in vec2 texCoord;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
-#moj_import <teslamaps:bg_liquid.glsl>
+#include <teslamaps:bg_liquid.glsl>
 
 void main() {
     fragColor = teslamaps_bg_color(gl_FragCoord.xy);

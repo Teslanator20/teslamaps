@@ -2,27 +2,29 @@ package com.teslamaps.features.customize;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.renderpearl.api.textures.FilterMode;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.OutputTarget;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.rendertype.TextureTransform;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 /**
  * Per-item glint colour from {@code /tmap customize}. The colour rides from model extraction
- * (layer state) through the item submit to ItemFeatureRenderer, which swaps the vanilla glint
+ * (layer state) through the item submit to ItemFeatureRenderer, which swaps the vanilla item glint
  * render type for one with a tinted copy of the glint texture.
  */
 public final class GlintColors {
@@ -35,6 +37,9 @@ public final class GlintColors {
     public static int rendering;
 
     private static final Map<Long, RenderType> TYPES = new HashMap<>();
+    private static final List<Identifier> ATLASES = new ArrayList<>();
+    private static long lastKey = -1L;
+    private static RenderType lastType;
     private static final Map<Integer, Identifier> TEXTURES = new HashMap<>();
 
     private GlintColors() {}
@@ -54,21 +59,39 @@ public final class GlintColors {
         }
     }
 
-    public static RenderType colored(RenderType base, int color) {
-        int kind = base == RenderTypes.glint() ? 0 : base == RenderTypes.glintTranslucent() ? 1
-                : base == RenderTypes.entityGlint() ? 2 : -1;
+    public static RenderType colored(BakedQuad.MaterialInfo info, RenderType base, int color) {
+        RenderPipeline p = base.pipeline();
+        int kind = p == RenderPipelines.ITEM_CUTOUT_GLINT ? 0 : p == RenderPipelines.ITEM_CUTOUT_GLINT_SPECIAL ? 1
+                : p == RenderPipelines.ITEM_TRANSLUCENT_GLINT ? 2 : p == RenderPipelines.ITEM_TRANSLUCENT_GLINT_SPECIAL ? 3 : -1;
         if (kind < 0) return base;
-        long key = ((long) kind << 32) | (color & 0xFFFFFFFFL);
+        Identifier atlas = info.sprite().atlasLocation();
+        int a = ATLASES.indexOf(atlas);
+        if (a < 0) {
+            a = ATLASES.size();
+            ATLASES.add(atlas);
+        }
+        long key = ((long) (a * 4 + kind) << 32) | (color & 0xFFFFFFFFL);
+        if (key == lastKey && lastType != null) return lastType;
         RenderType t = TYPES.get(key);
-        if (t != null) return t;
-        Identifier tex = texture(color);
-        if (tex == null) return base;
-        RenderSetup.RenderSetupBuilder b = RenderSetup.builder(RenderPipelines.GLINT)
-                .withTexture("Sampler0", tex, () -> RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR))
-                .setTextureTransform(kind == 2 ? TextureTransform.ENTITY_GLINT_TEXTURING : TextureTransform.GLINT_TEXTURING);
-        if (kind == 1) b.setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET);
-        t = RenderType.create("teslamaps_glint_" + kind + "_" + Integer.toHexString(color & 0xFFFFFF), b.createRenderSetup());
-        TYPES.put(key, t);
+        if (t == null) {
+            Identifier tex = texture(color);
+            if (tex == null) return base;
+            RenderSetup.RenderSetupBuilder b = RenderSetup.builder(p);
+            if (kind == 2) b.setOitPipelines(RenderPipelines.OIT_ITEM_GLINT);
+            if (kind == 3) b.setOitPipelines(RenderPipelines.OIT_ITEM_GLINT_SPECIAL);
+            b.withTexture("Sampler0", atlas)
+                    .withTexture("GlintSampler", tex, () -> RenderSystem.getSamplerCache().getRepeat(FilterMode.LINEAR))
+                    .setTextureTransform(TextureTransform.GLINT_TEXTURING)
+                    .useLightmap()
+                    .useOverlay()
+                    .affectsCrumbling();
+            if (kind >= 2) b.sortOnUpload();
+            b.setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE);
+            t = RenderType.create("teslamaps_glint_" + a + "_" + kind + "_" + Integer.toHexString(color & 0xFFFFFF), b.createRenderSetup());
+            TYPES.put(key, t);
+        }
+        lastKey = key;
+        lastType = t;
         return t;
     }
 

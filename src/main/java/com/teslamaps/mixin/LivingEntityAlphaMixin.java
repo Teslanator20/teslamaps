@@ -50,11 +50,11 @@ public abstract class LivingEntityAlphaMixin {
     private void teslamaps$translucent(LivingEntityRenderState state, boolean showBody, boolean translucent, boolean outline,
                                        CallbackInfoReturnable<RenderType> cir) {
         if (showBody && ((EntityAlphaHolder) state).teslamaps$alpha() < 255)
-            cir.setReturnValue(RenderTypes.entityTranslucentCullItemTarget(getTextureLocation(state)));
+            cir.setReturnValue(RenderTypes.entityTranslucentCull(getTextureLocation(state)));
     }
 
     @ModifyArg(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/UvMapping;I)V"),
             index = 6)
     private int teslamaps$alphaColor(int argb, @Local(argsOnly = true) LivingEntityRenderState state) {
         int a = ((EntityAlphaHolder) state).teslamaps$alpha();

@@ -1,6 +1,7 @@
-#version 150
+#version 330
+#extension GL_ARB_separate_shader_objects : require
 
-in vec4 vertexColor;
+layout(location = 0) in vec4 vertexColor;
 
 layout(std140) uniform TeslaChromaUniforms {
     float chromaSize;
@@ -15,7 +16,7 @@ layout(std140) uniform TeslaChromaUniforms {
     float pxScale;
 };
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 float rgb2b(vec3 rgb) {
     return max(max(rgb.r, rgb.g), rgb.b);

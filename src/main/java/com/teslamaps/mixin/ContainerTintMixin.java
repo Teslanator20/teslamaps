@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ContainerTintMixin {
 
     @WrapOperation(method = "extractBackground", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"))
+            target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIFFIIII)V"))
     private void teslamaps$tint(GuiGraphicsExtractor g, RenderPipeline pipeline, Identifier tex, int x, int y, float u, float v,
                                 int w, int h, int tw, int th, Operation<Void> original) {
         int color = ContainerTweaks.tint();

@@ -34,7 +34,7 @@ public class NoFogMixin {
 
     // Devonian's FixCrimsonIsleFog: fog keeps its colour under night vision
     @WrapOperation(method = "computeFogColor", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/GameRenderer;getNightVisionScale(Lnet/minecraft/world/entity/LivingEntity;F)F"))
+            target = "Lnet/minecraft/client/renderer/GameRenderer;nightVisionScale(Lnet/minecraft/world/entity/LivingEntity;F)F"))
     private float teslamaps$crimsonFogColor(LivingEntity entity, float delta, Operation<Float> original) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (cfg.crimsonFogColorFix && com.teslamaps.utils.SkyblockUtils.isInArea("Crimson Isle")) return 0f;

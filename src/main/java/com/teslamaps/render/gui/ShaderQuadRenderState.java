@@ -1,14 +1,12 @@
 package com.teslamaps.render.gui;
 
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fc;
-import org.lwjgl.system.MemoryUtil;
 
 /**
  * A quad that hands four free floats plus a uv pair to its fragment shader.
@@ -62,17 +60,7 @@ public class ShaderQuadRenderState implements GuiElementRenderState {
     }
 
     private void vertex(VertexConsumer consumer, float x, float y) {
-        consumer.addVertexWith2DPose(pose, x, y).setUv(u, v);
-        if (consumer instanceof BufferBuilder builder) {
-            long ptr = builder.beginElement(TeslaVertexFormats.SDF_PARAMS);
-            if (ptr != -1L) {
-                MemoryUtil.memPutFloat(ptr, p0);
-                MemoryUtil.memPutFloat(ptr + 4L, p1);
-                MemoryUtil.memPutFloat(ptr + 8L, p2);
-                MemoryUtil.memPutFloat(ptr + 12L, p3);
-            }
-        }
-        consumer.setColor(color);
+        TeslaVertexFormats.vertex(consumer, pose, x, y, u, v, p0, p1, p2, p3, color);
     }
 
     @Override

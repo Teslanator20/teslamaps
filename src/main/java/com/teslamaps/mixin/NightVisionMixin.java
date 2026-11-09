@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 public class NightVisionMixin {
-    @Inject(method = "getNightVisionScale", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "nightVisionScale", at = @At("RETURN"), cancellable = true)
     private static void teslamaps$nightVision(LivingEntity entity, float delta, CallbackInfoReturnable<Float> cir) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.nightVisionControl || entity != Minecraft.getInstance().player) return;

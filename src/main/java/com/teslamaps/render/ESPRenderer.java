@@ -3,7 +3,7 @@ package com.teslamaps.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -19,37 +19,23 @@ public class ESPRenderer {
     // frustum are dropped. Submission order is unchanged, so the picture is the same.
     private static boolean frameBatch = false;
     private static net.minecraft.client.renderer.culling.Frustum frustum;
-    private static final java.util.List<MultiBufferSource.BufferSource> frameSources = new java.util.ArrayList<>();
-    private static final java.util.List<MultiBufferSource.BufferSource> textSources = new java.util.ArrayList<>();
+    private static SubmitNodeCollector collector;
 
-    public static void beginFrame(net.minecraft.client.renderer.culling.Frustum cull) {
+    public static void beginFrame(net.minecraft.client.renderer.culling.Frustum cull, SubmitNodeCollector nodes) {
         frameBatch = true;
         frustum = cull;
+        collector = nodes;
     }
 
     public static void endFrame() {
         frameBatch = false;
         frustum = null;
-        for (MultiBufferSource.BufferSource src : frameSources) {
-            src.endBatch(TeslaRenderLayers.LINES_ESP);
-            src.endBatch(TeslaRenderLayers.LINES_DEPTH);
-            src.endBatch(TeslaRenderLayers.FILLED_ESP);
-            src.endBatch(TeslaRenderLayers.FILLED_DEPTH);
-        }
-        frameSources.clear();
-        InstancedBoxes.flush();
-        for (MultiBufferSource.BufferSource src : textSources) src.endBatch();
-        textSources.clear();
+        collector = null;
     }
 
     private static void finish(MultiBufferSource.BufferSource src,
                                net.minecraft.client.renderer.rendertype.RenderType layer) {
-        if (!frameBatch) {
-            src.endBatch(layer);
-            return;
-        }
-        for (int i = 0, n = frameSources.size(); i < n; i++) if (frameSources.get(i) == src) return;
-        frameSources.add(src);
+        if (!frameBatch) src.endBatch(layer);
     }
 
     /** Bounding box at the entity's rendered (partial-tick) position. */
@@ -274,9 +260,7 @@ public class ESPRenderer {
     }
 
     public static void drawBoxOutline(PoseStack matrices, AABB box, int color, float lineWidth, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = WorldBuffers.INSTANCE;
         drawBoxOutline(matrices, box, color, lineWidth, cameraPos, bufferSource);
     }
 
@@ -307,23 +291,17 @@ public class ESPRenderer {
     }
 
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos, float lineWidth) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        drawTracerFromCamera(matrices, target, color, cameraPos, mc.renderBuffers().bufferSource(), lineWidth);
+        drawTracerFromCamera(matrices, target, color, cameraPos, WorldBuffers.INSTANCE, lineWidth);
     }
 
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = WorldBuffers.INSTANCE;
         drawTracerFromCamera(matrices, target, color, cameraPos, bufferSource);
     }
 
     public static void drawLine(PoseStack matrices, Vec3 from, Vec3 to, int color, float lineWidth, Vec3 cameraPos,
                                 boolean throughWalls) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
@@ -344,9 +322,8 @@ public class ESPRenderer {
     /** Connected segments pts[i-1] -> pts[i], segment i drawn with widths[i]; widths[i] <= 0 skips it. */
     public static void drawPolyline(PoseStack matrices, java.util.List<Vec3> pts, float[] widths, int color, Vec3 cameraPos,
                                     boolean throughWalls) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null || pts.size() < 2) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        if (pts.size() < 2) return;
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = (color & 0xFF) / 255f;
@@ -375,9 +352,8 @@ public class ESPRenderer {
     /** Connected segments pts[i-1] -> pts[i], segment i drawn in colors[i] (ARGB). */
     public static void drawPolyline(PoseStack matrices, java.util.List<Vec3> pts, int[] colors, float width, Vec3 cameraPos,
                                     boolean throughWalls) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null || pts.size() < 2) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        if (pts.size() < 2) return;
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         var layer = throughWalls ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
@@ -397,9 +373,7 @@ public class ESPRenderer {
     }
 
     public static void drawLine(PoseStack matrices, Vec3 start, Vec3 end, int color, float lineWidth, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = WorldBuffers.INSTANCE;
         drawTracer(matrices, start, end, color, cameraPos, bufferSource);
     }
 
@@ -485,9 +459,7 @@ public class ESPRenderer {
 
     /** Double-sided quad, corners in world coordinates, depth tested. */
     public static void drawQuad(PoseStack matrices, float[] c, int color, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
         float a = ((color >>> 24) & 0xFF) / 255f * fade;
         matrices.pushPose();
@@ -518,9 +490,7 @@ public class ESPRenderer {
 
     public static void drawCircle(PoseStack matrices, double cx, double cy, double cz, double radius, int color, float lineWidth, Vec3 cameraPos,
                                   boolean throughWalls) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
         float a = ((color >>> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 1f;
@@ -543,9 +513,7 @@ public class ESPRenderer {
 
     /** Filled horizontal disc, double sided, depth tested. */
     public static void drawDisc(PoseStack matrices, double cx, double cy, double cz, double radius, int color, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
         float a = ((color >>> 24) & 0xFF) / 255f * fade;
         matrices.pushPose();
@@ -570,16 +538,12 @@ public class ESPRenderer {
     }
 
     public static void drawFilledBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = WorldBuffers.INSTANCE;
         drawFilledBox(matrices, box, color, cameraPos, bufferSource);
     }
 
     public static void drawESPBox(PoseStack matrices, AABB box, int color, Vec3 cameraPos) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
-        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = WorldBuffers.INSTANCE;
         drawESPBox(matrices, box, color, cameraPos, bufferSource);
     }
 
@@ -616,8 +580,6 @@ public class ESPRenderer {
             if (culled(new AABB(pos.x - r, pos.y - r, pos.z - r, pos.x + r, pos.y + r, pos.z + r))) return;
         }
 
-        MultiBufferSource.BufferSource immediate = mc.renderBuffers().bufferSource();
-
         matrices.pushPose();
 
         var pose = matrices.last().pose();
@@ -625,23 +587,25 @@ public class ESPRenderer {
         pose.rotate(mc.gameRenderer.mainCamera().rotation());
         pose.scale(scaleFactor, -scaleFactor, scaleFactor);
 
-        mc.font.drawInBatch(
-            text,
-            -textWidth / 2f,
-            0f,
-            color,
-            true,       // shadow
-            pose,
-            immediate,
-            throughWalls ? net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH
-                         : net.minecraft.client.gui.Font.DisplayMode.NORMAL,
-            background,
-            15728880    // full brightness
-        );
+        TEXT.pose = pose;
+        TEXT.mode = throughWalls ? net.minecraft.client.gui.Font.DisplayMode.SEE_THROUGH
+                                 : net.minecraft.client.gui.Font.DisplayMode.NORMAL;
+        mc.font.prepareText(text, -textWidth / 2f, 0f, color, true, background).visit(TEXT);
+        TEXT.pose = null;
 
-        if (!frameBatch) immediate.endBatch();
-        else if (!textSources.contains(immediate)) textSources.add(immediate);
         matrices.popPose();
+    }
+
+    private static final TextSink TEXT = new TextSink();
+
+    private static final class TextSink implements net.minecraft.client.gui.Font.GlyphVisitor {
+        org.joml.Matrix4f pose;
+        net.minecraft.client.gui.Font.DisplayMode mode;
+
+        @Override
+        public void acceptRenderable(net.minecraft.client.gui.font.TextRenderable r) {
+            r.render(pose, WorldBuffers.INSTANCE.getBuffer(r.renderType(mode)), 15728880, false);
+        }
     }
 
     // one buffer + one endBatch for many boxes; only one layer may be open at a time
@@ -654,12 +618,10 @@ public class ESPRenderer {
     private static Vec3 batchCam;
 
     public static void beginBoxBatch(PoseStack matrices, Vec3 cameraPos, boolean filled, boolean throughWalls) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
         endBoxBatch();
         batchFilled = filled;
         batchCam = cameraPos;
-        batchSource = mc.renderBuffers().bufferSource();
+        batchSource = WorldBuffers.INSTANCE;
         batchMatrices = matrices;
         matrices.pushPose();
         matrices.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
@@ -711,7 +673,7 @@ public class ESPRenderer {
         float a = ((color >> 24) & 0xFF) / 255f * fade;
         if (a == 0) a = 0.5f;
 
-        if (com.teslamaps.config.TeslaMapsConfig.get().realBeaconBeam && mc.gameRenderer != null) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().realBeaconBeam && collector != null) {
             double dx = cameraPos.x - (pos.getX() + 0.5);
             double dz = cameraPos.z - (pos.getZ() + 0.5);
             float scale = mc.player != null && mc.player.isScoping() ? 1f
@@ -720,7 +682,7 @@ public class ESPRenderer {
             matrices.pushPose();
             matrices.translate(pos.getX() - cameraPos.x, pos.getY() - cameraPos.y, pos.getZ() - cameraPos.z);
             net.minecraft.client.renderer.blockentity.BeaconRenderer.submitBeaconBeam(matrices,
-                    mc.gameRenderer.getFeatureRenderDispatcher().getSubmitNodeStorage(),
+                    collector,
                     net.minecraft.client.renderer.blockentity.BeaconRenderer.BEAM_LOCATION,
                     1f, time, 0, 319, color | 0xFF000000, 0.2f * scale, 0.25f * scale);
             matrices.popPose();
@@ -730,9 +692,9 @@ public class ESPRenderer {
         Vec3 bottom = new Vec3(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         Vec3 top = new Vec3(pos.getX() + 0.5, pos.getY() + 256, pos.getZ() + 0.5);
 
-        if (com.teslamaps.config.TeslaMapsConfig.get().glowRibbons && mc.renderBuffers() != null) {
+        if (com.teslamaps.config.TeslaMapsConfig.get().glowRibbons) {
             int c = (color >>> 24) == 0 ? (color & 0xFFFFFF) | 0x80000000 : color;
-            drawRibbon(matrices, bottom, top, c, c & 0xFFFFFF, cameraPos, mc.renderBuffers().bufferSource());
+            drawRibbon(matrices, bottom, top, c, c & 0xFFFFFF, cameraPos, WorldBuffers.INSTANCE);
             return;
         }
         drawLine(matrices, bottom, top, color, 2.0f, cameraPos);

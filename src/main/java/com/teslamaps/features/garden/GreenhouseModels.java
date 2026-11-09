@@ -9,7 +9,7 @@ import com.teslamaps.registry.FeatureRegistry;
 import com.teslamaps.utils.SkyblockItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.object.skull.SkullModelBase;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.teslamaps.render.MultiBufferSource;
 import net.minecraft.client.renderer.PlayerSkinRenderCache;
 import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;

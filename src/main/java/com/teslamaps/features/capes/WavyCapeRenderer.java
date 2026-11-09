@@ -174,13 +174,13 @@ public final class WavyCapeRenderer {
         float partRotation = getRotation(delta, part, sim);
         float naturalWindSwing = getNaturalWindSwing(part, underwater);
 
-        poseStack.mulPose(Axis.XP.rotationDegrees(6.0F + naturalWindSwing));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.rotate(Axis.XP.rotationDegrees(6.0F + naturalWindSwing));
+        poseStack.rotate(Axis.YP.rotationDegrees(180.0F));
         poseStack.translate(-z / PART_COUNT, y / PART_COUNT, x / PART_COUNT);
         // offsetting so the rotation is on the cape part
         poseStack.translate(0, 0.48F / 16F, -0.48F / 16F);
         poseStack.translate(0, part * 1F / PART_COUNT, 0);
-        poseStack.mulPose(Axis.XP.rotationDegrees(-partRotation));
+        poseStack.rotate(Axis.XP.rotationDegrees(-partRotation));
         poseStack.translate(0, -part * 1F / PART_COUNT, 0);
         poseStack.translate(0, -0.48F / 16F, 0.48F / 16F);
     }

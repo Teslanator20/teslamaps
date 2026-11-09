@@ -1,7 +1,7 @@
 package com.teslamaps.injected;
 
-import net.minecraft.client.renderer.feature.ItemFeatureRenderer;
-
 public interface GlintColorHolder {
-    int teslamaps$glintColor(ItemFeatureRenderer.Submit submit);
+    int teslamaps$glintColor();
+
+    int teslamaps$ghostAlpha();
 }

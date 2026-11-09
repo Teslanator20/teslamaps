@@ -80,7 +80,7 @@ public class DeadMobHider {
 
     public static void onRemoveEntities(net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket packet) {
         if (stripped.isEmpty()) return;
-        for (int id : packet.getEntityIds().toIntArray()) stripped.remove(id);
+        for (int id : packet.entityIds().toIntArray()) stripped.remove(id);
     }
 
     private static void prune() {

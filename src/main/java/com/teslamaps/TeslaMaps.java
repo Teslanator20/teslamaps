@@ -103,13 +103,18 @@ public class TeslaMaps implements ClientModInitializer {
 
         com.teslamaps.features.WorldScanner.init();
 
-        LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register(context -> {
+        LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.gameRenderer != null && mc.gameRenderer.mainCamera() != null) {
                 com.teslamaps.registry.FeatureRegistry.world(context.poseStack(), context.submitNodeCollector(),
                         mc.gameRenderer.mainCamera().position(),
                         context.levelState().cameraRenderState.cullFrustum);
             }
+        });
+        LevelRenderEvents.END_MAIN.register(context -> {
+            com.teslamaps.debug.Perf.begin("ESP.flush");
+            com.teslamaps.render.WorldBuffers.INSTANCE.draw();
+            com.teslamaps.debug.Perf.end();
         });
 
         // drop the per-tick entity snapshot; it rebuilds lazily on the first caller

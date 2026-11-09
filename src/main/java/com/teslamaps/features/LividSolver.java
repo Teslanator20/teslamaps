@@ -18,7 +18,7 @@ import java.util.WeakHashMap;
 import java.util.regex.Pattern;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.teslamaps.render.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
@@ -518,7 +518,8 @@ public class LividSolver {
                 if (t != null) type = t;
             }
             ChatFormatting f = ChatFormatting.getByCode(type.colorCode);
-            if (f != null && f.getColor() != null) return 0xFF000000 | f.getColor();
+            net.minecraft.network.chat.TextColor tc = f == null ? null : net.minecraft.network.chat.TextColor.fromLegacyFormat(f);
+            if (tc != null) return 0xFF000000 | tc.getValue();
         }
         int col = TeslaMapsConfig.parseColor(c.lividColor);
         return (col >>> 24) == 0 ? col | 0xFF000000 : col;

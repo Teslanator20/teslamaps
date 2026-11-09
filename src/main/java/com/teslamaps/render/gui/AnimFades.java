@@ -1,16 +1,10 @@
 package com.teslamaps.render.gui;
 
-import com.mojang.renderpearl.api.pipeline.BlendFunction;
-import com.mojang.renderpearl.api.pipeline.ColorTargetState;
-import com.mojang.renderpearl.api.pipeline.RenderPipeline;
-import com.mojang.renderpearl.api.pipeline.UniformType;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.renderpearl.api.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderPipelines;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
-
-import java.util.Optional;
 
 /**
  * Animated text fades. One pipeline per look, the colours are baked into its fragment shader, so a
@@ -41,17 +35,13 @@ public class AnimFades {
     }
 
     private static RenderPipeline register(String name) {
-        return RenderPipelines.register(
-                RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
-                        .withLocation("pipeline/teslamaps_anim_" + name)
-                        .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_textured_chroma"))
-                        .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_anim_" + name))
-                        .withSampler("Sampler0")
-                        .withUniform(ChromaPipelines.UNIFORM, UniformType.UNIFORM_BUFFER)
-                        .withColorTargetState(new ColorTargetState(
-                                Optional.of(BlendFunction.TRANSLUCENT), ColorTargetState.WRITE_COLOR))
-                        .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
-                        .build());
+        return ChromaPipelines.base()
+                .withLocation("pipeline/teslamaps_anim_" + name)
+                .withVertexShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_textured_chroma"))
+                .withFragmentShader(Identifier.fromNamespaceAndPath("teslamaps", "core/teslamaps_anim_" + name))
+                .withBindGroupLayout(BindGroupLayouts.SAMPLER0)
+                .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX_COLOR)
+                .build();
     }
 
     /** Style colour that paints text with the named fade, null when the name is unknown. */

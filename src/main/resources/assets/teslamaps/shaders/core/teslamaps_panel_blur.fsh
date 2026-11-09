@@ -1,12 +1,13 @@
 #version 330
+#extension GL_ARB_separate_shader_objects : require
 
 uniform sampler2D Sampler0;
 
-in vec2 localPos;
-in vec4 shapeParams;
-in vec4 vertexColor;
+layout(location = 0) in vec2 localPos;
+layout(location = 1) in vec4 shapeParams;
+layout(location = 2) in vec4 vertexColor;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 float roundedBoxSDF(vec2 p, vec2 b, float r) {
     vec2 d = abs(p) - b + r;

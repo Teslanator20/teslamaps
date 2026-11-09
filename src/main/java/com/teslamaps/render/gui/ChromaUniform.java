@@ -1,9 +1,11 @@
 package com.teslamaps.render.gui;
 
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
-import com.mojang.renderpearl.api.buffers.Std140Builder;
-import com.mojang.renderpearl.api.buffers.Std140SizeCalculator;
-import net.minecraft.client.renderer.DynamicUniformStorage;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.buffers.Std140SizeCalculator;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import net.minecraft.client.renderer.DynamicGpuDataStorage;
+import net.minecraft.client.renderer.DynamicGpuDataStorageMapped;
 
 import java.nio.ByteBuffer;
 
@@ -14,13 +16,13 @@ public class ChromaUniform implements AutoCloseable {
             new Std140SizeCalculator().putFloat().putFloat().putFloat().putInt()
                     .putFloat().putFloat().putVec4().putVec4().putFloat().putFloat().get();
 
-    private final DynamicUniformStorage<Value> storage =
-            new DynamicUniformStorage<>("TeslaMaps Chroma UBO", SIZE, 2);
+    private final DynamicGpuDataStorage<Value> storage =
+            new DynamicGpuDataStorageMapped<>("TeslaMaps Chroma UBO", SIZE, GpuBuffer.USAGE_UNIFORM, 2);
 
     public GpuBufferSlice writeWith(float chromaSize, float timeOffset, float saturation, int forwardDirection,
                                     float fadeStartX, float fadeWidth, int fadeColorA, int fadeColorB,
                                     float rawTicks, float pxScale) {
-        return storage.writeUniform(new Value(chromaSize, timeOffset, saturation, forwardDirection,
+        return storage.writeData(new Value(chromaSize, timeOffset, saturation, forwardDirection,
                 fadeStartX, fadeWidth, fadeColorA, fadeColorB, rawTicks, pxScale));
     }
 
@@ -37,7 +39,7 @@ public class ChromaUniform implements AutoCloseable {
     private record Value(float chromaSize, float timeOffset, float saturation, int forwardDirection,
                          float fadeStartX, float fadeWidth, int fadeColorA, int fadeColorB,
                          float rawTicks, float pxScale)
-            implements DynamicUniformStorage.DynamicUniform {
+            implements DynamicGpuDataStorage.DynamicGpuData {
         @Override
         public void write(ByteBuffer buffer) {
             Std140Builder.intoBuffer(buffer)
