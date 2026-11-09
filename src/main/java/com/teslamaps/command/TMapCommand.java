@@ -115,6 +115,16 @@ public class TMapCommand {
                     });
                     return 1;
                 })
+                .then(ClientCommands.literal("nia").executes(context -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    mc.schedule(() -> mc.gui.setScreen(com.teslamaps.screen.nia.NiaConfigScreen.create(null)));
+                    return 1;
+                }))
+                .then(ClientCommands.literal("h2").executes(context -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    mc.schedule(() -> mc.gui.setScreen(com.teslamaps.screen.h2.H2ConfigScreen.create(null)));
+                    return 1;
+                }))
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
                 .then(com.teslamaps.features.ChargeBottleNotice.command())
                 .then(ClientCommands.literal("tracker")
