@@ -49,7 +49,7 @@ public final class RouteKeys {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         TeslaMapsConfig c = cfg();
-        boolean free = mc.screen == null;
+        boolean free = mc.gui.screen() == null;
 
         if (pressed(0, c.routeEditKey, free)) openEditor(mc);
         if (pressed(1, c.routePlaceKey, free)) placePoint(mc);
@@ -65,7 +65,7 @@ public final class RouteKeys {
             chat("§cNo saved route loaded.");
             return;
         }
-        mc.setScreen(new RouteEditScreen(null, name, OrderedWaypoints.lookedAt()));
+        mc.gui.setScreen(new RouteEditScreen(null, name, OrderedWaypoints.lookedAt()));
     }
 
     private static void placePoint(Minecraft mc) {

@@ -146,9 +146,9 @@ public final class MineshaftAnnounce {
                     + " §amineshaft" + (since == 1 ? "" : "s") + " entered to get a " + color + type + " §amineshaft."));
         }
         if (c.mineshaftAnnounceTitle) {
-            mc.gui.setTimes(10, 60, 10);
-            mc.gui.setTitle(Component.literal(color + type));
-            mc.gui.setSubtitle(Component.literal(c.mineshaftAnnounceKeys && keys.length() > 0 ? keys.toString() : ""));
+            mc.gui.hud.setTimes(10, 60, 10);
+            mc.gui.hud.setTitle(Component.literal(color + type));
+            mc.gui.hud.setSubtitle(Component.literal(c.mineshaftAnnounceKeys && keys.length() > 0 ? keys.toString() : ""));
         }
         if (!Announce.NOBODY.equals(c.mineshaftAnnounceChannel)) {
             echo = StringUtil.strip(line);

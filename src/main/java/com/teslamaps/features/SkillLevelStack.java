@@ -28,7 +28,7 @@ public class SkillLevelStack {
     public static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !"Your Skills".equals(StringUtil.stripTrim(cs.getTitle().getString()))) {
             if (!labels.isEmpty()) labels = List.of();
             return;
@@ -82,7 +82,7 @@ public class SkillLevelStack {
     public static void render(GuiGraphicsExtractor ctx) {
         if (labels.isEmpty() || !TeslaMapsConfig.get().skillLevelStackSize || !SlotText.shown(SlotText.SKILL)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();

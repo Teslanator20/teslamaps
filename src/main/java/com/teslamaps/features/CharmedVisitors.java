@@ -40,7 +40,7 @@ public class CharmedVisitors {
         if (!SkyblockUtils.isInGarden()) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
 
         List<Slot> slots = cs.getMenu().slots;
         if (slots.size() <= VINYL_SLOT) return;

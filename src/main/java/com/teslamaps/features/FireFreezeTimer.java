@@ -75,7 +75,7 @@ public final class FireFreezeTimer {
         List<DungeonTimers.Row> r = row;
         if (r == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         DungeonTimers.drawRows(g, mc, c.fireFreezeX, c.fireFreezeY, c.fireFreezeScale, r);
     }

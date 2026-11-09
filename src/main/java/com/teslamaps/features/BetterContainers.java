@@ -77,7 +77,7 @@ public final class BetterContainers {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen cs) || !SkyblockUtils.isInSkyblock() || !titleAllowed(cs)
+        if (!(mc.gui.screen() instanceof ContainerScreen cs) || !SkyblockUtils.isInSkyblock() || !titleAllowed(cs)
                 || com.teslamaps.dungeon.termgui.TermGui.active() != null || LeapOverlay.shouldRender()
                 || TerminalSolver.hideClutter()) {
             screen = null;
@@ -137,7 +137,7 @@ public final class BetterContainers {
     private static int classify(ItemStack st, boolean toggles) {
         if (st.isEmpty()) return SLOT;
         CustomizableStack cs = (CustomizableStack) (Object) st;
-        if (st.is(Items.BLACK_STAINED_GLASS_PANE) && st.getCount() == 1 && cs.teslamaps$skyblockId().isEmpty()
+        if (st.is(Items.STAINED_GLASS_PANE.black()) && st.getCount() == 1 && cs.teslamaps$skyblockId().isEmpty()
                 && StringUtil.stripTrim(st.getHoverName().getString()).isEmpty()) return BLANK;
         if (!cs.teslamaps$skyblockId().isEmpty()) return SLOT;
         if (toggles && BuiltInRegistries.ITEM.getKey(st.getItem()).getPath().endsWith("_dye")) {

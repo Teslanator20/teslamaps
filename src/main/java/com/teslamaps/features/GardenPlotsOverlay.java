@@ -44,13 +44,13 @@ public class GardenPlotsOverlay {
     public static boolean shouldRender() {
         Minecraft mc = Minecraft.getInstance();
         return TeslaMapsConfig.get().gardenPlotsOverlay
-                && mc.screen instanceof InventoryScreen
+                && mc.gui.screen() instanceof InventoryScreen
                 && SkyblockUtils.isInGarden();
     }
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> screen)) return;
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
         HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
@@ -161,7 +161,7 @@ public class GardenPlotsOverlay {
         ItemStack[] icons = {
                 new ItemStack(Items.BOOK),
                 new ItemStack(Items.ENDER_EYE),
-                new ItemStack(Items.RED_BED)
+                new ItemStack(Items.BED.red())
         };
 
         int buttonY = panelY + PANEL_HEIGHT - 24;
@@ -256,7 +256,7 @@ public class GardenPlotsOverlay {
         GardenPlots.teleport(hoveredSlot);
         if (TeslaMapsConfig.get().gardenPlotsCloseOnClick) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.screen != null) mc.screen.onClose();
+            if (mc.gui.screen() != null) mc.gui.screen().onClose();
         }
         return true;
     }
@@ -264,7 +264,7 @@ public class GardenPlotsOverlay {
     public static boolean handleDrag(double mouseX, double mouseY) {
         if (!dragging || !shouldRender()) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> screen)) return false;
 
         HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
         int inventoryRight = accessor.getX() + accessor.getImageWidth();
@@ -278,7 +278,7 @@ public class GardenPlotsOverlay {
         dragging = false;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> screen) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> screen) {
             HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
             TeslaMapsConfig.get().gardenPlotsX = panelX - accessor.getX() - accessor.getImageWidth() - SPACING;
             TeslaMapsConfig.get().gardenPlotsY = panelY - accessor.getY();

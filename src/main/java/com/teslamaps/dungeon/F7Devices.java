@@ -110,11 +110,11 @@ public final class F7Devices {
             return;
         }
         if (!TARGETS.contains(pos) || phase() != 3) return;
-        if (oldState.is(Blocks.EMERALD_BLOCK) && newState.is(Blocks.BLUE_TERRACOTTA)) {
+        if (oldState.is(Blocks.EMERALD_BLOCK) && newState.is(Blocks.DYED_TERRACOTTA.blue())) {
             marked.add(pos.immutable());
             if (pos.equals(target)) target = null;
             if (c.arrowsDeviceAim) aims = aimPoints(pos);
-        } else if (oldState.is(Blocks.BLUE_TERRACOTTA) && newState.is(Blocks.EMERALD_BLOCK)) {
+        } else if (oldState.is(Blocks.DYED_TERRACOTTA.blue()) && newState.is(Blocks.EMERALD_BLOCK)) {
             marked.remove(pos);
             target = pos.immutable();
             if (c.arrowsDeviceAim) aims = aimPoints(pos);
@@ -131,8 +131,8 @@ public final class F7Devices {
         resetArrows();
         if (cfg().arrowsDeviceAlert) {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §aSharp shooter device complete"));
-            mc.gui.setTimes(0, 30, 5);
-            mc.gui.setTitle(Component.literal("§aDevice Complete"));
+            mc.gui.hud.setTimes(0, 30, 5);
+            mc.gui.hud.setTitle(Component.literal("§aDevice Complete"));
         }
     }
 

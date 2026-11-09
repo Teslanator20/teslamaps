@@ -138,7 +138,7 @@ public final class TrophyFishData {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { lastScreen = null; return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { lastScreen = null; return; }
         if (cs != lastScreen) { lastScreen = cs; screenTicks = 0; }
         if (++screenTicks != 10 && screenTicks != 30) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Trophy Fish")) return;

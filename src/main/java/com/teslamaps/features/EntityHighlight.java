@@ -39,7 +39,7 @@ public final class EntityHighlight {
         Minecraft mc = Minecraft.getInstance();
         Entity e = mc.crosshairPickEntity;
         if (e == null || e.isRemoved() || e.isInvisible() || e instanceof ArmorStand) return;
-        if (e == mc.player && !mc.gameRenderer.getMainCamera().isDetached()) return;
+        if (e == mc.player && !mc.gameRenderer.mainCamera().isDetached()) return;
         TeslaMapsConfig c = cfg();
         String hex = e instanceof Player ? c.entityHighlightPlayer
                 : e instanceof Enemy ? c.entityHighlightMob

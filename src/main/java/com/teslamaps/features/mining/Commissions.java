@@ -169,9 +169,9 @@ public final class Commissions {
         if (!cfg().commissionHud || !cfg().commissionAlert) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        mc.gui.setTitle(Component.literal("§a§lCommission Complete!"));
-        mc.gui.setSubtitle(Component.literal("§e" + name));
-        mc.gui.setTimes(5, 40, 10);
+        mc.gui.hud.setTitle(Component.literal("§a§lCommission Complete!"));
+        mc.gui.hud.setSubtitle(Component.literal("§e" + name));
+        mc.gui.hud.setTimes(5, 40, 10);
         LoudSound.play(SoundOptions.resolve(cfg().commissionAlertSound), 1f, 1f);
     }
 

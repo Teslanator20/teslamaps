@@ -32,8 +32,8 @@ public final class CompactLevelBars {
 
     private static boolean menu() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen == null) return false;
-        String title = StringUtil.stripTrim(mc.screen.getTitle().getString());
+        if (mc.gui.screen() == null) return false;
+        String title = StringUtil.stripTrim(mc.gui.screen().getTitle().getString());
         return title.equals("Ways to Level Up") || title.equals("Skill Related Tasks");
     }
 

@@ -27,6 +27,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -108,7 +109,7 @@ public final class EngineSpikes {
     public static void expectPlayable() { waitingForPlayable = true; }
 
     public static void clientTick(Minecraft mc) {
-        if (waitingForPlayable && mc.level != null && mc.player != null && mc.screen == null && markingWorld) { waitingForPlayable = false; mark("playable"); }
+        if (waitingForPlayable && mc.level != null && mc.player != null && mc.gui.screen() == null && markingWorld) { waitingForPlayable = false; mark("playable"); }
         if (fpsWindow > 0) { synchronized (fpsSamples) { fpsSamples.add(mc.getFps()); } fpsWindow--; }
     }
 
@@ -326,7 +327,7 @@ public final class EngineSpikes {
                 double x = around.getX() + KRandom.DEFAULT.nextDouble(-64.0, 64.0); double z = around.getZ() + KRandom.DEFAULT.nextDouble(-64.0, 64.0);
                 BlockPos pos = BlockPos.containing(x, around.getY(), z);
                 if (!level.isLoaded(pos) || !level.getBlockState(pos).isAir() || !level.getBlockState(pos.below()).isSolid()) continue;
-                Zombie e = new Zombie(EntityType.ZOMBIE, level);
+                Zombie e = new Zombie(EntityTypes.ZOMBIE, level);
                 e.setNoAi(true); e.setPersistenceRequired(); e.setSilent(true);
                 e.snapTo(pos.getX() + 0.5, (double) pos.getY(), pos.getZ() + 0.5, KRandom.DEFAULT.nextFloat() * 360f, 0f);
                 spawned.add(Sim.spawn(e)); made++;
@@ -341,11 +342,11 @@ public final class EngineSpikes {
                 if (!level.getBlockState(pos).isAir() || !level.getBlockState(pos.below()).isSolid()) continue;
                 Entity e;
                 if (made < mobs) {
-                    Zombie z = new Zombie(EntityType.ZOMBIE, level);
+                    Zombie z = new Zombie(EntityTypes.ZOMBIE, level);
                     z.setNoAi(true); z.setPersistenceRequired(); z.setSilent(true);
                     e = z;
                 } else {
-                    ArmorStand a = new ArmorStand(EntityType.ARMOR_STAND, level);
+                    ArmorStand a = new ArmorStand(EntityTypes.ARMOR_STAND, level);
                     a.setSilent(true); a.setNoGravity(true);
                     e = a;
                 }

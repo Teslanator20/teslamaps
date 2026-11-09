@@ -54,8 +54,8 @@ public final class GlowingMushrooms {
 
     public static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!active || !cfg().glowingMushrooms || !Minecraft.getInstance().isSameThread()) return;
-        if (packet.getParticle().getType() != ParticleTypes.ENTITY_EFFECT) return;
-        double x = packet.getX(), y = packet.getY(), z = packet.getZ();
+        if (packet.particle().getType() != ParticleTypes.ENTITY_EFFECT) return;
+        double x = packet.x(), y = packet.y(), z = packet.z();
         if (!frac(x, 0.5) || !frac(y, 0.1) || !frac(z, 0.5)) return;
         if (pending.size() < MAX_PENDING) pending.add(BlockPos.containing(x, y, z));
     }

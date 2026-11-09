@@ -53,7 +53,7 @@ public class TerminalUtils {
     public static void onSetSlot(int slotIndex, ItemStack stack, List<Slot> slots, AbstractContainerMenu menu) {
         if (currentTerm == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu() != menu) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu() != menu) return;
         currentTerm.updateSlot(slotIndex, stack, slots);
     }
 
@@ -65,7 +65,7 @@ public class TerminalUtils {
 
         term.clickedSlots.clear();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             AbstractContainerMenu menu = cs.getMenu();
             onSetSlot(0, ItemStack.EMPTY, menu.slots, menu);
         }

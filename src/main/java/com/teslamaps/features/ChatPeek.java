@@ -15,7 +15,7 @@ public final class ChatPeek {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.chatPeekKey == -1 || !c.section("Chat")) return false;
         Minecraft mc = Minecraft.getInstance();
-        return mc.screen == null && mc.player != null && KeyNames.isDown(c.chatPeekKey);
+        return mc.gui.screen() == null && mc.player != null && KeyNames.isDown(c.chatPeekKey);
     }
 
     public static ChatComponent.DisplayMode mode(ChatComponent.DisplayMode mode) {

@@ -1,7 +1,7 @@
 package com.teslamaps.render;
 
 // Ported from Skyblocker's compatibility/IrisCompatibility.java (Odin's IrisCompat.kt does the same)
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.teslamaps.TeslaMaps;
 import net.fabricmc.loader.api.FabricLoader;
 

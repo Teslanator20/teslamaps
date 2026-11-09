@@ -249,7 +249,7 @@ public class InspectorScreen extends Screen {
     @Override
     public void onClose() {
         Inspector.closed();
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
     @Override

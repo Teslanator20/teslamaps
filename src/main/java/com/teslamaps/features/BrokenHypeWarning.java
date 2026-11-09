@@ -66,9 +66,9 @@ public final class BrokenHypeWarning {
     }
 
     private static void warn(Minecraft mc) {
-        mc.gui.setTimes(0, 30, 10);
-        mc.gui.setTitle(Component.literal("§c§lHype Broken"));
-        mc.gui.setSubtitle(Component.literal("§7Kills are not counting"));
+        mc.gui.hud.setTimes(0, 30, 10);
+        mc.gui.hud.setTitle(Component.literal("§c§lHype Broken"));
+        mc.gui.hud.setSubtitle(Component.literal("§7Kills are not counting"));
         if (cfg().brokenHypeSound) mc.player.playSound(SoundEvents.ANVIL_LAND, 1f, 1f);
     }
 }

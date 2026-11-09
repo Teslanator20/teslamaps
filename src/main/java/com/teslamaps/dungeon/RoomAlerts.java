@@ -67,8 +67,8 @@ public class RoomAlerts {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         int ticks = Math.max(5, Math.round(cfg().roomAlertTime * 20));
-        mc.gui.setTimes(0, ticks, 5);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, ticks, 5);
+        mc.gui.hud.setTitle(Component.literal(text));
         mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
     }
 }

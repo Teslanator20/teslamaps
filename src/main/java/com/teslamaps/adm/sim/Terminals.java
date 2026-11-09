@@ -137,7 +137,7 @@ public final class Terminals {
     }
 
     public static ItemStack FILLER() {
-        ItemStack it = named(Items.BLACK_STAINED_GLASS_PANE, "");
+        ItemStack it = named(Items.STAINED_GLASS_PANE.black(), "");
         it.set(DataComponents.TOOLTIP_DISPLAY, new TooltipDisplay(true, new LinkedHashSet<>()));
         return it;
     }
@@ -205,7 +205,7 @@ public final class Terminals {
                 int c = walk(order);
                 if (luck > 0 ? c <= cost : c >= cost) cost = c; else Collections.swap(order, i, j);
             }
-            for (int i = 0; i < order.size(); i++) items[order.get(i)] = named(Items.RED_STAINED_GLASS_PANE, "" + (i + 1), i + 1, false, ChatFormatting.GREEN);
+            for (int i = 0; i < order.size(); i++) items[order.get(i)] = named(Items.STAINED_GLASS_PANE.red(), "" + (i + 1), i + 1, false, ChatFormatting.GREEN);
         }
 
         @Override public String title() { return "Click in order!"; }
@@ -213,8 +213,8 @@ public final class Terminals {
         @Override
         public boolean click(int slot, int button, ContainerInput input) {
             ItemStack it = items[slot];
-            if (it.getItem() != Items.RED_STAINED_GLASS_PANE || it.getCount() != next) return false;
-            items[slot] = named(Items.LIME_STAINED_GLASS_PANE, "" + next, next, false, ChatFormatting.GREEN);
+            if (it.getItem() != Items.STAINED_GLASS_PANE.red() || it.getCount() != next) return false;
+            items[slot] = named(Items.STAINED_GLASS_PANE.lime(), "" + next, next, false, ChatFormatting.GREEN);
             next++;
             return true;
         }
@@ -245,26 +245,26 @@ public final class Terminals {
         @Override public String title() { return "Correct all the panes!"; }
 
         private ItemStack pane(boolean on) {
-            return on ? named(Items.LIME_STAINED_GLASS_PANE, "On", 1, false, ChatFormatting.GREEN) : named(Items.RED_STAINED_GLASS_PANE, "Off", 1, false, ChatFormatting.RED);
+            return on ? named(Items.STAINED_GLASS_PANE.lime(), "On", 1, false, ChatFormatting.GREEN) : named(Items.STAINED_GLASS_PANE.red(), "Off", 1, false, ChatFormatting.RED);
         }
 
         @Override
         public boolean click(int slot, int button, ContainerInput input) {
             if (!slots.contains(slot)) return false;
-            items[slot] = pane(items[slot].getItem() == Items.RED_STAINED_GLASS_PANE);
+            items[slot] = pane(items[slot].getItem() == Items.STAINED_GLASS_PANE.red());
             return true;
         }
 
         @Override
         public boolean solved() {
-            for (int s : slots) if (items[s].getItem() != Items.LIME_STAINED_GLASS_PANE) return false;
+            for (int s : slots) if (items[s].getItem() != Items.STAINED_GLASS_PANE.lime()) return false;
             return true;
         }
     }
 
     public static class Rubix extends Term {
         private final List<Integer> slots = List.of(12, 13, 14, 21, 22, 23, 30, 31, 32);
-        private final List<Pair<Item, String>> cycle = List.of(Pair.of(Items.RED_STAINED_GLASS_PANE, "Red"), Pair.of(Items.ORANGE_STAINED_GLASS_PANE, "Orange"), Pair.of(Items.YELLOW_STAINED_GLASS_PANE, "Yellow"), Pair.of(Items.GREEN_STAINED_GLASS_PANE, "Green"), Pair.of(Items.BLUE_STAINED_GLASS_PANE, "Blue"));
+        private final List<Pair<Item, String>> cycle = List.of(Pair.of(Items.STAINED_GLASS_PANE.red(), "Red"), Pair.of(Items.STAINED_GLASS_PANE.orange(), "Orange"), Pair.of(Items.STAINED_GLASS_PANE.yellow(), "Yellow"), Pair.of(Items.STAINED_GLASS_PANE.green(), "Green"), Pair.of(Items.STAINED_GLASS_PANE.blue(), "Blue"));
         private final int[] colour = new int[45];
 
         public Rubix() {
@@ -460,19 +460,19 @@ public final class Terminals {
         private void draw() {
             for (int i = 0; i < items.length; i++) items[i] = FILLER();
             int bottom = (LANES + 1) * 9;
-            for (int c = 1; c <= 5; c++) { items[c] = named(Items.BLACK_STAINED_GLASS_PANE, ""); items[bottom + c] = named(Items.BLACK_STAINED_GLASS_PANE, ""); }
-            items[target] = named(Items.MAGENTA_STAINED_GLASS_PANE, "");
-            items[bottom + target] = named(Items.MAGENTA_STAINED_GLASS_PANE, "");
+            for (int c = 1; c <= 5; c++) { items[c] = named(Items.STAINED_GLASS_PANE.black(), ""); items[bottom + c] = named(Items.STAINED_GLASS_PANE.black(), ""); }
+            items[target] = named(Items.STAINED_GLASS_PANE.magenta(), "");
+            items[bottom + target] = named(Items.STAINED_GLASS_PANE.magenta(), "");
             for (int r = 0; r < LANES; r++) {
                 for (int c = 1; c <= 5; c++) {
                     int slot = (r + 1) * 9 + c;
-                    if (r != row) items[slot] = named(Items.WHITE_STAINED_GLASS_PANE, "");
-                    else if (c == lime) items[slot] = named(Items.LIME_STAINED_GLASS_PANE, "");
-                    else items[slot] = named(Items.RED_STAINED_GLASS_PANE, "");
+                    if (r != row) items[slot] = named(Items.STAINED_GLASS_PANE.white(), "");
+                    else if (c == lime) items[slot] = named(Items.STAINED_GLASS_PANE.lime(), "");
+                    else items[slot] = named(Items.STAINED_GLASS_PANE.red(), "");
                 }
                 items[(r + 1) * 9 + 7] = r == row
-                    ? button(named(Items.LIME_TERRACOTTA, "Lock In Slot", 1, false, ChatFormatting.GREEN))
-                    : button(named(Items.RED_TERRACOTTA, "Row Not Active", 1, false, ChatFormatting.RED));
+                    ? button(named(Items.DYED_TERRACOTTA.lime(), "Lock In Slot", 1, false, ChatFormatting.GREEN))
+                    : button(named(Items.DYED_TERRACOTTA.red(), "Row Not Active", 1, false, ChatFormatting.RED));
             }
         }
 

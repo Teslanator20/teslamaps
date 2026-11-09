@@ -44,8 +44,8 @@ public final class RiftShyCrux {
             ArmorStand as = stands.get(i);
             if (as.distanceToSqr(mc.player) > 64) continue;
             if (!NAMES.contains(StringUtil.stripTrim(as.getName().getString()))) continue;
-            mc.gui.setTimes(0, 4, 0);
-            mc.gui.setTitle(TITLE);
+            mc.gui.hud.setTimes(0, 4, 0);
+            mc.gui.hud.setTitle(TITLE);
             return;
         }
     }

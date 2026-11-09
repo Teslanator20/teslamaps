@@ -153,7 +153,7 @@ public final class JacobContests {
 
     private static void scanCalendar() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen)) { scannedScreen = null; return; }
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) { scannedScreen = null; return; }
         if (screen != scannedScreen) { scannedScreen = screen; scanTicks = 0; }
         if (scanTicks++ % 20 != 10) return;
         Matcher title = MONTH.matcher(StringUtil.strip(screen.getTitle().getString()));
@@ -263,9 +263,9 @@ public final class JacobContests {
         String crops = cropList(start, e.getValue());
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §eNext farming contest in §f"
                 + (left / 1000 / 60) + "m§e: " + crops));
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(Component.literal("§eFarming Contest!"));
-        mc.gui.setSubtitle(Component.literal(crops));
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(Component.literal("§eFarming Contest!"));
+        mc.gui.hud.setSubtitle(Component.literal(crops));
         if (c.contestAlertVolume > 0f) LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume, 1.0f);
         if (c.contestCropWarnFlash && !mc.isWindowActive() && mc.getWindow() != null) {
             org.lwjgl.glfw.GLFW.glfwRequestWindowAttention(mc.getWindow().handle());

@@ -97,9 +97,9 @@ public final class FrogMask {
             if (!here.isEmpty() && !here.equalsIgnoreCase(region) && now - lastWarn > c.frogMaskWarnCooldown * 1000L
                     && (!c.frogMaskWarnForagingOnly || chopping)) {
                 lastWarn = now;
-                mc.gui.setTimes(0, 40, 10);
-                mc.gui.setSubtitle(Component.literal("§eFrog Mask boosts §a" + region));
-                mc.gui.setTitle(Component.literal("§cWrong Region!"));
+                mc.gui.hud.setTimes(0, 40, 10);
+                mc.gui.hud.setSubtitle(Component.literal("§eFrog Mask boosts §a" + region));
+                mc.gui.hud.setTitle(Component.literal("§cWrong Region!"));
             }
         }
 
@@ -124,7 +124,7 @@ public final class FrogMask {
         String t = text;
         if (t.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), t);
     }
 

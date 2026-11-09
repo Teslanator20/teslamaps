@@ -121,7 +121,7 @@ public final class OdgerHelper {
 
     private static void addTotal(ItemStack stack, List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen == null || !StringUtil.stripTrim(mc.screen.getTitle().getString()).equals("Trophy Fish")) return;
+        if (mc.gui.screen() == null || !StringUtil.stripTrim(mc.gui.screen().getTitle().getString()).equals("Trophy Fish")) return;
         int bronze = -1;
         boolean discovered = false;
         for (int i = 0; i < lines.size(); i++) {
@@ -147,7 +147,7 @@ public final class OdgerHelper {
         Trophy t = trophy(stack);
         if (t == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null && mc.screen.getTitle().getString().contains("Sack")) return;
+        if (mc.gui.screen() != null && mc.gui.screen().getTitle().getString().contains("Sack")) return;
         boolean shift = GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS;
         long value = (long) FILLET.get(t.key)[t.tier] * (shift ? stack.getCount() : 1);
         double coins = value * PriceManager.getPrice("MAGMA_FISH");

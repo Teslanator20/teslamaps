@@ -117,7 +117,7 @@ public final class ItemPickupLog {
         lastTick = now;
         ticks++;
 
-        if (mc.screen == null && (ticks % 4 == 0 || grace)) {
+        if (mc.gui.screen() == null && (ticks % 4 == 0 || grace)) {
             Map<String, Long> next = new HashMap<>();
             var inv = mc.player.getInventory();
             for (int i = 0; i < 36; i++) {
@@ -296,7 +296,7 @@ public final class ItemPickupLog {
         List<Row> l = rows;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l, rowsWidth);
     }
 

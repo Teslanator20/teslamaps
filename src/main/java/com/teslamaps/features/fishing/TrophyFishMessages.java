@@ -52,10 +52,10 @@ public final class TrophyFishMessages {
         if (tier == 2 && c.trophyFishGoldAlert || tier == 3 && c.trophyFishDiamondAlert) {
             Minecraft mc = Minecraft.getInstance();
             TrophyFishData.Fish f = TrophyFishData.byKey(TrophyFishData.lastKey);
-            mc.gui.setTimes(0, 50, 10);
-            mc.gui.setTitle(Component.literal((f == null ? "§f" : f.color()) + (f == null ? "" : f.display()) + " "
+            mc.gui.hud.setTimes(0, 50, 10);
+            mc.gui.hud.setTitle(Component.literal((f == null ? "§f" : f.color()) + (f == null ? "" : f.display()) + " "
                     + TrophyFishData.TIER_COLORS[tier] + "§l" + TrophyFishData.TIERS[tier] + " §8" + TrophyFishData.lastAmount + "§c!"));
-            mc.gui.setSubtitle(Component.literal(""));
+            mc.gui.hud.setSubtitle(Component.literal(""));
             if (c.trophyFishAlertSound && mc.player != null) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 2f);
         }
     }

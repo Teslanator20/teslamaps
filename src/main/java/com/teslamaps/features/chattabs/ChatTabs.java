@@ -130,7 +130,7 @@ public class ChatTabs {
         appliedHideSeparators = hideSep;
 
         Minecraft mc = Minecraft.getInstance();
-        ChatComponent chat = mc.gui.getChat();
+        ChatComponent chat = mc.gui.hud.getChat();
         if (nowEnabled) {
             Channel channel = selected;
             chat.setVisibleMessageFilter(message -> isVisible(channel, message) && com.teslamaps.features.ChatSearch.matches(message));
@@ -196,7 +196,7 @@ public class ChatTabs {
     }
 
     private static List<GuiMessage> allMessages() {
-        return ((ChatComponentAccessor) Minecraft.getInstance().gui.getChat()).teslamaps$getAllMessages();
+        return ((ChatComponentAccessor) Minecraft.getInstance().gui.hud.getChat()).teslamaps$getAllMessages();
     }
 
     // ---- layout ----

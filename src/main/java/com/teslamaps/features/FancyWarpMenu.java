@@ -70,10 +70,10 @@ public final class FancyWarpMenu {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !StringUtil.stripTrim(cs.getTitle().getString()).equals("Fast Travel")) {
             containerId = -1;
-            if (!(mc.screen instanceof AbstractContainerScreen<?>)) vanillaFor = -1;
+            if (!(mc.gui.screen() instanceof AbstractContainerScreen<?>)) vanillaFor = -1;
             return;
         }
         List<Slot> slots = cs.getMenu().slots;

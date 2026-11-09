@@ -90,7 +90,7 @@ public class RescueMission {
 
     // the quest board's "Rescue" menu carries the tier letter on the center item
     private static void readQuestBoard(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Rescue")) return;
 
         for (Slot slot : cs.getMenu().slots) {

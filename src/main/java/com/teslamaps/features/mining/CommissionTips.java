@@ -88,7 +88,7 @@ public final class CommissionTips {
             TeslaMapsConfig c = TeslaMapsConfig.get();
             if (c.commissionTips == null || c.commissionTips.equals("Off") || !c.commissionHighlight || !c.section("Inventory")) return;
             Minecraft mc = Minecraft.getInstance();
-            if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !cs.getTitle().getString().contains("Commissions")) return;
+            if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !cs.getTitle().getString().contains("Commissions")) return;
             if (c.commissionTips.equals("While Holding Shift") && !mc.hasShiftDown()) return;
             onTooltip(lines);
         });

@@ -14,7 +14,7 @@ public class TeslaGuiStyle {
 
     public static boolean active() {
         if (!TeslaMapsConfig.get().customTitleScreen) return false;
-        Screen screen = Minecraft.getInstance().screen;
+        Screen screen = Minecraft.getInstance().gui.screen();
         return screen instanceof TitleScreen || screen instanceof JoinMultiplayerScreen;
     }
 }

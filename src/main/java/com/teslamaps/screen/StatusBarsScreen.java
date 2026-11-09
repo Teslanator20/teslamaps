@@ -245,7 +245,7 @@ public class StatusBarsScreen extends Screen {
     @Override
     public void onClose() {
         TeslaMapsConfig.save();
-        if (parent != null) minecraft.setScreen(parent);
+        if (parent != null) minecraft.gui.setScreen(parent);
         else super.onClose();
     }
 

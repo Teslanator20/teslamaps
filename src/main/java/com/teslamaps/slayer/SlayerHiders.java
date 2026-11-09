@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Blaze;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 
 import java.util.HashMap;
 import java.util.List;
@@ -71,10 +71,10 @@ public final class SlayerHiders {
         if (++ticks % 20 == 0) inEnd = SkyblockUtils.isInArea("The End");
 
         if (c.slayerHideEndermanParticles && inEnd) {
-            List<EnderMan> list = EntityCache.byType(EnderMan.class);
+            List<Enderman> list = EntityCache.byType(Enderman.class);
             if (endermen.length < list.size() * 3) endermen = new double[list.size() * 3];
             int n = 0;
-            for (EnderMan e : list) {
+            for (Enderman e : list) {
                 endermen[n * 3] = e.getX();
                 endermen[n * 3 + 1] = e.getY() + 1.45;
                 endermen[n * 3 + 2] = e.getZ();

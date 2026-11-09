@@ -216,7 +216,7 @@ public final class GhostTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!inMist) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         tracker.draw(g, mc, c.ghostTrackerX, c.ghostTrackerY, c.ghostTrackerScale);
     }

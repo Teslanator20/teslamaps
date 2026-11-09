@@ -649,7 +649,7 @@ public class SkillTracker {
     }
 
     private static boolean inInventory() {
-        return Minecraft.getInstance().screen
+        return Minecraft.getInstance().gui.screen()
                 instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
     }
 

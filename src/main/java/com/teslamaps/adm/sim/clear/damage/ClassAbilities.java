@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.phys.Vec3;
 
@@ -278,7 +279,7 @@ public final class ClassAbilities {
                     List<MobRecord> near = new ArrayList<>(aliveMobsNear(sp.position(), 12.0));
                     KRandom.shuffle(near, KRandom.DEFAULT);
                     for (MobRecord m : near.subList(0, Math.min(3, near.size()))) {
-                        LightningBolt b = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
+                        LightningBolt b = new LightningBolt(EntityTypes.LIGHTNING_BOLT, level);
                         b.setVisualOnly(true);
                         b.snapTo(m.x, m.y, m.z, 0f, 0f);
                         level.addFreshEntity(b);

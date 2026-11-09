@@ -100,7 +100,7 @@ public final class DarkMonolith {
             if (found != null && !found.equals(lastFound)) {
                 lastFound = found;
                 if (cfg().darkMonolithTitle) {
-                    mc.gui.setTitle(Component.literal("§5§lDark Monolith found!"));
+                    mc.gui.hud.setTitle(Component.literal("§5§lDark Monolith found!"));
                     if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §5Dark Monolith found!"));
                 }
             }
@@ -177,7 +177,7 @@ public final class DarkMonolith {
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!inMines || !cfg().darkMonolithTracker || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         tracker.draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

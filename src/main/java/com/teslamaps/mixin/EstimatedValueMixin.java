@@ -19,7 +19,7 @@ import java.util.List;
 public abstract class EstimatedValueMixin {
     @Inject(method = "getTooltipLines", at = @At("RETURN"))
     private void teslamaps$tooltipExtras(Item.TooltipContext ctx, Player player, TooltipFlag flag, CallbackInfoReturnable<List<Component>> cir) {
-        if (net.minecraft.client.Minecraft.getInstance().screen == null) return;
+        if (net.minecraft.client.Minecraft.getInstance().gui.screen() == null) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         ItemStack stack = (ItemStack) (Object) this;
         try {

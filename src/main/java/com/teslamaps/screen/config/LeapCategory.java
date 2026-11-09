@@ -36,11 +36,11 @@ public final class LeapCategory {
         b.slider("Overlay Scale", 0.5f, 2.0f,
                 () -> config.leapScale, v -> config.leapScale = v);
         b.toggle("Leap Announce (/pc)", () -> config.leapAnnounce, v -> config.leapAnnounce = v);
-        b.button("  Edit Announce Text", () -> Minecraft.getInstance().setScreen(new LeapMessageScreen(Minecraft.getInstance().screen))).fresh();
+        b.button("  Edit Announce Text", () -> Minecraft.getInstance().gui.setScreen(new LeapMessageScreen(Minecraft.getInstance().gui.screen()))).fresh();
         b.dropdown("Sort Mode",
                 new String[]{"Odin", "Class A-Z", "Name A-Z", "Custom", "None"},
                 () -> config.leapSortMode, v -> config.leapSortMode = v);
-        b.button("Edit Custom Order", () -> Minecraft.getInstance().setScreen(new LeapOrderScreen()));
+        b.button("Edit Custom Order", () -> Minecraft.getInstance().gui.setScreen(new LeapOrderScreen()));
         b.dropdown("Keybind Mode",
                 new String[]{"Corners", "Class"}, () -> config.leapKeybindMode, v -> config.leapKeybindMode = v);
         b.label("Corner Keybinds");

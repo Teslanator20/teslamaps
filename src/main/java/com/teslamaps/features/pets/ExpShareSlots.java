@@ -55,7 +55,7 @@ public final class ExpShareSlots {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             lastScreen = null;
             inExpShare = inPets = false;
             return;
@@ -83,7 +83,7 @@ public final class ExpShareSlots {
     }
 
     private static Slot slotOf(ItemStack stack) {
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs)) return null;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> cs)) return null;
         for (int s : SLOTS) {
             if (s < cs.getMenu().slots.size() && cs.getMenu().getSlot(s).getItem() == stack) return cs.getMenu().getSlot(s);
         }

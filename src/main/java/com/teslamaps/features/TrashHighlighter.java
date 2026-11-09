@@ -51,11 +51,11 @@ public class TrashHighlighter {
     public static boolean shouldRender() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         return c.trashHighlighter && c.sellableHighlighter && c.section("Inventory")
-                && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+                && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     public static void render(GuiGraphicsExtractor ctx) {
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.trashFilters.isEmpty()) return;
         long now = System.currentTimeMillis();

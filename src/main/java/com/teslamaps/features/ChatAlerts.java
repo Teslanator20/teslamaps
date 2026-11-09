@@ -64,8 +64,8 @@ public final class ChatAlerts {
         Minecraft mc = Minecraft.getInstance();
         if (f.title != null && !f.title.isEmpty()) {
             String title = fill(f, line).replace('&', '§');
-            mc.gui.setTimes(5, 40, 10);
-            mc.gui.setTitle(Component.literal(title));
+            mc.gui.hud.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal(title));
         }
         if (f.sound != null && !f.sound.isEmpty()) LoudSound.play(SoundOptions.resolve(f.sound), 1f, 1f);
         if (f.flash) {

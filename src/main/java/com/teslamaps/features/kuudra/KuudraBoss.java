@@ -11,7 +11,7 @@ import com.teslamaps.render.gui.HudStyle;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Locale;
@@ -95,7 +95,7 @@ public final class KuudraBoss {
         String t = hpText;
         if (t == null || hud == null || !cfg().kuuBossHpHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), t);
     }
 

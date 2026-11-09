@@ -264,7 +264,7 @@ public class ChatCommands {
             Minecraft mc = Minecraft.getInstance();
             com.teslamaps.features.Announce.party(out);
             if (mc.player != null) mc.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§b[TeslaMaps] §c" + out));
-            mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§cPlayers need DT"));
+            mc.gui.hud.setTitle(net.minecraft.network.chat.Component.literal("§cPlayers need DT"));
         });
     }
 

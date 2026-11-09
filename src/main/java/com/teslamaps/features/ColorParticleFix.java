@@ -28,7 +28,7 @@ public final class ColorParticleFix {
         if (!(opt instanceof ColorParticleOption c)) return opt;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.colorParticleFix || !cfg.section("Render") || !SkyblockUtils.isInSkyblock()) return opt;
-        int color = ARGB.colorFromFloat(c.getAlpha(), clamp(1 - p.getXDist()), clamp(1 - p.getZDist()), clamp(1 - p.getYDist()));
+        int color = ARGB.colorFromFloat(c.getAlpha(), clamp(1 - p.xDist()), clamp(1 - p.zDist()), clamp(1 - p.yDist()));
         return ColorParticleOption.create(c.getType(), color);
     }
 

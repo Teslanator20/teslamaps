@@ -79,7 +79,7 @@ public final class FishingProgressHud {
             save();
         }
         if (++ticks % 10 != 0) return;
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             for (Slot s : cs.getMenu().slots) {
                 ItemStack st = s.getItem();
                 if (st.isEmpty()) continue;
@@ -158,7 +158,7 @@ public final class FishingProgressHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

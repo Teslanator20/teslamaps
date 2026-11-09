@@ -71,7 +71,7 @@ public final class SoundsCategory {
         b.label("Sound Manager");
         b.toggle("Sound Manager (volume per sound)", () -> config.soundManager, v -> config.soundManager = v);
         b.button("  Open Sound Manager", () -> net.minecraft.client.Minecraft.getInstance()
-                .setScreen(new com.teslamaps.screen.SoundManagerScreen(b.screen())));
+                .gui.setScreen(new com.teslamaps.screen.SoundManagerScreen(b.screen())));
         b.info("Recent tab lists the last 100 played sounds");
         b.label("Sound & Particle Tracker");
         b.info("/tmap tracksounds [seconds|end|ignore <id>]");

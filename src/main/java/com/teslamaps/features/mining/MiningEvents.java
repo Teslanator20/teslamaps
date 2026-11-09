@@ -92,7 +92,7 @@ public final class MiningEvents {
         on = Mining.onMiningIsland();
         if (!on) { lines = List.of(); return; }
         long now = System.currentTimeMillis();
-        var events = ((com.teslamaps.mixin.BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        var events = ((com.teslamaps.mixin.BossHealthOverlayAccessor) mc.gui.hud.getBossOverlay()).teslamaps$getEvents();
         if (events != null) {
             for (LerpingBossEvent ev : events.values()) {
                 if (ev.getName() == null) continue;
@@ -126,9 +126,9 @@ public final class MiningEvents {
             long left = (end - now + 999) / 1000;
             if (left <= 0 || left > cfg().miningEventsWarnSeconds || now - lastWarn < 900) continue;
             lastWarn = now;
-            mc.gui.setTimes(0, 25, 0);
-            mc.gui.setTitle(Component.literal("§c" + StringUtil.strip(name(ev)) + " ending in §a" + left + "s"));
-            mc.gui.setSubtitle(Component.empty());
+            mc.gui.hud.setTimes(0, 25, 0);
+            mc.gui.hud.setTitle(Component.literal("§c" + StringUtil.strip(name(ev)) + " ending in §a" + left + "s"));
+            mc.gui.hud.setSubtitle(Component.empty());
         }
     }
 
@@ -199,7 +199,7 @@ public final class MiningEvents {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!on || lines.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines);
     }
 

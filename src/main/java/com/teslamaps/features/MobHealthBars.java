@@ -136,7 +136,7 @@ public final class MobHealthBars {
         if (l.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        Quaternionf rot = mc.gameRenderer.getMainCamera().rotation();
+        Quaternionf rot = mc.gameRenderer.mainCamera().rotation();
         rot.transform(RIGHT.set(1, 0, 0));
         rot.transform(UP.set(0, 1, 0));
         float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);

@@ -305,7 +305,7 @@ public class FlareMode {
     // arrives from the Bestiary menu - open it once and the panel has an absolute count.
     private static void readMenu() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
         if (!MENU_TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
 
         String want = mob();
@@ -426,7 +426,7 @@ public class FlareMode {
     }
 
     private static boolean inInventory() {
-        return Minecraft.getInstance().screen
+        return Minecraft.getInstance().gui.screen()
                 instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
     }
 

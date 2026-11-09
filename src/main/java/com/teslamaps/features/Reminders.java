@@ -244,9 +244,9 @@ public class Reminders {
         com.teslamaps.utils.TickScheduler.schedule(3, () -> LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f));
         com.teslamaps.utils.TickScheduler.schedule(6, () -> LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f));
         if (c.remindersTitle) {
-            mc.gui.setTimes(5, 60, 10);
-            mc.gui.setTitle(Component.literal(fired.size() == 1 ? "§cReminder!" : "§c" + fired.size() + " Reminders!"));
-            mc.gui.setSubtitle(Component.literal(fired.size() == 1 ? "§e" + fired.get(0).text : ""));
+            mc.gui.hud.setTimes(5, 60, 10);
+            mc.gui.hud.setTitle(Component.literal(fired.size() == 1 ? "§cReminder!" : "§c" + fired.size() + " Reminders!"));
+            mc.gui.hud.setSubtitle(Component.literal(fired.size() == 1 ? "§e" + fired.get(0).text : ""));
         }
     }
 
@@ -270,7 +270,7 @@ public class Reminders {
         List<String> lines = hudLines;
         if (!cfg().reminderHud || lines.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, hudWidth);
     }
 

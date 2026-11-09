@@ -234,7 +234,7 @@ public class SafariESP {
     private static SafariData.Critter hiddenCritter(Entity e, SafariData.Biome here) {
         if (here == SafariData.Biome.FOREST) {
             if (e instanceof Shulker s && s.getColor() == DyeColor.GREEN) return SafariData.byName("Hideonfloor");
-            if (e instanceof Display.ItemDisplay id && itemOf(id).is(Items.GREEN_SHULKER_BOX)) {
+            if (e instanceof Display.ItemDisplay id && itemOf(id).is(Items.DYED_SHULKER_BOX.green())) {
                 return SafariData.byName("Hideonfloor");
             }
             return null;
@@ -244,7 +244,7 @@ public class SafariESP {
         // three-tick interpolation is a Duplico
         if (e instanceof Display.ItemDisplay id && id.getPosRotInterpolationDuration() == 3) {
             ItemStack stack = itemOf(id);
-            if (!stack.is(Items.PLAYER_HEAD) && !stack.is(Items.PURPLE_SHULKER_BOX)) {
+            if (!stack.is(Items.PLAYER_HEAD) && !stack.is(Items.DYED_SHULKER_BOX.purple())) {
                 return SafariData.byName("Duplico");
             }
         }

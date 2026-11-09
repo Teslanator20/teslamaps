@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -66,8 +66,8 @@ public final class KuudraAlerts {
     static void title(String text, boolean sound) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui == null) return;
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal(text));
         if (sound) mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_PLING.value(), 2.0f, 1.0f));
     }
 
@@ -159,8 +159,8 @@ public final class KuudraAlerts {
         boolean changed = !side.equals(lastSide);
         lastSide = side;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 25, 5);
-        mc.gui.setTitle(Component.literal(side));
+        mc.gui.hud.setTimes(0, 25, 5);
+        mc.gui.hud.setTitle(Component.literal(side));
         if (changed) mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_PLING.value(), 2.0f, 1.0f));
     }
 }

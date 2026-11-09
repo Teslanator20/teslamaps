@@ -134,12 +134,12 @@ public class SackApi {
     private static void tick() {
         if (++ticks % 600 == 0) save();
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             lastScreen = null;
             return;
         }
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             openedMs = System.currentTimeMillis();
         }
         if (ticks % 10 != 0 || System.currentTimeMillis() - openedMs < 500) return;

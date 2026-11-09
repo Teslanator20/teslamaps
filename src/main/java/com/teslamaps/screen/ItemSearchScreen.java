@@ -164,7 +164,7 @@ public class ItemSearchScreen extends Screen {
             if (event.button() == 1 && com.teslamaps.config.TeslaMapsConfig.get().itemSearchGfsClick
                     && row.where().stream().anyMatch(w -> ItemIndex.SACKS.equals(w.type()))) {
                 String id = com.teslamaps.utils.ItemUtil.skyblockId(row.stack());
-                minecraft.setScreen(new net.minecraft.client.gui.screens.ChatScreen("/gfs " + (id.isEmpty() ? row.name() : id) + " ", false));
+                minecraft.gui.setScreen(new net.minecraft.client.gui.screens.ChatScreen("/gfs " + (id.isEmpty() ? row.name() : id) + " ", false));
                 return true;
             }
             if (event.button() == 2) {

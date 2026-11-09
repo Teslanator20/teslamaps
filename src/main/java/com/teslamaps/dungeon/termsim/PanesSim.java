@@ -27,8 +27,8 @@ public class PanesSim extends TermSimGUI {
         return stack;
     }
 
-    private static ItemStack greenPane() { return pane(Items.LIME_STAINED_GLASS_PANE); }
-    private static ItemStack redPane() { return pane(Items.RED_STAINED_GLASS_PANE); }
+    private static ItemStack greenPane() { return pane(Items.STAINED_GLASS_PANE.lime()); }
+    private static ItemStack redPane() { return pane(Items.STAINED_GLASS_PANE.red()); }
 
     @Override
     public void create() {
@@ -44,11 +44,11 @@ public class PanesSim extends TermSimGUI {
 
     @Override
     public void slotClick(Slot slot, int button) {
-        setSlot(slot, slot.getItem().getItem() == Items.RED_STAINED_GLASS_PANE ? greenPane() : redPane());
+        setSlot(slot, slot.getItem().getItem() == Items.STAINED_GLASS_PANE.red() ? greenPane() : redPane());
 
         boolean anyRed = false;
         for (Slot s : guiInventorySlots()) {
-            if (s.getItem().getItem() == Items.RED_STAINED_GLASS_PANE) { anyRed = true; break; }
+            if (s.getItem().getItem() == Items.STAINED_GLASS_PANE.red()) { anyRed = true; break; }
         }
         if (!anyRed) onComplete(TerminalUtils.getLastTermOpened());
 

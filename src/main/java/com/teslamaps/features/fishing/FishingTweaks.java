@@ -44,12 +44,12 @@ public final class FishingTweaks {
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.hideOtherBobbers || !c.hideOtherBobberParticles) return false;
-        if (p.getParticle().getType() != ParticleTypes.FISHING || !on()) return false;
+        if (p.particle().getType() != ParticleTypes.FISHING || !on()) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return false;
         FishingHook own = mc.player.fishing;
         if (own == null) return true;
-        double dx = own.getX() - p.getX(), dz = own.getZ() - p.getZ();
+        double dx = own.x() - p.x(), dz = own.z() - p.z();
         return dx * dx + dz * dz > 36;
     }
 

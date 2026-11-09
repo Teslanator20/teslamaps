@@ -73,7 +73,7 @@ public class CompactorPreview {
         com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
         if (!c.compactorPreview || !c.compactorStatusIcon) return;
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (!(mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
         com.teslamaps.mixin.HandledScreenAccessor acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
         for (net.minecraft.world.inventory.Slot slot : cs.getMenu().slots) {
             int s = status(slot.getItem());

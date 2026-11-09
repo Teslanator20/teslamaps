@@ -76,7 +76,7 @@ public final class InfernoMinion {
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!cfg().infernoFuelBlocker || containerId == -1) return;
             Minecraft mc = Minecraft.getInstance();
-            if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != containerId) return;
+            if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != containerId) return;
             Slot s = ((HandledScreenAccessor) cs).getFocusedSlot();
             if (s == null || s.getItem() != stack || !hasFuel(cs)) return;
             if (s.index == FUEL_SLOT) {
@@ -96,7 +96,7 @@ public final class InfernoMinion {
     }
 
     private static String fuelId(ItemStack s) {
-        if (s.isEmpty() || s.is(Items.BLACK_STAINED_GLASS_PANE) || s.is(Items.GRAY_STAINED_GLASS_PANE)) return null;
+        if (s.isEmpty() || s.is(Items.STAINED_GLASS_PANE.black()) || s.is(Items.STAINED_GLASS_PANE.gray())) return null;
         String name = StringUtil.stripTrim(s.getHoverName().getString());
         String id = ItemUtil.skyblockId(s);
         if (id.isEmpty()) {
@@ -124,9 +124,9 @@ public final class InfernoMinion {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean open = mc.screen instanceof AbstractContainerScreen<?> cs && isInferno(cs);
+        boolean open = mc.gui.screen() instanceof AbstractContainerScreen<?> cs && isInferno(cs);
         if (open) {
-            AbstractContainerScreen<?> cs = (AbstractContainerScreen<?>) mc.screen;
+            AbstractContainerScreen<?> cs = (AbstractContainerScreen<?>) mc.gui.screen();
             boolean fresh = cs.getMenu().containerId != containerId;
             containerId = cs.getMenu().containerId;
             if (cfg().infernoProfitTracker) trackMenu(mc, cs, fresh);

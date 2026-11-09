@@ -75,16 +75,16 @@ public final class HotmPlanner {
 
     private static void open(boolean forest) {
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(new PlannerScreen(mc.screen, forest));
+        mc.gui.setScreen(new PlannerScreen(mc.gui.screen(), forest));
     }
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             ticks = 0;
         }
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || ++ticks % 10 != 0) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || ++ticks % 10 != 0) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         boolean forest = title.startsWith("Heart of the Forest");
         if (!forest && !title.startsWith("Heart of the Mountain")) return;
@@ -336,7 +336,7 @@ public final class HotmPlanner {
         @Override
         public void onClose() {
             TeslaMapsConfig.save();
-            Minecraft.getInstance().setScreen(parent);
+            Minecraft.getInstance().gui.setScreen(parent);
         }
 
         @Override

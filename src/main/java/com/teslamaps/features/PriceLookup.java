@@ -37,7 +37,7 @@ public final class PriceLookup {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean screen = mc.screen instanceof AbstractContainerScreen<?>;
+        boolean screen = mc.gui.screen() instanceof AbstractContainerScreen<?>;
         boolean down = screen && KeyNames.isDown(cfg().priceLookupKey);
         boolean recipe = screen && KeyNames.isDown(cfg().priceLookupRecipeKey);
         if (down && !wasDown) lookup(mc, false);
@@ -47,7 +47,7 @@ public final class PriceLookup {
     }
 
     private static void lookup(Minecraft mc, boolean recipe) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null || mc.getConnection() == null) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null || mc.getConnection() == null) return;
         Slot slot = ((com.teslamaps.mixin.HandledScreenAccessor) cs).getFocusedSlot();
         if (slot == null || slot.getItem().isEmpty()) return;
         ItemStack stack = slot.getItem();

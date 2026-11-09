@@ -191,8 +191,8 @@ public class SkillOverflow {
 
     private static String screenTitle() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen == null) return "";
-        return strip(mc.screen.getTitle().getString()).trim();
+        if (mc.gui.screen() == null) return "";
+        return strip(mc.gui.screen().getTitle().getString()).trim();
     }
 
     private static String bar(long current, long needed) {

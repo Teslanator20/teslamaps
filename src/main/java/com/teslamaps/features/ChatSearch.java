@@ -97,7 +97,7 @@ public final class ChatSearch {
     private static int apply(String q) {
         String t = q.trim().toLowerCase(Locale.ROOT);
         tokens = t.isEmpty() ? new String[0] : t.split("\\s+");
-        ChatComponent chat = Minecraft.getInstance().gui.getChat();
+        ChatComponent chat = Minecraft.getInstance().gui.hud.getChat();
         boolean tabs = ChatTabs.isFilterApplied();
         ChatTabs.Channel ch = ChatTabs.selected();
         chat.setVisibleMessageFilter(m -> (!tabs || ChatTabs.isVisible(ch, m)) && matches(m));
@@ -116,7 +116,7 @@ public final class ChatSearch {
         if (ChatTabs.isFilterApplied()) {
             ChatTabs.reapply();
         } else {
-            ChatComponent chat = Minecraft.getInstance().gui.getChat();
+            ChatComponent chat = Minecraft.getInstance().gui.hud.getChat();
             chat.setVisibleMessageFilter(m -> true);
             chat.resetChatScroll();
         }

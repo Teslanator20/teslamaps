@@ -18,10 +18,10 @@ public final class MenuSkyboxCategory {
                 () -> config.quickJoinButton, v -> config.quickJoinButton = v).fresh()
                 .desc("Halves the vanilla Multiplayer button and puts a Join button for the IP below next to it. Resource pack is accepted without the prompt.");
         b.button("  Server IP: " + (config.quickJoinIp == null || config.quickJoinIp.isBlank() ? "mc.hypixel.net" : config.quickJoinIp),
-                () -> Minecraft.getInstance().setScreen(new TextPromptScreen("Quick Join IP", ip -> {
+                () -> Minecraft.getInstance().gui.setScreen(new TextPromptScreen("Quick Join IP", ip -> {
                     config.quickJoinIp = ip;
                     TeslaMapsConfig.save();
-                    Minecraft.getInstance().setScreen(MapConfigScreen.open(b.screen().view()));
+                    Minecraft.getInstance().gui.setScreen(MapConfigScreen.open(b.screen().view()));
                 }))).fresh()
                 .desc("Also used by the Hypixel button of the custom title screen. Empty = mc.hypixel.net.");
         b.toggle("Custom Loading Screen",

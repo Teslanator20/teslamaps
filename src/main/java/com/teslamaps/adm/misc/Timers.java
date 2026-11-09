@@ -138,7 +138,7 @@ public final class Timers {
                 .preview((g, mc, x, y, s) -> draw(g, x, y, s, sample));
         Feature.of("AdmTimers." + prefix).section(Adm.SECTION).when(() -> cfg().admTimers && on.getAsBoolean())
                 .hudHiddenInInventory(prefix.toLowerCase(Locale.ROOT), (g, d) -> {
-                    if (Minecraft.getInstance().options.hideGui) return;
+                    if (Minecraft.getInstance().gui.hud.isHidden()) return;
                     String s = live.get();
                     if (s != null) draw(g, el.x(), el.y(), el.scale(), s);
                 });

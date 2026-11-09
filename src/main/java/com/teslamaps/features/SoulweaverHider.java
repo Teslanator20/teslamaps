@@ -76,14 +76,14 @@ public class SoulweaverHider {
     public static boolean hideParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
         if (!ORB_SOURCES.isEmpty() && hideOrbParticle(p)) return true;
         if (PARTICLE_SOURCES.isEmpty() || !TeslaMapsConfig.get().hideDungeonItemParticles) return false;
-        var type = p.getParticle().getType();
+        var type = p.particle().getType();
         if (type != net.minecraft.core.particles.ParticleTypes.FIREWORK && type != net.minecraft.core.particles.ParticleTypes.DUST) return false;
         long now = System.currentTimeMillis();
         var it = PARTICLE_SOURCES.entrySet().iterator();
         while (it.hasNext()) {
             var e = it.next();
             if (now - e.getValue() > 100) { it.remove(); continue; }
-            if (e.getKey().distanceToSqr(p.getX(), p.getY(), p.getZ()) < 4) return true;
+            if (e.getKey().distanceToSqr(p.x(), p.y(), p.z()) < 4) return true;
         }
         return false;
     }
@@ -91,16 +91,16 @@ public class SoulweaverHider {
     // Devonian HideHealerOrbs: orb trail dust within 8 blocks of an orb
     private static boolean hideOrbParticle(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket p) {
         if (!TeslaMapsConfig.get().hideHealerOrbParticles) { ORB_SOURCES.clear(); return false; }
-        if (p.getParticle().getType() != net.minecraft.core.particles.ParticleTypes.DUST
-                || p.getCount() != 0 || !p.isOverrideLimiter() || !p.alwaysShow()) return false;
+        if (p.particle().getType() != net.minecraft.core.particles.ParticleTypes.DUST
+                || p.count() != 0 || !p.overrideLimiter() || !p.alwaysShow()) return false;
         long now = System.currentTimeMillis();
         var it = ORB_SOURCES.entrySet().iterator();
         while (it.hasNext()) {
             var e = it.next();
             ArmorStand s = e.getKey();
             if (s.isRemoved() || now - e.getValue() > 2000) { it.remove(); continue; }
-            if (Math.abs(p.getX() - s.getX()) < 8 && Math.abs(p.getY() - (s.getY() + 2)) < 8
-                    && Math.abs(p.getZ() - s.getZ()) < 8) return true;
+            if (Math.abs(p.x() - s.x()) < 8 && Math.abs(p.y() - (s.y() + 2)) < 8
+                    && Math.abs(p.z() - s.z()) < 8) return true;
         }
         return false;
     }

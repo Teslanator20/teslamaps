@@ -255,7 +255,7 @@ public final class Tracker {
         if (dirty && System.currentTimeMillis() - dirtySince > SAVE_DELAY) save();
         boolean interactive = com.teslamaps.config.TeslaMapsConfig.get().trackerInteractive;
         boolean edit = interactive
-                && Minecraft.getInstance().screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>;
+                && Minecraft.getInstance().gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>;
         if (edit != editMode) { editMode = edit; changed = true; }
         if (interactive && !lastAdded.isEmpty()) {
             long now = System.currentTimeMillis();

@@ -128,10 +128,10 @@ public final class HotxPerkCurrency {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             tree = 0;
-            if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+            if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
                 String t = StringUtil.stripTrim(cs.getTitle().getString());
                 if (t.contains("Heart of the Mountain")) tree = cfg().section("Mining") ? 1 : 0;
                 else if (t.contains("Heart of the Forest")) tree = cfg().section("Foraging") ? 2 : 0;
@@ -139,7 +139,7 @@ public final class HotxPerkCurrency {
             ticks = 9;
         }
         if (tree == 0 || ++ticks % 10 != 0) return;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String heart = tree == 1 ? "Heart of the Mountain" : "Heart of the Forest";
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;
@@ -166,7 +166,7 @@ public final class HotxPerkCurrency {
 
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) return;
+        if (mc.gui.screen() != lastScreen) return;
         Built b = CACHE.get(stack);
         if (b == null) {
             b = build(stack);

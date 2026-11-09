@@ -66,7 +66,7 @@ public class SearchOverlay {
             if (mc.getConnection() != null) mc.getConnection().send(new ServerboundChatCommandPacket(line));
             return 1;
         }
-        mc.schedule(() -> mc.setScreen(new SearchOverlayScreen(null, null, location, text)));
+        mc.schedule(() -> mc.gui.setScreen(new SearchOverlayScreen(null, null, location, text)));
         return 1;
     }
 
@@ -82,7 +82,7 @@ public class SearchOverlay {
         Location location = title.contains("Bazaar") ? Location.BAZAAR
                 : title.contains("Auction") ? Location.AUCTION : null;
         if (location == null) return false;
-        mc.setScreen(new SearchOverlayScreen(null, null, location, ""));
+        mc.gui.setScreen(new SearchOverlayScreen(null, null, location, ""));
         return true;
     }
 
@@ -113,7 +113,7 @@ public class SearchOverlay {
                     var acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
                     net.fabricmc.fabric.api.client.screen.v1.Screens.getWidgets(screen).add(new com.teslamaps.screen.TeslaButton(
                             acc.getX() + acc.getImageWidth() - 80, acc.getY() - 20, 80, 16, "§fRecipe Search",
-                            () -> mc.setScreen(new SearchOverlayScreen(null, null, Location.RECIPE,
+                            () -> mc.gui.setScreen(new SearchOverlayScreen(null, null, Location.RECIPE,
                                     TeslaMapsConfig.get().searchOverlayKeepText && !history(Location.RECIPE).isEmpty()
                                             ? history(Location.RECIPE).getFirst() : ""))));
                 }

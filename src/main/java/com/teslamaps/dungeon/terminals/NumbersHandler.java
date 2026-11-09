@@ -19,7 +19,7 @@ public class NumbersHandler extends TerminalHandler {
         if (inf != null) return inf;
         List<Integer> out = new ArrayList<>();
         for (int i = 0; i < slots.size(); i++) {
-            if (slots.get(i).getItem().getItem() == Items.RED_STAINED_GLASS_PANE) out.add(i);
+            if (slots.get(i).getItem().getItem() == Items.STAINED_GLASS_PANE.red()) out.add(i);
         }
         out.sort((a, b) -> Integer.compare(slots.get(a).getItem().getCount(), slots.get(b).getItem().getCount()));
         return out;

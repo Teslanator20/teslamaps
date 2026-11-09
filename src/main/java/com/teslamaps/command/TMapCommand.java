@@ -111,7 +111,7 @@ public class TMapCommand {
         dispatcher.register(ClientCommands.literal("tmap")
                 .executes(context -> {
                     Minecraft.getInstance().schedule(() -> {
-                        Minecraft.getInstance().setScreen(MapConfigScreen.open());
+                        Minecraft.getInstance().gui.setScreen(MapConfigScreen.open());
                     });
                     return 1;
                 })
@@ -158,7 +158,7 @@ public class TMapCommand {
                 .then(ClientCommands.literal("screenshots")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.ScreenshotScreen(null)));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.ScreenshotScreen(null)));
                             return 1;
                         })
                         // the chat buttons under a saved screenshot run these
@@ -200,7 +200,7 @@ public class TMapCommand {
                 .then(ClientCommands.literal("cape")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.CapeScreen(null)));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.CapeScreen(null)));
                             return 1;
                         })
                         .then(ClientCommands.literal("off")
@@ -337,20 +337,20 @@ public class TMapCommand {
                 .then(ClientCommands.literal("gui")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> {
-                                Minecraft.getInstance().setScreen(new HudEditScreen(null));
+                                Minecraft.getInstance().gui.setScreen(new HudEditScreen(null));
                             });
                             return 1;
                         }))
                 .then(ClientCommands.literal("mobs")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> Minecraft.getInstance()
-                                    .setScreen(new com.teslamaps.screen.MobVisualScreen(null)));
+                                    .gui.setScreen(new com.teslamaps.screen.MobVisualScreen(null)));
                             return 1;
                         }))
                 .then(ClientCommands.literal("buttons")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() -> Minecraft.getInstance()
-                                    .setScreen(new com.teslamaps.screen.InventoryButtonEditorScreen(null)));
+                                    .gui.setScreen(new com.teslamaps.screen.InventoryButtonEditorScreen(null)));
                             return 1;
                         }))
                 .then(ClientCommands.literal("pcmd")
@@ -594,7 +594,7 @@ public class TMapCommand {
                         .then(ClientCommands.literal("gui")
                                 .executes(context -> {
                                     Minecraft.getInstance().schedule(() ->
-                                            Minecraft.getInstance().setScreen(new com.teslamaps.screen.SafariScreen(null)));
+                                            Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.SafariScreen(null)));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("missing")
@@ -813,7 +813,7 @@ public class TMapCommand {
                         .then(ClientCommands.literal("presets")
                                 .executes(context -> {
                                     Minecraft.getInstance().schedule(() -> Minecraft.getInstance()
-                                            .setScreen(new com.teslamaps.screen.GreenhousePresetsScreen(null)));
+                                            .gui.setScreen(new com.teslamaps.screen.GreenhousePresetsScreen(null)));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("preset")
@@ -999,7 +999,7 @@ public class TMapCommand {
                                 .then(ClientCommands.argument("token", StringArgumentType.word())
                                         .executes(context -> {
                                             String token = StringArgumentType.getString(context, "token");
-                                            Minecraft.getInstance().gui.getChat().addClientSystemMessage(Component.literal(
+                                            Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(Component.literal(
                                                     "§9Party §8> §b[MVP§c+§b] §fffnn§f: §f"
                                                             + com.teslamaps.features.ImageShare.TAG + " " + token));
                                             return 1;
@@ -1449,7 +1449,7 @@ public class TMapCommand {
                 .then(ClientCommands.literal("esp")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.EspListScreen()));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.EspListScreen()));
                             return 1;
                         })
                         .then(ClientCommands.literal("add")
@@ -1535,7 +1535,7 @@ public class TMapCommand {
                 .then(ClientCommands.literal("hotkeys")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.KeybindMessageScreen()));
                             return 1;
                         })
                         .then(ClientCommands.argument("message", StringArgumentType.greedyString())
@@ -1549,13 +1549,13 @@ public class TMapCommand {
                 .then(ClientCommands.literal("shortcut")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.ShortcutScreen()));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.ShortcutScreen()));
                             return 1;
                         }))
                 .then(ClientCommands.literal("waypoints")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointRoutesScreen()));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.WaypointRoutesScreen()));
                             return 1;
                         })
                         .then(ClientCommands.literal("reload")
@@ -1572,7 +1572,7 @@ public class TMapCommand {
                         .then(ClientCommands.literal("packs")
                                 .executes(context -> {
                                     Minecraft.getInstance().schedule(() ->
-                                            Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointPackScreen(null)));
+                                            Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.WaypointPackScreen(null)));
                                     return 1;
                                 }))
                         .then(ClientCommands.literal("edit")
@@ -1700,7 +1700,7 @@ public class TMapCommand {
                 .then(ClientCommands.literal("route")
                         .executes(context -> {
                             Minecraft.getInstance().schedule(() ->
-                                    Minecraft.getInstance().setScreen(new com.teslamaps.screen.WaypointRoutesScreen()));
+                                    Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.WaypointRoutesScreen()));
                             return 1;
                         })
                         .then(ClientCommands.literal("load")
@@ -2223,19 +2223,19 @@ public class TMapCommand {
 
     private static int openSearch(String query) {
         Minecraft.getInstance().schedule(() ->
-                Minecraft.getInstance().setScreen(new com.teslamaps.screen.ItemSearchScreen(query)));
+                Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.ItemSearchScreen(query)));
         return 1;
     }
 
     private static int openFeedback(boolean bug, String text) {
         Minecraft.getInstance().schedule(() ->
-                Minecraft.getInstance().setScreen(new com.teslamaps.screen.FeedbackScreen(bug, text)));
+                Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.FeedbackScreen(bug, text)));
         return 1;
     }
 
     private static int openNpcFinder(String query) {
         Minecraft.getInstance().schedule(() ->
-                Minecraft.getInstance().setScreen(new com.teslamaps.screen.NpcFinderScreen(query)));
+                Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.NpcFinderScreen(query)));
         return 1;
     }
 
@@ -2444,7 +2444,7 @@ public class TMapCommand {
             source.sendFeedback(Component.literal("§c[TeslaMaps] Join a world first"));
             return 0;
         }
-        mc.schedule(() -> mc.setScreen(new com.teslamaps.screen.customize.CustomizeScreen(null, itemTab)));
+        mc.schedule(() -> mc.gui.setScreen(new com.teslamaps.screen.customize.CustomizeScreen(null, itemTab)));
         return 1;
     }
 

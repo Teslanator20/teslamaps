@@ -81,6 +81,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
@@ -1302,7 +1303,7 @@ public final class SimItems {
             String id = idOf(stack);
             if (id == null) return InteractionResult.PASS;
             if (simClient(level)) {
-                if (id.equals("SKYBLOCK_MENU")) { Minecraft mc = Minecraft.getInstance(); mc.execute(() -> mc.setScreen(new SimRestartScreen())); return InteractionResult.FAIL; }
+                if (id.equals("SKYBLOCK_MENU")) { Minecraft mc = Minecraft.getInstance(); mc.execute(() -> mc.gui.setScreen(new SimRestartScreen())); return InteractionResult.FAIL; }
                 return InteractionResult.PASS;
             }
             if (!simServer(level) || !(player instanceof ServerPlayer sp)) return InteractionResult.PASS;
@@ -1321,7 +1322,7 @@ public final class SimItems {
             if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
             String id = idOf(player.getItemInHand(hand));
             if (simClient(level)) {
-                if ("SKYBLOCK_MENU".equals(id)) { Minecraft mc = Minecraft.getInstance(); mc.execute(() -> mc.setScreen(new SimRestartScreen())); return InteractionResult.FAIL; }
+                if ("SKYBLOCK_MENU".equals(id)) { Minecraft mc = Minecraft.getInstance(); mc.execute(() -> mc.gui.setScreen(new SimRestartScreen())); return InteractionResult.FAIL; }
                 return InteractionResult.PASS;
             }
             if (!simServer(level) || !(player instanceof ServerPlayer sp)) return InteractionResult.PASS;
@@ -1380,7 +1381,7 @@ public final class SimItems {
         if (player == null) return;
         ClientLevel level = mc.level;
         if (level == null) return;
-        if (mc.screen != null || player.isUsingItem() || !simClient(level) || !"DUNGEONBREAKER".equals(idOf(player.getMainHandItem()))) return;
+        if (mc.gui.screen() != null || player.isUsingItem() || !simClient(level) || !"DUNGEONBREAKER".equals(idOf(player.getMainHandItem()))) return;
         if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK) player.swing(InteractionHand.MAIN_HAND, false);
     }
 
@@ -1960,7 +1961,7 @@ public final class SimItems {
         FireworkRocketEntity fw = new FireworkRocketEntity(Sim.level(), b32.x, b32.y, b32.z, rocket);
         ServerGamePacketListenerImpl conn = p.connection;
         conn.send(new ClientboundAddEntityPacket(fw.getId(), fw.getUUID(), b32.x, b32.y, b32.z, 0f, 0f,
-            EntityType.FIREWORK_ROCKET, 0, Vec3.ZERO, 0.0));
+            EntityTypes.FIREWORK_ROCKET, 0, Vec3.ZERO, 0.0));
         List<SynchedEntityData.DataValue<?>> data = fw.getEntityData().getNonDefaultValues();
         if (data != null) conn.send(new ClientboundSetEntityDataPacket(fw.getId(), data));
         conn.send(new ClientboundEntityEventPacket(fw, (byte) 17));
@@ -2120,7 +2121,7 @@ public final class SimItems {
     private static final PerPlayer<Double> veilAngle = new PerPlayer<>(() -> 0.0);
 
     public static class VeilCreeper extends Creeper {
-        public VeilCreeper(Level level) { super(EntityType.CREEPER, level); }
+        public VeilCreeper(Level level) { super(EntityTypes.CREEPER, level); }
 
         @Override public void checkDespawn() {}
         @Override public boolean isPickable() { return false; }
@@ -2140,7 +2141,7 @@ public final class SimItems {
             VeilCreeper e = new VeilCreeper(Sim.level());
             e.setNoAi(true); e.setSilent(true); e.setInvulnerable(true); e.setNoGravity(true); e.setInvisible(true);
             e.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
-            e.thunderHit(Sim.level(), new LightningBolt(EntityType.LIGHTNING_BOLT, Sim.level()));
+            e.thunderHit(Sim.level(), new LightningBolt(EntityTypes.LIGHTNING_BOLT, Sim.level()));
             e.clearFire();
             Vec3 g = veilPos(p, i);
             e.snapTo(g.x, g.y, g.z, 0f, 0f);

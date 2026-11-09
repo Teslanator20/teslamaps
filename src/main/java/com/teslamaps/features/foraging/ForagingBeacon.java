@@ -110,7 +110,7 @@ public final class ForagingBeacon {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !Foraging.onForagingIsland()) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !Foraging.onForagingIsland()) {
             close();
             return;
         }
@@ -384,8 +384,8 @@ public final class ForagingBeacon {
                 if (!l.trim().equals("Cooldown: AVAILABLE")) continue;
                 lastAlert = now;
                 Minecraft mc = Minecraft.getInstance();
-                mc.gui.setTimes(5, 40, 10);
-                mc.gui.setTitle(Component.literal("§aBeacon Ready"));
+                mc.gui.hud.setTimes(5, 40, 10);
+                mc.gui.hud.setTitle(Component.literal("§aBeacon Ready"));
                 if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
                 return;
             }

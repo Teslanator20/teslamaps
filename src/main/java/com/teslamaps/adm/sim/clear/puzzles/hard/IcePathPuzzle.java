@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.level.Level;
 
@@ -55,7 +56,7 @@ public class IcePathPuzzle implements Puzzle {
 
     /** A silverfish that stays where it is put: not saved with the world. */
     private static class Fish extends Silverfish {
-        Fish(Level level) { super(EntityType.SILVERFISH, level); }
+        Fish(Level level) { super(EntityTypes.SILVERFISH, level); }
 
         @Override public boolean shouldBeSaved() { return false; }
     }

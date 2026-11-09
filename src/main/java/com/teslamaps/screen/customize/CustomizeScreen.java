@@ -146,14 +146,14 @@ public class CustomizeScreen extends Screen {
     }
 
     private void resetAll() {
-        minecraft.setScreen(new ConfirmScreen(confirmed -> {
+        minecraft.gui.setScreen(new ConfirmScreen(confirmed -> {
             if (confirmed) {
                 Customize.resetAll();
                 // nothing left to restore, the backups would put the old values back
                 previousConfigs.clear();
                 TeslaMapsConfig.save();
             }
-            minecraft.setScreen(this);
+            minecraft.gui.setScreen(this);
         }, Component.translatable("teslamaps.customize.resetAll"),
                 Component.translatable("teslamaps.customize.resetAll.confirm")));
     }
@@ -225,7 +225,7 @@ public class CustomizeScreen extends Screen {
     public void onClose() {
         Customize.refresh();
         TeslaMapsConfig.save();
-        minecraft.setScreen(previousScreen);
+        minecraft.gui.setScreen(previousScreen);
     }
 
     private record PreviousConfig(Optional<ArmorTrimId> armorTrimId,

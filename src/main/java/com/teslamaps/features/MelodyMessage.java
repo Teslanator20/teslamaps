@@ -17,8 +17,8 @@ public class MelodyMessage {
 
     private static boolean inMelody() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof com.teslamaps.dungeon.termsim.TermSimGUI) return false;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (mc.gui.screen() instanceof com.teslamaps.dungeon.termsim.TermSimGUI) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         return TITLE.equals(ChatFormatting.stripFormatting(cs.getTitle().getString()));
     }
 
@@ -36,7 +36,7 @@ public class MelodyMessage {
 
     // Called from the container-slot packet hook. The lime terracotta marks how far the melody has filled.
     public static void onSlotUpdate(int slot, ItemStack item) {
-        if (item == null || item.isEmpty() || item.getItem() != Items.LIME_TERRACOTTA) return;
+        if (item == null || item.isEmpty() || item.getItem() != Items.DYED_TERRACOTTA.lime()) return;
         if (!TeslaMapsConfig.get().melodyProgress) return;
         if (!inMelody()) return;
 

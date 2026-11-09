@@ -68,7 +68,7 @@ public final class RomanNumerals {
     private static void onTooltip(List<Component> lines) {
         if (lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        String title = mc.screen == null ? "" : StringUtil.stripTrim(mc.screen.getTitle().getString());
+        String title = mc.gui.screen() == null ? "" : StringUtil.stripTrim(mc.gui.screen().getTitle().getString());
         if (title.equals(lastTitle) && lines.equals(lastIn)) {
             copyInto(lines, lastOut);
             return;

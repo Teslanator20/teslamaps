@@ -85,13 +85,13 @@ public final class CompactTabList {
     /** From TabToggleMixin: whether vanilla should draw the tab list this frame. */
     public static boolean tabShown(boolean keyDown) {
         if (!cfg().compactTabToggle || !active()) return keyDown;
-        return toggled && Minecraft.getInstance().screen == null;
+        return toggled && Minecraft.getInstance().gui.screen() == null;
     }
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         boolean down = mc.options.keyPlayerList.isDown();
-        if (down && !wasDown && mc.screen == null) toggled = !toggled;
+        if (down && !wasDown && mc.gui.screen() == null) toggled = !toggled;
         wasDown = down;
         if (!SkyblockUtils.isInSkyblock()) { layout = null; return; }
         boolean visible = cfg().compactTabToggle ? toggled : down;
@@ -166,7 +166,7 @@ public final class CompactTabList {
 
     private static Layout build(Minecraft mc) {
         if (mc.getConnection() == null) return null;
-        PlayerTabOverlay overlay = mc.gui.getTabList();
+        PlayerTabOverlay overlay = mc.gui.hud.getTabList();
         List<PlayerInfo> infos = new ArrayList<>(mc.getConnection().getListedOnlinePlayers());
         infos.sort(PlayerTabOverlayAccessor.getOrdering());
         List<PlayerInfo> entries = new ArrayList<>();

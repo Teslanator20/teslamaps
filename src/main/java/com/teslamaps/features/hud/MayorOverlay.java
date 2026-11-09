@@ -122,7 +122,7 @@ public final class MayorOverlay {
     // calendar: "Mayor Jerry" item, first perk a couple of lines under "Perkpocalypse Perks:"
     private static void scanCalendar() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
         if (!com.teslamaps.utils.StringUtil.stripTrim(cs.getTitle().getString()).equals("Calendar and Events")) return;
         for (net.minecraft.world.inventory.Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
@@ -186,7 +186,7 @@ public final class MayorOverlay {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

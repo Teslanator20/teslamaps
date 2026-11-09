@@ -84,8 +84,8 @@ public final class PetTitles {
         int level = Integer.parseInt(m.group("level"));
         if (level < PetConstants.maxLevel(PetConstants.internalName(pet))) return;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTitle(Component.literal("§a§lPet is Maxed!"));
-        mc.gui.setSubtitle(Component.literal(color(raw, pet) + "[" + pet + "]"));
+        mc.gui.hud.setTitle(Component.literal("§a§lPet is Maxed!"));
+        mc.gui.hud.setSubtitle(Component.literal(color(raw, pet) + "[" + pet + "]"));
         play(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1f);
     }
 

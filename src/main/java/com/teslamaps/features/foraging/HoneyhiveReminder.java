@@ -13,7 +13,7 @@ public class HoneyhiveReminder {
         if (!TeslaMapsConfig.get().honeyhiveQueenBeeTitle) return;
         if (!Foraging.strip(text).trim().equals(QUEEN_BEE)) return;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal("§6Honeyhive Instantly Refilled!"));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal("§6Honeyhive Instantly Refilled!"));
     }
 }

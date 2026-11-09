@@ -41,7 +41,7 @@ public final class VisitorLogbook {
     }
 
     private static boolean inLogbook() {
-        return Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs
+        return Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals(TITLE);
     }
 
@@ -69,7 +69,7 @@ public final class VisitorLogbook {
             NpcWarps.warp(NpcWarps.warpFor(npc), true);
             msg("§7Warping to §f" + npc.name() + "§7 on §f" + npc.island() + "§7" + suffix);
         }
-        mc.setScreen(null);
+        mc.gui.setScreen(null);
         return true;
     }
 

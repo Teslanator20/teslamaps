@@ -12,6 +12,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -118,7 +119,7 @@ public class WatcherEntity {
     }
 
     private Part part(double dx, double dy, double dz, float health, String role, String tagText) {
-        Zombie m = new Zombie(EntityType.ZOMBIE, Sim.level());
+        Zombie m = new Zombie(EntityTypes.ZOMBIE, Sim.level());
         m.setNoAi(true); m.setSilent(true); m.setInvulnerable(true); m.setPersistenceRequired(); m.setNoGravity(true);
         AttributeInstance maxHp = m.getAttribute(Attributes.MAX_HEALTH);
         if (maxHp != null) maxHp.setBaseValue(health);
@@ -129,7 +130,7 @@ public class WatcherEntity {
         // the grey-blue swirl: endless Invisibility, particles shown, ambient look
         m.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, true, true, false));
         m.setInvisible(true);
-        ArmorStand s = new ArmorStand(EntityType.ARMOR_STAND, Sim.level());
+        ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
         Station.setMarker(s);
         s.setCustomName(Sim.legacy(tagText));

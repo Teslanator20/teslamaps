@@ -85,9 +85,9 @@ public final class SlayerTimer {
         if (old == null) return " §d(first PB)";
 
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 60, 10);
-        mc.gui.setTitle(Component.literal("NEW PERSONAL BEST!").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.literal("§e" + format(old.ms) + " §3➜ §a" + format(ms)));
+        mc.gui.hud.setTimes(0, 60, 10);
+        mc.gui.hud.setTitle(Component.literal("NEW PERSONAL BEST!").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+        mc.gui.hud.setSubtitle(Component.literal("§e" + format(old.ms) + " §3➜ §a" + format(ms)));
         LoudSound.play(SoundEvents.PLAYER_LEVELUP, 1.0f, 1.0f);
         Announce.send(c.slayerPbChannel, label + " defeated in " + format(ms) + "! NEW PERSONAL BEST!");
         return " §d§lNEW PERSONAL BEST! §e" + format(old.ms) + " §3➜ §a" + format(ms);

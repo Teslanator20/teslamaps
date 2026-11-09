@@ -122,7 +122,7 @@ public final class MaxorCrystals {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!holding) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         int w = mc.getWindow().getGuiScaledWidth(), h = mc.getWindow().getGuiScaledHeight();
         float scale = 3f;
         g.pose().pushMatrix();

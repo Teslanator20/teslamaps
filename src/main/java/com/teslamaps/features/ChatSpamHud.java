@@ -66,7 +66,7 @@ public final class ChatSpamHud {
     public static void push(Component line) {
         Minecraft mc = Minecraft.getInstance();
         if (cfg().chatRedirectTarget.equals("Action Bar")) {
-            mc.gui.setOverlayMessage(line, false);
+            mc.gui.hud.setOverlayMessage(line, false);
             return;
         }
         long now = System.currentTimeMillis();
@@ -83,7 +83,7 @@ public final class ChatSpamHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (toasts.isEmpty() || el == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, el.x(), el.y(), el.scale(), toasts);
     }
 

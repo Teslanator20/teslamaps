@@ -146,7 +146,7 @@ public final class QuizExtras {
         String line = timerLine;
         if (line == null || timerHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         var pose = g.pose();
         pose.pushMatrix();
         pose.translate(timerHud.x(), timerHud.y());
@@ -159,7 +159,7 @@ public final class QuizExtras {
         List<String> l = splitLines;
         if (l.isEmpty() || splitsHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, splitsHud.x(), splitsHud.y(), splitsHud.scale(), l);
     }
 

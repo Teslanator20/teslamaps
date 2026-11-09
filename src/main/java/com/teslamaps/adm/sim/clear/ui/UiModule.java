@@ -33,7 +33,7 @@ public final class UiModule implements AdsModule {
 
     public static void openStartScreen() {
         Minecraft mc = Minecraft.getInstance();
-        mc.execute(() -> mc.setScreen(new RunStartScreen()));
+        mc.execute(() -> mc.gui.setScreen(new RunStartScreen()));
     }
 
     @Override
@@ -53,7 +53,7 @@ public final class UiModule implements AdsModule {
                         ctx -> {
                             Minecraft mc = Minecraft.getInstance();
                             String name = String.join(" ", ctx.args).trim();
-                            if (name.isEmpty()) mc.execute(() -> mc.setScreen(new PracticeScreen(null)));
+                            if (name.isEmpty()) mc.execute(() -> mc.gui.setScreen(new PracticeScreen(null)));
                             else mc.execute(() -> RunStarter.start(new RunConfig("F7", new LayoutSource.Practice(name), drawSeed(), false, 1, LagPreset.OFF, false, 1.0, null, null, null), ctx.reply));
                         }, null),
                 new AdsCommand("restart", "/ads run restart [room]", "Goes back to the run's start, or with \"room\" to when you entered the room you are in. Same dungeon, no rebuild.", true,

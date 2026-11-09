@@ -117,7 +117,7 @@ public final class BazaarChatSummary {
     private static void removeShown() {
         if (shown == null) return;
         Minecraft mc = Minecraft.getInstance();
-        var chat = mc.gui.getChat();
+        var chat = mc.gui.hud.getChat();
         List<GuiMessage> all = ((ChatComponentAccessor) chat).teslamaps$getAllMessages();
         for (int i = 0; i < Math.min(15, all.size()); i++) {
             String s = ChatTimestamps.cut(StringUtil.stripTrim(all.get(i).content().getString()));

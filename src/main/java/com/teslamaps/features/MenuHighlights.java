@@ -109,7 +109,7 @@ public class MenuHighlights {
     private static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { clear(); return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { clear(); return; }
         TeslaMapsConfig c = cfg();
         String t = StringUtil.stripTrim(cs.getTitle().getString());
         title = t;
@@ -347,7 +347,7 @@ public class MenuHighlights {
     public static void render(GuiGraphicsExtractor ctx) {
         if (marks.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (Mark mk : marks) {
@@ -366,7 +366,7 @@ public class MenuHighlights {
     public static void renderTips(GuiGraphicsExtractor ctx) {
         if ((tips.isEmpty() && extras.isEmpty()) || feature == null || !feature.active() || !SlotText.shown(SlotText.MENU)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (Extra e : extras) {
@@ -397,7 +397,7 @@ public class MenuHighlights {
         if (slot.container instanceof Inventory) return false;
         int index = -1;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) index = cs.getMenu().slots.indexOf(slot);
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) index = cs.getMenu().slots.indexOf(slot);
 
         String stone = missingStones.get(index);
         if (stone != null && c.mhPowerStoneBazaar && type == ContainerInput.PICKUP) {
@@ -421,7 +421,7 @@ public class MenuHighlights {
 
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.getItem() != stack) return;
         String stone = missingStones.get(cs.getMenu().slots.indexOf(hovered));

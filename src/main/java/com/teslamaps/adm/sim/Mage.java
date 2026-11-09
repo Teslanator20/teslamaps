@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -45,7 +46,7 @@ public final class Mage {
     private static final PerPlayer<Boolean> readyNoted = new PerPlayer<>(() -> true);
 
     public static class GhostSheep extends Sheep {
-        public GhostSheep(Level level) { super(EntityType.SHEEP, level); }
+        public GhostSheep(Level level) { super(EntityTypes.SHEEP, level); }
 
         @Override public boolean isPickable() { return false; }
         @Override public boolean isPushable() { return false; }

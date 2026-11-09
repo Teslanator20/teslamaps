@@ -144,8 +144,8 @@ public final class FancyAuctionHouse {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
-            if (!(mc.screen instanceof EditBidScreen) && !(mc.screen instanceof AbstractSignEditScreen)) vanilla = false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
+            if (!(mc.gui.screen() instanceof EditBidScreen) && !(mc.gui.screen() instanceof AbstractSignEditScreen)) vanilla = false;
             modeScreen = null;
             mode = Mode.NONE;
             return;
@@ -241,13 +241,13 @@ public final class FancyAuctionHouse {
         for (int i = 0; i < n; i++) {
             if (i == 13) continue;
             ItemStack st = slots.get(i).getItem();
-            if (st.isEmpty() || st.is(Items.BLACK_STAINED_GLASS_PANE)) continue;
+            if (st.isEmpty() || st.is(Items.STAINED_GLASS_PANE.black())) continue;
             State s = State.NONE;
             if (st.is(Items.POISONOUS_POTATO)) s = State.CANT_AFFORD;
             else if (st.is(Items.GOLD_NUGGET)) s = State.AFFORD;
             else if (st.is(Items.GOLD_BLOCK)) s = State.TOP_BID;
             else if (st.is(Items.NAME_TAG)) s = State.COLLECT;
-            else if (st.is(Items.RED_TERRACOTTA)) s = State.CANCELLABLE;
+            else if (st.is(Items.DYED_TERRACOTTA.red())) s = State.CANCELLABLE;
             else if (BuiltInRegistries.ITEM.getKey(st.getItem()).getPath().endsWith("_bed")) s = State.GRACE;
             String name = StringUtil.stripTrim(st.getHoverName().getString()).toLowerCase(Locale.ROOT);
             if (name.contains("collect auction") && !collect) {
@@ -419,7 +419,7 @@ public final class FancyAuctionHouse {
             g.fill(sx, sy, sx + CELL - 1, sy + CELL - 1, 0xFF2A2A32);
             Slot slot = slots.get(ITEM_SLOTS[n]);
             ItemStack st = slot.getItem();
-            if (st.isEmpty() || st.is(Items.BLACK_STAINED_GLASS_PANE)) continue;
+            if (st.isEmpty() || st.is(Items.STAINED_GLASS_PANE.black())) continue;
             g.pose().pushMatrix();
             g.pose().translate(sx + 1 - slot.x, sy + 1 - slot.y);
             AuctionPriceCompare.drawHighlight(g, slot);
@@ -574,7 +574,7 @@ public final class FancyAuctionHouse {
 
     public static boolean scrolled(double amount) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !active(cs) || mode != Mode.BROWSER) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !active(cs) || mode != Mode.BROWSER) return false;
         if (amount > 0 && prevOk) send(cs, PREV, 0);
         else if (amount < 0 && nextOk) send(cs, NEXT, 0);
         return true;

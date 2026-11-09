@@ -260,7 +260,7 @@ public class ItemProtection {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.itemProtectionUuid || c.protectedItems.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         com.teslamaps.mixin.HandledScreenAccessor acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
         for (net.minecraft.world.inventory.Slot slot : cs.getMenu().slots) {
             if (uuidProtected(slot.getItem()))
@@ -270,7 +270,7 @@ public class ItemProtection {
 
     public static void renderHotbar(net.minecraft.client.gui.GuiGraphicsExtractor ctx, net.minecraft.client.DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.player.isSpectator()) return;
+        if (mc.player == null || mc.gui.hud.isHidden() || mc.player.isSpectator()) return;
         int left = ctx.guiWidth() / 2 - 91, top = ctx.guiHeight() - 19;
         for (int i = 0; i < 9; i++) {
             if (uuidProtected(mc.player.getInventory().getItem(i)))
@@ -320,7 +320,7 @@ public class ItemProtection {
             stack = slot.getItem();
         } else {
             Minecraft mc = Minecraft.getInstance();
-            if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) return false;
+            if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> screen)) return false;
             stack = screen.getMenu().getCarried();
         }
         boolean ownSlot = slot == null || slot.container instanceof net.minecraft.world.entity.player.Inventory;

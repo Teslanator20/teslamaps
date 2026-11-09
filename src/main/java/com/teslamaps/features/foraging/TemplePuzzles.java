@@ -189,7 +189,7 @@ public final class TemplePuzzles {
     }
 
     private static boolean isTerracotta(BlockState s) {
-        return s.is(Blocks.ORANGE_GLAZED_TERRACOTTA) && s.hasProperty(BlockStateProperties.HORIZONTAL_FACING);
+        return s.is(Blocks.GLAZED_TERRACOTTA.orange()) && s.hasProperty(BlockStateProperties.HORIZONTAL_FACING);
     }
 
     private static Direction mapWall(Direction d) {

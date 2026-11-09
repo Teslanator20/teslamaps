@@ -75,13 +75,13 @@ public class TerminalTitles {
                     .replace("{progress}", progress);
         }
         replacedAt = System.currentTimeMillis();
-        mc.gui.setTimes(0, 20, 5);
+        mc.gui.hud.setTimes(0, 20, 5);
         if (c.terminalTitleSubtitle) {
-            mc.gui.setTitle(Component.empty());
-            mc.gui.setSubtitle(Component.literal(text));
+            mc.gui.hud.setTitle(Component.empty());
+            mc.gui.hud.setSubtitle(Component.literal(text));
         } else {
-            mc.gui.setSubtitle(Component.empty());
-            mc.gui.setTitle(Component.literal(text));
+            mc.gui.hud.setSubtitle(Component.empty());
+            mc.gui.hud.setTitle(Component.literal(text));
         }
         return true;
     }

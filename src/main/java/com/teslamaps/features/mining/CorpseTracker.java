@@ -224,7 +224,7 @@ public final class CorpseTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         shown().draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

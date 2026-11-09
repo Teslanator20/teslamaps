@@ -615,7 +615,7 @@ public final class DungeonSplits {
     }
 
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
-        if (!cfg().admSubSplits || Minecraft.getInstance().options.hideGui) return;
+        if (!cfg().admSubSplits || Minecraft.getInstance().gui.hud.isHidden()) return;
         drawAt(g, bloodHud.x(), bloodHud.y(), bloodHud.scale(), bloodLines());
         drawAt(g, stormHud.x(), stormHud.y(), stormHud.scale(), stormLines());
         drawAt(g, goldorHud.x(), goldorHud.y(), goldorHud.scale(), goldorLines());

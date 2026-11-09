@@ -52,8 +52,8 @@ public class UmbrellaWarning {
         if (mc.player == null) return;
 
         if (c.umbrellaWarningTitle) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal(title));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal(title));
         }
         if (c.umbrellaWarningVolume > 0f) {
             com.teslamaps.utils.LoudSound.play(

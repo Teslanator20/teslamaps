@@ -60,16 +60,16 @@ public class ItemValueScreen extends Screen {
     public static boolean handleKey(long window, int action) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
-        if (mc.screen instanceof ItemValueScreen s) {
+        if (mc.gui.screen() instanceof ItemValueScreen s) {
             if (action == GLFW.GLFW_PRESS) s.onClose();
             return true;
         }
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         Slot slot = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (slot == null || slot.getItem().isEmpty()) return false;
         List<EstimatedValue.Part> parts = EstimatedValue.parts(slot.getItem());
         if (parts.isEmpty()) return false;
-        if (action == GLFW.GLFW_PRESS) mc.setScreen(new ItemValueScreen(cs, slot.getItem().copy(), parts));
+        if (action == GLFW.GLFW_PRESS) mc.gui.setScreen(new ItemValueScreen(cs, slot.getItem().copy(), parts));
         return true;
     }
 
@@ -106,7 +106,7 @@ public class ItemValueScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) minecraft.setScreen(parent);
+        if (minecraft != null) minecraft.gui.setScreen(parent);
     }
 
     @Override

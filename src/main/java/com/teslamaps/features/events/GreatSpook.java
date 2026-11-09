@@ -190,7 +190,7 @@ public final class GreatSpook {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         if (c.primalFearTimer && !timerLines.isEmpty() && timerHud != null)
             TextHud.draw(g, mc, timerHud.x(), timerHud.y(), timerHud.scale(), timerLines, timerW);

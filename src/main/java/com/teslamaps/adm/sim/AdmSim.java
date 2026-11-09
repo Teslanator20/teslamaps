@@ -58,7 +58,7 @@ public final class AdmSim {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !P3Sim.inSim()) return;
+        if (mc.gui.hud.isHidden() || !P3Sim.inSim()) return;
         if (cfg().admSimPracticeHud) {
             List<String> l = P3Sim.practiceLines(false);
             if (!l.isEmpty()) drawLines(g, mc, splitsHud.x(), splitsHud.y(), splitsHud.scale(), l);

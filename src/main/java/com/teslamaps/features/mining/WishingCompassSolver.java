@@ -157,9 +157,9 @@ public final class WishingCompassSolver {
     /** From ClientPlayNetworkHandlerMixin. */
     public static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (state != State.FIRST && state != State.SECOND) return;
-        if (!Minecraft.getInstance().isSameThread() || !ParticleTypes.HAPPY_VILLAGER.equals(packet.getParticle().getType())) return;
+        if (!Minecraft.getInstance().isSameThread() || !ParticleTypes.HAPPY_VILLAGER.equals(packet.particle().getType())) return;
         if (!on()) return;
-        Vec3 pos = new Vec3(packet.getX(), packet.getY(), packet.getZ());
+        Vec3 pos = new Vec3(packet.x(), packet.y(), packet.z());
         lastParticle = System.currentTimeMillis();
         if (pos.distanceTo(lastPos) > PARTICLES_MAX_DISTANCE) return;
         lastPos = pos;

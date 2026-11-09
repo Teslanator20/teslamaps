@@ -103,9 +103,9 @@ public final class EventTracker {
         if (!PARTICLES.active()) return;
         Minecraft mc = Minecraft.getInstance();
         if (!mc.isSameThread()) return;
-        var key = BuiltInRegistries.PARTICLE_TYPE.getKey(p.getParticle().getType());
+        var key = BuiltInRegistries.PARTICLE_TYPE.getKey(p.particle().getType());
         if (key == null) return;
-        PARTICLES.add(key.toString(), p.getX(), p.getY(), p.getZ(), p.getCount(), p.getMaxSpeed());
+        PARTICLES.add(key.toString(), p.x(), p.y(), p.z(), p.count(), p.xMaxSpeed());
     }
 
     private void add(String id, double x, double y, double z, float a, float b) {
@@ -151,7 +151,7 @@ public final class EventTracker {
 
     private void tick(int key, TeslaMapsConfig c) {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = key != -1 && mc.screen == null && KeyNames.isDown(key);
+        boolean down = key != -1 && mc.gui.screen() == null && KeyNames.isDown(key);
         long now = System.currentTimeMillis();
         if (down && !keyWasDown && now - lastKeyToggle >= 1000) {
             if (recording) end();

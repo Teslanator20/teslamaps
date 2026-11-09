@@ -88,7 +88,7 @@ public final class KuudraProfitTracker {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        boolean canPress = mc.screen == null;
+        boolean canPress = mc.gui.screen() == null;
         boolean r = canPress && c.kuudraProfitResetKey != -1 && KeyNames.isDown(c.kuudraProfitResetKey);
         if (r && !resetDown) {
             tracker.resetSession();
@@ -101,7 +101,7 @@ public final class KuudraProfitTracker {
         if (v && !viewDown) tracker.toggleView();
         viewDown = v;
 
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && ++ticks % 5 == 0) snapshot(cs);
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && ++ticks % 5 == 0) snapshot(cs);
         if (KuudraContext.inKuudra()) tracker.markActivity();
         tracker.tick();
     }
@@ -157,7 +157,7 @@ public final class KuudraProfitTracker {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         if (!cfg().kuudraProfitEverywhere) {
             String area = SkyblockUtils.getArea();
             if (!area.contains("Kuudra") && !area.contains("Crimson Isle")) return;

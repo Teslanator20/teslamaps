@@ -270,7 +270,7 @@ public final class ProfitTracker {
         }
         if (now - lastTick > 1000) graceUntil = now + GRACE_MS;
         lastTick = now;
-        boolean open = mc.screen != null;
+        boolean open = mc.gui.screen() != null;
         if (open != screenOpen) {
             screenOpen = open;
             if (!open) graceUntil = now + GRACE_MS;
@@ -481,7 +481,7 @@ public final class ProfitTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (active == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TRACKERS.get(active.name).draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

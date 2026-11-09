@@ -60,14 +60,14 @@ public abstract class TermGui {
         if (!TerminalSolver.customGuiEnabled()) return null;
         TerminalHandler term = TerminalUtils.getCurrentTerm();
         if (term == null) return null;
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>)) return null;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>)) return null;
         return term.type.getGUI();
     }
 
     public static boolean renderActive(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         TermGui gui = active();
         if (gui == null) return false;
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen)) return false;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> screen)) return false;
         gui.buildTerminal(screen);
         gui.render(ctx, mouseX, mouseY);
         return true;

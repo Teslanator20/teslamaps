@@ -155,8 +155,8 @@ public final class ChocoStrays {
         Minecraft mc = Minecraft.getInstance();
         ticks++;
         if (mc.level == null) { timerPending = false; }
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             caughtSlots.clear();
             active = List.of();
             warn = golden = flash = false;
@@ -168,7 +168,7 @@ public final class ChocoStrays {
                     golden ? SoundEvents.NOTE_BLOCK_HARP.value() : SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f));
         }
         if (ticks % 5 != 0) return;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (ticks % 100 == 0 && texturesDirty) saveTextures();
             return;
         }
@@ -376,7 +376,7 @@ public final class ChocoStrays {
     static void render(GuiGraphicsExtractor ctx) {
         if (!ChocoData.inFactory() || !cfg().section(ChocoData.CATEGORY)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         if (cfg().cfStrayWarning && !active.isEmpty()) {
             List<Slot> slots = cs.getMenu().slots;

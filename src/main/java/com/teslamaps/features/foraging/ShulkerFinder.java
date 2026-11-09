@@ -70,7 +70,7 @@ public final class ShulkerFinder {
             return;
         }
         Node[] g = IslandNavigation.graph(key);
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().shulkerFinderKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().shulkerFinderKey);
         if (down && !keyDown && g != null) next(mc, g, key);
         keyDown = down;
         if (index < 0 || g == null || ticks++ % 5 != 0) return;

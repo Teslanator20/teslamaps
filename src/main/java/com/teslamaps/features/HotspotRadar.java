@@ -108,8 +108,8 @@ public class HotspotRadar {
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.hotspotRadar) return;
-        if (packet.getParticle().getType() != ParticleTypes.FLAME) return;
-        if (packet.getCount() != 1 || packet.getMaxSpeed() != 0f) return;
+        if (packet.particle().getType() != ParticleTypes.FLAME) return;
+        if (packet.count() != 1 || packet.xMaxSpeed() != 0f) return;
         if (!islandOk) return;
 
         long now = System.currentTimeMillis();
@@ -124,7 +124,7 @@ public class HotspotRadar {
             if (now - lastParticle > BURST_GAP_MS) fitter.reset();
             lastParticle = now;
 
-            if (!fitter.tryAdd(new Vec3(packet.getX(), packet.getY(), packet.getZ()), 3.0)) return;
+            if (!fitter.tryAdd(new Vec3(packet.x(), packet.y(), packet.z()), 3.0)) return;
             guess = fitter.solve();
         }
         if (guess == null) return;

@@ -32,7 +32,7 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleContainerSetSlot", at = @At("HEAD"), cancellable = true)
     private void teslamaps$guardTermSimSlots(ClientboundContainerSetSlotPacket packet, CallbackInfo ci) {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (!(mc.screen instanceof com.teslamaps.dungeon.termsim.TermSimGUI sim)) return;
+        if (!(mc.gui.screen() instanceof com.teslamaps.dungeon.termsim.TermSimGUI sim)) return;
         int slot = packet.getSlot();
         if (slot < 0 || slot >= sim.size) return;
         mc.execute(() -> {

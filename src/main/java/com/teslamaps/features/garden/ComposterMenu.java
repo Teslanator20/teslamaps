@@ -65,7 +65,7 @@ public final class ComposterMenu {
     private static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !SkyblockUtils.isInGarden()) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !SkyblockUtils.isInGarden()) {
             clear();
             return;
         }
@@ -147,7 +147,7 @@ public final class ComposterMenu {
     public static void render(GuiGraphicsExtractor g) {
         if (gold.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (int i : gold) {
@@ -162,7 +162,7 @@ public final class ComposterMenu {
     public static void renderTips(GuiGraphicsExtractor g) {
         if (tips.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (Tip t : tips) {

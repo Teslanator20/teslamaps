@@ -138,11 +138,11 @@ public final class VerminTracker {
             }
             show = village && (cfg().riftVerminWithoutVacuum || hasVacuum);
         }
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && cs != binScreen && ++binTicks >= 10) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && cs != binScreen && ++binTicks >= 10) {
             binTicks = 0;
             if (StringUtil.stripTrim(cs.getTitle().getString()).equals("Vermin Bin")) syncBin(mc, cs);
         }
-        if (!(mc.screen instanceof AbstractContainerScreen<?>)) binScreen = null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?>)) binScreen = null;
     }
 
     private static void syncBin(Minecraft mc, AbstractContainerScreen<?> cs) {
@@ -204,7 +204,7 @@ public final class VerminTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         TeslaMapsConfig c = cfg();
         draw(g, mc, c.riftVerminTrackerX, c.riftVerminTrackerY, c.riftVerminTrackerScale);
     }

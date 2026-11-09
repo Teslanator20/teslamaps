@@ -29,8 +29,8 @@ public final class ParticleHiders {
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.hideHypeHearts && !c.hideEnchantRunes && !c.flamingFlayHider) return false;
-        ParticleType<?> type = p.getParticle().getType();
-        if (type == ParticleTypes.HEART) return c.hideHypeHearts && p.getCount() == 3 && p.alwaysShow() && p.isOverrideLimiter();
+        ParticleType<?> type = p.particle().getType();
+        if (type == ParticleTypes.HEART) return c.hideHypeHearts && p.count() == 3 && p.alwaysShow() && p.overrideLimiter();
         if (type == ParticleTypes.ENCHANT) return c.hideEnchantRunes && !signalParticle(p);
         if (type == ParticleTypes.DUST) return c.flamingFlayHider && c.section("Fishing") && flay(p);
         return false;
@@ -38,12 +38,12 @@ public final class ParticleHiders {
 
     // pest locator and burrow particles stay visible
     private static boolean signalParticle(ClientboundLevelParticlesPacket p) {
-        return p.getCount() == 10 && p.getMaxSpeed() == -2f || p.getCount() == 5 && p.getMaxSpeed() == 0.05f;
+        return p.count() == 10 && p.xMaxSpeed() == -2f || p.count() == 5 && p.xMaxSpeed() == 0.05f;
     }
 
     private static boolean flay(ClientboundLevelParticlesPacket p) {
-        if (p.getCount() != 0 || p.getMaxSpeed() != 1f || !SkyblockUtils.isInSkyblock()) return false;
-        float x = p.getXDist(), y = p.getYDist(), z = p.getZDist();
+        if (p.count() != 0 || p.xMaxSpeed() != 1f || !SkyblockUtils.isInSkyblock()) return false;
+        float x = p.xDist(), y = p.yDist(), z = p.zDist();
         boolean match = x == 1f && y == 1f && z == 0f
                 || x == 1f && y == 0f && z == 0f
                 || x == (float) 0.23137255012989044 && y == (float) 0.05098039284348488 && z == (float) 0.0313725508749485
@@ -52,6 +52,6 @@ public final class ParticleHiders {
         var pl = Minecraft.getInstance().player;
         if (pl == null) return false;
         double d = TeslaMapsConfig.get().flamingFlayHideDistance;
-        return pl.distanceToSqr(p.getX(), p.getY(), p.getZ()) <= d * d;
+        return pl.distanceToSqr(p.x(), p.y(), p.z()) <= d * d;
     }
 }

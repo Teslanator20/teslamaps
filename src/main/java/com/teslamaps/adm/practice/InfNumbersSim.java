@@ -46,7 +46,7 @@ public final class InfNumbersSim extends TermSimGUI {
 
     /** This simulator is on screen: the numbers solver orders it by the queue, no numbers. */
     public static boolean active() {
-        return instance != null && Minecraft.getInstance().screen == instance;
+        return instance != null && Minecraft.getInstance().gui.screen() == instance;
     }
 
     public static List<Integer> order() {
@@ -56,7 +56,7 @@ public final class InfNumbersSim extends TermSimGUI {
     /** The SS Practice keybind with Infinileap in hand opens this. False: not holding it. */
     static boolean openFromLeap() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen != null) return false;
+        if (mc.player == null || mc.gui.screen() != null) return false;
         if (!"INFINITE_SPIRIT_LEAP".equals(ItemUtil.skyblockId(mc.player.getMainHandItem()))) return false;
         get().open(0L);
         return true;
@@ -86,7 +86,7 @@ public final class InfNumbersSim extends TermSimGUI {
     }
 
     private static ItemStack pane(boolean lit) {
-        ItemStack s = new ItemStack(lit ? Items.RED_STAINED_GLASS_PANE : Items.LIME_STAINED_GLASS_PANE);
+        ItemStack s = new ItemStack(lit ? Items.STAINED_GLASS_PANE.red() : Items.STAINED_GLASS_PANE.lime());
         s.set(DataComponents.CUSTOM_NAME, Component.literal(""));
         return s;
     }

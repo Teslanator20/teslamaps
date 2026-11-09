@@ -65,7 +65,7 @@ public final class DnaAnalyzerSolver {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             dnaScreen = null;
             return;
         }
@@ -80,7 +80,7 @@ public final class DnaAnalyzerSolver {
     /** From SlotBackgrounds. */
     public static void drawHighlight(GuiGraphicsExtractor ctx, Slot slot) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !inMenu(cs) || !refresh() || firstSlot < 0) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !inMenu(cs) || !refresh() || firstSlot < 0) return;
         AbstractContainerMenu open = cs.getMenu();
         if (slot == open.getSlot(firstSlot) || slot == open.getSlot(secondSlot)) {
             ctx.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, GREEN);

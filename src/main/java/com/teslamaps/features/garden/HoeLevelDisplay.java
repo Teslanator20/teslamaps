@@ -141,7 +141,7 @@ public final class HoeLevelDisplay {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 

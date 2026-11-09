@@ -38,6 +38,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -121,7 +122,7 @@ public final class McStateEffects implements StateEffects {
         for (Pos c : door.bodyCells()) {
             if (!RunBlocks.isLoaded(c.x, c.z)) continue;
             double x = c.x + 0.5; double z = c.z + 0.5; double y = c.y + StateRules.DEBRIS_DY;
-            Bat b = new Bat(EntityType.BAT, Sim.level());
+            Bat b = new Bat(EntityTypes.BAT, Sim.level());
             b.setSilent(true); b.setInvulnerable(true); b.setInvisible(true);
             b.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
             b.setNoAi(true); b.setNoGravity(true);

@@ -28,8 +28,8 @@ public class HotmScan {
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             done = false;
             ticks = 0;
         }
@@ -37,7 +37,7 @@ public class HotmScan {
         // Hypixel fills the menu async, so one look on open finds an empty GUI
         if (++ticks % 10 != 0) return;
 
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
 
         int surveyor = -1, core = -1, buff = -1;

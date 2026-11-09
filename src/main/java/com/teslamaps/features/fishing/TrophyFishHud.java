@@ -141,7 +141,7 @@ public final class TrophyFishHud {
         if (!SkyblockUtils.getArea().equalsIgnoreCase("Crimson Isle")) return false;
         return switch (cfg().trophyFishHudWhen) {
             case "Rod In Hand" -> com.teslamaps.features.FishingHelpers.holdingRod();
-            case "Inventory Open" -> mc.screen instanceof InventoryScreen;
+            case "Inventory Open" -> mc.gui.screen() instanceof InventoryScreen;
             default -> true;
         };
     }
@@ -149,7 +149,7 @@ public final class TrophyFishHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || rows.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !shown(mc)) return;
+        if (mc.gui.hud.isHidden() || !shown(mc)) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 

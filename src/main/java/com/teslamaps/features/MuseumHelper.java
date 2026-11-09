@@ -81,7 +81,7 @@ public class MuseumHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !inMuseum(cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !inMuseum(cs)) {
             if (!lines.isEmpty()) lines = List.of();
             if (!marks.isEmpty()) marks = List.of();
             markCache.clear();
@@ -216,7 +216,7 @@ public class MuseumHelper {
             Slot slot = slots.get(i);
             if (slot.container instanceof Inventory) continue;
             ItemStack st = slot.getItem();
-            if (!st.is(Items.GRAY_DYE)) continue;
+            if (!st.is(Items.DYE.gray())) continue;
             String name = StringUtil.stripTrim(st.getHoverName().getString());
             Integer col = markCache.get(name);
             if (col == null) {
@@ -265,7 +265,7 @@ public class MuseumHelper {
         List<String> l = lines;
         if (mk.isEmpty() && l.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (Mark m : mk) {

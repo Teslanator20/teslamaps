@@ -103,7 +103,7 @@ public final class PetSlotIcons {
 
     private static void tick() {
         if (++ticks % 40 != 0) return;
-        if (Minecraft.getInstance().screen == null && !CACHE.isEmpty()) CACHE.clear();
+        if (Minecraft.getInstance().gui.screen() == null && !CACHE.isEmpty()) CACHE.clear();
     }
 
     static Info info(ItemStack stack) {

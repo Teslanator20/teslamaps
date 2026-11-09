@@ -93,7 +93,7 @@ public final class MaxwellHud {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             if (cs != scannedScreen) { scannedScreen = cs; scans = 0; }
             // items fill in async, read a few times
             if (scans < 6 && timer % 10 == 0) {
@@ -237,7 +237,7 @@ public final class MaxwellHud {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

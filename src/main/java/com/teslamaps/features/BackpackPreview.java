@@ -42,7 +42,7 @@ public class BackpackPreview {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.backpackPreview && !cfg.customStorageOverlay) { flush(); return; }
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
 
         String title = strip(cs.getTitle().getString());
         openTint = 0;
@@ -186,7 +186,7 @@ public class BackpackPreview {
         if (!c.backpackPreview) return null;
         Minecraft mc = Minecraft.getInstance();
         if (c.backpackPreviewShift && !mc.hasShiftDown()) return null;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return null;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.getItem().isEmpty()) return null;
         return keyForStack(hovered.getItem());
@@ -195,7 +195,7 @@ public class BackpackPreview {
     public static void renderOpenPageBorder(GuiGraphicsExtractor ctx) {
         if (!TeslaMapsConfig.get().customStorageOverlay) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String key = keyFor(strip(cs.getTitle().getString()));
         if (key == null) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
@@ -262,7 +262,7 @@ public class BackpackPreview {
         if (!c.itemDataPreview || !c.backpackPreview) return null;
         Minecraft mc = Minecraft.getInstance();
         if (c.backpackPreviewShift && !mc.hasShiftDown()) return null;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return null;
         if (!c.itemDataPreviewInAh && strip(cs.getTitle().getString()).contains("Auction")) return null;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.getItem().isEmpty()) return null;
@@ -327,7 +327,7 @@ public class BackpackPreview {
         if (items == null || items.isEmpty()) return false;
         Minecraft mc = Minecraft.getInstance();
         frozen = k;
-        frozenScreen = new java.lang.ref.WeakReference<>(mc.screen);
+        frozenScreen = new java.lang.ref.WeakReference<>(mc.gui.screen());
         double sx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
         double sy = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
         frozenX = (int) sx + 12;
@@ -355,7 +355,7 @@ public class BackpackPreview {
 
     private static boolean frozenLive() {
         if (frozen == null) return false;
-        if (Minecraft.getInstance().screen != frozenScreen.get() || !TeslaMapsConfig.get().backpackPreview) {
+        if (Minecraft.getInstance().gui.screen() != frozenScreen.get() || !TeslaMapsConfig.get().backpackPreview) {
             frozen = null;
             return false;
         }
@@ -367,7 +367,7 @@ public class BackpackPreview {
         Minecraft mc = Minecraft.getInstance();
         Map<Integer, ItemStack> items = StorageCache.items(frozen);
         if (items == null) { frozen = null; return; }
-        int[] r = frozenRect(mc.screen.width, mc.screen.height);
+        int[] r = frozenRect(mc.gui.screen().width, mc.gui.screen().height);
         int x = r[0], y = r[1];
         ctx.fill(x, y, x + r[2], y + r[3], 0xF0100010);
         int tint = tintFor(frozen);
@@ -403,7 +403,7 @@ public class BackpackPreview {
     public static boolean handleClick(double mx, double my, int button) {
         if (!frozenLive()) return false;
         Minecraft mc = Minecraft.getInstance();
-        int[] r = frozenRect(mc.screen.width, mc.screen.height);
+        int[] r = frozenRect(mc.gui.screen().width, mc.gui.screen().height);
         boolean inside = mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3];
         if (!inside) return false;
         if (button == 1) frozen = null;

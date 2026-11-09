@@ -33,7 +33,7 @@ public class TeslaLookButton extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         playDownSound(Minecraft.getInstance().getSoundManager());
-        Minecraft.getInstance().setScreen(new LookScreen(Minecraft.getInstance().screen));
+        Minecraft.getInstance().gui.setScreen(new LookScreen(Minecraft.getInstance().gui.screen()));
     }
 
     @Override

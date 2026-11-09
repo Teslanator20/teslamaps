@@ -96,12 +96,12 @@ public final class MotesPrice {
     private static void tick() {
         SkyblockItems.load();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             screenTicks = 0;
             cache.clear();
         }
-        if (!cfg().riftMcGrubberAuto || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!cfg().riftMcGrubberAuto || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (++screenTicks != 10 && screenTicks != 30) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (RiftSpot.inRift() && title.equals("Motes Grubber")) fromGrubber(cs);

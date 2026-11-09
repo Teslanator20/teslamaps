@@ -196,9 +196,9 @@ public class DungeonScore {
         if (title) {
             String t = milestone == 300 ? config.score300TitleText : config.score270TitleText;
             if (t == null || t.isBlank()) t = milestone + " Score!";
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal(t.replace("{time}", timeStr).replace('&', '§')));
-            mc.gui.setSubtitle(Component.empty());
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal(t.replace("{time}", timeStr).replace('&', '§')));
+            mc.gui.hud.setSubtitle(Component.empty());
             if (config.scoreTitleSound)
                 mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, milestone == 300 ? 2.0f : 1.5f);
         }
@@ -361,8 +361,8 @@ public class DungeonScore {
             if (TeslaMapsConfig.get().watcherKillAlert) {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.player != null) {
-                    mc.gui.setTimes(0, 30, 5);
-                    mc.gui.setTitle(Component.literal("§c§lBLOOD DONE"));
+                    mc.gui.hud.setTimes(0, 30, 5);
+                    mc.gui.hud.setTitle(Component.literal("§c§lBLOOD DONE"));
                     mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
                 }
             }
@@ -518,8 +518,8 @@ public class DungeonScore {
                 "§c§l Crypts: " + crypts + "/5 §r§7— need 5 for the full +5 bonus score!"));
         mc.player.playSound(com.teslamaps.utils.SoundOptions.resolve(cfg.cryptReminderSound), 1.0f, 1.0f);
         if (cfg.cryptReminderTitle) {
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal("§c" + crypts + "/5 Crypts"));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§c" + crypts + "/5 Crypts"));
         }
         com.teslamaps.features.Announce.send(cfg.cryptReminderChannel, crypts + "/5 crypts, need more!");
     }

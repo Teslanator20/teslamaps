@@ -26,11 +26,11 @@ public class ConfigHotkey {
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
 
         // a screen owns its own input, and the key could just be a modifier while typing
-        boolean ours = mc.screen instanceof MapConfigScreen;
-        if (mc.screen != null && !ours) return false;
+        boolean ours = mc.gui.screen() instanceof MapConfigScreen;
+        if (mc.gui.screen() != null && !ours) return false;
 
         if (action == GLFW.GLFW_PRESS) {
-            mc.setScreen(ours ? null : MapConfigScreen.open());
+            mc.gui.setScreen(ours ? null : MapConfigScreen.open());
         }
         // release and repeat go the same way, otherwise the other mod still sees half the press
         return c.configScreenKeyExclusive;
@@ -39,23 +39,23 @@ public class ConfigHotkey {
     /** Typing in a text field or rebinding a key - the press is text, not a hotkey. */
     private static boolean typing() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen == null) return false;
-        if (mc.screen instanceof MapConfigScreen s && s.isBindingKey()) return true;
-        return mc.screen.getFocused() instanceof net.minecraft.client.gui.components.EditBox box && box.isFocused();
+        if (mc.gui.screen() == null) return false;
+        if (mc.gui.screen() instanceof MapConfigScreen s && s.isBindingKey()) return true;
+        return mc.gui.screen().getFocused() instanceof net.minecraft.client.gui.components.EditBox box && box.isFocused();
     }
 
     private static boolean itemSearch(long window, int action) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
-        boolean ours = mc.screen instanceof com.teslamaps.screen.ItemSearchScreen;
-        if (mc.screen != null && !ours) return false;
+        boolean ours = mc.gui.screen() instanceof com.teslamaps.screen.ItemSearchScreen;
+        if (mc.gui.screen() != null && !ours) return false;
         if (action == GLFW.GLFW_PRESS) {
             if (ours) {
-                mc.setScreen(null);
+                mc.gui.setScreen(null);
             } else {
                 com.teslamaps.screen.ItemSearchScreen s = new com.teslamaps.screen.ItemSearchScreen(null);
                 s.swallowNextChar = true;
-                mc.setScreen(s);
+                mc.gui.setScreen(s);
             }
         }
         return true;

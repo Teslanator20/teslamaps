@@ -120,7 +120,7 @@ public class WardrobeKeys {
         if (closeAt == 0 || System.currentTimeMillis() < closeAt) return;
         closeAt = 0;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (mc.player == null || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!isWardrobeScreen(StringUtil.strip(cs.getTitle().getString()))) return;
         mc.player.closeContainer();
         if (TeslaMapsConfig.get().wardrobeCloseSound) mc.getSoundManager().play(
@@ -151,7 +151,7 @@ public class WardrobeKeys {
     }
 
     private static boolean isEquipped(net.minecraft.world.item.ItemStack stack) {
-        if (stack.is(net.minecraft.world.item.Items.LIME_DYE)) return true;
+        if (stack.is(net.minecraft.world.item.Items.DYE.lime())) return true;
         return com.teslamaps.utils.ItemUtil.loreContains(stack, "Click to unequip");
     }
 
@@ -165,7 +165,7 @@ public class WardrobeKeys {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.wardrobeKeybinds || !c.wardrobeShowKeys || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!c.wardrobeKeybinds || !c.wardrobeShowKeys || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (!labels.isEmpty()) labels = java.util.Map.of();
             return;
         }
@@ -190,7 +190,7 @@ public class WardrobeKeys {
     public static void render(net.minecraft.client.gui.GuiGraphicsExtractor ctx) {
         if (labels.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         com.teslamaps.mixin.HandledScreenAccessor acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
         var slots = cs.getMenu().slots;
         for (var e : labels.entrySet()) {

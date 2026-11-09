@@ -38,9 +38,9 @@ public class MineshaftPity {
     private static final String FOUND = "You found a Glacite Mineshaft";
 
     enum PityBlock {
-        MITHRIL("Mithril", 2, Items.LIGHT_BLUE_WOOL),
-        GEMSTONE("Low Tier Gemstone", 8, Items.RED_STAINED_GLASS),
-        HIGH_TIER_GEMSTONE("High Tier Gemstone", 10, Items.BLUE_STAINED_GLASS),
+        MITHRIL("Mithril", 2, Items.WOOL.lightBlue()),
+        GEMSTONE("Low Tier Gemstone", 8, Items.STAINED_GLASS.red()),
+        HIGH_TIER_GEMSTONE("High Tier Gemstone", 10, Items.STAINED_GLASS.blue()),
         GLACITE("Glacite", 4, Items.PACKED_ICE),
         TUNGSTEN("Tungsten", 4, Items.CLAY),
         UMBER("Umber", 4, Items.RED_SANDSTONE),
@@ -63,12 +63,12 @@ public class MineshaftPity {
 
         static PityBlock of(BlockState state) {
             Block b = state.getBlock();
-            if (b == Blocks.GRAY_WOOL || b == Blocks.CYAN_TERRACOTTA || b == Blocks.PRISMARINE
-                    || b == Blocks.PRISMARINE_BRICKS || b == Blocks.DARK_PRISMARINE || b == Blocks.LIGHT_BLUE_WOOL) return MITHRIL;
+            if (b == Blocks.WOOL.gray() || b == Blocks.DYED_TERRACOTTA.cyan() || b == Blocks.PRISMARINE
+                    || b == Blocks.PRISMARINE_BRICKS || b == Blocks.DARK_PRISMARINE || b == Blocks.WOOL.lightBlue()) return MITHRIL;
             if (b == Blocks.POLISHED_DIORITE) return TITANIUM;
             if (b == Blocks.PACKED_ICE) return GLACITE;
             if (b == Blocks.CLAY || b == Blocks.INFESTED_COBBLESTONE) return TUNGSTEN;
-            if (b == Blocks.TERRACOTTA || b == Blocks.BROWN_TERRACOTTA || b == Blocks.SMOOTH_RED_SANDSTONE) return UMBER;
+            if (b == Blocks.TERRACOTTA || b == Blocks.DYED_TERRACOTTA.brown() || b == Blocks.SMOOTH_RED_SANDSTONE) return UMBER;
             DyeColor color = b instanceof StainedGlassBlock g ? g.getColor()
                     : b instanceof StainedGlassPaneBlock p ? p.getColor() : null;
             if (color == null) return null;

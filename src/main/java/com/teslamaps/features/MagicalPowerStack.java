@@ -42,7 +42,7 @@ public class MagicalPowerStack {
     private static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (!labels.isEmpty()) labels = List.of();
             return;
         }
@@ -106,7 +106,7 @@ public class MagicalPowerStack {
     public static void render(GuiGraphicsExtractor ctx) {
         if (labels.isEmpty() || !cfg().magicalPowerStack || !cfg().section("Inventory")) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         List<Slot> slots = cs.getMenu().slots;

@@ -71,13 +71,13 @@ public class SecretTrackerLocator {
         TeslaMapsConfig c = cfg();
         if (!c.secretTrackerLocator) return;
         if (!Minecraft.getInstance().isSameThread()) return;
-        if (packet.getParticle().getType() != ParticleTypes.HAPPY_VILLAGER) return;
-        if (packet.getCount() != 1 || packet.getMaxSpeed() != 0f) return;
+        if (packet.particle().getType() != ParticleTypes.HAPPY_VILLAGER) return;
+        if (packet.count() != 1 || packet.xMaxSpeed() != 0f) return;
         if (!DungeonManager.isInDungeon()) return;
         long now = System.currentTimeMillis();
         lastParticle = now;
         if (now - lastUse > 1000) return;
-        if (!fitter.tryAdd(new Vec3(packet.getX(), packet.getY(), packet.getZ()), 1.0)) return;
+        if (!fitter.tryAdd(new Vec3(packet.x(), packet.y(), packet.z()), 1.0)) return;
         repredict();
     }
 

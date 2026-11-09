@@ -223,7 +223,7 @@ public class WaypointPackScreen extends Screen {
     public void onClose() {
         commitRenames();
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

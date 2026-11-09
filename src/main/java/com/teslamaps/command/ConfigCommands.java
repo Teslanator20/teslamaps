@@ -74,7 +74,7 @@ public final class ConfigCommands {
                                 .executes(c -> help(dispatcher, c.getSource(), StringArgumentType.getString(c, "query")))))
                 .then(ClientCommands.literal("all")
                         .executes(c -> {
-                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(MapConfigScreen.openAll()));
+                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance().gui.setScreen(MapConfigScreen.openAll()));
                             return 1;
                         })
                         .then(ClientCommands.literal("dump")
@@ -88,7 +88,7 @@ public final class ConfigCommands {
                                 })))
                 .then(ClientCommands.literal("adg")
                         .executes(c -> {
-                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(MapConfigScreen.openAdm()));
+                            Minecraft.getInstance().schedule(() -> Minecraft.getInstance().gui.setScreen(MapConfigScreen.openAdm()));
                             return 1;
                         }))
                 .then(ClientCommands.literal("newfeatures")
@@ -325,7 +325,7 @@ public final class ConfigCommands {
     /** The list replaces its previous copy instead of stacking up. */
     private static void removeLastHelp() {
         if (lastHelp == null) return;
-        var acc = (com.teslamaps.mixin.ChatComponentAccessor) Minecraft.getInstance().gui.getChat();
+        var acc = (com.teslamaps.mixin.ChatComponentAccessor) Minecraft.getInstance().gui.hud.getChat();
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
         for (int i = 0; i < Math.min(all.size(), 100); i++) {
             Component c = all.get(i).content();

@@ -26,6 +26,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
@@ -308,7 +309,7 @@ public class P4Necron extends Fight.Phase {
     private static class Fireball extends LargeFireball {
         private int life = 100;
 
-        Fireball(ServerLevel level) { super(EntityType.FIREBALL, level); }
+        Fireball(ServerLevel level) { super(EntityTypes.FIREBALL, level); }
 
         @Override
         public void tick() { super.tick(); if (--life <= 0) discard(); }
@@ -333,7 +334,7 @@ public class P4Necron extends Fight.Phase {
     private static class Skull extends WitherSkull {
         private int life = 100;
 
-        Skull(ServerLevel level) { super(EntityType.WITHER_SKULL, level); }
+        Skull(ServerLevel level) { super(EntityTypes.WITHER_SKULL, level); }
 
         @Override
         public void tick() { super.tick(); if (--life <= 0) discard(); }
@@ -410,7 +411,7 @@ public class P4Necron extends Fight.Phase {
             while (nextBolt < bolts.size() && bolts.get(nextBolt) <= t) {
                 nextBolt++;
                 double a = KRandom.DEFAULT.nextDouble(Math.PI * 2); double r = 12 * Math.sqrt(KRandom.DEFAULT.nextDouble());
-                LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, Sim.level());
+                LightningBolt bolt = new LightningBolt(EntityTypes.LIGHTNING_BOLT, Sim.level());
                 bolt.setVisualOnly(true);
                 bolt.snapTo(centre.x + r * Math.cos(a), 63.0, centre.z + r * Math.sin(a), 0f, 0f);
                 Sim.spawn(bolt);

@@ -95,10 +95,10 @@ public final class ArachneTimers {
 
     public static void onParticle(ClientboundLevelParticlesPacket p) {
         if (!awaiting || !Minecraft.getInstance().isSameThread()) return;
-        if (p.getMaxSpeed() != 1f || p.getParticle().getType() != ParticleTypes.DUST) return;
-        Vector3f col = ((DustParticleOptions) p.getParticle()).getColor();
+        if (p.xMaxSpeed() != 1f || p.particle().getType() != ParticleTypes.DUST) return;
+        Vector3f col = ((DustParticleOptions) p.particle()).getColor();
         if (col.x > 0.05f || col.y > 0.05f || col.z > 0.05f) return;
-        double dx = p.getX() - ALTAR.getX(), dy = p.getY() - ALTAR.getY(), dz = p.getZ() - ALTAR.getZ();
+        double dx = p.x() - ALTAR.x(), dy = p.y() - ALTAR.y(), dz = p.z() - ALTAR.z();
         if (dx * dx + dy * dy + dz * dz > 4.0) return;
         particles++;
     }
@@ -271,7 +271,7 @@ public final class ArachneTimers {
         List<String> l = lines;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         CropStats.drawLines(g, mc, hud.x(), hud.y(), hud.scale(), l, linesW);
     }
 }

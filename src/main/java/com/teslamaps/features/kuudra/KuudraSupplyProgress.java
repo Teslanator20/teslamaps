@@ -99,7 +99,7 @@ public final class KuudraSupplyProgress {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         if (cfg().kuudraAlreadyPicking && System.currentTimeMillis() < alertUntil) {
             String t = "§c§lAlready Picking";
             var pose = g.pose();

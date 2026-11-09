@@ -380,7 +380,7 @@ public class ScreenshotEditorScreen extends Screen {
     @Override
     public void onClose() {
         if (unsaved && !confirm("discard", "§eUnsaved edits - press again to discard them")) return;
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
     private void delete() {
@@ -388,7 +388,7 @@ public class ScreenshotEditorScreen extends Screen {
         if (ScreenshotManager.delete(file)) {
             ScreenshotScreen.forget(file.getName());
             unsaved = false;
-            minecraft.setScreen(parent);
+            minecraft.gui.setScreen(parent);
         } else {
             status = "§cDelete failed";
         }
@@ -459,7 +459,7 @@ public class ScreenshotEditorScreen extends Screen {
             ScreenshotScreen.forget(dest.getName());
             unsaved = false;
             status = "§aSaved " + dest.getName();
-            if (replace) minecraft.setScreen(new ScreenshotEditorScreen(parent, file));
+            if (replace) minecraft.gui.setScreen(new ScreenshotEditorScreen(parent, file));
         } catch (Exception e) {
             status = "§cSave failed: " + e.getMessage();
             TeslaMaps.LOGGER.warn("Screenshot editor save failed", e);

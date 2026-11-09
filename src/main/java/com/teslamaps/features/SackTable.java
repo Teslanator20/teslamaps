@@ -52,14 +52,14 @@ public final class SackTable {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !StringUtil.stripTrim(cs.getTitle().getString()).contains("Sack")) {
             lastScreen = null;
             lines = List.of();
             return;
         }
-        if (lastScreen != mc.screen) {
-            lastScreen = mc.screen;
+        if (lastScreen != mc.gui.screen()) {
+            lastScreen = mc.gui.screen();
             ticks = 0;
         }
         if (ticks++ % 5 != 0) return;
@@ -147,12 +147,12 @@ public final class SackTable {
 
     public static boolean shouldRender() {
         return cfg().containerValue && cfg().sackTable && !lines.isEmpty()
-                && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+                && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         List<String> ls = lines;
         int[] slots = rowSlots;
         if (ls.isEmpty()) return;

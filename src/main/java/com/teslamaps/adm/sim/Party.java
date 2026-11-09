@@ -41,6 +41,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.item.Item;
@@ -2466,7 +2467,7 @@ public final class Party {
     );
 
     private static void spawn(Bot b, Vec3 at) {
-        Mannequin m = new Mannequin(EntityType.MANNEQUIN, Sim.level());
+        Mannequin m = new Mannequin(EntityTypes.MANNEQUIN, Sim.level());
         m.setComponent(DataComponents.PROFILE, ResolvableProfile.createResolved(profile(b)));
         m.setCustomName(Component.literal("§a" + b.name));
         m.setCustomNameVisible(true);

@@ -114,7 +114,7 @@ public final class BazaarOrderTracker {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) {
             if (cs != scanned) { scanned = cs; screenTicks = 0; }
             // Hypixel fills the menu async
@@ -335,9 +335,9 @@ public final class BazaarOrderTracker {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty()) return;
         if (cfg().bzTrackerOnlyMenus) {
-            if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+            if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
             String t = cs.getTitle().getString();
             if (!t.contains("Bazaar") && !t.contains("Order options")) return;
         }

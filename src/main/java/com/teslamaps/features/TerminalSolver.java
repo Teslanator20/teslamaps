@@ -74,7 +74,7 @@ public class TerminalSolver {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof TermSimGUI sim) {
+        if (mc.gui.screen() instanceof TermSimGUI sim) {
             sim.clickIndex(slot, org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_3);
             return;
         }
@@ -196,7 +196,7 @@ public class TerminalSolver {
     /** Records the personal best for a solved terminal. */
     public static void onTerminalSolved(TerminalHandler handler) {
         Minecraft mc = Minecraft.getInstance();
-        boolean isSim = mc.screen instanceof TermSimGUI;
+        boolean isSim = mc.gui.screen() instanceof TermSimGUI;
         Map<String, Float> pbs = isSim
                 ? TeslaMapsConfig.get().termSimPbs : TeslaMapsConfig.get().terminalPbs;
 

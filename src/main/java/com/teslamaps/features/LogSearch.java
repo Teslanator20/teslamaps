@@ -143,7 +143,7 @@ public final class LogSearch {
         }
         String query = q;
         boolean rx = regex, ic = ignoreCase;
-        Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(new LogSearchScreen(query, rx, ic)));
+        Minecraft.getInstance().schedule(() -> Minecraft.getInstance().gui.setScreen(new LogSearchScreen(query, rx, ic)));
         return 1;
     }
 }

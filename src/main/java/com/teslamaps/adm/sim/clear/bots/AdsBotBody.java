@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.Level;
  */
 public class AdsBotBody extends Avatar {
     public AdsBotBody(Level level, UUID profileId) {
-        super(EntityType.MANNEQUIN, level);
+        super(EntityTypes.MANNEQUIN, level);
         setUUID(profileId);
         // second skin layers on
         entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, (byte) 0x7f);
@@ -28,7 +29,7 @@ public class AdsBotBody extends Avatar {
 
     /** The add packet as the client wants it: a PLAYER with this body's position, look and profile id. */
     public Packet<ClientGamePacketListener> addPacket() {
-        return new ClientboundAddEntityPacket(getId(), getUUID(), getX(), getY(), getZ(), getXRot(), getYRot(), EntityType.PLAYER, 0, getDeltaMovement(), (double) yHeadRot);
+        return new ClientboundAddEntityPacket(getId(), getUUID(), getX(), getY(), getZ(), getXRot(), getYRot(), EntityTypes.PLAYER, 0, getDeltaMovement(), (double) yHeadRot);
     }
 
     @Override public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity entity) { return addPacket(); }

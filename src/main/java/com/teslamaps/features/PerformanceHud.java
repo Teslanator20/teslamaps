@@ -45,7 +45,7 @@ public class PerformanceHud {
     // HUD-020, from MouseHandler.onButton
     public static void onClick(int button) {
         if (!TeslaMapsConfig.get().perfHud || !TeslaMapsConfig.get().perfHudCps) return;
-        if (Minecraft.getInstance().screen != null) return;
+        if (Minecraft.getInstance().gui.screen() != null) return;
         long now = System.currentTimeMillis();
         if (button == 0) leftClicks[leftIdx++ & 63] = now;
         else if (button == 1) rightClicks[rightIdx++ & 63] = now;

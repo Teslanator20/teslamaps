@@ -64,7 +64,7 @@ public final class ItemLoreExtras {
 
     private static void tick() {
         if (++ticks % 20 != 0) return;
-        if (Minecraft.getInstance().screen == null && STITCH.size() > 0) STITCH.clear();
+        if (Minecraft.getInstance().gui.screen() == null && STITCH.size() > 0) STITCH.clear();
     }
 
     private static CompoundTag tag(ItemStack stack) {

@@ -12,7 +12,7 @@ public class SprintingOverlay {
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         if (!TeslaMapsConfig.get().sprintingOverlay) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         if (com.teslamaps.utils.HudVisibility.suppressed()) return;
 
         boolean sprinting = mc.player.isSprinting();

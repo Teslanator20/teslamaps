@@ -86,7 +86,7 @@ public final class ImplosionDisplay {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!holding || hitsText == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         draw(g, mc, c.implosionDisplayX, c.implosionDisplayY, c.implosionDisplayScale, icon, name, hitsText, damageText);
     }

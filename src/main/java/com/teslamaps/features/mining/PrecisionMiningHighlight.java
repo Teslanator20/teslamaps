@@ -44,11 +44,11 @@ public final class PrecisionMiningHighlight {
         if (feature == null || !TeslaMapsConfig.get().precisionMiningHighlight) return;
         Minecraft mc = Minecraft.getInstance();
         if (!mc.isSameThread() || mc.player == null) return;
-        ParticleType<?> type = packet.getParticle().getType();
+        ParticleType<?> type = packet.particle().getType();
         if (type != ParticleTypes.CRIT && type != ParticleTypes.HAPPY_VILLAGER) return;
         if (!mc.options.keyAttack.isDown() || !feature.active() || !Mining.onMiningIsland()) return;
         if (!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return;
-        double x = packet.getX(), y = packet.getY(), z = packet.getZ();
+        double x = packet.x(), y = packet.y(), z = packet.z();
         AABB particle = new AABB(x - 0.12, y - 0.12, z - 0.12, x + 0.12, y + 0.12, z + 0.12);
         BlockPos p = hit.getBlockPos();
         if (!new AABB(p).intersects(particle)) return;

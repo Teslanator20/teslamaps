@@ -20,7 +20,7 @@ public final class PuzzlesTerminalsCategory {
                 () -> progressFormats[config.melodyProgressFormat == 1 ? 1 : 0],
                 v -> config.melodyProgressFormat = v.equals(progressFormats[1]) ? 1 : 0).fresh();
         b.button("  Edit Melody Messages",
-                () -> Minecraft.getInstance().setScreen(new MelodyMessageScreen(Minecraft.getInstance().screen))).fresh();
+                () -> Minecraft.getInstance().gui.setScreen(new MelodyMessageScreen(Minecraft.getInstance().gui.screen()))).fresh();
         b.toggle("Melody Display (party progress)", () -> config.melodyDisplay, v -> config.melodyDisplay = v).fresh();
         b.info("Shows \"<name> has 2/4 melody\" from party chat in P3 (/tmap gui)").fresh();
         b.slider("  Display Duration (s)", 0.5f, 5f,

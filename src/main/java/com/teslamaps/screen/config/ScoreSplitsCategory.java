@@ -17,8 +17,8 @@ public final class ScoreSplitsCategory {
         b.toggle("  270 Score Title", () -> config.score270Title, v -> config.score270Title = v).fresh();
         b.toggle("  300 Score Title", () -> config.score300Title, v -> config.score300Title = v).fresh();
         b.toggle("    Title Sound", () -> config.scoreTitleSound, v -> config.scoreTitleSound = v).fresh();
-        b.button("  Edit Score Texts", () -> Minecraft.getInstance().setScreen(new TextFieldsScreen(
-                Minecraft.getInstance().screen, "Score Texts", "& = color, {time} = run time, empty message = default",
+        b.button("  Edit Score Texts", () -> Minecraft.getInstance().gui.setScreen(new TextFieldsScreen(
+                Minecraft.getInstance().gui.screen(), "Score Texts", "& = color, {time} = run time, empty message = default",
                 java.util.List.of(
                         new TextFieldsScreen.Field("270 Title", () -> config.score270TitleText, v -> config.score270TitleText = v),
                         new TextFieldsScreen.Field("270 Message", () -> config.score270Text, v -> config.score270Text = v),
@@ -50,8 +50,8 @@ public final class ScoreSplitsCategory {
         b.toggle("  Send All Splits on End", () -> config.splitsSendAllOnEnd, v -> config.splitsSendAllOnEnd = v);
         b.toggle("  Custom Splits (per floor)", () -> config.customSplits, v -> config.customSplits = v).fresh()
                 .desc("Own split points per floor, triggered by a chat message. They replace that floor's boss splits.");
-        b.button("    Edit Custom Splits", () -> Minecraft.getInstance().setScreen(
-                new CustomSplitsScreen(Minecraft.getInstance().screen))).fresh();
+        b.button("    Edit Custom Splits", () -> Minecraft.getInstance().gui.setScreen(
+                new CustomSplitsScreen(Minecraft.getInstance().gui.screen()))).fresh();
         b.toggle("  Show Tick Time", () -> config.splitsTickTime, v -> config.splitsTickTime = v).fresh()
                 .desc("Server-tick time behind every split, lag independent");
         b.toggle("  Boss Entry Split", () -> config.splitsBossEntry, v -> config.splitsBossEntry = v).fresh()

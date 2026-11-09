@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 
@@ -125,7 +126,7 @@ public class WallHeads {
     }
 
     private ArmorStand spawn(HeadSlot s, String key) {
-        ArmorStand st = new ArmorStand(EntityType.ARMOR_STAND, Sim.level());
+        ArmorStand st = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         st.setInvisible(true); st.setSilent(true); st.setNoGravity(true); st.setInvulnerable(true);
         st.setItemSlot(EquipmentSlot.HEAD, HeadItems.stack(key, textures));
         st.snapTo(s.x + 0.5, s.y + BloodGeometry.STAND_ABOVE_CELL, s.z + 0.5, 0f, 0f);

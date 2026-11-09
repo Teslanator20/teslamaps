@@ -80,9 +80,9 @@ public final class MobSpawnAlert {
         if (now - lastAlert < (long) (c.mobSpawnAlertCooldown * 1000)) return;
         lastAlert = now;
         if (!"Sound Only".equals(c.mobSpawnAlertMode)) {
-            mc.gui.setTitle(Component.literal("§c" + name));
-            mc.gui.setSubtitle(Component.literal("§espawned!"));
-            mc.gui.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§c" + name));
+            mc.gui.hud.setSubtitle(Component.literal("§espawned!"));
+            mc.gui.hud.setTimes(5, 40, 10);
         }
         LoudSound.play(SoundOptions.resolve(c.mobSpawnAlertSound), 1f, 1f);
         int x = e.getBlockX(), y = e.getBlockY(), z = e.getBlockZ();

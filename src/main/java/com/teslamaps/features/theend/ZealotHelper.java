@@ -24,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -48,7 +48,7 @@ public final class ZealotHelper {
     private static final IntOpenHashSet counted = new IntOpenHashSet();
     private static final Int2ObjectOpenHashMap<Vec3> arrows = new Int2ObjectOpenHashMap<>();
     private static final List<Boom> booms = new ArrayList<>();
-    private static final List<EnderMan> specials = new ArrayList<>();
+    private static final List<Enderman> specials = new ArrayList<>();
 
     private static Object lastLevel;
     private static boolean inEnd, inZealotArea;
@@ -99,7 +99,7 @@ public final class ZealotHelper {
                 });
     }
 
-    private static boolean isZealot(EnderMan e) {
+    private static boolean isZealot(Enderman e) {
         ArmorStand tag = NametagMobs.tagForMob(e);
         if (tag != null) {
             String n = NametagMobs.tagName(tag);
@@ -130,7 +130,7 @@ public final class ZealotHelper {
         updateArea();
         if (!inEnd) return;
         EspStyle style = EspStyle.of(cfg().specialZealotEsp);
-        for (EnderMan e : EntityCache.byType(EnderMan.class)) {
+        for (Enderman e : EntityCache.byType(Enderman.class)) {
             BlockState held = e.getCarriedBlock();
             if (held == null || !held.is(Blocks.END_PORTAL_FRAME) || !e.isAlive()) continue;
             if (!isZealot(e)) continue;
@@ -143,12 +143,12 @@ public final class ZealotHelper {
         if (specials.isEmpty()) return;
         EspStyle style = EspStyle.of(cfg().specialZealotEsp);
         float pt = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
-        for (EnderMan e : specials) style.drawEntity(pose, e, cam, pt);
+        for (Enderman e : specials) style.drawEntity(pose, e, cam, pt);
     }
 
     /** ClientPlayerInteractionManager.attack. */
     public static void onAttack(Entity target) {
-        if (!cfg().zealotCounter || !inEnd || !(target instanceof EnderMan)) return;
+        if (!cfg().zealotCounter || !inEnd || !(target instanceof Enderman)) return;
         hits.put(target.getId(), (Long) System.currentTimeMillis());
     }
 
@@ -172,7 +172,7 @@ public final class ZealotHelper {
         booms.removeIf(b -> now - b.at > EXPLOSION_MS);
         hits.int2ObjectEntrySet().removeIf(en -> now - en.getValue() > HIT_MS);
 
-        for (EnderMan e : EntityCache.byType(EnderMan.class)) {
+        for (Enderman e : EntityCache.byType(Enderman.class)) {
             if (!e.isDeadOrDying() || counted.contains(e.getId())) continue;
             counted.add(e.getId());
             boolean mine = hits.remove(e.getId()) != null || nearBoom(e.position());
@@ -244,8 +244,8 @@ public final class ZealotHelper {
 
     private static void alert(String text) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 40, 10);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 40, 10);
+        mc.gui.hud.setTitle(Component.literal(text));
         LoudSound.play(SoundEvents.PLAYER_LEVELUP, 1f, 1f);
     }
 
@@ -264,7 +264,7 @@ public final class ZealotHelper {
         List<String> ls = lines;
         if (ls.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), ls, width);
     }
 

@@ -107,7 +107,7 @@ public class KeybindMessageScreen extends Screen {
 
             if (conds) addRenderableWidget(new TeslaButton(listX + listW - 46, ry, 22, 22,
                     com.teslamaps.features.HotkeyCondition.summary(kb),
-                    () -> minecraft.setScreen(new HotkeyConditionScreen(this, kb))));
+                    () -> minecraft.gui.setScreen(new HotkeyConditionScreen(this, kb))));
 
             addRenderableWidget(new TeslaButton(listX + listW - 22, ry, 22, 22, "§cx",
                     () -> { b.remove(idx); listening = -1; listening2 = -1; rebuild(); }));

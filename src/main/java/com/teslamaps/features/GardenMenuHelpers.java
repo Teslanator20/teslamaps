@@ -75,7 +75,7 @@ public final class GardenMenuHelpers {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) close();
             return;
         }
@@ -210,7 +210,7 @@ public final class GardenMenuHelpers {
             String cloak = EquipmentDisplay.cloakId();
             if ("ZORROS_CAPE".equals(cloak)) return false;
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTitle(Component.literal("§cNo Zorro's Cape equipped!"));
+            mc.gui.hud.setTitle(Component.literal("§cNo Zorro's Cape equipped!"));
             if (mc.player != null) {
                 mc.player.playSound(SoundEvents.VILLAGER_NO, 1f, 1f);
                 mc.player.sendSystemMessage(Component.literal(cloak == null
@@ -228,7 +228,7 @@ public final class GardenMenuHelpers {
         if (!c.visitorAcceptHotkey || c.visitorAcceptKey < 0 || key != c.visitorAcceptKey) return false;
         if (!inVisitor || !on() || LegitMode.blocksCheats()) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen || mc.gameMode == null || mc.player == null) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen || mc.gameMode == null || mc.player == null) return false;
         long now = System.currentTimeMillis();
         if (now - lastClick < 300) return true;
         lastClick = now;

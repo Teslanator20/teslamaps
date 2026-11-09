@@ -12,7 +12,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 public class HudForeground {
 
     public static boolean active() {
-        return Minecraft.getInstance().screen
+        return Minecraft.getInstance().gui.screen()
                 instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
     }
 

@@ -135,7 +135,7 @@ public class TrashFilterScreen extends Screen {
         list().removeIf(f -> f.value.isBlank());
         TrashHighlighter.invalidate();
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

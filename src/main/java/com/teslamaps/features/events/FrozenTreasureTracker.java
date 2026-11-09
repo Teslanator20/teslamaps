@@ -155,7 +155,7 @@ public final class FrozenTreasureTracker {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (lines.isEmpty() || hud == null || mc.options.hideGui) return;
+        if (lines.isEmpty() || hud == null || mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

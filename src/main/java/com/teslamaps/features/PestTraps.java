@@ -65,9 +65,9 @@ public final class PestTraps {
             for (String w : warnings) mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + w));
         }
         if (c.pestTrapWarnTitle && mc.gui != null) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal(warnings.get(0)));
-            mc.gui.setSubtitle(Component.empty());
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal(warnings.get(0)));
+            mc.gui.hud.setSubtitle(Component.empty());
         }
         if (c.pestTrapWarnVolume > 0f) {
             var sound = SoundOptions.resolve(c.pestTrapWarnSound);
@@ -111,7 +111,7 @@ public final class PestTraps {
 
     private static void tickRelease() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen) || !SkyblockUtils.isInGarden()) { keyDown = false; return; }
+        if (!(mc.gui.screen() instanceof ContainerScreen screen) || !SkyblockUtils.isInGarden()) { keyDown = false; return; }
         String title = StringUtil.stripTrim(screen.getTitle().getString());
         if (!title.equals("Pest Trap") && !title.equals("Mouse Trap") && !title.equals("Vermin Trap")) { keyDown = false; return; }
         boolean down = KeyNames.isDown(cfg().pestTrapReleaseKey);

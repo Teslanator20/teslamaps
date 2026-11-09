@@ -98,7 +98,7 @@ public final class CustomEspRules {
                     b.toggle("Custom ESP Rules", () -> c.customEspRules, v -> c.customEspRules = v).cheat()
                             .desc("Highlight mobs by type, name, armor, held item, island, invisibility or health.");
                     b.button("  Edit Rules", () -> Minecraft.getInstance()
-                            .setScreen(new com.teslamaps.screen.EspRuleScreen(b.screen())));
+                            .gui.setScreen(new com.teslamaps.screen.EspRuleScreen(b.screen())));
                     b.toggle("  Labels + Distance", () -> c.customEspRuleLabels, v -> c.customEspRuleLabels = v);
                     b.slider("  Line Width", 1f, 8f, () -> c.customEspRuleLineWidth, v -> c.customEspRuleLineWidth = v, 1);
                     b.soundDropdown("  Alert Sound", SoundOptions.keys(), () -> c.customEspRuleSound, v -> c.customEspRuleSound = v);
@@ -177,9 +177,9 @@ public final class CustomEspRules {
         if (now - lastAlert < 2000) return;
         lastAlert = now;
         String name = StringUtil.stripTrim(e.getName().getString());
-        mc.gui.setTitle(Component.literal("§c" + name));
-        mc.gui.setSubtitle(Component.literal("§e" + r.summary()));
-        mc.gui.setTimes(5, 40, 10);
+        mc.gui.hud.setTitle(Component.literal("§c" + name));
+        mc.gui.hud.setSubtitle(Component.literal("§e" + r.summary()));
+        mc.gui.hud.setTimes(5, 40, 10);
         LoudSound.play(SoundOptions.resolve(cfg().customEspRuleSound), 1f, 1f);
     }
 

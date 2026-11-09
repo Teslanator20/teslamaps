@@ -189,7 +189,7 @@ public final class RandomStuff {
 
     private static void tickCursorReset() {
         Minecraft mc = Minecraft.getInstance();
-        Screen s = mc.screen;
+        Screen s = mc.gui.screen();
         if (s == null || !termCursorResetNow()) { cursorScreen = null; return; }
         if (s != cursorScreen) { cursorScreen = s; cursorTicks = 0; }
         if (cursorTicks++ >= 2) return;
@@ -206,7 +206,7 @@ public final class RandomStuff {
     }
 
     private static boolean inTerminal() {
-        return TerminalUtils.getCurrentTerm() != null || Minecraft.getInstance().screen instanceof TermSimGUI;
+        return TerminalUtils.getCurrentTerm() != null || Minecraft.getInstance().gui.screen() instanceof TermSimGUI;
     }
 
     // --- read by the mixins ---
@@ -265,7 +265,7 @@ public final class RandomStuff {
 
     public static boolean blursGui() {
         Minecraft mc = Minecraft.getInstance();
-        return on && cfg().admBlurInGui && mc.screen != null && mc.level != null;
+        return on && cfg().admBlurInGui && mc.gui.screen() != null && mc.level != null;
     }
 
     public static boolean blursAfterReset() {

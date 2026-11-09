@@ -67,12 +67,12 @@ public final class HoppityCollectionStats {
     public static boolean shouldRender() {
         TeslaMapsConfig c = cfg();
         return c.hoppityCollectionStats && c.section("Events") && !lines.isEmpty()
-                && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+                && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean inMenu = mc.screen instanceof AbstractContainerScreen<?> cs
+        boolean inMenu = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && PAGE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches();
         if (!inMenu) {
             if (lastScreen != null) {
@@ -86,12 +86,12 @@ public final class HoppityCollectionStats {
             }
             return;
         }
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
             ticks = 0;
         }
         if (ticks++ % 10 != 0) return;
-        scan((AbstractContainerScreen<?>) mc.screen);
+        scan((AbstractContainerScreen<?>) mc.gui.screen());
     }
 
     private static String rarity(ItemStack st, List<String> lore) {
@@ -252,7 +252,7 @@ public final class HoppityCollectionStats {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         if (cfg().hoppityHighlightRequirements) {
             List<Integer> hl = highlight;

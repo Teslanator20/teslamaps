@@ -97,9 +97,9 @@ public final class BitsWarning {
             plings--;
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 0.6f);
         }
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
-            if (mc.screen != lastScreen) {
-                lastScreen = mc.screen;
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
+            if (mc.gui.screen() != lastScreen) {
+                lastScreen = mc.gui.screen();
                 openedAt = System.currentTimeMillis();
             }
             if (timer % 10 == 0 && System.currentTimeMillis() - openedAt > 600
@@ -166,8 +166,8 @@ public final class BitsWarning {
             setAvailable(a);
         }
         if (c.noBitsWarning && a == 0) {
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal("§bNo Bits Available"));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§bNo Bits Available"));
             if (mc.player != null) {
                 mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §bNo Bits Available! §eClick to buy booster cookies on the bazaar.")
                         .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand("/bz booster cookie"))

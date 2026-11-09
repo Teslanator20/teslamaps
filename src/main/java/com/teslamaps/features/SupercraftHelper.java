@@ -228,7 +228,7 @@ public final class SupercraftHelper {
     public static void render(GuiGraphicsExtractor ctx) {
         if (blockedAt == 0 || System.currentTimeMillis() - blockedAt > 2500) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int w = mc.font.width(blockedText);
         int x = acc.getX() + acc.getImageWidth() / 2 - w / 2;

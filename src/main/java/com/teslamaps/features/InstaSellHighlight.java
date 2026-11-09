@@ -40,7 +40,7 @@ public final class InstaSellHighlight {
                     b.color("  Highlight Color", () -> c.colorInstaSell, v -> c.colorInstaSell = v);
                 });
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (feature == null || !feature.active() || Minecraft.getInstance().screen == null) return;
+            if (feature == null || !feature.active() || Minecraft.getInstance().gui.screen() == null) return;
             Double v = value(stack);
             if (v == null) return;
             lines.add(Component.literal("§aInsta-sell: §6" + EstimatedValue.fmt(v * stack.getCount())

@@ -53,7 +53,7 @@ public final class PreventPlacing {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().preventPlacingBlacklistKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().preventPlacingBlacklistKey);
         if (down && !keyWasDown) toggleHeld(mc);
         keyWasDown = down;
     }

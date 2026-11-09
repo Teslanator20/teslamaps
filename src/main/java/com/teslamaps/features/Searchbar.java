@@ -38,7 +38,7 @@ public class Searchbar {
     private static boolean enabled() {
         if (!TeslaMapsConfig.get().searchbar) return false;
         Minecraft mc = Minecraft.getInstance();
-        return mc.screen instanceof AbstractContainerScreen<?>;
+        return mc.gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     private static boolean visible() {
@@ -49,7 +49,7 @@ public class Searchbar {
     public static boolean handleClick(double mx, double my, int button) {
         if (!enabled() || !visible()) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int bx = acc.getX(), by = acc.getY() - BOX_H - 1;
         boolean inside = mx >= bx && mx <= bx + BOX_W && my >= by && my <= by + BOX_H;
@@ -98,12 +98,12 @@ public class Searchbar {
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().searchbar) return false;
-        return Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+        return Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String title = com.teslamaps.utils.StringUtil.strip(cs.getTitle().getString());
         // keep the query across containers/pages; just drop focus when the container changes

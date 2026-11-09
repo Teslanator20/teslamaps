@@ -93,7 +93,7 @@ public final class MagmaBossStage {
         else { stage = percent; hp = soaked; }
 
         if (stage != null && !"Final Stage".equals(stage) && !stage.equals(lastStage) && cfg().magmaBossTitle) {
-            mc.gui.setTitle(Component.literal("§c§l" + stage));
+            mc.gui.hud.setTitle(Component.literal("§c§l" + stage));
         }
         lastStage = stage;
         health = hp;
@@ -133,7 +133,7 @@ public final class MagmaBossStage {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !cfg().magmaBossHud || lines.isEmpty() || hud == null) return;
+        if (mc.gui.hud.isHidden() || !cfg().magmaBossHud || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

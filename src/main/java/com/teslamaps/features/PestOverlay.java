@@ -92,9 +92,9 @@ public class PestOverlay {
             if (mc.gui != null) {
                 // Stay just past a second so each number replaces the one before
                 // it without the title blinking out in between.
-                mc.gui.setTimes(0, 25, 5);
-                mc.gui.setTitle(Component.literal("§ePests spawn soon"));
-                mc.gui.setSubtitle(Component.literal("§7" + seconds + "s"));
+                mc.gui.hud.setTimes(0, 25, 5);
+                mc.gui.hud.setTitle(Component.literal("§ePests spawn soon"));
+                mc.gui.hud.setSubtitle(Component.literal("§7" + seconds + "s"));
             }
         }
         if (config.pestCooldownSound) {
@@ -182,9 +182,9 @@ public class PestOverlay {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui != null) {
-            mc.gui.setTimes(0, 45, 5);
-            mc.gui.setTitle(Component.literal(title));
-            mc.gui.setSubtitle(Component.literal(subtitle));
+            mc.gui.hud.setTimes(0, 45, 5);
+            mc.gui.hud.setTitle(Component.literal(title));
+            mc.gui.hud.setSubtitle(Component.literal(subtitle));
         }
         var sound = SoundOptions.resolve(config.pestCooldownSoundName);
         if (sound != null) LoudSound.play(sound, config.pestCooldownVolume, 0.8f);

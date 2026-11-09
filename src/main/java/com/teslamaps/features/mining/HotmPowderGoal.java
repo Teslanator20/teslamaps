@@ -129,8 +129,8 @@ public final class HotmPowderGoal {
         if (changed) TeslaMapsConfig.save();
         if (any && cfg().hotmPowderGoalTitle) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(5, 40, 10);
-            mc.gui.setTitle(Component.literal("§e§lHotM perk upgrade!"));
+            mc.gui.hud.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§e§lHotM perk upgrade!"));
         }
     }
 

@@ -65,7 +65,7 @@ public final class HarvestFeast {
         }
 
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!StringUtil.strip(cs.getTitle().getString()).trim().equals("All Crops")) return;
 
         long now = System.currentTimeMillis();

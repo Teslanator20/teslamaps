@@ -91,7 +91,7 @@ public final class BestiaryMenuData {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) { lastScreen = null; inMenu = false; lines = List.of(); }
             return;
         }
@@ -340,7 +340,7 @@ public final class BestiaryMenuData {
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         if (!inMenu || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
         Perf.begin("BestiaryMenuData.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         String[] text = slotText;

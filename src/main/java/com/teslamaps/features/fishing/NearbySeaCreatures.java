@@ -191,9 +191,9 @@ public final class NearbySeaCreatures {
         if (mc.player == null) return;
         TeslaMapsConfig c = cfg();
         String title = c.rareCatchName ? info.color() + "§l" + info.name() + " NEARBY!" : info.color() + "§lRARE SEA CREATURE!";
-        mc.gui.setTimes(0, 30, 5);
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal(""));
+        mc.gui.hud.setTimes(0, 30, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
+        mc.gui.hud.setSubtitle(Component.literal(""));
         if (c.rareCatchVolume > 0f) LoudSound.play(SoundOptions.resolve(c.rareCatchSound), c.rareCatchVolume, 1.4f);
     }
 
@@ -251,7 +251,7 @@ public final class NearbySeaCreatures {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty() || !cfg().seaCreatureHealthHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.player == null) return;
+        if (mc.gui.hud.isHidden() || mc.player == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

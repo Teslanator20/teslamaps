@@ -142,8 +142,8 @@ public final class CrownOfAvarice {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty()) return;
-        if (mc.screen != null && !(mc.screen instanceof InventoryScreen)) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty()) return;
+        if (mc.gui.screen() != null && !(mc.gui.screen() instanceof InventoryScreen)) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

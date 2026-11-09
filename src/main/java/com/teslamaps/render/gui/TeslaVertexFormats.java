@@ -1,7 +1,7 @@
 package com.teslamaps.render.gui;
 
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormatElement;
 
 public class TeslaVertexFormats {
 

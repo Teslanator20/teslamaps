@@ -63,11 +63,11 @@ public final class PetMenus {
 
     private static void screen() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen == cachedScreen) return;
-        cachedScreen = mc.screen;
+        if (mc.gui.screen() == cachedScreen) return;
+        cachedScreen = mc.gui.screen();
         cache.clear();
         petsMenu = chooseMenu = false;
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             String t = StringUtil.stripTrim(cs.getTitle().getString());
             petsMenu = PetStore.isPetsMenu(t);
             chooseMenu = CHOOSE.matcher(t).matches();
@@ -251,9 +251,9 @@ public final class PetMenus {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         panelW = 0;
-        if (mc.screen instanceof InventoryScreen) renderPanel(ctx, mc, cs);
+        if (mc.gui.screen() instanceof InventoryScreen) renderPanel(ctx, mc, cs);
         else renderKat(ctx, mc, cs);
     }
 

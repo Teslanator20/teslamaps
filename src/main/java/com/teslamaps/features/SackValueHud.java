@@ -116,7 +116,7 @@ public final class SackValueHud {
     }
 
     private static boolean inSackMenu(Minecraft mc) {
-        return mc.screen instanceof AbstractContainerScreen<?> cs
+        return mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).contains("Sack");
     }
 

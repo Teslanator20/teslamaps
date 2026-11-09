@@ -35,7 +35,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -199,7 +199,7 @@ public final class BrBoxes {
         BrRoles.doorKills = BrRoles.DoorKills.values()[index(DOOR_KILLS, cfg().admBrDoorKills, 0)];
         BrRoles.dropBottom = cfg().admBrDropBottom;
 
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().admBrEditKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().admBrEditKey);
         if (down && !editKeyDown) {
             cfg().admBrEditMode = !cfg().admBrEditMode;
             TeslaMapsConfig.save();
@@ -310,7 +310,7 @@ public final class BrBoxes {
 
     private static boolean isMob(Entity e) {
         if (e instanceof ArmorStand || e instanceof WitherBoss) return false;
-        if (e instanceof EnderMan) return true;
+        if (e instanceof Enderman) return true;
         if (e instanceof Player p) return p.getUUID().version() == 2 && p != Minecraft.getInstance().player;
         return !e.isInvisible();
     }
@@ -367,8 +367,8 @@ public final class BrBoxes {
         if (cfg().admBrDebug) PracticeUtil.msg("§dBR debug §7the rush reached fairy §8(after " + rushed.size() + " rooms)");
         if (BrRoles.youDropped(true)) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal("§cClear!"));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§cClear!"));
             if (mc.player != null) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
             PracticeUtil.msg("§dBR §7past fairy: you leave the rush §8— §fClear!");
         }
@@ -502,7 +502,7 @@ public final class BrBoxes {
             boolean open = true, wither = false;
             for (BlockPos c : cells) {
                 BlockState s = level.getBlockState(c);
-                boolean w = s.getBlock() == Blocks.COAL_BLOCK || s.getBlock() == Blocks.RED_TERRACOTTA;
+                boolean w = s.getBlock() == Blocks.COAL_BLOCK || s.getBlock() == Blocks.DYED_TERRACOTTA.red();
                 if (w) wither = true;
                 if (!(s.isAir() || s.getBlock() == Blocks.BARRIER || w)) { open = false; break; }
             }
@@ -804,7 +804,7 @@ public final class BrBoxes {
     private static boolean editing() {
         if (!on() || !cfg().admBrEditMode || cfg().admBrWand.isEmpty()) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null || mc.player == null || !DungeonManager.isInDungeon()) return false;
+        if (mc.gui.screen() != null || mc.player == null || !DungeonManager.isInDungeon()) return false;
         return identity(mc.player.getMainHandItem()).equals(cfg().admBrWand);
     }
 

@@ -152,7 +152,7 @@ public final class RiftTimer {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || RiftSpot.inMirrorverse()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null || RiftSpot.inMirrorverse()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 

@@ -105,7 +105,7 @@ public final class HideonwallPerches {
     }
 
     private static boolean inView(BlockPos pos) {
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Camera camera = Minecraft.getInstance().gameRenderer.mainCamera();
         if (camera == null) return true;
         Frustum f = camera.getCullFrustum();
         return f == null || f.isVisible(new AABB(pos));
@@ -128,7 +128,7 @@ public final class HideonwallPerches {
             if (as.getCustomName() != null && as.getCustomName().getString().contains("Hideonwall")) return true;
         }
         for (Display.ItemDisplay d : EntityCache.byType(Display.ItemDisplay.class)) {
-            if (d.position().distanceToSqr(c) <= ON_PERCH_SQ && itemOf(d).is(Items.PURPLE_SHULKER_BOX)) return true;
+            if (d.position().distanceToSqr(c) <= ON_PERCH_SQ && itemOf(d).is(Items.DYED_SHULKER_BOX.purple())) return true;
         }
         return false;
     }

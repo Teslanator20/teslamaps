@@ -247,7 +247,7 @@ public class MapConfigScreen extends Screen {
         MapConfigScreen s = new MapConfigScreen();
         s.view = viewFor(null, query);
         s.lastSearch(query == null ? "" : query);
-        Minecraft.getInstance().setScreen(s);
+        Minecraft.getInstance().gui.setScreen(s);
     }
 
     // GUI-014: toggles listed by /tmap newfeatures, null = normal screen
@@ -261,7 +261,7 @@ public class MapConfigScreen extends Screen {
         lastSearch = "";
         MapConfigScreen s = new MapConfigScreen();
         s.view = View.ALL;
-        Minecraft.getInstance().setScreen(s);
+        Minecraft.getInstance().gui.setScreen(s);
     }
 
     private static String toggleKey(String category, ToggleEntry te) {
@@ -1034,7 +1034,7 @@ public class MapConfigScreen extends Screen {
         int shortcutBtnY = this.height - 89;
         if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= shortcutBtnY && mouseY < shortcutBtnY + 22) {
             GuiSounds.press();
-            minecraft.setScreen(new ShortcutScreen());
+            minecraft.gui.setScreen(new ShortcutScreen());
             wasMouseDown = isMouseDown;
             return;
         }
@@ -1042,7 +1042,7 @@ public class MapConfigScreen extends Screen {
         int msgBtnY = this.height - 62;
         if (clicked && mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= msgBtnY && mouseY < msgBtnY + 22) {
             GuiSounds.press();
-            minecraft.setScreen(new KeybindMessageScreen());
+            minecraft.gui.setScreen(new KeybindMessageScreen());
             wasMouseDown = isMouseDown;
             return;
         }
@@ -1296,7 +1296,7 @@ public class MapConfigScreen extends Screen {
         }
         TeslaMapsConfig.save();
         GuiSounds.close();
-        if (returnTo != null) { minecraft.setScreen(returnTo); return; }
+        if (returnTo != null) { minecraft.gui.setScreen(returnTo); return; }
         super.onClose();
     }
 
@@ -1806,7 +1806,7 @@ public class MapConfigScreen extends Screen {
             if (clicked && btnHover) {
                 screen.clickHandled = true;
                 GuiSounds.press();
-                screen.minecraft.setScreen(new ClassFilterScreen(screen, label, filter));
+                screen.minecraft.gui.setScreen(new ClassFilterScreen(screen, label, filter));
             }
             GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, btnHover);
             drawBorder(ctx, btnX, btnY, btnW, btnH, GuiStyle.border());
@@ -2410,7 +2410,7 @@ public class MapConfigScreen extends Screen {
             if (clicked && btnHovered) {
                 screen.clickHandled = true;
                 GuiSounds.press();
-                Minecraft.getInstance().setScreen(new SoundPickerScreen(screen, label, options, getter.get(),
+                Minecraft.getInstance().gui.setScreen(new SoundPickerScreen(screen, label, options, getter.get(),
                         v -> { setter.accept(v); TeslaMapsConfig.save(); }));
             }
 

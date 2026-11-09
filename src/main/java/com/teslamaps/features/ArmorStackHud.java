@@ -109,7 +109,7 @@ public final class ArmorStackHud {
         String l = line;
         if (l == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

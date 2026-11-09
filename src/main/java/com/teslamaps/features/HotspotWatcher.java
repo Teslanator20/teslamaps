@@ -25,8 +25,8 @@ public class HotspotWatcher {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.player.distanceToSqr(packet.getX(), packet.getY(), packet.getZ()) > 225) return;
-        String name = String.valueOf(BuiltInRegistries.PARTICLE_TYPE.getKey(packet.getParticle().getType()));
+        if (mc.player == null || mc.player.distanceToSqr(packet.x(), packet.y(), packet.z()) > 225) return;
+        String name = String.valueOf(BuiltInRegistries.PARTICLE_TYPE.getKey(packet.particle().getType()));
         census.merge(name, 1, Integer::sum);
     }
 

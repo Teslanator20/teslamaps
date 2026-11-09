@@ -52,7 +52,7 @@ public class UpgradeReminder {
     private static void tick() {
         if (++ticks % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             if (StringUtil.stripTrim(cs.getTitle().getString()).equals("Community Shop")) readMenu(cs);
             return;
         }
@@ -75,7 +75,7 @@ public class UpgradeReminder {
     // SkyHanni: the upgrades page has a lime pane at slot 11, profile upgrades in 27-35, account in 36-44
     private static void readMenu(AbstractContainerScreen<?> cs) {
         var slots = cs.getMenu().slots;
-        if (slots.size() < 45 || !slots.get(11).getItem().is(Items.LIME_STAINED_GLASS_PANE)) return;
+        if (slots.size() < 45 || !slots.get(11).getItem().is(Items.STAINED_GLASS_PANE.lime())) return;
         boolean loaded = false;
         for (int i = 27; i < 45 && !loaded; i++) loaded = !slots.get(i).getItem().isEmpty();
         if (!loaded) return;

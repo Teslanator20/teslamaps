@@ -258,7 +258,7 @@ public class PestRoutine {
                 }
             }
             case FARM_LOADOUT_CLOSE -> {
-                if (mc.screen != null) mc.player.closeContainer();
+                if (mc.gui.screen() != null) mc.player.closeContainer();
                 step = TeslaMapsConfig.get().pestResumeAttack ? Step.RESUME_ATTACK : Step.WAIT_PEST;
             }
             case RESUME_ATTACK -> {
@@ -266,7 +266,7 @@ public class PestRoutine {
                 step = Step.WAIT_PEST;
             }
             case FIGHT_LOADOUT_CLOSE -> {
-                if (mc.screen != null) mc.player.closeContainer();
+                if (mc.gui.screen() != null) mc.player.closeContainer();
                 step = Step.WARP_GARDEN;
             }
             case SETSPAWN -> {
@@ -333,7 +333,7 @@ public class PestRoutine {
 
     private static boolean pesthunterMenuOpen() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen)) return false;
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) return false;
         return strip(screen.getTitle().getString()).toLowerCase().contains("pesthunter");
     }
 
@@ -369,9 +369,9 @@ public class PestRoutine {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui != null) {
-            mc.gui.setTimes(0, 60, 5);
-            mc.gui.setTitle(Component.literal(title));
-            mc.gui.setSubtitle(Component.literal(subtitle));
+            mc.gui.hud.setTimes(0, 60, 5);
+            mc.gui.hud.setTitle(Component.literal(title));
+            mc.gui.hud.setSubtitle(Component.literal(subtitle));
         }
 
         var sound = com.teslamaps.utils.SoundOptions.resolve(config.pestBuffSound);
@@ -386,9 +386,9 @@ public class PestRoutine {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui != null) {
-            mc.gui.setTimes(0, 60, 5);
-            mc.gui.setTitle(Component.literal("\u00a7cPest Fortune expired"));
-            mc.gui.setSubtitle(Component.literal("\u00a7e/call philip"));
+            mc.gui.hud.setTimes(0, 60, 5);
+            mc.gui.hud.setTitle(Component.literal("\u00a7cPest Fortune expired"));
+            mc.gui.hud.setSubtitle(Component.literal("\u00a7e/call philip"));
         }
 
         var sound = com.teslamaps.utils.SoundOptions.resolve(config.pestBuffSound);
@@ -427,7 +427,7 @@ public class PestRoutine {
     /** True while a Hypixel loadout / armour set menu is on screen. */
     private static boolean loadoutMenuOpen() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen)) return false;
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) return false;
         String title = strip(screen.getTitle().getString()).toLowerCase();
         return title.contains("loadout") || title.contains("armor set")
                 || title.contains("armour set") || title.contains("equipment set")
@@ -492,7 +492,7 @@ public class PestRoutine {
     /** Clicks the menu's next-page arrow, if there is one. */
     private static boolean clickNextPage() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen)) return false;
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) return false;
 
         for (Slot slot : screen.getMenu().slots) {
             ItemStack stack = slot.getItem();
@@ -519,7 +519,7 @@ public class PestRoutine {
      */
     private static boolean clickNamedSlot(String wanted, boolean loose, boolean dumpOnMiss) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen)) return false;
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) return false;
 
         String needle = wanted.toLowerCase();
         // Several slots can mention a loadout (the equipped one is often named in
@@ -577,7 +577,7 @@ public class PestRoutine {
     public static void dumpSlots() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        if (!(mc.screen instanceof ContainerScreen screen)) {
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fNo menu open"));
             return;
         }
@@ -606,7 +606,7 @@ public class PestRoutine {
         int key = TeslaMapsConfig.get().pestRoutineKey;
         if (key == -1 || mc.getWindow() == null) return;
         // Don't steal keystrokes that are going into a text field.
-        if (mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen) return;
+        if (mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen) return;
 
         boolean down = com.teslamaps.utils.KeyNames.isDown(key);
         if (down && !keyWasDown) advance();

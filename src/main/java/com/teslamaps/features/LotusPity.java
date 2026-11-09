@@ -77,7 +77,7 @@ public final class LotusPity {
     private static void tick() {
         if (timer++ % 20 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.strip(cs.getTitle().getString()).trim().equals("Lotus Atoll Pity")) readMenu(cs);
         for (String raw : TabListUtils.getTabListLines()) {
             if (raw.indexOf('●') < 0 && raw.indexOf('○') < 0) continue;

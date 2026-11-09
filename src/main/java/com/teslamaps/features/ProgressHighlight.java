@@ -44,7 +44,7 @@ public class ProgressHighlight {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!TeslaMapsConfig.get().progressHighlight) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { closed(); return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { closed(); return; }
         if (TeslaMapsConfig.get().slayerRewardsHighlight && slayerRewards(cs)) { drawRewards(ctx, cs); return; }
         if (!isWhitelisted(cs)) return;
 

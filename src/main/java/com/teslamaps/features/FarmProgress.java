@@ -327,9 +327,9 @@ public class FarmProgress {
         if (config.farmLaneWarnSeconds > 0 && !titledThisPass && secondsLeft >= 0
                 && secondsLeft <= config.farmLaneWarnSeconds && mc.gui != null) {
             titledThisPass = true;
-            mc.gui.setTimes(0, config.farmLaneWarnSeconds * 20, 5);
-            mc.gui.setTitle(Component.literal("§eLane Switch"));
-            mc.gui.setSubtitle(Component.literal(""));
+            mc.gui.hud.setTimes(0, config.farmLaneWarnSeconds * 20, 5);
+            mc.gui.hud.setTitle(Component.literal("§eLane Switch"));
+            mc.gui.hud.setSubtitle(Component.literal(""));
         }
 
         if (left <= config.farmWarnDistance) {

@@ -148,10 +148,10 @@ public final class NpcWarps {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        boolean down = mc.screen == null && c.npcWaypointKey != -1 && KeyNames.isDown(c.npcWaypointKey);
+        boolean down = mc.gui.screen() == null && c.npcWaypointKey != -1 && KeyNames.isDown(c.npcWaypointKey);
         if (down && !keyWasDown) {
             if (shiftDown()) useWarp();
-            else mc.setScreen(new com.teslamaps.screen.NpcFinderScreen(null));
+            else mc.gui.setScreen(new com.teslamaps.screen.NpcFinderScreen(null));
         }
         keyWasDown = down;
 
@@ -180,7 +180,7 @@ public final class NpcWarps {
         NpcFinder.setTargets(positions);
         msg("§7Tracking §f" + npc.name() + " §7on §f" + npc.island());
         if (shiftDown()) {
-            Minecraft.getInstance().setScreen(null);
+            Minecraft.getInstance().gui.setScreen(null);
             useWarp();
         }
         keyWasDown = true;

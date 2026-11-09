@@ -43,24 +43,24 @@ public final class KuudraDanger {
         }
         if (color != 0) {
             if (color != shownColor && cfg().kuuDangerSound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
-            mc.gui.setTimes(0, 10, 5);
-            mc.gui.setTitle(Component.literal("DANGER").withColor(color));
-            mc.gui.setSubtitle(Component.literal("§c§lJUMP!"));
+            mc.gui.hud.setTimes(0, 10, 5);
+            mc.gui.hud.setTitle(Component.literal("DANGER").withColor(color));
+            mc.gui.hud.setSubtitle(Component.literal("§c§lJUMP!"));
             shownColor = color;
         } else if (shownColor != 0) {
             shownColor = 0;
-            mc.gui.clearTitles();
-            mc.gui.resetTitleTimes();
+            mc.gui.hud.clearTitles();
+            mc.gui.hud.resetTitleTimes();
         }
     }
 
     private static int colorOf(Block b) {
-        if (b == Blocks.GREEN_TERRACOTTA) return 0x5E7C16;
-        if (b == Blocks.LIME_TERRACOTTA) return 0x80C71F;
-        if (b == Blocks.YELLOW_TERRACOTTA) return 0xFED83D;
-        if (b == Blocks.ORANGE_TERRACOTTA) return 0xF9801D;
-        if (b == Blocks.PINK_TERRACOTTA) return 0xF38BAA;
-        if (b == Blocks.RED_TERRACOTTA) return 0xB02E26;
+        if (b == Blocks.DYED_TERRACOTTA.green()) return 0x5E7C16;
+        if (b == Blocks.DYED_TERRACOTTA.lime()) return 0x80C71F;
+        if (b == Blocks.DYED_TERRACOTTA.yellow()) return 0xFED83D;
+        if (b == Blocks.DYED_TERRACOTTA.orange()) return 0xF9801D;
+        if (b == Blocks.DYED_TERRACOTTA.pink()) return 0xF38BAA;
+        if (b == Blocks.DYED_TERRACOTTA.red()) return 0xB02E26;
         return 0;
     }
 }

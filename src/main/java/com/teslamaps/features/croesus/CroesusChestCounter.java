@@ -82,8 +82,8 @@ public final class CroesusChestCounter {
         int n = c.croesusChestCount;
         if (c.croesusChestWarn && n >= 0 && n >= c.croesusChestWarnAt && !alerted && mc.player != null) {
             alerted = true;
-            mc.gui.setTimes(0, 50, 10);
-            mc.gui.setTitle(Component.literal(n >= MAX ? "§cCroesus Chests Full!" : "§6Croesus: " + n + "/" + MAX + " Chests"));
+            mc.gui.hud.setTimes(0, 50, 10);
+            mc.gui.hud.setTitle(Component.literal(n >= MAX ? "§cCroesus Chests Full!" : "§6Croesus: " + n + "/" + MAX + " Chests"));
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §6" + n + "/" + MAX
                     + " unclaimed Croesus chests §7— claim some, new loot is lost at 60."));
             if (c.croesusChestWarnSound) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.6f);
@@ -120,7 +120,7 @@ public final class CroesusChestCounter {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!visible || el == null || line.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         DungeonInfoHud.draw(g, mc, el.x(), el.y(), el.scale(), line, mc.font.width(line.get(0)));
     }
 }

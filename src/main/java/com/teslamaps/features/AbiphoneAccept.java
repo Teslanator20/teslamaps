@@ -65,7 +65,7 @@ public final class AbiphoneAccept {
             lastLevel = mc.level;
             uuid = null;
         }
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().abiphoneAcceptKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().abiphoneAcceptKey);
         if (down && !keyDown) {
             String id = uuid;
             if (id != null && System.currentTimeMillis() - since < VALID_MS && mc.getConnection() != null) {

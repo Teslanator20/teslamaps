@@ -101,7 +101,7 @@ public final class HotfWhisperGoal {
         if (++ticks % 10 != 0) return;
         String goal = cfg().hotfWhisperGoals.get(KEY);
         Minecraft mc = Minecraft.getInstance();
-        if (HotF.inInventory() && mc.screen instanceof AbstractContainerScreen<?> cs) scanMenu(cs, goal);
+        if (HotF.inInventory() && mc.gui.screen() instanceof AbstractContainerScreen<?> cs) scanMenu(cs, goal);
         else goalSlot = -1;
         if (ticks % 20 != 0 || goal == null || System.currentTimeMillis() - lastClick < 5000) return;
 
@@ -126,8 +126,8 @@ public final class HotfWhisperGoal {
         }
         remind(goal.substring(0, bar));
         if (cfg().hotfWhisperGoalTitle) {
-            mc.gui.setTimes(5, 40, 10);
-            mc.gui.setTitle(Component.literal("§3§lHotF perk upgrade!"));
+            mc.gui.hud.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§3§lHotF perk upgrade!"));
         }
     }
 

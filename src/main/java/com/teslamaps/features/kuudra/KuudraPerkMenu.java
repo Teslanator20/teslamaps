@@ -36,7 +36,7 @@ public final class KuudraPerkMenu {
     }
 
     private static boolean perkMenuOpen() {
-        return Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> s
+        return Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> s
                 && s.getTitle().getString().contains("Perk Menu");
     }
 

@@ -58,7 +58,7 @@ public class ClassFilterScreen extends Screen {
 
         addRenderableWidget(new TeslaButton(panelX + 16, panelY + PANEL_H - 34, PANEL_W - 32, 22, "§fDone", () -> {
             TeslaMapsConfig.save();
-            minecraft.setScreen(parent);
+            minecraft.gui.setScreen(parent);
         }));
     
 

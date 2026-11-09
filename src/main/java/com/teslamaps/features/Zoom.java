@@ -20,7 +20,7 @@ public class Zoom {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean canZoom = cfg.zoomEnabled
-                && mc.player != null && mc.screen == null && mc.getWindow() != null;
+                && mc.player != null && mc.gui.screen() == null && mc.getWindow() != null;
         boolean keyDown = canZoom && com.teslamaps.utils.KeyNames.isDown(cfg.zoomKey);
         if (!canZoom) toggled = false;
         else if (cfg.zoomToggle && keyDown && !keyWasDown) toggled = !toggled;

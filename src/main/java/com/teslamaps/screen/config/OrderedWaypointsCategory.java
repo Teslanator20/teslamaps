@@ -15,7 +15,7 @@ public final class OrderedWaypointsCategory {
         b.toggle("Render Route",
                 () -> config.orderedWaypoints, v -> config.orderedWaypoints = v);
         b.button("Manage Routes",
-                () -> Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(new WaypointRoutesScreen())));
+                () -> Minecraft.getInstance().schedule(() -> Minecraft.getInstance().gui.setScreen(new WaypointRoutesScreen())));
         b.button("Import From Clipboard",
                 () -> MapConfigScreen.orderedFeedback(com.teslamaps.features.waypoints.OrderedWaypoints.importClipboard()));
         b.button("Unload Route",

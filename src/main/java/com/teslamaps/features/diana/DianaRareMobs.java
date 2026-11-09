@@ -266,7 +266,7 @@ public final class DianaRareMobs {
         TeslaMapsConfig c = cfg();
         long now = System.currentTimeMillis();
 
-        boolean down = mc.screen == null && c.dianaRareShareKey != -1 && KeyNames.isDown(c.dianaRareShareKey);
+        boolean down = mc.gui.screen() == null && c.dianaRareShareKey != -1 && KeyNames.isDown(c.dianaRareShareKey);
         if (down && !keyDown && c.dianaRareShare) share();
         keyDown = down;
 

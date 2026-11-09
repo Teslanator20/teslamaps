@@ -43,7 +43,7 @@ public final class AbilityMenuFix {
     public static boolean holdSlotChange() {
         if (pendingUntil == 0) return false;
         if (enabled()) {
-            if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>) return true;
+            if (Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>) return true;
             if (System.currentTimeMillis() < pendingUntil) return true;
         }
         pendingUntil = 0;

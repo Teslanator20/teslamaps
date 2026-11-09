@@ -158,7 +158,7 @@ public class RareDropEffects {
         if (!SPORES.matcher(com.teslamaps.utils.StringUtil.strip(raw)).matches()) return;
         Minecraft mc = Minecraft.getInstance();
         if (!mode.equals("Item")) {
-            mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§9Burrowing Spores!"));
+            mc.gui.hud.setTitle(net.minecraft.network.chat.Component.literal("§9Burrowing Spores!"));
         }
         if (!mode.equals("Title")) play("BURROWING_SPORES", "VERY RARE CROP!", "Burrowing Spores", ParticleTypes.SCRAPE);
     }
@@ -168,8 +168,8 @@ public class RareDropEffects {
         String t = com.teslamaps.utils.StringUtil.stripTrim(raw);
         if (!t.startsWith("SWEET! ") || !t.contains(" gift with ")) return;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(net.minecraft.network.chat.Component.literal("§bSnow Minion!"));
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(net.minecraft.network.chat.Component.literal("§bSnow Minion!"));
         if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
     }
 

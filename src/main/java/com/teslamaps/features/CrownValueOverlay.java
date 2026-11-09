@@ -43,7 +43,7 @@ public final class CrownValueOverlay {
     private static void tick() {
         if (++ticks % 20 != 0) return;
         inRavengard = SkyblockUtils.isOnHypixel() && !SkyblockUtils.isInSkyblock();
-        if (Minecraft.getInstance().screen == null && !CACHE.isEmpty()) CACHE.clear();
+        if (Minecraft.getInstance().gui.screen() == null && !CACHE.isEmpty()) CACHE.clear();
     }
 
     public static void drawSlot(GuiGraphicsExtractor ctx, Slot slot) {

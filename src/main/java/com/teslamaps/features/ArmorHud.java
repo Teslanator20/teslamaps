@@ -74,7 +74,7 @@ public final class ArmorHud {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || mc.player == null || mc.options.hideGui) return;
+        if (hud == null || mc.player == null || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), false);
     }
 

@@ -7,7 +7,7 @@ import com.teslamaps.registry.HudEditElement;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 
 import java.util.Locale;
 
@@ -51,7 +51,7 @@ public final class KuudraDistance {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = line;
         Minecraft mc = Minecraft.getInstance();
-        if (l == null || hud == null || mc.options.hideGui) return;
+        if (l == null || hud == null || mc.gui.hud.isHidden()) return;
         KuudraTickTimers.draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 }

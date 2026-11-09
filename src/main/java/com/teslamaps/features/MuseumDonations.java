@@ -65,7 +65,7 @@ public final class MuseumDonations {
     private static void tick() {
         if (++ticks % 20 != 0 || !SkyblockUtils.isInSkyblock()) return;
         Minecraft mc = Minecraft.getInstance();
-        boolean open = mc.screen != null && StringUtil.strip(mc.screen.getTitle().getString()).contains("Museum");
+        boolean open = mc.gui.screen() != null && StringUtil.strip(mc.gui.screen().getTitle().getString()).contains("Museum");
         long now = System.currentTimeMillis();
         if (museumOpen && !open) nextFetch = Math.min(nextFetch, now + 3000);
         museumOpen = open;

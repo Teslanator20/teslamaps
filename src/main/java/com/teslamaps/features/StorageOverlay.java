@@ -244,7 +244,7 @@ public class StorageOverlay {
     public static boolean active() {
         if (!TeslaMapsConfig.get().customStorageOverlay) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         if (vanillaScreen.get() == cs) return false;
         String t = strip(cs.getTitle().getString());
         if (!t.equals("Storage") && BackpackPreview.keyFromTitle(t) == null) return false;
@@ -354,7 +354,7 @@ public class StorageOverlay {
 
     private static String liveKey() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return null;
         return BackpackPreview.keyFromTitle(strip(cs.getTitle().getString()));
     }
 
@@ -405,8 +405,8 @@ public class StorageOverlay {
 
     private static int startY() { return (int) (HEADER_PX / scl()) + 4; }
 
-    private static int invVW() { return (int) (Minecraft.getInstance().screen.width / iscl()); }
-    private static int invVH() { return (int) (Minecraft.getInstance().screen.height / iscl()); }
+    private static int invVW() { return (int) (Minecraft.getInstance().gui.screen().width / iscl()); }
+    private static int invVH() { return (int) (Minecraft.getInstance().gui.screen().height / iscl()); }
     // selector + gap + inventory are laid out as one group, centered in the virtual width
     private static int groupX() { return (invVW() - (SEL_COLS * SEL_CELL + SEL_GAP + 9 * 18)) / 2; }
     private static int invX() { return groupX() + SEL_COLS * SEL_CELL + SEL_GAP; }
@@ -436,7 +436,7 @@ public class StorageOverlay {
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        int sw = mc.screen.width, sh = mc.screen.height;
+        int sw = mc.gui.screen().width, sh = mc.gui.screen().height;
         layout(sw, sh);
         AbstractContainerMenu menu = mc.player != null ? mc.player.containerMenu : null;
         ctx.fill(0, 0, sw, sh, 0xE8101010);
@@ -728,7 +728,7 @@ public class StorageOverlay {
     private static ItemStack drawResults(GuiGraphicsExtractor ctx, Minecraft mc, int mouseX, int mouseY, int wallBottom) {
         if (!resultsOn()) return null;
         rebuildHits();
-        int[] r = resultsRect(mc.screen.width, wallBottom);
+        int[] r = resultsRect(mc.gui.screen().width, wallBottom);
         int rows = Math.max(1, (r[3] - 16) / RES_ROW);
         hitScroll = Math.max(0, Math.min(hitScroll, Math.max(0, hits.size() - rows)));
         ctx.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], 0xF0141118);
@@ -750,7 +750,7 @@ public class StorageOverlay {
     private static boolean resultsClick(double mx, double my, int wallBottom) {
         if (!resultsOn()) return false;
         Minecraft mc = Minecraft.getInstance();
-        int[] r = resultsRect(mc.screen.width, wallBottom);
+        int[] r = resultsRect(mc.gui.screen().width, wallBottom);
         if (mx < r[0] || mx >= r[0] + r[2] || my < r[1] || my >= r[1] + r[3]) return false;
         int i = (int) ((my - r[1] - 16) / RES_ROW);
         if (my < r[1] + 16 || hitScroll + i >= hits.size()) return true;
@@ -768,7 +768,7 @@ public class StorageOverlay {
     private static boolean overResults(double mx, double my) {
         if (!resultsOn()) return false;
         Minecraft mc = Minecraft.getInstance();
-        int[] r = resultsRect(mc.screen.width, (int) ((mainY() - 13) * iscl()) - 2);
+        int[] r = resultsRect(mc.gui.screen().width, (int) ((mainY() - 13) * iscl()) - 2);
         return mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3];
     }
 
@@ -778,7 +778,7 @@ public class StorageOverlay {
     /** Vanilla drag-splitting still runs; this only shows the counts it will produce. */
     private static void dragPreview(Minecraft mc, Map<Integer, ItemStack> top, Map<Integer, ItemStack> inv) {
         dragRemainder = -1;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
         com.teslamaps.mixin.QuickCraftAccessor q = (com.teslamaps.mixin.QuickCraftAccessor) cs;
         java.util.Set<Slot> slots = q.teslamaps$quickCraftSlots();
         ItemStack carried = mc.player.containerMenu.getCarried();
@@ -843,8 +843,8 @@ public class StorageOverlay {
         int size = StorageCache.size(key), cols = 9, rows = Math.max(1, (size + cols - 1) / cols), cell = 18;
         int w = cols * cell + 8, h = rows * cell + 8;
         int px = mx + 12, py = my - 12;
-        if (px + w > mc.screen.width) px = mx - w - 12;
-        if (py + h > mc.screen.height) py = mc.screen.height - h;
+        if (px + w > mc.gui.screen().width) px = mx - w - 12;
+        if (py + h > mc.gui.screen().height) py = mc.gui.screen().height - h;
         if (py < 0) py = 0;
         ctx.fill(px, py, px + w, py + h, 0xF0202020);
         ctx.fill(px, py, px + w, py + 1, 0xFF7755FF);
@@ -937,7 +937,7 @@ public class StorageOverlay {
     }
 
     private static boolean buttonHovered(Minecraft mc, int x, int y, int w) {
-        if (mc.screen == null) return false;
+        if (mc.gui.screen() == null) return false;
         double sx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
         double sy = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
         return sx >= x && sx <= x + w && sy >= y && sy <= y + BUTTON_H;
@@ -946,17 +946,17 @@ public class StorageOverlay {
     public static void renderEnableButton(GuiGraphicsExtractor ctx) {
         if (TeslaMapsConfig.get().customStorageOverlay) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!strip(cs.getTitle().getString()).equals("Storage")) return;
-        drawButton(ctx, mc, mc.screen.width - 110, 6, 102, "Custom Storage", 0xFF30D158, false);
+        drawButton(ctx, mc, mc.gui.screen().width - 110, 6, 102, "Custom Storage", 0xFF30D158, false);
     }
 
     public static boolean handleEnableClick(double mx, double my) {
         if (TeslaMapsConfig.get().customStorageOverlay) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         if (!strip(cs.getTitle().getString()).equals("Storage")) return false;
-        int x = mc.screen.width - 110, y = 6;
+        int x = mc.gui.screen().width - 110, y = 6;
         if (mx >= x && mx <= x + 102 && my >= y && my <= y + BUTTON_H) {
             TeslaMapsConfig.get().customStorageOverlay = true;
             TeslaMapsConfig.save();
@@ -967,7 +967,7 @@ public class StorageOverlay {
 
     public static boolean isOverSlot(Slot slot, double mx, double my) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         layout(cs.width, cs.height);
         if (slot.container instanceof Inventory) {
             int[] p = invSlotPos(slot.getContainerSlot());
@@ -995,7 +995,7 @@ public class StorageOverlay {
 
     public static Slot slotAt(double mx, double my) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return null;
         layout(cs.width, cs.height);
         AbstractContainerMenu menu = mc.player.containerMenu;
 
@@ -1036,7 +1036,7 @@ public class StorageOverlay {
 
     public static boolean handleClick(double mx, double my, int button) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
         layout(cs.width, cs.height);
 
         if (button == 2) {
@@ -1222,7 +1222,7 @@ public class StorageOverlay {
 
     public static boolean mouseScrolled(double sy) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         layout(cs.width, cs.height);
         double pmx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
         double pmy = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();

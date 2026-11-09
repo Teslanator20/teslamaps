@@ -173,7 +173,7 @@ public class HudEditScreen extends Screen {
         TeslaMapsConfig.save();
         MapConfigScreen.View view = MapConfigScreen.viewFor(e.section(), e.label);
         MapConfigScreen.jumpTo(e.section(), e.label);
-        minecraft.setScreen(MapConfigScreen.open(view));
+        minecraft.gui.setScreen(MapConfigScreen.open(view));
     }
 
     /** Topmost (last drawn) element under the cursor. */
@@ -462,7 +462,7 @@ public class HudEditScreen extends Screen {
         com.teslamaps.features.HudLayouts.editorClosed();
         TeslaMapsConfig.save();
         if (parent != null) {
-            minecraft.setScreen(parent);
+            minecraft.gui.setScreen(parent);
         } else {
             super.onClose();
         }

@@ -65,7 +65,7 @@ public class CroesusProfit {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.croesusProfitOverlay) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         String t = strip(cs.getTitle().getString());
         return isCroesusMenu(t) || isRunView(t) || isChestGui(t);
     }
@@ -79,7 +79,7 @@ public class CroesusProfit {
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         PriceManager.ensureFresh();
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         String title = strip(cs.getTitle().getString());
 
@@ -141,7 +141,7 @@ public class CroesusProfit {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.croesusHighlightUnopened) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         if (!isCroesusMenu(strip(cs.getTitle().getString()))) return false;
         if (slot.container instanceof net.minecraft.world.entity.player.Inventory) return false;
         return runState(slot.getItem()) != 0;

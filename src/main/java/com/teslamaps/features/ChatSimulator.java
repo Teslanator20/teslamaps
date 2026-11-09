@@ -30,7 +30,7 @@ public final class ChatSimulator {
             silent = quiet;
             running = true;
             try {
-                mc.gui.getChat().addClientSystemMessage(c);
+                mc.gui.hud.getChat().addClientSystemMessage(c);
             } finally {
                 silent = false;
                 running = false;

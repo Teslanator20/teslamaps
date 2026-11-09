@@ -58,7 +58,7 @@ public final class BeaconPower {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && timer % 10 == 0
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && timer % 10 == 0
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Beacon")) {
             read(cs);
         }
@@ -146,7 +146,7 @@ public final class BeaconPower {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

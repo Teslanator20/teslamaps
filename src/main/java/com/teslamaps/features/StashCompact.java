@@ -113,9 +113,9 @@ public final class StashCompact {
     // Hypixel wraps the block in empty lines; they arrive right before the count line
     private static void dropRecentBlanks() {
         Minecraft mc = Minecraft.getInstance();
-        ChatComponentAccessor acc = (ChatComponentAccessor) mc.gui.getChat();
+        ChatComponentAccessor acc = (ChatComponentAccessor) mc.gui.hud.getChat();
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
-        int now = mc.gui.getGuiTicks();
+        int now = mc.gui.hud.getGuiTicks();
         boolean removed = false;
         for (int i = 0; i < 2 && !all.isEmpty(); i++) {
             GuiMessage first = all.get(0);

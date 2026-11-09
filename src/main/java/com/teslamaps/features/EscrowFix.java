@@ -48,7 +48,7 @@ public final class EscrowFix {
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
         // only when the menu really closed, never twice in a row
-        if (mc.screen != null || mc.getConnection() == null || now - lastSent < COOLDOWN_MS || LegitMode.blocksCheats()) return;
+        if (mc.gui.screen() != null || mc.getConnection() == null || now - lastSent < COOLDOWN_MS || LegitMode.blocksCheats()) return;
         lastSent = now;
         mc.getConnection().sendCommand(cmd);
     }

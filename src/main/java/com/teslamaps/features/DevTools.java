@@ -101,7 +101,7 @@ public final class DevTools {
         boolean missing = c.devMissingRepoItems && SkyblockItems.loaded();
         if (!numbers && !missing) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot slot : cs.getMenu().slots) {
             int x = acc.getX() + slot.x, y = acc.getY() + slot.y;

@@ -247,9 +247,9 @@ public class ESPRenderer {
     public static void drawTracerFromCamera(PoseStack matrices, Vec3 target, int color, Vec3 cameraPos,
                                              MultiBufferSource.BufferSource bufferSource, float lineWidth) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
+        if (mc.player == null || mc.gameRenderer == null || mc.gameRenderer.mainCamera() == null) return;
 
-        var camera = mc.gameRenderer.getMainCamera();
+        var camera = mc.gameRenderer.mainCamera();
         if (camera.isDetached()) {
             float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
             Vec3 start = mc.player.getEyePosition(pt).add(mc.player.getViewVector(pt).scale(0.2));
@@ -605,7 +605,7 @@ public class ESPRenderer {
     public static void drawText(PoseStack matrices, String text, Vec3 pos, float scale, Vec3 cameraPos,
                                 boolean scaleWithDistance, boolean throughWalls, int color, int background) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.getMainCamera() == null) return;
+        if (mc.font == null || mc.gameRenderer == null || mc.gameRenderer.mainCamera() == null) return;
 
         // grow with distance so text stays readable far away (constant apparent size beyond 12 blocks)
         float dist = (float) pos.distanceTo(cameraPos);
@@ -622,7 +622,7 @@ public class ESPRenderer {
 
         var pose = matrices.last().pose();
         pose.translate((float) (pos.x - cameraPos.x), (float) (pos.y - cameraPos.y), (float) (pos.z - cameraPos.z));
-        pose.rotate(mc.gameRenderer.getMainCamera().rotation());
+        pose.rotate(mc.gameRenderer.mainCamera().rotation());
         pose.scale(scaleFactor, -scaleFactor, scaleFactor);
 
         mc.font.drawInBatch(

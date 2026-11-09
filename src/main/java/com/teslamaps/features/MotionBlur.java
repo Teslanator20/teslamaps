@@ -1,12 +1,12 @@
 package com.teslamaps.features;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.GpuTextureView;
-import com.mojang.blaze3d.textures.TextureFormat;
+import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.renderpearl.api.textures.TextureFormat;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.TeslaRenderPipelines;
@@ -42,7 +42,7 @@ public class MotionBlur {
         if (cfg.motionBlurStrength < 0.001f) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.isPaused()) return false;
-        return !(cfg.motionBlurWorldOnly && mc.screen != null);
+        return !(cfg.motionBlurWorldOnly && mc.gui.screen() != null);
     }
 
     /** Blends the previous world frame in, then keeps the result for the next one. */

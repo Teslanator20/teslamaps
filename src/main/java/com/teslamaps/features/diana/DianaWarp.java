@@ -98,7 +98,7 @@ public final class DianaWarp {
         }
         text = current == null ? "" : "§bWarp to " + current.name
                 + (cfg().dianaWarpKey != -1 ? " §7(§e" + KeyNames.display(cfg().dianaWarpKey) + "§7)" : "");
-        boolean down = mc.screen == null && cfg().dianaWarpKey != -1 && KeyNames.isDown(cfg().dianaWarpKey);
+        boolean down = mc.gui.screen() == null && cfg().dianaWarpKey != -1 && KeyNames.isDown(cfg().dianaWarpKey);
         if (down && !keyDown && current != null && System.currentTimeMillis() - lastWarpAt > 1000 && mc.getConnection() != null) {
             mc.getConnection().sendCommand("warp " + current.command);
             lastWarp = current;
@@ -125,7 +125,7 @@ public final class DianaWarp {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || text.isEmpty() || mc.options.hideGui) return;
+        if (hud == null || text.isEmpty() || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), text);
     }
 

@@ -152,8 +152,8 @@ public class TimerTriggers {
         if (!LIGHTNING.active() && (n == 4 || n == 6)) {
             LIGHTNING.start((int) Math.round(n * 1.35 * 20), () -> {
                 Minecraft mc = Minecraft.getInstance();
-                mc.gui.setTimes(0, 40, 5);
-                mc.gui.setTitle(Component.literal("§aStorm's Lightning Ended!"));
+                mc.gui.hud.setTimes(0, 40, 5);
+                mc.gui.hud.setTitle(Component.literal("§aStorm's Lightning Ended!"));
                 if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 0.25f, 1f);
             });
         }
@@ -223,8 +223,8 @@ public class TimerTriggers {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         if (c.invincibilityTitle) {
-            mc.gui.setTimes(0, 30, 5);
-            mc.gui.setTitle(Component.literal(mask.name));
+            mc.gui.hud.setTimes(0, 30, 5);
+            mc.gui.hud.setTitle(Component.literal(mask.name));
         }
         if (!c.invincibilityAnnounce) return;
         if (!com.teslamaps.dungeon.DungeonManager.isInDungeon()) return;
@@ -314,8 +314,8 @@ public class TimerTriggers {
         }
 
         if (LIGHTNING.active()) {
-            mc.gui.setTimes(0, 3, 0);
-            mc.gui.setTitle(Component.literal(String.format(java.util.Locale.ROOT, "§c§l%.1f", LIGHTNING.remaining() / 20.0)));
+            mc.gui.hud.setTimes(0, 3, 0);
+            mc.gui.hud.setTitle(Component.literal(String.format(java.util.Locale.ROOT, "§c§l%.1f", LIGHTNING.remaining() / 20.0)));
         }
 
         // display first, then advance by the server ticks since the last client tick

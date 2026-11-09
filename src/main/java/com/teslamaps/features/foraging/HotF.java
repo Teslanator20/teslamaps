@@ -30,9 +30,9 @@ public class HotF {
 
     public static boolean inInventory() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != cachedScreen) {
-            cachedScreen = mc.screen;
-            cachedInInventory = mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() != cachedScreen) {
+            cachedScreen = mc.gui.screen();
+            cachedInInventory = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                     && Foraging.strip(cs.getTitle().getString()).contains(INVENTORY);
         }
         return cachedInInventory;
@@ -103,7 +103,7 @@ public class HotF {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
 

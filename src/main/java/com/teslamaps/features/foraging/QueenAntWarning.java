@@ -91,8 +91,8 @@ public class QueenAntWarning {
         queenPos = best.position();
         searchUntil = 0;
 
-        mc.gui.setTimes(0, 50, 5);
-        mc.gui.setTitle(Component.literal("§c§lQueen Ant Found!"));
+        mc.gui.hud.setTimes(0, 50, 5);
+        mc.gui.hud.setTitle(Component.literal("§c§lQueen Ant Found!"));
         if (c.queenAntVolume > 0) {
             LoudSound.play(SoundOptions.resolve(c.queenAntSound), c.queenAntVolume, 1.0f);
             soundsLeft = SOUND_PLAYS - 1;

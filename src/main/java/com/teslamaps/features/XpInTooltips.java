@@ -33,7 +33,7 @@ public final class XpInTooltips {
 
     private static void onTooltip(List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen == null) return;
+        if (mc.player == null || mc.gui.screen() == null) return;
         for (int i = 0; i < lines.size(); i++) {
             String s = lines.get(i).getString();
             if (!s.contains("Levels")) continue;

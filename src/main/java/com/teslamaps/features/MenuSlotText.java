@@ -78,7 +78,7 @@ public class MenuSlotText {
     private static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (!labels.isEmpty()) labels = List.of();
             communityPage = -1;
             return;
@@ -149,7 +149,7 @@ public class MenuSlotText {
             }
             case 1 -> {
                 boolean grid = (i >= 10 && i <= 16) || (i >= 19 && i <= 25) || (i >= 28 && i <= 34) || (i >= 37 && i <= 43);
-                if (!grid || stack.is(Items.GRAY_DYE)) return null;
+                if (!grid || stack.is(Items.DYE.gray())) return null;
                 Matcher m = BESTIARY.matcher(name);
                 if (!m.matches()) return null;
                 int lvl = roman(m.group(1));
@@ -171,7 +171,7 @@ public class MenuSlotText {
                 return null;
             }
             case 4 -> {
-                if (i < 18 || i > 35 || stack.is(Items.GRAY_DYE)) return null;
+                if (i < 18 || i > 35 || stack.is(Items.DYE.gray())) return null;
                 List<String> lore = ItemUtil.loreLines(stack);
                 if (lore.isEmpty()) return null;
                 Matcher m = CHIP.matcher(StringUtil.stripTrim(lore.get(0)));
@@ -201,7 +201,7 @@ public class MenuSlotText {
                 return m.matches() ? mark(i, m.group(1)) : null;
             }
             case 7 -> {
-                if (i >= 10 && i <= 14 && stack.is(Items.LIME_STAINED_GLASS_PANE)) {
+                if (i >= 10 && i <= 14 && stack.is(Items.STAINED_GLASS_PANE.lime())) {
                     communityPage = i - 10;
                     return null;
                 }
@@ -284,7 +284,7 @@ public class MenuSlotText {
     public static void render(GuiGraphicsExtractor ctx) {
         if (labels.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         List<Slot> slots = cs.getMenu().slots;

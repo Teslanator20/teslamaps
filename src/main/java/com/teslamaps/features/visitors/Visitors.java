@@ -118,7 +118,7 @@ public final class Visitors {
     /** The visitor whose menu is open right now, or null. */
     public static Visitor open() {
         Minecraft mc = Minecraft.getInstance();
-        if (open == null || !(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != openMenu) return null;
+        if (open == null || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != openMenu) return null;
         return open;
     }
 
@@ -172,7 +172,7 @@ public final class Visitors {
     }
 
     private static void readMenu(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         List<Slot> slots = cs.getMenu().slots;
         if (slots.size() <= REFUSE_SLOT) return;
         int id = cs.getMenu().containerId;

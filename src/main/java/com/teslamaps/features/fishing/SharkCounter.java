@@ -101,7 +101,7 @@ public final class SharkCounter {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !holding || lines.isEmpty() || hud == null) return;
+        if (mc.gui.hud.isHidden() || !holding || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

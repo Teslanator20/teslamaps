@@ -77,7 +77,7 @@ public final class HoppityWarpUniques {
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         if (lines.size() < 2 || !isSpring()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Fast Travel")) return;
         String name = StringUtil.stripTrim(stack.getHoverName().getString());
         int dash = name.indexOf(" - ");

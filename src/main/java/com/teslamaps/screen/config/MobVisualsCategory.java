@@ -15,7 +15,7 @@ public final class MobVisualsCategory {
         b.toggle("Mob Visuals", () -> config.mobVisuals, v -> config.mobVisuals = v);
         b.info("Glow, tracer and nameplate for the mobs you pick, per area");
         b.button("Pick Mobs (/tmap mobs)",
-                () -> Minecraft.getInstance().setScreen(new MobVisualScreen(b.screen())));
+                () -> Minecraft.getInstance().gui.setScreen(new MobVisualScreen(b.screen())));
         b.toggle("  Glow", () -> config.mobVisualGlow, v -> config.mobVisualGlow = v);
         b.toggle("    Pests Green For Contest Crop", () -> config.pestGlowContest, v -> config.pestGlowContest = v).fresh()
                 .desc("During a Jacob's contest, picked pests of the crop you are scoring glow green")

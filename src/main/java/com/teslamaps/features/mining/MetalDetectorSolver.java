@@ -194,8 +194,8 @@ public final class MetalDetectorSolver {
             return;
         }
         if (!cfg().metalDetectorAllTools) return;
-        mc.gui.setTitle(Component.literal("§cALL TOOLS"));
-        mc.gui.setTimes(0, 20, 5);
+        mc.gui.hud.setTitle(Component.literal("§cALL TOOLS"));
+        mc.gui.hud.setTimes(0, 20, 5);
         if (!alertedTools) {
             alertedTools = true;
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 2f);

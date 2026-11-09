@@ -475,7 +475,7 @@ public class FarmProfit {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         long now = System.currentTimeMillis();
 
-        if (mc.player == null || mc.screen != null || !SkyblockUtils.isInGarden()) {
+        if (mc.player == null || mc.gui.screen() != null || !SkyblockUtils.isInGarden()) {
             snapshot = null;
             screenClosedAt = now;
             return;

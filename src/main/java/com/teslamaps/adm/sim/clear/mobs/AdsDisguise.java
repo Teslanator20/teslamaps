@@ -7,18 +7,19 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerEntity;
 import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 
 public class AdsDisguise extends Avatar implements AdsMobBody {
-    public AdsDisguise(Level level) { super(EntityType.MANNEQUIN, level); }
+    public AdsDisguise(Level level) { super(EntityTypes.MANNEQUIN, level); }
 
     @Override public ResolvableProfile getProfile() { return Mannequin.DEFAULT_PROFILE; }
 
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket(ServerEntity entity) {
-        return new ClientboundAddEntityPacket(getId(), getUUID(), getX(), getY(), getZ(), getXRot(), getYRot(), EntityType.PLAYER, 0, getDeltaMovement(), (double) yHeadRot);
+        return new ClientboundAddEntityPacket(getId(), getUUID(), getX(), getY(), getZ(), getXRot(), getYRot(), EntityTypes.PLAYER, 0, getDeltaMovement(), (double) yHeadRot);
     }
 
     @Override public boolean shouldBeSaved() { return false; }

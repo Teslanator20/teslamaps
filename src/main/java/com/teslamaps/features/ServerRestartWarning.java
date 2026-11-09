@@ -104,15 +104,15 @@ public final class ServerRestartWarning {
     }
 
     private static void title(Minecraft mc, String text) {
-        mc.gui.setTimes(0, 30, 5);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 30, 5);
+        mc.gui.hud.setTitle(Component.literal(text));
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = line;
         if (l == null || hud == null || !cfg().serverRestartHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

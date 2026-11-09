@@ -45,16 +45,16 @@ public class ItemValueOverlay {
 
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().itemValueGui) return false;
-        return Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+        return Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
 
         long now = System.currentTimeMillis();
-        if (lastScreen != mc.screen) {
-            lastScreen = mc.screen;
+        if (lastScreen != mc.gui.screen()) {
+            lastScreen = mc.gui.screen();
             cache.clear();
             hoveredSlot = -1;
             // an auction page flip reopens the container, that is the same session

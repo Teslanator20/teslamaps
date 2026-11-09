@@ -189,7 +189,7 @@ public final class SafariBanners {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         long now = System.currentTimeMillis();
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Font font = mc.font;

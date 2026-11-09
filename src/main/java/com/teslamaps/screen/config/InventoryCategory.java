@@ -25,7 +25,7 @@ public final class InventoryCategory {
         b.toggle("  Trash Highlighter (every menu)", () -> config.trashHighlighter, v -> config.trashHighlighter = v).fresh()
                 .desc("Marks items matching your own trash filter list in every container, inventory included.");
         b.button("    Edit Trash Filters",
-                () -> Minecraft.getInstance().setScreen(new TrashFilterScreen(b.screen()))).fresh();
+                () -> Minecraft.getInstance().gui.setScreen(new TrashFilterScreen(b.screen()))).fresh();
         b.color("    Trash Color", () -> config.colorTrash, v -> config.colorTrash = v).fresh();
         b.dropdown("    Trash Style", com.teslamaps.features.TrashHighlighter.STYLES,
                 () -> config.trashHighlightStyle, v -> config.trashHighlightStyle = v).fresh();
@@ -122,7 +122,7 @@ public final class InventoryCategory {
         b.info("Marks that item in every menu for 30s, plus waypoints on chests holding it").fresh();
         b.toggle("Right-Click Sack Item: /gfs", () -> config.itemSearchGfsClick, v -> config.itemSearchGfsClick = v);
         b.button("Open Item Search",
-                () -> Minecraft.getInstance().setScreen(new ItemSearchScreen(null)));
+                () -> Minecraft.getInstance().gui.setScreen(new ItemSearchScreen(null)));
         b.button("Clear Item Index",
                 com.teslamaps.features.ItemIndex::clear);
         b.button("Clear Island Chests",
@@ -297,7 +297,7 @@ public final class InventoryCategory {
         b.label("Customization");
         b.toggle("Button In Inventory", () -> config.showCustomizeButton, v -> config.showCustomizeButton = v);
         b.button("Open Customize Screen",
-                () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.customize.CustomizeScreen(b.screen(), false)));
+                () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.customize.CustomizeScreen(b.screen(), false)));
         b.info("Rename, dye, trim and reskin items - client side only (/tmap customize)");
         b.keybind("  Customize Hovered Item Key", () -> config.customizeKey, v -> config.customizeKey = v).fresh()
                 .desc("Over any slot, opens the customize screen for exactly that item");
@@ -448,7 +448,7 @@ public final class InventoryCategory {
         b.toggle("Inventory Buttons", () -> config.inventoryButtons, v -> config.inventoryButtons = v);
         b.info("Command buttons around every container screen");
         b.button("Edit Buttons (/tmap buttons)",
-                () -> Minecraft.getInstance().setScreen(new InventoryButtonEditorScreen(b.screen())));
+                () -> Minecraft.getInstance().gui.setScreen(new InventoryButtonEditorScreen(b.screen())));
         b.toggle("  Hide in Dungeon Menus", () -> config.invButtonsHideInDungeonMenus, v -> config.invButtonsHideInDungeonMenus = v);
         b.dropdown("  Run Command On",
                 new String[]{"Mouse Down", "Mouse Up"},

@@ -109,7 +109,7 @@ public final class VisitorRewardGuard {
     public static void render(GuiGraphicsExtractor g) {
         if (feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Reason r = reason(Visitors.open());
         if (r == null) return;
         var slots = cs.getMenu().slots;

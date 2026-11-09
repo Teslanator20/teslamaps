@@ -80,7 +80,7 @@ public class SlotBinds {
     }
 
     private static AbstractContainerScreen<?> screen() {
-        Screen s = Minecraft.getInstance().screen;
+        Screen s = Minecraft.getInstance().gui.screen();
         if (s instanceof InventoryScreen inv) return inv;
         if (!TeslaMapsConfig.get().slotBindsAllContainers) return null;
         if (!(s instanceof AbstractContainerScreen<?> cs) || StorageOverlay.active()) return null;

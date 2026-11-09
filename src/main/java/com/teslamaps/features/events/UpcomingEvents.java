@@ -162,9 +162,9 @@ public final class UpcomingEvents {
         String t = fmt(left);
         mc.player.sendSystemMessage(Component.literal("§e[TeslaMaps] " + e.name + " §estarts in §f" + t
                 + (e.extra != null ? " §7(" + e.extra + "§7)" : "")));
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(Component.literal(e.name));
-        mc.gui.setSubtitle(Component.literal("§estarts in §f" + t));
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(Component.literal(e.name));
+        mc.gui.hud.setSubtitle(Component.literal("§estarts in §f" + t));
         LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.2f);
     }
 
@@ -178,7 +178,7 @@ public final class UpcomingEvents {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || !cfg().upcomingEvents) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null || !cfg().upcomingEvents) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

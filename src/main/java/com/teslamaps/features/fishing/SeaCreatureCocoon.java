@@ -74,9 +74,9 @@ public final class SeaCreatureCocoon {
         if (mc.player == null) return;
         String msg = "§c" + name + " Has Been Cocooned";
         mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + msg));
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(Component.literal(msg));
-        mc.gui.setSubtitle(Component.literal(""));
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(Component.literal(msg));
+        mc.gui.hud.setSubtitle(Component.literal(""));
         plings = 5;
         plingTick = 0;
         Announce.send(c.seaCreatureCocoonChannel, "My " + name + " has been cocooned!");

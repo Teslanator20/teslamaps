@@ -231,7 +231,7 @@ public class EnchantRulesScreen extends Screen {
     @Override
     public void onClose() {
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

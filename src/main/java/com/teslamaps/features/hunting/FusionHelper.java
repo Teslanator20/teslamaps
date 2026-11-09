@@ -48,7 +48,7 @@ public final class FusionHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        String title = mc.screen instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
+        String title = mc.gui.screen() instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
         inMachine = title.equals("Fusion Box") || title.equals("Confirm Fusion") || title.equals("Shard Fusion");
         if (!inMachine || last == null) {
             lines = List.of();

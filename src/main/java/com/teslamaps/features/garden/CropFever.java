@@ -38,9 +38,9 @@ public final class CropFever {
 
     private static void alert() {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 40, 10);
-        mc.gui.setTitle(Component.literal("§6§lCROP FEVER"));
-        mc.gui.setSubtitle(Component.literal("§e60s"));
+        mc.gui.hud.setTimes(0, 40, 10);
+        mc.gui.hud.setTitle(Component.literal("§6§lCROP FEVER"));
+        mc.gui.hud.setSubtitle(Component.literal("§e60s"));
         var sound = SoundOptions.resolve(cfg().cropFeverSound);
         if (sound != null) LoudSound.play(sound, 1.0f, 1.0f);
     }

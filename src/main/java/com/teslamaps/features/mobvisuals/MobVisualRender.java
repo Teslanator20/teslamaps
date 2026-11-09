@@ -24,10 +24,10 @@ public final class MobVisualRender {
     private static void renderHud(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.client.DeltaTracker d) {
         if (MobVisuals.nameplates.isEmpty() || !MobVisuals.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
 
         float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
-        var camera = mc.gameRenderer.getMainCamera();
+        var camera = mc.gameRenderer.mainCamera();
         Vec3 cam = camera.position();
         org.joml.Vector3fc fwd = camera.forwardVector();
         float sw = mc.getWindow().getGuiScaledWidth();

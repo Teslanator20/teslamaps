@@ -74,7 +74,7 @@ public class ItemNumbers {
         ItemLore lore = stack.get(DataComponents.LORE);
         CustomData data = stack.get(DataComponents.CUSTOM_DATA);
         if (data == null) return null;
-        Screen screen = Minecraft.getInstance().screen;
+        Screen screen = Minecraft.getInstance().gui.screen();
         Entry e;
         synchronized (CACHE) { e = CACHE.get(stack); }
         if (e != null && e.lore == lore && e.data == data && e.screen == screen && e.version == version) return e.tip;

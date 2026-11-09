@@ -34,8 +34,8 @@ public final class AuctionOutbid {
         String s = StringUtil.stripTrim(raw);
         if (!s.startsWith("[Auction]") || !OUTBID.matcher(s).matches()) return;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 40, 10);
-        mc.gui.setTitle(Component.literal("§cYou have been outbid!"));
+        mc.gui.hud.setTimes(0, 40, 10);
+        mc.gui.hud.setTitle(Component.literal("§cYou have been outbid!"));
         if (cfg().auctionOutbidSound) BazaarOrderTracker.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.5f, 1.0f);
     }
 }

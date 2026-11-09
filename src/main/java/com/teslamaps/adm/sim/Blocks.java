@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -237,7 +238,7 @@ public final class Blocks {
     private static void coreBats() {
         BlockState gold = net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState();
         for (int n = 0; n < 35; n++) {
-            Bat b = new Bat(EntityType.BAT, Sim.level());
+            Bat b = new Bat(EntityTypes.BAT, Sim.level());
             b.setSilent(true);
             b.setInvulnerable(true);
             b.setInvisible(true);
@@ -332,7 +333,7 @@ public final class Blocks {
         if (start == Fight.Start.P1) return;
         finish(STRIP);
         set(73, 221, 73, net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState());
-        for (int y = 222; y <= 224; y++) set(73, y, 73, net.minecraft.world.level.block.Blocks.RED_STAINED_GLASS.defaultBlockState());
+        for (int y = 222; y <= 224; y++) set(73, y, 73, net.minecraft.world.level.block.Blocks.STAINED_GLASS.red().defaultBlockState());
         finish("p1end");
         if (start == Fight.Start.P2) return;
         stormPillars();
@@ -411,8 +412,8 @@ public final class Blocks {
                 else if (p.getY() != 224) s = net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
                 else if (p.getX() == row.get(0).getX()) {
                     BlockState o = old.get(p.offset(6, 0, 0));
-                    s = o != null ? o : net.minecraft.world.level.block.Blocks.GRAY_WOOL.defaultBlockState();
-                } else s = net.minecraft.world.level.block.Blocks.GRAY_WOOL.defaultBlockState();
+                    s = o != null ? o : net.minecraft.world.level.block.Blocks.WOOL.gray().defaultBlockState();
+                } else s = net.minecraft.world.level.block.Blocks.WOOL.gray().defaultBlockState();
                 set(p, s);
             }
         }

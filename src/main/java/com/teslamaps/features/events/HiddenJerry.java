@@ -112,7 +112,7 @@ public final class HiddenJerry {
         tracker.add("JERRY_" + color.toUpperCase(), 1);
         tracker.markActivity();
         Minecraft mc = Minecraft.getInstance();
-        if (c.hiddenJerryTitle) mc.gui.setTitle(Component.literal(CODES[i] + "§l" + color.toUpperCase() + " JERRY!"));
+        if (c.hiddenJerryTitle) mc.gui.hud.setTitle(Component.literal(CODES[i] + "§l" + color.toUpperCase() + " JERRY!"));
         if (c.hiddenJerrySound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f);
     }
 
@@ -142,7 +142,7 @@ public final class HiddenJerry {
         String line = timerLine;
         if (line == null || !cfg().hiddenJerryTimer || timerHud == null || !SkyblockUtils.isInSkyblock()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, timerHud.x(), timerHud.y(), timerHud.scale(), line);
     }
 
@@ -150,7 +150,7 @@ public final class HiddenJerry {
         TeslaMapsConfig c = cfg();
         if (!c.hiddenJerryTracker || !SkyblockUtils.isInSkyblock() || lastJerry == 0 && !"Jerry".equalsIgnoreCase(com.teslamaps.api.ElectionApi.mayor())) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         tracker.draw(g, mc, c.jerryTrackerX, c.jerryTrackerY, c.jerryTrackerScale);
     }
 

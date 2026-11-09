@@ -131,7 +131,7 @@ public final class NpcDayLimit {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || line.isEmpty() || mc.options.hideGui || !SkyblockUtils.isInSkyblock()) return;
+        if (hud == null || line.isEmpty() || mc.gui.hud.isHidden() || !SkyblockUtils.isInSkyblock()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), line);
     }
 

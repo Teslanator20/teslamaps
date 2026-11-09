@@ -34,9 +34,9 @@ public class ForagingChat {
         Matcher m = TREE_MOB.matcher(clean);
         if (!m.find()) return;
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        mc.gui.setTimes(5, 40, 10);
-        mc.gui.setSubtitle(Component.literal("§eFell from the Tree!"));
-        mc.gui.setTitle(Component.literal("§c§l" + m.group(1).trim()));
+        mc.gui.hud.setTimes(5, 40, 10);
+        mc.gui.hud.setSubtitle(Component.literal("§eFell from the Tree!"));
+        mc.gui.hud.setTitle(Component.literal("§c§l" + m.group(1).trim()));
     }
 
     private static final Pattern BEEHEEMOTH = Pattern.compile("A Beeheemoth has spawned at (.+?)!");
@@ -57,9 +57,9 @@ public class ForagingChat {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         mc.execute(() -> {
             if (mc.player == null) return;
-            mc.gui.setTimes(5, 70, 20);
-            mc.gui.setSubtitle(Component.literal(sub));
-            mc.gui.setTitle(Component.literal(title));
+            mc.gui.hud.setTimes(5, 70, 20);
+            mc.gui.hud.setSubtitle(Component.literal(sub));
+            mc.gui.hud.setTitle(Component.literal(title));
         });
     }
 

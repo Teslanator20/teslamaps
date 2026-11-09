@@ -50,8 +50,8 @@ public final class KuudraArrowPoison {
         }
         String title = amount == 0 ? "§aNo Arrow Poison" : amount < cfg().kuudraArrowPoisonMin ? "§aLow Arrow Poison" : null;
         if (title == null) return;
-        mc.gui.setTimes(0, 60, 5);
-        mc.gui.setTitle(Component.literal(title));
+        mc.gui.hud.setTimes(0, 60, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
         mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
     }
 }

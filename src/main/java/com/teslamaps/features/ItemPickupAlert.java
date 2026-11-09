@@ -86,7 +86,7 @@ public final class ItemPickupAlert {
             cooldownUntil = now + COOLDOWN_MS;
             return;
         }
-        if (now < cooldownUntil || mc.screen instanceof AbstractContainerScreen<?> || !SkyblockUtils.isInSkyblock()) return;
+        if (now < cooldownUntil || mc.gui.screen() instanceof AbstractContainerScreen<?> || !SkyblockUtils.isInSkyblock()) return;
         for (Map.Entry<String, Integer> e : current.entrySet()) {
             int delta = e.getValue() - old.getOrDefault(e.getKey(), 0);
             if (delta <= 0) continue;
@@ -131,8 +131,8 @@ public final class ItemPickupAlert {
         TeslaMapsConfig c = cfg();
         mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fPicked up §e" + count + "x " + name));
         if (c.itemPickupAlertTitle) {
-            mc.gui.setTimes(0, 30, 10);
-            mc.gui.setTitle(Component.literal("§e" + name));
+            mc.gui.hud.setTimes(0, 30, 10);
+            mc.gui.hud.setTitle(Component.literal("§e" + name));
         }
         if (c.itemPickupAlertSound) LoudSound.play(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
     }

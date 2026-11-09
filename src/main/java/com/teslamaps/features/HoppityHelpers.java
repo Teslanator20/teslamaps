@@ -79,11 +79,11 @@ public final class HoppityHelpers {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
         timer++;
-        String title = mc.screen instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
+        String title = mc.gui.screen() instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
         boolean eggMenu = MEAL_EGG.matcher(title).matches();
         if (eggMenu) lastInEggMenu = System.currentTimeMillis();
 
-        if (c.hoppityRabbitFish && eggMenu && isSpring()) scanFish((AbstractContainerScreen<?>) mc.screen);
+        if (c.hoppityRabbitFish && eggMenu && isSpring()) scanFish((AbstractContainerScreen<?>) mc.gui.screen());
         else { fishScreen = null; fishSlot = -1; }
     }
 
@@ -109,7 +109,7 @@ public final class HoppityHelpers {
     public static void render(GuiGraphicsExtractor g) {
         if (feature == null || fishSlot < 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !feature.active()) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !feature.active()) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;
@@ -149,8 +149,8 @@ public final class HoppityHelpers {
 
     private static void preventedTitle() {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTitle(Component.literal("§cRabbit the Fish Prevented Close"));
-        mc.gui.setSubtitle(Component.literal("§7Hold §eShift §7to bypass"));
+        mc.gui.hud.setTitle(Component.literal("§cRabbit the Fish Prevented Close"));
+        mc.gui.hud.setSubtitle(Component.literal("§7Hold §eShift §7to bypass"));
         mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.VILLAGER_NO, 1f));
     }
 
@@ -163,7 +163,7 @@ public final class HoppityHelpers {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§e[TeslaMaps] Use a §dMythic Rabbit Pet §efor more chocolate!"));
-        mc.gui.setTitle(Component.literal("§cNo Rabbit Pet!"));
+        mc.gui.hud.setTitle(Component.literal("§cNo Rabbit Pet!"));
     }
 
     // null = pet unknown (no widget, no tracker data)

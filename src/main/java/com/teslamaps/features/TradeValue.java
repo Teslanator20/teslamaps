@@ -65,7 +65,7 @@ public final class TradeValue {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) reset();
             return;
         }
@@ -137,7 +137,7 @@ public final class TradeValue {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!inTrade || lines.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
         Perf.begin("TradeValue.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         if (cfg().tradeValueChanges) {

@@ -79,7 +79,7 @@ public class FarmingSensitivity {
         }
 
         int key = config.mousematReleaseKey;
-        boolean down = key != -1 && mc.screen == null && com.teslamaps.utils.KeyNames.isDown(key);
+        boolean down = key != -1 && mc.gui.screen() == null && com.teslamaps.utils.KeyNames.isDown(key);
         if (down && !releaseWasDown && manualLocked) setLocked(false, "Mouse unlocked");
         releaseWasDown = down;
 
@@ -130,7 +130,7 @@ public class FarmingSensitivity {
         String text = manualLocked || blocksTurning() ? "Mouse Locked" : autoActive ? "Sensitivity Lowered" : null;
         if (text == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, el.x(), el.y(), el.scale(), text);
     }
 

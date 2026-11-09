@@ -75,7 +75,7 @@ public class AuctionPriceInput {
     // after Skyblocker's CopyUnderbidPrice
     private static void underbidTick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().slots.size() <= 13
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu().slots.size() <= 13
                 || !strip(cs.getTitle().getString()).equals("Create BIN Auction")) {
             underbidItem = ItemStack.EMPTY;
             underbidCopied = false;
@@ -151,7 +151,7 @@ public class AuctionPriceInput {
 
         if (slotId >= screen.getMenu().slots.size()) return false;
         ItemStack stack = screen.getMenu().getSlot(slotId).getItem();
-        if (!stack.is(Blocks.GREEN_TERRACOTTA.asItem())) return false;
+        if (!stack.is(Blocks.DYED_TERRACOTTA.green().asItem())) return false;
         if (!valid.contains(strip(stack.getHoverName().getString()))) return false;
 
         Minecraft mc = Minecraft.getInstance();

@@ -111,7 +111,7 @@ public final class SpringBootsHeight {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = line;
         Minecraft mc = Minecraft.getInstance();
-        if (l == null || mc.options.hideGui) return;
+        if (l == null || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

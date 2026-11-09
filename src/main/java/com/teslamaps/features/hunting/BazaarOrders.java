@@ -43,7 +43,7 @@ public class BazaarOrders {
     public static void tick() {
         if (!ShardData.loaded()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
         if (!TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
 
         Map<String, Integer> orders = new HashMap<>();

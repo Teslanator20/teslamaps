@@ -97,7 +97,7 @@ public final class GardenLevelHud {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) readMenu(cs);
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) readMenu(cs);
         int v = GardenMilestoneData.version();
         boolean ov = cfg().gardenLevelOverflow;
         if (v == lastVersion && ov == overflowSetting && !line.isEmpty()) return;
@@ -191,7 +191,7 @@ public final class GardenLevelHud {
 
     private static void tooltip(ItemStack stack, List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         int index = title.equals("Desk") ? 4 : title.equals("SkyBlock Menu") ? 10 : -1;
         if (index < 0) return;
@@ -238,7 +238,7 @@ public final class GardenLevelHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || line.isEmpty() || !SkyblockUtils.isInGarden()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), line, width);
     }
 

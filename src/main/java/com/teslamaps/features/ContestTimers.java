@@ -95,9 +95,9 @@ public final class ContestTimers {
                     "§a[TeslaMaps] §cNo ticket yet! §eContest ends in §f" + left));
         }
         if (c.contestAlertTitle) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§cNo Ticket!"));
-            mc.gui.setSubtitle(Component.literal("§eEnds in §f" + left));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§cNo Ticket!"));
+            mc.gui.hud.setSubtitle(Component.literal("§eEnds in §f" + left));
         }
         if (c.contestAlertVolume > 0f) {
             LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume, 1.2f);
@@ -114,9 +114,9 @@ public final class ContestTimers {
                     + (foraging && farming ? " §ehave started!" : " §ehas started!")));
         }
         if (c.contestAlertTitle) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal(name));
-            mc.gui.setSubtitle(Component.literal("§aContest started!"));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal(name));
+            mc.gui.hud.setSubtitle(Component.literal("§aContest started!"));
         }
         if (c.contestAlertVolume > 0f) {
             LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume, 1.2f);
@@ -334,11 +334,11 @@ public final class ContestTimers {
     public static void render(GuiGraphicsExtractor context, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         // container screens keep it up, so it stays draggable from the inventory
-        if (mc.screen != null
-                && !(mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen)
-                && !(mc.screen instanceof AbstractContainerScreen)) return;
+        if (mc.gui.screen() != null
+                && !(mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen)
+                && !(mc.gui.screen() instanceof AbstractContainerScreen)) return;
         if (!shouldRender()) return;
         draw(context, mc, c.contestTimerX, c.contestTimerY, c.contestTimerScale, lines());
     }

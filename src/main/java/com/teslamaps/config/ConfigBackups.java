@@ -38,7 +38,7 @@ public final class ConfigBackups {
                                 if (p != null) p.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                                         made ? "§b[TeslaMaps] §fConfig backed up." : "§b[TeslaMaps] §7No changes since the last backup."));
                             },
-                            () -> net.minecraft.client.Minecraft.getInstance().setScreen(
+                            () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(
                                     new com.teslamaps.screen.ConfigBackupScreen(b.screen()))});
                 });
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> {

@@ -47,7 +47,7 @@ public final class GriffinPetWarning {
         long now = System.currentTimeMillis();
         if (now - lastWarn < 30_000) return;
         lastWarn = now;
-        mc.gui.setTitle(Component.literal("§cGriffin Pet!"));
+        mc.gui.hud.setTitle(Component.literal("§cGriffin Pet!"));
         mc.player.sendSystemMessage(Component.literal("§e[TeslaMaps] Reminder to use a Griffin pet for Mythological Ritual! §a[Open Pets]")
                 .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand("/pets"))
                         .withHoverEvent(new HoverEvent.ShowText(Component.literal("§eClick to open the pets menu")))));

@@ -62,7 +62,7 @@ public class WorldScanner {
     // category: 0=crystal, 1=mob spot, 2=grotto, 3=dragon
     private enum Structure {
         KING("King",
-                new Block[]{Blocks.RED_WOOL, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_STAIRS},
+                new Block[]{Blocks.WOOL.red(), Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_STAIRS},
                 GOLD, Quarter.GOBLIN, -1, 1, 0, null, "[NPC] King Yolkar:"),
         QUEEN("Queen",
                 new Block[]{Blocks.STONE, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.CAULDRON},
@@ -74,7 +74,7 @@ public class WorldScanner {
                 new Block[]{Blocks.STONE_BRICKS, Blocks.COBBLESTONE, Blocks.COBBLESTONE, Blocks.COBBLESTONE, Blocks.COBBLESTONE, Blocks.COBBLESTONE_STAIRS, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.DARK_OAK_STAIRS},
                 AQUA, Quarter.PRECURSOR, 0, 1, 0, "Lost Precursor City", "Sapphire Crystal"),
         TEMPLE("Temple",
-                new Block[]{Blocks.BEDROCK, Blocks.BEDROCK, Blocks.BEDROCK, Blocks.BEDROCK, Blocks.STONE, Blocks.CLAY, Blocks.CLAY, Blocks.CLAY, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.LIME_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.GREEN_TERRACOTTA},
+                new Block[]{Blocks.BEDROCK, Blocks.BEDROCK, Blocks.BEDROCK, Blocks.BEDROCK, Blocks.STONE, Blocks.CLAY, Blocks.CLAY, Blocks.CLAY, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.DYED_TERRACOTTA.lime(), Blocks.DYED_TERRACOTTA.lime(), Blocks.DYED_TERRACOTTA.green()},
                 DARK_PURPLE, Quarter.JUNGLE, 47, 1, 0, "Jungle Temple", "[NPC] Kalhuiki Door Guardian:"),
         BAL("Bal",
                 new Block[]{Blocks.LAVA, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER, Blocks.BARRIER},
@@ -107,14 +107,14 @@ public class WorldScanner {
                         Blocks.GRANITE, Blocks.GRANITE, Blocks.AIR},
                 GREEN, Quarter.JUNGLE, 6, 1, 1, null, null),
         SLIME_TREE_CANOPY("Slime Tree",
-                new Block[]{Blocks.GLOWSTONE, Blocks.GREEN_CARPET, Blocks.AIR},
+                new Block[]{Blocks.GLOWSTONE, Blocks.CARPET.green(), Blocks.AIR},
                 GREEN, Quarter.JUNGLE, -28, 1, 1, null, null),
         XALX("Xalx",
                 new Block[]{Blocks.STONE, Blocks.COAL_BLOCK, Blocks.FIRE, Blocks.NETHER_QUARTZ_ORE,
                         Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR},
                 GREEN, Quarter.GOBLIN, 1, 1, 1, null, "[NPC] Xalx:"),
         XALX_HUT("Xalx",
-                new Block[]{Blocks.GREEN_WOOL, Blocks.GREEN_TERRACOTTA, Blocks.GREEN_TERRACOTTA, Blocks.GREEN_WOOL,
+                new Block[]{Blocks.WOOL.green(), Blocks.DYED_TERRACOTTA.green(), Blocks.DYED_TERRACOTTA.green(), Blocks.WOOL.green(),
                         Blocks.AIR, Blocks.SPRUCE_SLAB, Blocks.OAK_FENCE, Blocks.TORCH},
                 GREEN, Quarter.GOBLIN, 0, 1, 1, null, null),
         PETE("Pete",
@@ -125,10 +125,10 @@ public class WorldScanner {
         ODAWA("Odawa",
                 new Block[]{Blocks.JUNGLE_LOG, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, Blocks.JUNGLE_LOG,
                         Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, Blocks.JUNGLE_LOG, Blocks.JUNGLE_LOG,
-                        Blocks.JUNGLE_LOG, Blocks.HAY_BLOCK, Blocks.YELLOW_TERRACOTTA},
+                        Blocks.JUNGLE_LOG, Blocks.HAY_BLOCK, Blocks.DYED_TERRACOTTA.yellow()},
                 GREEN, Quarter.JUNGLE, 0, 1, 1, null, "[NPC] Odawa:"),
         GOLDEN_DRAGON("Golden Dragon",
-                new Block[]{Blocks.STONE, Blocks.RED_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.RED_TERRACOTTA, Blocks.PLAYER_HEAD, Blocks.RED_WOOL},
+                new Block[]{Blocks.STONE, Blocks.DYED_TERRACOTTA.red(), Blocks.DYED_TERRACOTTA.red(), Blocks.DYED_TERRACOTTA.red(), Blocks.PLAYER_HEAD, Blocks.WOOL.red()},
                 WHITE, Quarter.ANY, -3, 1, 3, "Dragon's Lair", "[NPC] Golden Dragon:"),
         // legitcatmod's smaller landmarks, category 5
         JUNGLE_LAGOON_PILLARS("Jungle Lagoon Pillars",
@@ -141,13 +141,13 @@ public class WorldScanner {
                 new Block[]{Blocks.POLISHED_ANDESITE, Blocks.ANDESITE, Blocks.STONE_BRICK_STAIRS, Blocks.ANDESITE, Blocks.ANDESITE, Blocks.STONE, Blocks.ANDESITE, Blocks.STONE, Blocks.ANDESITE, Blocks.ANDESITE, Blocks.STONE_BRICK_STAIRS, Blocks.ANDESITE, Blocks.STONE, Blocks.ANDESITE},
                 GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
         SMALL_TEMPLE("Small Temple",
-                new Block[]{Blocks.STONE_BRICK_SLAB, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.JUNGLE_SLAB, Blocks.BLUE_TERRACOTTA, Blocks.POLISHED_GRANITE},
+                new Block[]{Blocks.STONE_BRICK_SLAB, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.JUNGLE_SLAB, Blocks.DYED_TERRACOTTA.blue(), Blocks.POLISHED_GRANITE},
                 GREEN, Quarter.ANY, 0, 1, 5, null, null),
         JUNGLE_LAGOON_TEMPLE("Jungle Lagoon Temple",
                 new Block[]{Blocks.DIRT, Blocks.POLISHED_GRANITE, Blocks.JUNGLE_FENCE, Blocks.JUNGLE_FENCE, Blocks.JUNGLE_PLANKS, Blocks.AIR, Blocks.JUNGLE_SLAB, Blocks.POLISHED_GRANITE, Blocks.JUNGLE_PLANKS},
                 GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
         CRYSTAL_TREE("Crystal Tree",
-                new Block[]{Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.GLOWSTONE, Blocks.LIGHT_GRAY_CARPET},
+                new Block[]{Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.ACACIA_WOOD, Blocks.GLOWSTONE, Blocks.CARPET.lightGray()},
                 LIGHT_PURPLE, Quarter.ANY, 0, 1, 5, null, null),
         JUNGLE_BRIDGES("Jungle Bridges",
                 new Block[]{Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.GRANITE, Blocks.GRANITE},
@@ -156,19 +156,19 @@ public class WorldScanner {
                 new Block[]{Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_PLANKS, Blocks.GRANITE, Blocks.JUNGLE_STAIRS, Blocks.GRANITE, Blocks.GRANITE, Blocks.GRANITE, Blocks.GRANITE},
                 GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
         TINY_POND("Tiny Pond",
-                new Block[]{Blocks.LIME_TERRACOTTA, Blocks.WATER, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.STONE, Blocks.STONE, Blocks.GRASS_BLOCK, Blocks.AZURE_BLUET},
+                new Block[]{Blocks.DYED_TERRACOTTA.lime(), Blocks.WATER, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.STONE, Blocks.STONE, Blocks.GRASS_BLOCK, Blocks.AZURE_BLUET},
                 GREEN, Quarter.ANY, 0, 1, 5, null, null),
         JUNGLE_LUXURIANT_CAVERN("Jungle Luxuriant Cavern",
                 new Block[]{Blocks.LILY_PAD, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES},
                 GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
         JUNGLE_VALLEY("Jungle Valley",
-                new Block[]{Blocks.LIME_TERRACOTTA, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.GREEN_WOOL},
+                new Block[]{Blocks.DYED_TERRACOTTA.lime(), Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.WOOL.green()},
                 GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
         SLUDGE_CAVERN("Sludge Cavern",
                 new Block[]{Blocks.DIRT, Blocks.CLAY, Blocks.CLAY, Blocks.CLAY, Blocks.GRASS_BLOCK, Blocks.BLUE_ORCHID},
                 GREEN, Quarter.ANY, 0, 1, 5, null, null),
         JUNGLE_CAVERN("Jungle Cavern",
-                new Block[]{Blocks.LIME_TERRACOTTA, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.GREEN_TERRACOTTA, Blocks.LIME_TERRACOTTA, Blocks.LIME_TERRACOTTA},
+                new Block[]{Blocks.DYED_TERRACOTTA.lime(), Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.OAK_LEAVES, Blocks.DYED_TERRACOTTA.green(), Blocks.DYED_TERRACOTTA.lime(), Blocks.DYED_TERRACOTTA.lime()},
                 GREEN, Quarter.JUNGLE, 0, 1, 5, null, null),
         STUCK_SLUDGE("Stuck Sludge",
                 new Block[]{Blocks.STONE_BRICKS, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.AIR, Blocks.POLISHED_GRANITE, Blocks.GRANITE, Blocks.GRANITE},
@@ -180,7 +180,7 @@ public class WorldScanner {
                 new Block[]{Blocks.POLISHED_ANDESITE, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_PLANKS, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_FENCE, Blocks.OAK_LOG, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_STAIRS, Blocks.AIR, Blocks.OAK_LOG},
                 AQUA, Quarter.ANY, 0, 1, 5, null, null),
         JADE_PEDESTAL("Jade Pedestal",
-                new Block[]{Blocks.ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.AIR, Blocks.SEA_LANTERN, Blocks.LIME_STAINED_GLASS, Blocks.LIME_STAINED_GLASS},
+                new Block[]{Blocks.ANDESITE, Blocks.POLISHED_ANDESITE, Blocks.AIR, Blocks.SEA_LANTERN, Blocks.STAINED_GLASS.lime(), Blocks.STAINED_GLASS.lime()},
                 AQUA, Quarter.ANY, 0, 1, 5, null, null),
         CRYSTAL_TRAIN("Crystal Train",
                 new Block[]{Blocks.STONE_BRICK_STAIRS, Blocks.COBBLESTONE_STAIRS, Blocks.COBBLESTONE_STAIRS, Blocks.POLISHED_GRANITE, Blocks.GRANITE, Blocks.GRANITE, Blocks.AIR, Blocks.AIR, Blocks.AIR},
@@ -207,7 +207,7 @@ public class WorldScanner {
                 new Block[]{Blocks.POLISHED_DIORITE, Blocks.POLISHED_DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE, Blocks.POLISHED_DIORITE, Blocks.POLISHED_ANDESITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE, Blocks.DIORITE, Blocks.POLISHED_ANDESITE, Blocks.POLISHED_DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.DIORITE, Blocks.POLISHED_DIORITE},
                 AQUA, Quarter.PRECURSOR, 0, 1, 5, null, null),
         MANSION("Mansion",
-                new Block[]{Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.CYAN_TERRACOTTA, Blocks.AIR, Blocks.AIR, Blocks.CRACKED_STONE_BRICKS, Blocks.WALL_TORCH, Blocks.STONE_BRICK_STAIRS, Blocks.STONE_BRICKS},
+                new Block[]{Blocks.DYED_TERRACOTTA.cyan(), Blocks.DYED_TERRACOTTA.cyan(), Blocks.DYED_TERRACOTTA.cyan(), Blocks.DYED_TERRACOTTA.cyan(), Blocks.DYED_TERRACOTTA.cyan(), Blocks.AIR, Blocks.AIR, Blocks.CRACKED_STONE_BRICKS, Blocks.WALL_TORCH, Blocks.STONE_BRICK_STAIRS, Blocks.STONE_BRICKS},
                 LIGHT_PURPLE, Quarter.ANY, 0, 1, 5, null, null);
 
         final String displayName;
@@ -265,7 +265,7 @@ public class WorldScanner {
     // first block -> landmark patterns starting with it, and every block any pattern starts with
     private static final Map<Block, List<Structure>> LANDMARKS_BY_FIRST = new java.util.HashMap<>();
     private static final Set<Block> FIRST_BLOCKS = new java.util.HashSet<>(List.of(Blocks.LAVA,
-            Blocks.MAGENTA_STAINED_GLASS, Blocks.MAGENTA_STAINED_GLASS_PANE));
+            Blocks.STAINED_GLASS.magenta(), Blocks.STAINED_GLASS_PANE.magenta()));
     static {
         for (Structure s : Structure.values()) {
             FIRST_BLOCKS.add(s.blocks[0]);
@@ -584,7 +584,7 @@ public class WorldScanner {
                         }
                     }
 
-                    if (block == Blocks.RED_WOOL) {
+                    if (block == Blocks.WOOL.red()) {
                         tryAdd(cfg.chScanCrystals, Structure.KING, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.STONE) {
                         tryAdd(cfg.chScanCrystals, Structure.QUEEN, chunk, lx, y, lz, worldX, worldZ);
@@ -609,13 +609,13 @@ public class WorldScanner {
                         tryAdd(cfg.chScanMobSpots, Structure.KEY_GUARDIAN_TEMPLE, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.OAK_FENCE) {
                         tryAdd(cfg.chScanMobSpots, Structure.KEY_GUARDIAN_SPIRAL, chunk, lx, y, lz, worldX, worldZ);
-                    } else if (block == Blocks.GREEN_WOOL) {
+                    } else if (block == Blocks.WOOL.green()) {
                         tryAdd(cfg.chScanMobSpots, Structure.XALX_HUT, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.NETHERRACK) {
                         tryAdd(cfg.chScanMobSpots, Structure.PETE, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.JUNGLE_LOG) {
                         tryAdd(cfg.chScanMobSpots, Structure.ODAWA, chunk, lx, y, lz, worldX, worldZ);
-                    } else if ((block == Blocks.MAGENTA_STAINED_GLASS || block == Blocks.MAGENTA_STAINED_GLASS_PANE)
+                    } else if ((block == Blocks.STAINED_GLASS.magenta() || block == Blocks.STAINED_GLASS_PANE.magenta())
                             && cfg.chScanGrottos && structureOn("Fairy Grotto") && !waypoints.containsKey("Fairy Grotto")
                             && !inQuarter(Quarter.NUCLEUS, worldX, y, worldZ)) {
                         addWaypoint("Fairy Grotto", new BlockPos(worldX, y, worldZ), LIGHT_PURPLE, 2, null, null);

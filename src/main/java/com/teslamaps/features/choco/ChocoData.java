@@ -154,7 +154,7 @@ public final class ChocoData {
         Minecraft mc = Minecraft.getInstance();
         ticks++;
         State s = state();
-        boolean now = mc.screen instanceof AbstractContainerScreen<?> cs
+        boolean now = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Chocolate Factory");
         if (!now && inFactory) {
             inFactory = false;
@@ -164,7 +164,7 @@ public final class ChocoData {
             rabbitSlots = List.of();
         }
         inFactory = now;
-        if (now && ticks % 5 == 0) parse((AbstractContainerScreen<?>) mc.screen);
+        if (now && ticks % 5 == 0) parse((AbstractContainerScreen<?>) mc.gui.screen());
         if (ticks % 20 == 0) {
             if (!now && SkyblockUtils.isInSkyblock() && s.chocolate >= 0 && s.cps > 0) {
                 s.chocolate += s.cps;

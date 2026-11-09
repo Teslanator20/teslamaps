@@ -190,7 +190,7 @@ public class MuseumPage extends ProfileViewerPage {
     }
 
     private static ItemStack missingStack(String name, boolean armorSet) {
-        ItemStack stack = new ItemStack(Items.GRAY_DYE);
+        ItemStack stack = new ItemStack(Items.DYE.gray());
         stack.set(net.minecraft.core.component.DataComponents.CUSTOM_NAME,
                 com.teslamaps.profileviewer.data.LegacyText.parse(name));
         List<net.minecraft.network.chat.Component> lore = new ArrayList<>();

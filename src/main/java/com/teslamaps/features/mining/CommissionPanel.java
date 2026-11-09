@@ -70,7 +70,7 @@ public final class CommissionPanel {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !isCommissions(cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !isCommissions(cs)) {
             if (screen != null) {
                 screen = null;
                 vanilla = false;
@@ -120,9 +120,9 @@ public final class CommissionPanel {
     }
 
     private static boolean filler(ItemStack st) {
-        return st.is(Items.BLACK_STAINED_GLASS_PANE) || st.is(Items.GRAY_STAINED_GLASS_PANE)
-                || st.is(Items.RED_STAINED_GLASS_PANE) || st.is(Items.WHITE_STAINED_GLASS_PANE)
-                || st.is(Items.LIGHT_GRAY_STAINED_GLASS_PANE) || st.is(Items.ARROW);
+        return st.is(Items.STAINED_GLASS_PANE.black()) || st.is(Items.STAINED_GLASS_PANE.gray())
+                || st.is(Items.STAINED_GLASS_PANE.red()) || st.is(Items.STAINED_GLASS_PANE.white())
+                || st.is(Items.STAINED_GLASS_PANE.lightGray()) || st.is(Items.ARROW);
     }
 
     private static void collectLore(ItemStack st, List<Component> out) {

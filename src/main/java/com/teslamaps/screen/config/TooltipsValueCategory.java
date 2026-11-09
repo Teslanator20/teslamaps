@@ -147,7 +147,7 @@ public final class TooltipsValueCategory {
         b.color("Bad Level Color", () -> config.enchantColorBad, v -> config.enchantColorBad = v);
         b.toggle("Custom Enchant Rules", () -> config.enchantCustomRules, v -> config.enchantCustomRules = v);
         b.info("First matching rule wins over the level colours");
-        b.button("Edit Enchant Rules", () -> Minecraft.getInstance().setScreen(
-                new com.teslamaps.screen.EnchantRulesScreen(Minecraft.getInstance().screen)));
+        b.button("Edit Enchant Rules", () -> Minecraft.getInstance().gui.setScreen(
+                new com.teslamaps.gui.screen().EnchantRulesScreen(Minecraft.getInstance().gui.screen())));
     }
 }

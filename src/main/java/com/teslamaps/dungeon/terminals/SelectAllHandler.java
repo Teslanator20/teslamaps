@@ -33,7 +33,7 @@ public class SelectAllHandler extends TerminalHandler {
         List<Integer> out = new ArrayList<>();
         for (int i = 0; i < slots.size(); i++) {
             var stack = slots.get(i).getItem();
-            if (stack.getItem() == Items.BLACK_STAINED_GLASS_PANE || TerminalUtils.hasGlint(stack)) continue;
+            if (stack.getItem() == Items.STAINED_GLASS_PANE.black() || TerminalUtils.hasGlint(stack)) continue;
             String name = stack.getHoverName().getString().toLowerCase();
             for (String prefix : validPrefixes) {
                 if (name.startsWith(prefix)) { out.add(i); break; }

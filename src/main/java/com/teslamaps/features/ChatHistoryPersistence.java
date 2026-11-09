@@ -45,7 +45,7 @@ public class ChatHistoryPersistence {
     public static void save(Minecraft mc) {
         if (!TeslaMapsConfig.get().chatHistoryPersist) return;
         try {
-            ChatComponent chat = mc.gui.getChat();
+            ChatComponent chat = mc.gui.hud.getChat();
             List<GuiMessage> messages = ((ChatComponentAccessor) chat).teslamaps$getAllMessages();
 
             JsonArray arr = new JsonArray();
@@ -83,7 +83,7 @@ public class ChatHistoryPersistence {
             }
             if (restored.isEmpty()) return;
 
-            ChatComponentAccessor accessor = (ChatComponentAccessor) mc.gui.getChat();
+            ChatComponentAccessor accessor = (ChatComponentAccessor) mc.gui.hud.getChat();
             List<GuiMessage> all = accessor.teslamaps$getAllMessages();
             all.clear();
             all.addAll(restored);

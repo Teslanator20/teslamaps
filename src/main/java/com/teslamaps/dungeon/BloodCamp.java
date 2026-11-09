@@ -355,8 +355,8 @@ public class BloodCamp {
 
     private static void title(String text) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 20, 5);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 20, 5);
+        mc.gui.hud.setTitle(Component.literal(text));
     }
 
     private static void playAlert(String soundKey, float volume) {

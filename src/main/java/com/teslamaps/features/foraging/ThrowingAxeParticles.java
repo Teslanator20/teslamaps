@@ -25,9 +25,9 @@ public final class ThrowingAxeParticles {
     /** From ClientPlayNetworkHandlerMixin, main thread. */
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.hideThrowingAxeParticles || p.getParticle().getType() != ParticleTypes.WAX_ON) return false;
-        if (p.getCount() != 2 || p.getMaxSpeed() != 1f || p.isOverrideLimiter()) return false;
-        if (p.getXDist() != 0f || p.getYDist() != 0f || p.getZDist() != 0f) return false;
+        if (!c.hideThrowingAxeParticles || p.particle().getType() != ParticleTypes.WAX_ON) return false;
+        if (p.count() != 2 || p.xMaxSpeed() != 1f || p.overrideLimiter()) return false;
+        if (p.xDist() != 0f || p.yDist() != 0f || p.zDist() != 0f) return false;
         if (!c.section("Foraging")) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return false;
@@ -42,7 +42,7 @@ public final class ThrowingAxeParticles {
             axes = found;
         }
         for (ArmorStand as : axes) {
-            if (as.position().distanceToSqr(p.getX(), p.getY(), p.getZ()) <= 16) return true;
+            if (as.position().distanceToSqr(p.x(), p.y(), p.z()) <= 16) return true;
         }
         return false;
     }

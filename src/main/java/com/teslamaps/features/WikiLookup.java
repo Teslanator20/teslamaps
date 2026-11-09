@@ -47,8 +47,8 @@ public final class WikiLookup {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = mc.screen instanceof AbstractContainerScreen<?> && KeyNames.isDown(cfg().wikiLookupKey);
-        if (down && !wasDown) lookup(mc, (AbstractContainerScreen<?>) mc.screen);
+        boolean down = mc.gui.screen() instanceof AbstractContainerScreen<?> && KeyNames.isDown(cfg().wikiLookupKey);
+        if (down && !wasDown) lookup(mc, (AbstractContainerScreen<?>) mc.gui.screen());
         wasDown = down;
     }
 
@@ -72,7 +72,7 @@ public final class WikiLookup {
     private static String page(String title, Slot slot) {
         ItemStack stack = slot.getItem();
         String name = StringUtil.strip(stack.getHoverName().getString()).trim();
-        boolean pane = stack.is(Items.BLACK_STAINED_GLASS_PANE);
+        boolean pane = stack.is(Items.STAINED_GLASS_PANE.black());
 
         if (LOGBOOK.matcher(title).matches() && slot.index > 9 && slot.index < 44 && !pane) return name;
         if (title.equals("Calendar and Events") && slot.index > 9 && slot.index < 26 && !pane) {

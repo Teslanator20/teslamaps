@@ -54,11 +54,11 @@ public class SoundPickerScreen extends Screen {
         addRenderableWidget(new TeslaButton(panelX + 16, panelY + PANEL_H - 34, btnW, 22, "§aApply", () -> {
             onApply.accept(selected);
             TeslaMapsConfig.save();
-            minecraft.setScreen(parent);
+            minecraft.gui.setScreen(parent);
         }));
 
         addRenderableWidget(new TeslaButton(panelX + 24 + btnW, panelY + PANEL_H - 34, btnW, 22, "§cNevermind",
-                () -> minecraft.setScreen(parent)));
+                () -> minecraft.gui.setScreen(parent)));
 
         if (TeslaMapsConfig.get().userSoundFolder) {
             java.util.List<String> merged = new java.util.ArrayList<>();
@@ -69,10 +69,10 @@ public class SoundPickerScreen extends Screen {
             int bw = 64, by = panelY + 10, bx = panelX + PANEL_W - 16 - bw * 2 - 4;
             addRenderableWidget(new TeslaButton(bx, by, bw, 16, "Sound ID", () -> {
                 com.teslamaps.utils.UserSounds.reload();
-                minecraft.setScreen(new TextPromptScreen("Sound id, e.g. block.bell.use", v -> {
+                minecraft.gui.setScreen(new TextPromptScreen("Sound id, e.g. block.bell.use", v -> {
                     selected = com.teslamaps.utils.UserSounds.ID_PREFIX + v;
                     LoudSound.play(SoundOptions.resolve(selected), 1.0f, 1.0f);
-                    minecraft.setScreen(this);
+                    minecraft.gui.setScreen(this);
                 }));
             }));
             addRenderableWidget(new TeslaButton(bx + bw + 4, by, bw, 16, "Folder", () -> {

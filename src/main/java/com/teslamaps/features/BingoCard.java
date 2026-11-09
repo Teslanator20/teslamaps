@@ -123,7 +123,7 @@ public final class BingoCard {
             resetSteps();
         }
         ticks++;
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && ticks % 10 == 0
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && ticks % 10 == 0
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Bingo Card")) {
             read(cs);
         }
@@ -516,7 +516,7 @@ public final class BingoCard {
         List<String> l = lines;
         if (l.isEmpty() || el == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, el.x(), el.y(), el.scale(), l, width);
     }
 

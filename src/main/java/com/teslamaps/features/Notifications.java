@@ -81,7 +81,7 @@ public final class Notifications {
             closeText = key == -1 ? "" : "§c[" + KeyNames.display(key) + "] Close";
         }
         Minecraft mc = Minecraft.getInstance();
-        boolean canPress = mc.screen == null || mc.screen instanceof AbstractContainerScreen<?>;
+        boolean canPress = mc.gui.screen() == null || mc.gui.screen() instanceof AbstractContainerScreen<?>;
         boolean down = canPress && key != -1 && KeyNames.isDown(key);
         if (down && !keyDown && current != null && now - closedAt > 200) {
             current = null;
@@ -94,8 +94,8 @@ public final class Notifications {
         Note n = current;
         if (n == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
-        if (mc.screen != null && !cfg().notificationOverInventory) return;
+        if (mc.gui.hud.isHidden()) return;
+        if (mc.gui.screen() != null && !cfg().notificationOverInventory) return;
         int h = n.lines.size() * 10 + 18;
         int mid = mc.getWindow().getGuiScaledWidth() / 2;
         int top = (int) (mc.getWindow().getGuiScaledHeight() * 0.75 - h / 2.0);

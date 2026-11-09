@@ -31,6 +31,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ambient.Bat;
@@ -160,7 +161,7 @@ public final class SecretWorld {
     public static UUID spawnBat(SecretSite site) {
         ServerLevel level = RunBlocks.level();
         if (level == null) return null;
-        Bat bat = EntityType.BAT.create(level, EntitySpawnReason.EVENT);
+        Bat bat = EntityTypes.BAT.create(level, EntitySpawnReason.EVENT);
         if (bat == null) return null;
         bat.setPos(site.x + 0.5, site.y + 0.5, site.z + 0.5);
         bat.setSilent(true);

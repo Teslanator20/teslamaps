@@ -136,7 +136,7 @@ public final class ComposterOverlay {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !SkyblockUtils.isInGarden()) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !SkyblockUtils.isInGarden()) {
             if (!rows.isEmpty()) rows = List.of();
             menu = "";
             return;
@@ -305,7 +305,7 @@ public final class ComposterOverlay {
     public static void render(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         if (rows.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Perf.begin("ComposterOverlay.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int h = rows.size() * LINE;

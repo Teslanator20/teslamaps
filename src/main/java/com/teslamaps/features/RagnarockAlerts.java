@@ -78,7 +78,7 @@ public final class RagnarockAlerts {
 
     private static void title(String text) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 30, 10);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 30, 10);
+        mc.gui.hud.setTitle(Component.literal(text));
     }
 }

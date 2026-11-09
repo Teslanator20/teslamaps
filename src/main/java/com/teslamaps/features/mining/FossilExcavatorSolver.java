@@ -122,7 +122,7 @@ public final class FossilExcavatorSolver {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean now = mc.screen instanceof AbstractContainerScreen<?> cs
+        boolean now = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).startsWith("Fossil Excavator");
         if (!now) {
             if (inMenu) {
@@ -134,7 +134,7 @@ public final class FossilExcavatorSolver {
             return;
         }
         inMenu = true;
-        AbstractContainerMenu open = ((AbstractContainerScreen<?>) mc.screen).getMenu();
+        AbstractContainerMenu open = ((AbstractContainerScreen<?>) mc.gui.screen()).getMenu();
         if (open == menu && open.getStateId() == menuState) return;
         menu = open;
         menuState = open.getStateId();
@@ -149,7 +149,7 @@ public final class FossilExcavatorSolver {
         for (int i = 0; i < W * H; i++) {
             ItemStack st = open.getSlot(i).getItem();
             Item it = st.getItem();
-            state[i] = it == Items.WHITE_STAINED_GLASS_PANE ? FOSSIL : it == Items.BROWN_STAINED_GLASS_PANE ? UNKNOWN : EMPTY;
+            state[i] = it == Items.STAINED_GLASS_PANE.white() ? FOSSIL : it == Items.STAINED_GLASS_PANE.brown() ? UNKNOWN : EMPTY;
             if (state[i] == FOSSIL) fossils++;
             if (st.isEmpty()) continue;
             for (String l : ItemUtil.loreLines(st)) {
@@ -188,7 +188,7 @@ public final class FossilExcavatorSolver {
     public static void drawHighlight(GuiGraphicsExtractor g, Slot slot) {
         if (!inMenu || permutations <= 0 || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu() != menu) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu() != menu) return;
         if (slot.container == mc.player.getInventory()) return;
         int i = slot.getContainerSlot();
         if (i < 0 || i >= W * H) return;
@@ -200,7 +200,7 @@ public final class FossilExcavatorSolver {
 
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         Item it = stack.getItem();
-        if (it != Items.GRAY_STAINED_GLASS_PANE && it != Items.BROWN_STAINED_GLASS_PANE) return;
+        if (it != Items.STAINED_GLASS_PANE.gray() && it != Items.STAINED_GLASS_PANE.brown()) return;
         lines.add(Component.empty());
         if (permutations == 0) {
             lines.add(Component.literal("§6No fossil shape fits"));
@@ -210,7 +210,7 @@ public final class FossilExcavatorSolver {
         lines.add(Component.literal("§7Possible patterns: §e" + permutations));
         lines.add(Component.literal("§7Minimum tiles left: " + (charges < 0 || charges >= minimum ? "§e" : "§c") + minimum));
         Minecraft mc = Minecraft.getInstance();
-        if (it == Items.BROWN_STAINED_GLASS_PANE && mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (it == Items.STAINED_GLASS_PANE.brown() && mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             Slot s = ((HandledScreenAccessor) cs).getFocusedSlot();
             if (s != null && s.container != mc.player.getInventory()) {
                 int i = s.getContainerSlot();

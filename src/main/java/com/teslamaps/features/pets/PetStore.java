@@ -223,7 +223,7 @@ public final class PetStore {
         if (++ticks < 10) return;
         ticks = 0;
         if (dirty && System.currentTimeMillis() - dirtySince > 60_000) save();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         ensure();
         if (title.startsWith("Accessory Bag")) {

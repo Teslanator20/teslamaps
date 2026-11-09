@@ -61,10 +61,10 @@ public class CustomWardrobe {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !isArmorWardrobe(StringUtil.stripTrim(cs.getTitle().getString()))) {
             containerId = -1;
-            if (!(mc.screen instanceof AbstractContainerScreen<?>)) vanillaFor = -1;
+            if (!(mc.gui.screen() instanceof AbstractContainerScreen<?>)) vanillaFor = -1;
             return;
         }
         if (playerLevel != mc.level) {
@@ -108,8 +108,8 @@ public class CustomWardrobe {
             }
             ItemStack button = slots.get(36 + col).getItem();
             String bn = StringUtil.stripTrim(button.getHoverName().getString());
-            c.equipped = bn.endsWith("Equipped") || button.is(Items.LIME_DYE);
-            c.locked = button.is(Items.RED_DYE) || bn.contains("Locked") || button.isEmpty();
+            c.equipped = bn.endsWith("Equipped") || button.is(Items.DYE.lime());
+            c.locked = button.is(Items.DYE.red()) || bn.contains("Locked") || button.isEmpty();
             c.empty = !any;
             if (changed) {
                 double v = 0;

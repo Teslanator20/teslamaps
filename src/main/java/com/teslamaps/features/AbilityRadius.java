@@ -71,7 +71,7 @@ public final class AbilityRadius {
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = cfg();
         if (!c.fireVeilCircle || !fireVeilActive() || !c.section("Render")) return false;
-        return p.getParticle().getType() == ParticleTypes.FLAME && p.getMaxSpeed() == 0.55f;
+        return p.particle().getType() == ParticleTypes.FLAME && p.xMaxSpeed() == 0.55f;
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

@@ -151,7 +151,7 @@ public class CustomTodoScreen extends Screen {
     public void onClose() {
         list().removeIf(t -> t.label.isBlank() && t.trigger.isBlank());
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

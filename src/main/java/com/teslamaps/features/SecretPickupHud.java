@@ -120,7 +120,7 @@ public final class SecretPickupHud {
         List<String> l = shown;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

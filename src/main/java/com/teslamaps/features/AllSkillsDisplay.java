@@ -108,7 +108,7 @@ public final class AllSkillsDisplay {
         List<FormattedCharSequence> r = rows;
         if (hud == null || r.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), r, width);
     }
 

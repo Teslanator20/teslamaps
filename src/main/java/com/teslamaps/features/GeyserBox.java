@@ -56,18 +56,18 @@ public final class GeyserBox {
     }
 
     private static boolean isGeyser(ClientboundLevelParticlesPacket p) {
-        return p.getParticle().getType() == ParticleTypes.CLOUD && p.getCount() == 15
-                && Math.abs(p.getMaxSpeed() - 0.05f) < 1e-4f
-                && Math.abs(p.getXDist() - 0.1f) < 1e-4f && Math.abs(p.getYDist() - 0.6f) < 1e-4f
-                && Math.abs(p.getZDist() - 0.1f) < 1e-4f;
+        return p.particle().getType() == ParticleTypes.CLOUD && p.count() == 15
+                && Math.abs(p.xMaxSpeed() - 0.05f) < 1e-4f
+                && Math.abs(p.xDist() - 0.1f) < 1e-4f && Math.abs(p.yDist() - 0.6f) < 1e-4f
+                && Math.abs(p.zDist() - 0.1f) < 1e-4f;
     }
 
     /** From ClientPlayNetworkHandlerMixin particle HEAD inject, any thread: only stores the position. */
     public static void onParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = cfg();
         if (!c.geyserBox || !inVolcano || !isGeyser(p)) return;
-        double x = p.getX(), z = p.getZ();
-        geyser = new Vec3(x, p.getY(), z);
+        double x = p.x(), z = p.z();
+        geyser = new Vec3(x, p.y(), z);
         box = new AABB(x - 2, 118.0 - 0.1, z - 2, x + 2, 118.0 - 0.09, z + 2);
     }
 
@@ -79,7 +79,7 @@ public final class GeyserBox {
         FishingHook bobber = FishingHelpers.bobber();
         if (g == null || bobber == null || !isGeyser(p)) return false;
         Vec3 b = bobber.position();
-        return b.distanceTo(new Vec3(p.getX(), p.getY(), p.getZ())) < 3 && b.distanceTo(g) < 3;
+        return b.distanceTo(new Vec3(p.x(), p.y(), p.z())) < 3 && b.distanceTo(g) < 3;
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

@@ -16,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 import net.minecraft.world.item.ItemStack;
 
 /** Bonemerang backbone timer and rend pull damage in P4. */
@@ -120,7 +120,7 @@ public final class KuudraRend {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !cfg().kuudraBackboneTimer) return;
+        if (mc.gui.hud.isHidden() || !cfg().kuudraBackboneTimer) return;
         long now = ServerTickTimer.now();
         if (now < rendUntil) draw(g, mc, hud.x(), hud.y(), hud.scale(), "§a§lREND!", "");
         else if (hitAt > 0) draw(g, mc, hud.x(), hud.y(), hud.scale(), bar, percent);

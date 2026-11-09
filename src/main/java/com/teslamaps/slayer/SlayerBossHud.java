@@ -145,7 +145,7 @@ public final class SlayerBossHud {
         Component n = name;
         if (n == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), n, hasHp ? progress : -1f, time, owner, width);
     }
 

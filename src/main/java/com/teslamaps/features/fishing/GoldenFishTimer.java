@@ -179,7 +179,7 @@ public final class GoldenFishTimer {
     }
 
     private static void scanGoldfin(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> s) || !s.getTitle().getString().contains("Attribute Menu")) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> s) || !s.getTitle().getString().contains("Attribute Menu")) return;
         for (Slot slot : s.getMenu().slots) {
             ItemStack st = slot.getItem();
             if (st.isEmpty()) continue;
@@ -205,8 +205,8 @@ public final class GoldenFishTimer {
 
     private static void title(Minecraft mc, String text) {
         if (!cfg().goldenFishTitles || mc.player == null) return;
-        mc.gui.setTimes(0, 30, 5);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 30, 5);
+        mc.gui.hud.setTitle(Component.literal(text));
         mc.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f, 1.4f);
     }
 
@@ -227,7 +227,7 @@ public final class GoldenFishTimer {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

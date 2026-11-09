@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Blaze;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 
@@ -80,7 +80,7 @@ public final class SlayerQuestWarning {
                     : e instanceof Wolf && sub.equals("Ruins") ? "SVEN" : null;
             case "The Park" -> e instanceof Wolf && sub.equals("Howling Cave") ? "SVEN" : null;
             case "Spider's Den" -> e instanceof Spider ? "TARANTULA" : null;
-            case "The End" -> e instanceof EnderMan ? "VOIDGLOOM" : null;
+            case "The End" -> e instanceof Enderman ? "VOIDGLOOM" : null;
             case "Crimson Isle" -> e instanceof Blaze && (sub.equals("Burning Desert") || sub.equals("Smoldering Tomb")) ? "DEMONLORD" : null;
             default -> null;
         };
@@ -111,8 +111,8 @@ public final class SlayerQuestWarning {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §e" + chat));
         if (cfg().slayerQuestWarningTitle) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§e" + title));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§e" + title));
         }
     }
 }

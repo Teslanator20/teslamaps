@@ -63,7 +63,7 @@ public final class EnchantTablePanel {
     public static boolean shouldRender() {
         TeslaMapsConfig c = cfg();
         return c.enchantTablePanel && c.section("Inventory") && !lines.isEmpty()
-                && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+                && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     private static boolean enchantMenu(String t) {
@@ -72,7 +72,7 @@ public final class EnchantTablePanel {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) {
                 lastScreen = null;
                 books.clear();
@@ -192,7 +192,7 @@ public final class EnchantTablePanel {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         List<String> ls = lines;
         if (ls.isEmpty()) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

@@ -37,7 +37,7 @@ public final class GardenWarpCommands {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null || !SkyblockUtils.isInGarden() || mc.getConnection() == null) {
+        if (mc.gui.screen() != null || !SkyblockUtils.isInGarden() || mc.getConnection() == null) {
             java.util.Arrays.fill(down, true);
             return;
         }

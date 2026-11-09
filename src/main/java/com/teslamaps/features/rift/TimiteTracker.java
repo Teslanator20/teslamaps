@@ -91,7 +91,7 @@ public final class TimiteTracker {
             return;
         }
         int[] now = counts(mc.player.getInventory());
-        if (primed && !(mc.screen instanceof AbstractContainerScreen<?>)) {
+        if (primed && !(mc.gui.screen() instanceof AbstractContainerScreen<?>)) {
             for (int i = 0; i < ORES.length; i++) {
                 int d = now[i] - last[i];
                 if (d > 0 && d < 64) tracker.add(ORES[i], d);
@@ -115,7 +115,7 @@ public final class TimiteTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         TeslaMapsConfig c = cfg();
         tracker.draw(g, mc, c.riftTimiteTrackerX, c.riftTimiteTrackerY, c.riftTimiteTrackerScale);
     }

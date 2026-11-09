@@ -84,7 +84,7 @@ public final class FeatureToggleKeys {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return;
-        if (mc.screen != null) {
+        if (mc.gui.screen() != null) {
             screenAt = System.currentTimeMillis();
             held.clear();
             return;

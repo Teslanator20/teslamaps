@@ -25,7 +25,7 @@ public final class ServerTransfer {
 
     public static boolean keepGrabbed() {
         Minecraft mc = Minecraft.getInstance();
-        return isTransferScreen(mc.screen) && mc.isWindowActive() && enabled();
+        return isTransferScreen(mc.gui.screen()) && mc.isWindowActive() && enabled();
     }
 
     public static boolean hideReconfig(Screen s) {

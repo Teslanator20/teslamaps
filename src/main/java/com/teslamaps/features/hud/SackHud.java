@@ -167,8 +167,8 @@ public final class SackHud {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || rows.isEmpty()) return;
-        if (cfg().sackHudOnlyMenus && !(mc.screen instanceof AbstractContainerScreen<?>)) return;
+        if (mc.gui.hud.isHidden() || rows.isEmpty()) return;
+        if (cfg().sackHudOnlyMenus && !(mc.gui.screen() instanceof AbstractContainerScreen<?>)) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), rows, width);
     }
 }

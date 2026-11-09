@@ -106,7 +106,7 @@ public final class SweepDetailsHud {
             case "spruce" -> Items.SPRUCE_LOG;
             case "birch" -> Items.BIRCH_LOG;
             case "oak" -> Items.OAK_LOG;
-            default -> Items.RED_CONCRETE;
+            default -> Items.CONCRETE.red();
         };
     }
 

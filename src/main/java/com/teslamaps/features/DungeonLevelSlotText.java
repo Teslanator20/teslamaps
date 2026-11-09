@@ -39,7 +39,7 @@ public class DungeonLevelSlotText {
     private static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (!labels.isEmpty()) labels = List.of();
             return;
         }
@@ -117,7 +117,7 @@ public class DungeonLevelSlotText {
         TeslaMapsConfig c = cfg();
         if (!c.skillLevelStackSize || !c.dungeonLevelSlotText || !SlotText.shown(SlotText.DUNGEON)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         List<Slot> slots = cs.getMenu().slots;

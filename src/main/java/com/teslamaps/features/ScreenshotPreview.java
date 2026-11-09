@@ -43,7 +43,7 @@ public final class ScreenshotPreview {
     public static void register() {
         Feature.of("ScreenshotPreview").when(() -> cfg().screenshotPreview)
                 .hud("screenshotpreview", (ctx, delta) -> {
-                    if (Minecraft.getInstance().screen == null) render(ctx, -1, -1, false);
+                    if (Minecraft.getInstance().gui.screen() == null) render(ctx, -1, -1, false);
                 })
                 .config("Screenshots", b -> {
                     b.toggle("Capture Preview", () -> cfg().screenshotPreview, v -> cfg().screenshotPreview = v)
@@ -233,7 +233,7 @@ public final class ScreenshotPreview {
         }
         if (inside(imgRect, x, y)) {
             clear();
-            mc.schedule(() -> mc.setScreen(new ScreenshotScreen(screen, f)));
+            mc.schedule(() -> mc.gui.setScreen(new ScreenshotScreen(screen, f)));
             return true;
         }
         return false;

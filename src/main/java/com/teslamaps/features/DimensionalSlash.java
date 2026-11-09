@@ -59,8 +59,8 @@ public final class DimensionalSlash {
         }
         for (AABB z : zones) {
             if (z.contains(mc.player.position())) {
-                mc.gui.setTimes(0, 10, 5);
-                mc.gui.setTitle(Component.literal("§c§lDimensional Slash!"));
+                mc.gui.hud.setTimes(0, 10, 5);
+                mc.gui.hud.setTitle(Component.literal("§c§lDimensional Slash!"));
                 return;
             }
         }

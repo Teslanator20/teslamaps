@@ -124,7 +124,7 @@ public final class LivingMetalSuitProgress {
         String[] l = lines;
         if (l.length == 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         RiftSpot.drawLines(g, mc, c.riftLivingMetalHudX, c.riftLivingMetalHudY, c.riftLivingMetalHudScale, l, icons, w);
     }

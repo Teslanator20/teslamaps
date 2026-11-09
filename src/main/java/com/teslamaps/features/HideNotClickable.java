@@ -86,7 +86,7 @@ public final class HideNotClickable {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen cs)) {
+        if (!(mc.gui.screen() instanceof ContainerScreen cs)) {
             if (!reasons.isEmpty() || !allowed.isEmpty()) { reasons = Map.of(); allowed = Set.of(); }
             timer = 0;
             return;
@@ -249,7 +249,7 @@ public final class HideNotClickable {
     public static void render(GuiGraphicsExtractor ctx) {
         if ((reasons.isEmpty() && allowed.isEmpty()) || !active() || bypass()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen cs)) return;
+        if (!(mc.gui.screen() instanceof ContainerScreen cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int alpha = (int) (Math.max(0.1f, Math.min(1f, cfg().hideNotClickableOpacity)) * 255);
         int grey = (alpha << 24) | 0x2A2A2A;

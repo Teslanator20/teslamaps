@@ -120,7 +120,7 @@ public class CustomSplitsScreen extends Screen {
     public void onClose() {
         trim();
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

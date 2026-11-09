@@ -29,7 +29,7 @@ public final class Ec {
 
     public static void chat(Component msg) {
         Minecraft mc = mc();
-        mc.schedule(() -> mc.gui.getChat().addClientSystemMessage(msg));
+        mc.schedule(() -> mc.gui.hud.getChat().addClientSystemMessage(msg));
     }
 
     public static void msg(String text) { chat(PREFIX + text); }

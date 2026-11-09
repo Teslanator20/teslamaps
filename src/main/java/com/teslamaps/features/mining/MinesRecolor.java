@@ -43,8 +43,8 @@ public final class MinesRecolor {
     public static BlockState swap(BlockPos pos, BlockState state) {
         if (!carpets) return state;
         Block b = state.getBlock();
-        if (b == Blocks.GRAY_CARPET || b == Blocks.LIGHT_GRAY_CARPET || b == Blocks.LIGHT_BLUE_CARPET) {
-            return Blocks.RED_CARPET.defaultBlockState();
+        if (b == Blocks.CARPET.gray() || b == Blocks.CARPET.lightGray() || b == Blocks.CARPET.lightBlue()) {
+            return Blocks.CARPET.red().defaultBlockState();
         }
         return state;
     }

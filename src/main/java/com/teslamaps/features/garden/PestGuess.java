@@ -78,16 +78,16 @@ public final class PestGuess {
     }
 
     private static boolean plain(ClientboundLevelParticlesPacket p) {
-        return p.getXDist() == 0f && p.getYDist() == 0f && p.getZDist() == 0f;
+        return p.xDist() == 0f && p.yDist() == 0f && p.zDist() == 0f;
     }
 
     /** From ClientPlayNetworkHandlerMixin, main thread. */
     public static void onParticle(ClientboundLevelParticlesPacket p) {
         if (lastUse == 0 || !inWindow() || !Minecraft.getInstance().isSameThread() || !on()) return;
-        if (p.getParticle().getType() != ParticleTypes.ANGRY_VILLAGER || p.getCount() != 1 || p.getMaxSpeed() != 0f || !plain(p)) return;
+        if (p.particle().getType() != ParticleTypes.ANGRY_VILLAGER || p.count() != 1 || p.xMaxSpeed() != 0f || !plain(p)) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        Vec3 at = new Vec3(p.getX(), p.getY(), p.getZ());
+        Vec3 at = new Vec3(p.x(), p.y(), p.z());
         if (fitter.isEmpty() && at.distanceTo(mc.player.position()) > 5) return;
         if (!fitter.tryAdd(at, 3.0)) return;
         Vec3 solved = fitter.solve();
@@ -100,11 +100,11 @@ public final class PestGuess {
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = cfg();
         if (!c.pestGuess || !c.pestGuessHideParticles || !on()) return false;
-        ParticleType<?> type = p.getParticle().getType();
+        ParticleType<?> type = p.particle().getType();
         if (type == ParticleTypes.FIREWORK) return true;
         if (!inWindow()) return false;
-        if (type == ParticleTypes.ENCHANT) return p.getCount() == 10 && p.getMaxSpeed() == -2f && plain(p);
-        return type == ParticleTypes.ANGRY_VILLAGER && p.getCount() == 1 && p.getMaxSpeed() == 0f && plain(p);
+        if (type == ParticleTypes.ENCHANT) return p.count() == 10 && p.xMaxSpeed() == -2f && plain(p);
+        return type == ParticleTypes.ANGRY_VILLAGER && p.count() == 1 && p.xMaxSpeed() == 0f && plain(p);
     }
 
     private static void tick() {

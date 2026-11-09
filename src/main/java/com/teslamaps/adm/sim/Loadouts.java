@@ -472,7 +472,7 @@ public final class Loadouts {
                 if (slot < 54) c.setItem(slot, stack(slot == 34 ? withHelmet(e, "§r§7Helmet: §r§9Bonzo's Mask") : e));
             }
             ItemStack head = sp.getItemBySlot(EquipmentSlot.HEAD).copy();
-            c.setItem(11, head.isEmpty() ? Terminals.named(Items.GRAY_STAINED_GLASS_PANE, "§7Empty Helmet Slot") : head);
+            c.setItem(11, head.isEmpty() ? Terminals.named(Items.STAINED_GLASS_PANE.gray(), "§7Empty Helmet Slot") : head);
             List<Pair<Integer, EquipmentSlot>> armour = List.of(Pair.of(20, EquipmentSlot.CHEST), Pair.of(29, EquipmentSlot.LEGS), Pair.of(38, EquipmentSlot.FEET));
             for (Pair<Integer, EquipmentSlot> it : armour) {
                 ItemStack s = sp.getItemBySlot(it.second).copy();
@@ -480,7 +480,7 @@ public final class Loadouts {
             }
             List<Custom> cs = customs();
             for (int i = 0; i < cs.size(); i++) if (i < CUSTOM_SLOTS.size()) c.setItem(CUSTOM_SLOTS.get(i), stack(cs.get(i)));
-            ItemStack save = Terminals.named(Items.LIME_DYE, "§aSave current as loadout");
+            ItemStack save = Terminals.named(Items.DYE.lime(), "§aSave current as loadout");
             save.set(DataComponents.LORE, new ItemLore(loreLines(List.of("§7Saves what you wear and your pet", "§7as a new loadout.", "", "§eClick to save!"))));
             c.setItem(SAVE_SLOT, save);
             if (P3Sim.phoenix()) c.setItem(21, SimItems.head(Masks.PHOENIX_TEX, "§7[Lvl 100] §5Phoenix"));

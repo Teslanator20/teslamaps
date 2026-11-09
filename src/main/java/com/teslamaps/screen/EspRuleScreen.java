@@ -133,7 +133,7 @@ public class EspRuleScreen extends Screen {
             if (in(mx, my, listX + 5 * 76, ty, 50, 18)) {
                 GuiSounds.press();
                 EspRule r = editing;
-                minecraft.setScreen(new ColorPickerWidget(this, r.color, hex -> r.color = hex));
+                minecraft.gui.setScreen(new ColorPickerWidget(this, r.color, hex -> r.color = hex));
                 return true;
             }
             if (in(mx, my, panelX + PANEL_W - 16 - 60, footerY, 60, FOOTER_H)) {
@@ -187,7 +187,7 @@ public class EspRuleScreen extends Screen {
                 GuiSounds.toggle(r.tracer);
             } else if (in(mx, my, right - 186, ry, 26, ROW_H)) {
                 GuiSounds.press();
-                minecraft.setScreen(new ColorPickerWidget(this, r.color, hex -> r.color = hex));
+                minecraft.gui.setScreen(new ColorPickerWidget(this, r.color, hex -> r.color = hex));
                 return true;
             } else {
                 continue;
@@ -287,7 +287,7 @@ public class EspRuleScreen extends Screen {
     public void onClose() {
         rules().removeIf(r -> r == null || !r.hasFilters());
         TeslaMapsConfig.save();
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
     @Override

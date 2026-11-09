@@ -53,7 +53,7 @@ public final class AdmTerms {
 
     /** Hover Terms: termsim only, never a real terminal (a TermSimGUI never sends clicks). */
     private static void hover(TermSimGUI sim) {
-        if (Minecraft.getInstance().screen != sim) return;
+        if (Minecraft.getInstance().gui.screen() != sim) return;
         TerminalHandler term = TerminalUtils.getCurrentTerm();
         if (term == null || term.type == TerminalTypes.MELODY) return;
         Integer slot = TermGui.hoveredActive();

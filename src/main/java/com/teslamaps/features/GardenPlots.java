@@ -194,7 +194,7 @@ public class GardenPlots {
      */
     public static void scanConfigureScreen() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof ContainerScreen screen)) return;
+        if (!(mc.gui.screen() instanceof ContainerScreen screen)) return;
         if (!screen.getTitle().getString().trim().equals("Configure Plots")) return;
         scanDeskPests(screen);
         if (lastScanned == screen) return;
@@ -331,8 +331,8 @@ public class GardenPlots {
 
     private static boolean onDesk(Slot slot) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != deskScreen || !pestCountOn()) {
-            if (mc.screen != deskScreen) deskScreen = null;
+        if (mc.gui.screen() != deskScreen || !pestCountOn()) {
+            if (mc.gui.screen() != deskScreen) deskScreen = null;
             return false;
         }
         return !(slot.container instanceof net.minecraft.world.entity.player.Inventory);

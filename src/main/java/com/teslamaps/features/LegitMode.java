@@ -13,7 +13,7 @@ public class LegitMode {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean down = cfg.legitMode
-                && mc.player != null && mc.screen == null && mc.getWindow() != null
+                && mc.player != null && mc.gui.screen() == null && mc.getWindow() != null
                 && com.teslamaps.utils.KeyNames.isDown(cfg.legitPeekKey);
         if (!cfg.legitPeekToggle) {
             peeking = down;

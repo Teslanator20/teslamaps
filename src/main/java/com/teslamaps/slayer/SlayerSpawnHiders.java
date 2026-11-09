@@ -89,14 +89,14 @@ public final class SlayerSpawnHiders {
         if (!particleArea || deaths.isEmpty()) return false;
         TeslaMapsConfig c = cfg();
         if (!c.hideSlayerSpawnParticles || !c.section("Combat")) return false;
-        ParticleType<?> type = p.getParticle().getType();
+        ParticleType<?> type = p.particle().getType();
         boolean match = type == ParticleTypes.ENCHANT && c.hideSlayerParticlesEnchant
                 || type == ParticleTypes.WITCH && c.hideSlayerParticlesWitch
                 || type == ParticleTypes.ENTITY_EFFECT && c.hideSlayerParticlesEffect;
         if (!match) return false;
         for (int i = 0, n = deaths.size(); i < n; i++) {
             Death d = deaths.get(i);
-            double dx = d.x - p.getX(), dy = d.y - p.getY(), dz = d.z - p.getZ();
+            double dx = d.x - p.x(), dy = d.y - p.y(), dz = d.z - p.z();
             if (dx * dx + dy * dy + dz * dz < 25) return true;
         }
         return false;

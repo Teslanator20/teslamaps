@@ -195,11 +195,11 @@ public final class CommissionBlockColor {
             };
         }
         if (b == Blocks.PRISMARINE || b == Blocks.PRISMARINE_BRICKS || b == Blocks.DARK_PRISMARINE
-                || b == Blocks.LIGHT_BLUE_WOOL) return Com.MITHRIL;
+                || b == Blocks.WOOL.lightBlue()) return Com.MITHRIL;
         if (zone == HOLLOWS) return null;
-        if (b == Blocks.GRAY_WOOL || b == Blocks.CYAN_TERRACOTTA) return Com.MITHRIL;
+        if (b == Blocks.WOOL.gray() || b == Blocks.DYED_TERRACOTTA.cyan()) return Com.MITHRIL;
         if (b == Blocks.PACKED_ICE) return Com.GLACITE;
-        if (b == Blocks.TERRACOTTA || b == Blocks.BROWN_TERRACOTTA || b == Blocks.SMOOTH_RED_SANDSTONE) return Com.UMBER;
+        if (b == Blocks.TERRACOTTA || b == Blocks.DYED_TERRACOTTA.brown() || b == Blocks.SMOOTH_RED_SANDSTONE) return Com.UMBER;
         if (b == Blocks.CLAY) return Com.TUNGSTEN;
         if (zone == TUNNELS && b == Blocks.INFESTED_COBBLESTONE) return Com.TUNGSTEN;
         if (zone == MINESHAFT && (b == Blocks.COBBLESTONE || b == Blocks.COBBLESTONE_SLAB || b == Blocks.COBBLESTONE_STAIRS)) {

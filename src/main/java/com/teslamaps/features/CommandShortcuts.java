@@ -43,7 +43,7 @@ public final class CommandShortcuts {
                 .config("Chat", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Command Shortcuts");
-                    b.button("Edit Command Shortcuts", () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.ShortcutScreen()));
+                    b.button("Edit Command Shortcuts", () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.ShortcutScreen()));
                     b.toggle("  Shortcut Tab Completion", () -> c.shortcutTabComplete, v -> c.shortcutTabComplete = v)
                             .desc("Aliases get the tab completion of the command they stand for (/pk <player>)");
                     b.toggle("  Lowercase Command Names", () -> c.commandLowercase, v -> c.commandLowercase = v)

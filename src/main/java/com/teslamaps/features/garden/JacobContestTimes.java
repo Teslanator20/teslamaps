@@ -159,7 +159,7 @@ public final class JacobContestTimes {
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         if (lines.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         pw = width + 8;
         ph = lines.size() * LINE + 6;

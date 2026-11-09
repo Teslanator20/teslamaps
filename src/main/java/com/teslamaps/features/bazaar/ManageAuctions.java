@@ -58,7 +58,7 @@ public final class ManageAuctions {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !StringUtil.stripTrim(cs.getTitle().getString()).equals("Manage Auctions")) {
             if (screen != null) { screen = null; slotColor = new int[0]; lines = List.of(); }
             return;
@@ -134,7 +134,7 @@ public final class ManageAuctions {
 
     public static void render(GuiGraphicsExtractor g) {
         Minecraft mc = Minecraft.getInstance();
-        if (screen == null || mc.screen != screen || !cfg().manageAuctionsHelper) return;
+        if (screen == null || mc.gui.screen() != screen || !cfg().manageAuctionsHelper) return;
         AbstractContainerScreen<?> cs = (AbstractContainerScreen<?>) screen;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;

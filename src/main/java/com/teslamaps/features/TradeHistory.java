@@ -77,12 +77,12 @@ public final class TradeHistory {
                     b.toggle("Trade History", () -> cfg().tradeHistory, v -> cfg().tradeHistory = v)
                             .desc("Saves every finished trade (items, coins, partner, value). /tmap tradehistory opens the list.")
                             .tags("trade", "history", "log", "scam");
-                    b.button("  Open Trade History", () -> Minecraft.getInstance().setScreen(
-                            new com.teslamaps.screen.TradeHistoryScreen(Minecraft.getInstance().screen)));
+                    b.button("  Open Trade History", () -> Minecraft.getInstance().gui.setScreen(
+                            new com.teslamaps.gui.screen().TradeHistoryScreen(Minecraft.getInstance().gui.screen())));
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
                 .then(ClientCommands.literal("tradehistory").executes(c -> {
-                    Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(
+                    Minecraft.getInstance().schedule(() -> Minecraft.getInstance().gui.setScreen(
                             new com.teslamaps.screen.TradeHistoryScreen(null)));
                     return 1;
                 }))));
@@ -93,7 +93,7 @@ public final class TradeHistory {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (!title.startsWith("You    ") || cs.getMenu().slots.size() < 45) return;
         if (ticks++ % 5 != 0) return;

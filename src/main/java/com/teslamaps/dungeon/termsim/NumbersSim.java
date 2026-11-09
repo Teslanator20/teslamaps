@@ -36,7 +36,7 @@ public class NumbersSim extends TermSimGUI {
             int col = slot.index % 9;
             if (row >= 1 && row <= 2 && col >= 2 && col <= 6) {
                 int number = used.remove(0);
-                ItemStack stack = new ItemStack(Items.RED_STAINED_GLASS_PANE, number);
+                ItemStack stack = new ItemStack(Items.STAINED_GLASS_PANE.red(), number);
                 stack.set(DataComponents.CUSTOM_NAME, Component.literal("§a" + number));
                 return stack;
             }
@@ -49,18 +49,18 @@ public class NumbersSim extends TermSimGUI {
         Slot lowest = null;
         int lowestCount = Integer.MAX_VALUE;
         for (Slot s : guiInventorySlots()) {
-            int count = s.getItem().getItem() == Items.RED_STAINED_GLASS_PANE ? s.getItem().getCount() : 1000;
+            int count = s.getItem().getItem() == Items.STAINED_GLASS_PANE.red() ? s.getItem().getCount() : 1000;
             if (count < lowestCount) { lowestCount = count; lowest = s; }
         }
         if (lowest != slot) return;
 
-        ItemStack stack = new ItemStack(Items.LIME_STAINED_GLASS_PANE, slot.getItem().getCount());
+        ItemStack stack = new ItemStack(Items.STAINED_GLASS_PANE.lime(), slot.getItem().getCount());
         stack.set(DataComponents.CUSTOM_NAME, Component.literal(""));
         setSlot(slot, stack);
 
         boolean anyRed = false;
         for (Slot s : guiInventorySlots()) {
-            if (s.getItem().getItem() == Items.RED_STAINED_GLASS_PANE) { anyRed = true; break; }
+            if (s.getItem().getItem() == Items.STAINED_GLASS_PANE.red()) { anyRed = true; break; }
         }
         if (!anyRed) onComplete(TerminalUtils.getLastTermOpened());
 

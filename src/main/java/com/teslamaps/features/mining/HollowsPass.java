@@ -95,7 +95,7 @@ public final class HollowsPass {
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!cfg().hollowsPassTimer || hud == null || !Mining.inHollows()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), line);
     }
 

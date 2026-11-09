@@ -153,7 +153,7 @@ public final class KuudraFresh {
         String[] lines = hudLines;
         if (lines == null || hud == null || !cfg().kuuFreshHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         KuudraBuild.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines);
     }
 }

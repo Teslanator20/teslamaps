@@ -164,8 +164,8 @@ public final class DianaBurrows {
 
     static void title(String text) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 30, 10);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 30, 10);
+        mc.gui.hud.setTitle(Component.literal(text));
     }
 
     /** Where the chain continues: spade guess first, then the arrow guess. Null = nothing known. */
@@ -268,13 +268,13 @@ public final class DianaBurrows {
     // ---- particles ----
 
     private static boolean dist(ClientboundLevelParticlesPacket p, float x, float y, float z) {
-        return Math.abs(p.getXDist() - x) < 0.01f && Math.abs(p.getYDist() - y) < 0.01f && Math.abs(p.getZDist() - z) < 0.01f;
+        return Math.abs(p.xDist() - x) < 0.01f && Math.abs(p.yDist() - y) < 0.01f && Math.abs(p.zDist() - z) < 0.01f;
     }
 
     /** From ClientPlayNetworkHandlerMixin. */
     public static void onParticle(ClientboundLevelParticlesPacket p) {
         if (!Minecraft.getInstance().isSameThread()) return;
-        ParticleType<?> type = p.getParticle().getType();
+        ParticleType<?> type = p.particle().getType();
         if (type != ParticleTypes.DRIPPING_LAVA && type != ParticleTypes.ENCHANTED_HIT && type != ParticleTypes.CRIT
                 && type != ParticleTypes.DUST) return;
         if (!on()) return;
@@ -282,22 +282,22 @@ public final class DianaBurrows {
         long now = System.currentTimeMillis();
         if (c.dianaBurrowDetect || c.dianaBurrowGuess || c.dianaArrowGuess) {
             Type found = null;
-            if (type == ParticleTypes.ENCHANTED_HIT && p.getCount() == 4 && dist(p, 0.5f, 0.1f, 0.5f)) found = Type.START;
-            else if (type == ParticleTypes.CRIT && p.getCount() == 3 && dist(p, 0.5f, 0.1f, 0.5f)) found = Type.MOB;
-            else if (type == ParticleTypes.DRIPPING_LAVA && p.getCount() == 2 && dist(p, 0.35f, 0.1f, 0.35f)) found = Type.TREASURE;
+            if (type == ParticleTypes.ENCHANTED_HIT && p.count() == 4 && dist(p, 0.5f, 0.1f, 0.5f)) found = Type.START;
+            else if (type == ParticleTypes.CRIT && p.count() == 3 && dist(p, 0.5f, 0.1f, 0.5f)) found = Type.MOB;
+            else if (type == ParticleTypes.DRIPPING_LAVA && p.count() == 2 && dist(p, 0.35f, 0.1f, 0.35f)) found = Type.TREASURE;
             if (found != null) {
-                BlockPos pos = BlockPos.containing(p.getX(), p.getY() - 1, p.getZ());
+                BlockPos pos = BlockPos.containing(p.x(), p.y() - 1, p.z());
                 Long until = recentDug.get(pos);
                 if (until == null || until < now) add(pos, found, now);
                 return;
             }
         }
-        if (type == ParticleTypes.DRIPPING_LAVA && c.dianaBurrowGuess && p.getCount() == 2 && p.getMaxSpeed() == -0.5f
+        if (type == ParticleTypes.DRIPPING_LAVA && c.dianaBurrowGuess && p.count() == 2 && p.xMaxSpeed() == -0.5f
                 && dist(p, 0f, 0f, 0f)) {
             lastLava = now;
             if (now - lastSpade > 3000) return;
             Minecraft mc = Minecraft.getInstance();
-            Vec3 at = new Vec3(p.getX(), p.getY(), p.getZ());
+            Vec3 at = new Vec3(p.x(), p.y(), p.z());
             if (fitter.isEmpty() && mc.player != null && at.distanceTo(mc.player.getEyePosition()) > 4) return;
             if (!fitter.tryAdd(at, 3.0)) return;
             Vec3 solved = fitter.solve();
@@ -310,7 +310,7 @@ public final class DianaBurrows {
             }
             return;
         }
-        if (type == ParticleTypes.DUST && c.dianaArrowGuess && p.getCount() == 0 && p.getMaxSpeed() == 1.0f) onArrowParticle(p, now);
+        if (type == ParticleTypes.DUST && c.dianaArrowGuess && p.count() == 0 && p.xMaxSpeed() == 1.0f) onArrowParticle(p, now);
     }
 
     private static void add(BlockPos pos, Type type, long now) {
@@ -358,9 +358,9 @@ public final class DianaBurrows {
 
     private static void onArrowParticle(ClientboundLevelParticlesPacket p, long now) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.player.distanceToSqr(p.getX(), p.getY(), p.getZ()) > 36) return;
+        if (mc.player == null || mc.player.distanceToSqr(p.x(), p.y(), p.z()) > 36) return;
         int min, max;
-        float r = p.getXDist(), g = p.getYDist(), bl = p.getZDist();
+        float r = p.xDist(), g = p.yDist(), bl = p.zDist();
         if (r == 0 && g == 128 && bl == 0) { min = 0; max = 117; }
         else if (r == 255 && g == 255 && bl == 0) { min = 112; max = 282; }
         else if (r == 255 && g == 0 && bl == 0) { min = 281; max = 600; }
@@ -368,7 +368,7 @@ public final class DianaBurrows {
         if (now - arrowPointAt > 3000) arrowPoints.clear();
         arrowPointAt = now;
         if (arrowPoints.size() > 200) return;
-        arrowPoints.add(new Vec3(p.getX(), p.getY(), p.getZ()));
+        arrowPoints.add(new Vec3(p.x(), p.y(), p.z()));
         Vec3[] ray = detectArrow();
         if (ray == null) return;
         BlockPos dug = BlockPos.containing(ray[0]);

@@ -81,7 +81,7 @@ public final class HuntingBoxSlots {
 
     private static void addPrice(java.util.List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Slot hovered = ((com.teslamaps.mixin.HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.container instanceof Inventory) return;
         for (HuntingBox.BoxEntry e : HuntingBox.boxEntries()) {

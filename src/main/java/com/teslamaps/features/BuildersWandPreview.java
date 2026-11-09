@@ -86,7 +86,7 @@ public final class BuildersWandPreview {
     }
 
     private static void undo(Minecraft mc, TeslaMapsConfig c, String id) {
-        boolean down = mc.screen == null && mc.options.keyAttack.isDown();
+        boolean down = mc.gui.screen() == null && mc.options.keyAttack.isDown();
         boolean edge = down && !attackWasDown;
         attackWasDown = down;
         if (!edge || !c.blockZapperUndo || !island || !"BLOCK_ZAPPER".equals(id)) return;

@@ -90,9 +90,9 @@ public final class Wormholes {
     }
 
     private static boolean isWormholeParticle(ClientboundLevelParticlesPacket p) {
-        var type = p.getParticle().getType();
-        if (type == ParticleTypes.ENCHANT) return p.getCount() == 4 && p.getMaxSpeed() == -1.2f;
-        if (type == ParticleTypes.PORTAL) return p.getCount() == 5 && p.getMaxSpeed() == 0.25f;
+        var type = p.particle().getType();
+        if (type == ParticleTypes.ENCHANT) return p.count() == 4 && p.xMaxSpeed() == -1.2f;
+        if (type == ParticleTypes.PORTAL) return p.count() == 5 && p.xMaxSpeed() == 0.25f;
         return false;
     }
 
@@ -105,7 +105,7 @@ public final class Wormholes {
         double bestD = CLUSTER_SQ;
         for (Hole h : holes) {
             if (h.lastParticle == 0) continue;
-            double dx = p.getX() - h.x, dz = p.getZ() - h.z;
+            double dx = p.x() - h.x, dz = p.z() - h.z;
             double d = dx * dx + dz * dz;
             if (d <= bestD) { bestD = d; best = h; }
         }
@@ -113,7 +113,7 @@ public final class Wormholes {
             best = new Hole();
             holes.add(best);
         }
-        best.add(p.getX(), p.getY(), p.getZ(), now);
+        best.add(p.x(), p.y(), p.z(), now);
         drawList = new ArrayList<>(holes);
         return cfg().wormholeHideParticles;
     }
@@ -135,9 +135,9 @@ public final class Wormholes {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.player.distanceToSqr(h.x, h.y, h.z) > 1600) return;
         mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cWormhole despawned!"));
-        mc.gui.setTimes(0, 60, 10);
-        mc.gui.setTitle(Component.literal("§cWormhole despawned!"));
-        mc.gui.setSubtitle(Component.literal(""));
+        mc.gui.hud.setTimes(0, 60, 10);
+        mc.gui.hud.setTitle(Component.literal("§cWormhole despawned!"));
+        mc.gui.hud.setSubtitle(Component.literal(""));
     }
 
     private static void tick() {
@@ -219,9 +219,9 @@ public final class Wormholes {
             long now = System.currentTimeMillis();
             if (mc.player == null || !enabled() || now - lastClosed < 3000) return;
             lastClosed = now;
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal("§cWormhole closed!"));
-            mc.gui.setSubtitle(Component.literal(""));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§cWormhole closed!"));
+            mc.gui.hud.setSubtitle(Component.literal(""));
         });
     }
 

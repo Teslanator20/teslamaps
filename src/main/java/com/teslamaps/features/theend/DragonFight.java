@@ -264,9 +264,9 @@ public final class DragonFight {
             title.withStyle(ChatFormatting.BOLD);
             if (c.dragonSuperiorSound) LoudSound.play(SoundEvents.WITHER_SPAWN, 1.0f, 1.0f);
         }
-        mc.gui.setTimes(5, 50, 10);
-        mc.gui.setTitle(title);
-        mc.gui.setSubtitle(Component.empty());
+        mc.gui.hud.setTimes(5, 50, 10);
+        mc.gui.hud.setTitle(title);
+        mc.gui.hud.setSubtitle(Component.empty());
     }
 
     private static void countKill(TeslaMapsConfig c, String t) {
@@ -571,9 +571,9 @@ public final class DragonFight {
 
     private static void notifyDrop(Minecraft mc, TeslaMapsConfig c, Component item, int count) {
         if (!c.dragonDropAlert) return;
-        mc.gui.setTimes(5, 60, 20);
-        mc.gui.setTitle(Component.literal("DROP!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.empty().append(item).append(Component.literal(" x" + count).withStyle(ChatFormatting.GRAY)));
+        mc.gui.hud.setTimes(5, 60, 20);
+        mc.gui.hud.setTitle(Component.literal("DROP!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+        mc.gui.hud.setSubtitle(Component.empty().append(item).append(Component.literal(" x" + count).withStyle(ChatFormatting.GRAY)));
         LoudSound.play(SoundEvents.PLAYER_LEVELUP, 1.0f, 0.5f);
     }
 
@@ -590,7 +590,7 @@ public final class DragonFight {
         List<String> l = statusLines;
         if (l.isEmpty() || statusHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         CropStats.drawLines(g, mc, statusHud.x(), statusHud.y(), statusHud.scale(), l, statusW);
     }
 
@@ -598,7 +598,7 @@ public final class DragonFight {
         List<String> l = dropLines;
         if (l.isEmpty() || dropHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         CropStats.drawLines(g, mc, dropHud.x(), dropHud.y(), dropHud.scale(), l, dropW);
     }
 }

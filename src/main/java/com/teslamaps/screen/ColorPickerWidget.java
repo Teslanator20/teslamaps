@@ -191,7 +191,7 @@ public class ColorPickerWidget extends Screen {
 
     @Override
     public void onClose() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     private static int[] hsvToRgb(float h, float s, float v) {

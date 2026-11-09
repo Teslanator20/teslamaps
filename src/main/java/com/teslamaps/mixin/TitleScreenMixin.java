@@ -63,7 +63,7 @@ public abstract class TitleScreenMixin extends Screen {
 
         TeslaMenuButton multiplayer = new TeslaMenuButton(x, startY + BUTTON_HEIGHT + SPACING,
                 buttonWidth, BUTTON_HEIGHT, Component.translatable("menu.multiplayer"),
-                () -> this.minecraft.setScreen(new JoinMultiplayerScreen(this)));
+                () -> this.minecraft.gui.setScreen(new JoinMultiplayerScreen(this)));
         multiplayer.active = this.minecraft.allowsMultiplayer();
         addRenderableWidget(multiplayer);
 
@@ -79,7 +79,7 @@ public abstract class TitleScreenMixin extends Screen {
 
         addRenderableWidget(new TeslaMenuButton(x, bottomY + BUTTON_HEIGHT + SPACING,
                 buttonWidth, BUTTON_HEIGHT, Component.translatable("menu.singleplayer"),
-                () -> this.minecraft.setScreen(new SelectWorldScreen(this))));
+                () -> this.minecraft.gui.setScreen(new SelectWorldScreen(this))));
 
         teslamaps$addCornerButtons();
     }

@@ -229,7 +229,7 @@ public final class Recore {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        if (!c.admRecoreCoreLeap || mc.options.hideGui || mc.player == null) return;
+        if (!c.admRecoreCoreLeap || mc.gui.hud.isHidden() || mc.player == null) return;
         if (!coreWatch) return;
         if (c.admRecoreHideInCore && selfBeenInCore) return;
         List<Map.Entry<String, Long>> inOrder = new ArrayList<>(inCoreSince.entrySet());

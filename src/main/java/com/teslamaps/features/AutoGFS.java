@@ -35,7 +35,7 @@ public class AutoGFS {
 
     private static void pearlKeyTick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = mc.screen == null && com.teslamaps.utils.KeyNames.isDown(TeslaMapsConfig.get().autoGFSPearlKey);
+        boolean down = mc.gui.screen() == null && com.teslamaps.utils.KeyNames.isDown(TeslaMapsConfig.get().autoGFSPearlKey);
         if (down && !pearlKeyDown) gfsPearlsToStack();
         pearlKeyDown = down;
     }
@@ -74,7 +74,7 @@ public class AutoGFS {
 
         if (c.autoGFSDraft && clickMode && failedByUs(message.trim(), c.draftPartyFails)) {
             draftAlert();
-            Minecraft.getInstance().gui.getChat().addClientSystemMessage(net.minecraft.network.chat.Component
+            Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(net.minecraft.network.chat.Component
                     .literal("§b§l[TeslaMaps] §eClick here to get Architect's First Draft")
                     .withStyle(s -> s.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/gfs architect's first draft 1"))
                             .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(
@@ -138,7 +138,7 @@ public class AutoGFS {
 
     private static void draftAlert() {
         if (TeslaMapsConfig.get().autoGFSDraftAlert) {
-            Minecraft.getInstance().gui.setTitle(net.minecraft.network.chat.Component.literal("§c§lDRAFT"));
+            Minecraft.getInstance().gui.hud.setTitle(net.minecraft.network.chat.Component.literal("§c§lDRAFT"));
         }
     }
 
@@ -165,7 +165,7 @@ public class AutoGFS {
 
     public static void refillItems() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen != null) return;
+        if (mc.player == null || mc.gui.screen() != null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.autoGFSSkipDead && localDead()) return;

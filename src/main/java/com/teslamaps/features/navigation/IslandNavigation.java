@@ -441,9 +441,9 @@ public final class IslandNavigation {
             currentArea = now;
             if (cfg().islandNavAreaTitle && !now.isEmpty() && !old.isEmpty()) {
                 Minecraft mc = Minecraft.getInstance();
-                mc.gui.setTimes(5, 30, 10);
-                mc.gui.setTitle(Component.literal(""));
-                mc.gui.setSubtitle(Component.literal("§aEntered " + now));
+                mc.gui.hud.setTimes(5, 30, 10);
+                mc.gui.hud.setTitle(Component.literal(""));
+                mc.gui.hud.setSubtitle(Component.literal("§aEntered " + now));
             }
         }
         List<String> lines = new ArrayList<>();
@@ -485,7 +485,7 @@ public final class IslandNavigation {
         List<String> ls = hudLines;
         if (ls.isEmpty() || hud == null || !cfg().islandNavAreaHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), ls, hudWidth);
     }
 

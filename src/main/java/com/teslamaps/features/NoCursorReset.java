@@ -37,7 +37,7 @@ public class NoCursorReset {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.noCursorReset || !savedValid) return null;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?>)) return null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?>)) return null;
         if (!c.noCursorResetForever && System.currentTimeMillis() - savedTime > (long) (c.noCursorResetHold * 1000f)) {
             savedValid = false;
             return null;

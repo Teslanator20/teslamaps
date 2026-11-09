@@ -102,9 +102,9 @@ public final class VisitorArrival {
     }
 
     private static void title(Minecraft mc, Component title, Component sub) {
-        mc.gui.setTimes(0, 70, 0);
-        mc.gui.setTitle(title);
-        mc.gui.setSubtitle(sub);
+        mc.gui.hud.setTimes(0, 70, 0);
+        mc.gui.hud.setTitle(title);
+        mc.gui.hud.setSubtitle(sub);
     }
 
     private static void blink(String id, String name) {

@@ -62,7 +62,7 @@ public class HuntingBox {
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean screenChanged = mc.screen != lastScreen;
+        boolean screenChanged = mc.gui.screen() != lastScreen;
         refreshScreen(mc);   // before any early return, the render side reads these every frame
 
         TeslaMapsConfig config = TeslaMapsConfig.get();
@@ -86,7 +86,7 @@ public class HuntingBox {
         if (!screenChanged && !packetChanged && ticks % 5 != 0) return;
         if (packetChanged && !screenChanged) packetRead = true;   // first fill only, then every 5 ticks
 
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             if (config.shardFusionTracking && screenTitle.equals("Confirm Fusion")) readFusion(cs);
             if (boxScreen) readBox(cs, screenTitle);
             else if (menuScreen) readAttributeMenu(cs);
@@ -105,8 +105,8 @@ public class HuntingBox {
 
     /** One title regex per tick instead of one per call - these are asked for every frame. */
     private static void refreshScreen(Minecraft mc) {
-        lastScreen = mc.screen;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        lastScreen = mc.gui.screen();
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             screenTitle = "";
             boxScreen = menuScreen = bazaarScreen = false;
             return;
@@ -156,7 +156,7 @@ public class HuntingBox {
     /** Skyblocker's HuntingBoxHelper colors: green = can syphon, yellow = enough but still locked. */
     public static void renderSyphonReady(net.minecraft.client.gui.GuiGraphicsExtractor ctx) {
         if (!boxScreen || syphonReady.isEmpty() || !TeslaMapsConfig.get().shardSyphonReady) return;
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         com.teslamaps.mixin.HandledScreenAccessor acc = (com.teslamaps.mixin.HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (java.util.Map.Entry<Integer, Integer> e : syphonReady.entrySet()) {

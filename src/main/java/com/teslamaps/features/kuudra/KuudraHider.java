@@ -11,8 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -96,7 +97,7 @@ public final class KuudraHider {
 
     /** MobScaleMixin. */
     public static void scale(LivingEntityRenderState state, PoseStack pose) {
-        if (state.entityType != EntityType.ZOMBIE || !active) return;
+        if (state.entityType != EntityTypes.ZOMBIE || !active) return;
         TeslaMapsConfig c = cfg();
         if (!c.kuudraHider || !c.kuudraTinyMobs) return;
         float s = c.kuudraTinyMobsScale;

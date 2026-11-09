@@ -61,7 +61,7 @@ public final class BazaarOrderTooltip {
     private static void tick() {
         if (ticks++ % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (!title.endsWith("Bazaar Orders")) return;
         String me = mc.player.getName().getString();
@@ -102,7 +102,7 @@ public final class BazaarOrderTooltip {
         else if (name.equals("Create Sell Offer")) sell = true;
         else return List.of();
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().slots.size() <= 13) return List.of();
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu().slots.size() <= 13) return List.of();
         String item = StringUtil.stripTrim(cs.getMenu().getSlot(13).getItem().getHoverName().getString()).toLowerCase(Locale.ROOT);
 
         List<Insert> out = new ArrayList<>();

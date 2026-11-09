@@ -40,7 +40,7 @@ public final class TabWidgetGuide {
         b.button("    Open /tab", () -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.getConnection() == null) return;
-            mc.setScreen(null);
+            mc.gui.setScreen(null);
             mc.getConnection().sendCommand("tab");
         });
     }
@@ -55,7 +55,7 @@ public final class TabWidgetGuide {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             marks = List.of();
             panel = List.of();
             if (++ticks % 20 == 0) collectMissing();
@@ -121,7 +121,7 @@ public final class TabWidgetGuide {
     public static void render(GuiGraphicsExtractor ctx) {
         if (panel.isEmpty() || !TeslaMapsConfig.get().tabWidgetGuide) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Mark m : marks) {
             int x = acc.getX() + m.x(), y = acc.getY() + m.y();

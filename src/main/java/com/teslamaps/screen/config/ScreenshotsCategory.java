@@ -21,7 +21,7 @@ public final class ScreenshotsCategory {
                 () -> config.screenshotHideVanillaMessage, v -> config.screenshotHideVanillaMessage = v);
         b.button("Open Screenshot Browser", () ->
                 net.minecraft.client.Minecraft.getInstance().schedule(() ->
-                        net.minecraft.client.Minecraft.getInstance().setScreen(new ScreenshotScreen(null))));
+                        net.minecraft.client.Minecraft.getInstance().gui.setScreen(new ScreenshotScreen(null))));
 
         b.label("Shared Images");
         b.toggle("Show Shared Images In Chat",

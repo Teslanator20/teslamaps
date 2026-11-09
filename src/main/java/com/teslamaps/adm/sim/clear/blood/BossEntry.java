@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
@@ -55,7 +56,7 @@ public final class BossEntry {
     /** The lightning bolt is added: the tick before the portal appears. */
     public static void strike(BloodGeometry.ExitSite site) {
         Vec3 at = strikePoint(site);
-        LightningBolt bolt = new LightningBolt(EntityType.LIGHTNING_BOLT, Sim.level());
+        LightningBolt bolt = new LightningBolt(EntityTypes.LIGHTNING_BOLT, Sim.level());
         bolt.setVisualOnly(true);
         bolt.snapTo(at.x, at.y, at.z, 0f, 0f);
         Sim.spawn(bolt);

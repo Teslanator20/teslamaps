@@ -279,7 +279,7 @@ public final class DevWorldTools {
         }
         if (mc.player == null) return;
         TeslaMapsConfig c = cfg();
-        boolean free = mc.screen == null;
+        boolean free = mc.gui.screen() == null;
         boolean graph = c.devGraphEditor;
         boolean park = c.devParkourRecorder && !graph;
 

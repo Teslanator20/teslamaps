@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -51,7 +52,7 @@ public class DragonCheck {
     }
 
     public static void dragonSpawn(ClientboundAddEntityPacket packet) {
-        if (packet.getType() != EntityType.ENDER_DRAGON) return;
+        if (packet.getType() != EntityTypes.ENDER_DRAGON) return;
         Vec3 pos = new Vec3(packet.getX(), packet.getY(), packet.getZ());
         for (WitherDragons.Dragon dragon : WitherDragons.Dragon.values()) {
             if (dragon.box.contains(pos)) { dragon.setAlive(packet.getUUID()); return; }

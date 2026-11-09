@@ -330,13 +330,13 @@ public class SafariTracker {
 
     private static boolean mobLike(net.minecraft.world.entity.Entity e) {
         var t = e.getType();
-        return t != net.minecraft.world.entity.EntityType.ARMOR_STAND
-                && t != net.minecraft.world.entity.EntityType.INTERACTION
-                && t != net.minecraft.world.entity.EntityType.ITEM_DISPLAY
-                && t != net.minecraft.world.entity.EntityType.BLOCK_DISPLAY
-                && t != net.minecraft.world.entity.EntityType.TEXT_DISPLAY
-                && t != net.minecraft.world.entity.EntityType.PLAYER
-                && t != net.minecraft.world.entity.EntityType.ITEM;
+        return t != net.minecraft.world.entity.EntityTypes.ARMOR_STAND
+                && t != net.minecraft.world.entity.EntityTypes.INTERACTION
+                && t != net.minecraft.world.entity.EntityTypes.ITEM_DISPLAY
+                && t != net.minecraft.world.entity.EntityTypes.BLOCK_DISPLAY
+                && t != net.minecraft.world.entity.EntityTypes.TEXT_DISPLAY
+                && t != net.minecraft.world.entity.EntityTypes.PLAYER
+                && t != net.minecraft.world.entity.EntityTypes.ITEM;
     }
 
     private static final int DONE = 0xFF55FF55;
@@ -820,9 +820,9 @@ public class SafariTracker {
             TeslaMapsConfig cfg = TeslaMapsConfig.get();
             if (cfg.safariWumpaTitle) {
                 Minecraft mc = Minecraft.getInstance();
-                mc.gui.setTimes(5, 50, 10);
-                mc.gui.setSubtitle(Component.literal("§eIcy Biome"));
-                mc.gui.setTitle(Component.literal("§b§lWUMPA SPAWNED!"));
+                mc.gui.hud.setTimes(5, 50, 10);
+                mc.gui.hud.setSubtitle(Component.literal("§eIcy Biome"));
+                mc.gui.hud.setTitle(Component.literal("§b§lWUMPA SPAWNED!"));
             }
             return;
         }
@@ -945,9 +945,9 @@ public class SafariTracker {
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         if (!Minecraft.getInstance().isSameThread()) return;
         if (!TeslaMapsConfig.get().safariSparklingAlert) return;
-        if (packet.getParticle().getType() != ParticleTypes.WAX_ON.getType()) return;
+        if (packet.particle().getType() != ParticleTypes.WAX_ON.getType()) return;
         if (sparklePackets.size() >= 64) return;
-        sparklePackets.add(new Vec3(packet.getX(), packet.getY(), packet.getZ()));
+        sparklePackets.add(new Vec3(packet.x(), packet.y(), packet.z()));
     }
 
     private static void checkSparkling(boolean in) {

@@ -59,7 +59,7 @@ public final class NpcTradeCosts {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) {
                 lastScreen = null;
                 trades.clear();
@@ -147,7 +147,7 @@ public final class NpcTradeCosts {
         int[] a = affordable;
         if (a.length == 0 || !cfg().npcTradeHighlight || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
         Perf.begin("NpcTradeCosts.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;

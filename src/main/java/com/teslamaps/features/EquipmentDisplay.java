@@ -92,7 +92,7 @@ public final class EquipmentDisplay {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> screen) || mc.screen instanceof InventoryScreen) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> screen) || mc.gui.screen() instanceof InventoryScreen) {
             lastScreen = null;
             return;
         }
@@ -109,7 +109,7 @@ public final class EquipmentDisplay {
         } else if (SETS.matcher(title).matches()) {
             for (int s = 36; s < 45 && s < slots.size(); s++) {
                 ItemStack st = slots.get(s).getItem();
-                if (st.is(Items.LIME_DYE) && EQUIPPED.matcher(StringUtil.stripTrim(st.getHoverName().getString())).matches()) {
+                if (st.is(Items.DYE.lime()) && EQUIPPED.matcher(StringUtil.stripTrim(st.getHoverName().getString())).matches()) {
                     int col = s - 36;
                     idx = new int[]{col, 9 + col, 18 + col, 27 + col};
                     break;
@@ -224,7 +224,7 @@ public final class EquipmentDisplay {
 
     private static void renderHud(GuiGraphicsExtractor g, net.minecraft.client.DeltaTracker d) {
         if (!cfg().equipmentHud || hud == null || !SkyblockUtils.isInSkyblock()) return;
-        if (Minecraft.getInstance().options.hideGui) return;
+        if (Minecraft.getInstance().gui.hud.isHidden()) return;
         drawHud(g, hud.x(), hud.y(), hud.scale(), stacks());
     }
 

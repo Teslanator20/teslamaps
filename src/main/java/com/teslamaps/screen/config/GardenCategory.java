@@ -71,7 +71,7 @@ public final class GardenCategory {
         b.label("Pests");
         b.info("Pest ESP moved to Mob Visuals - it tells the 15 species apart");
         b.button("Pest Visuals (Mob Visuals)",
-                () -> Minecraft.getInstance().setScreen(new MobVisualScreen(b.screen())));
+                () -> Minecraft.getInstance().gui.setScreen(new MobVisualScreen(b.screen())));
         b.toggle("Mute Vacuum Sound",
                 () -> config.muteVacuum, v -> config.muteVacuum = v).fresh()
                 .desc("Silences the vacuum's wither shoot sound, only in the Garden and Torrhus Canyon")
@@ -353,7 +353,7 @@ public final class GardenCategory {
                 .desc("Missing plants show as see-through tinted heads of the plant itself instead of a coloured box. "
                         + "Block crops (wheat, carrot, potato, wart, cane) stay boxes.");
         b.button("Manage Presets",
-                () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.GreenhousePresetsScreen(b.screen()))).fresh();
+                () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.GreenhousePresetsScreen(b.screen()))).fresh();
         b.button("Paste Code From Clipboard", () -> {
             String err = com.teslamaps.features.GreenhousePlanner.load(
                     net.minecraft.client.Minecraft.getInstance().keyboardHandler.getClipboard());

@@ -113,8 +113,8 @@ public final class FishingBait {
         String old = bait;
         boolean changed = newBait == null ? old != null : !newBait.equals(old);
         if (changed && old != null && newBait != null && c.fishingBaitChanged) {
-            mc.gui.setTimes(0, 30, 5);
-            mc.gui.setTitle(Component.literal("§eBait changed!"));
+            mc.gui.hud.setTimes(0, 30, 5);
+            mc.gui.hud.setTitle(Component.literal("§eBait changed!"));
             mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §eBait changed: §f" + old + " §7-> §f" + newBait));
         }
         if (changed) lowWarned = false;
@@ -126,15 +126,15 @@ public final class FishingBait {
         }
         if (!c.fishingBaitLow || lowWarned) return;
         lowWarned = true;
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal("§c§lBait Low §e§l" + newCount));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal("§c§lBait Low §e§l" + newCount));
         mc.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f, 0.7f);
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

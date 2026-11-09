@@ -57,7 +57,7 @@ public final class InventoryHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.player == null || mc.player.isSpectator()) return;
+        if (mc.gui.hud.isHidden() || mc.player == null || mc.player.isSpectator()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 

@@ -152,7 +152,7 @@ public final class BossHpDisplays {
         List<DungeonTimers.Row> rows = giantRows;
         if (rows.isEmpty() || !cfg().giantHpDisplay || giantHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         DungeonTimers.drawRows(g, mc, giantHud.x(), giantHud.y(), giantHud.scale(), rows);
     }
 

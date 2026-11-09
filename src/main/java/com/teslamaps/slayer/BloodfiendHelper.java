@@ -133,8 +133,8 @@ public final class BloodfiendHelper {
     }
 
     private static void title(Minecraft mc, String text, int stay) {
-        mc.gui.setTimes(0, stay, 3);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, stay, 3);
+        mc.gui.hud.setTitle(Component.literal(text));
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

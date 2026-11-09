@@ -84,7 +84,7 @@ public final class UbikCubeReminder {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean open = mc.screen instanceof AbstractContainerScreen<?> s && s.getTitle().getString().contains("Split or Steal");
+        boolean open = mc.gui.screen() instanceof AbstractContainerScreen<?> s && s.getTitle().getString().contains("Split or Steal");
         if (open && !wasOpen) setReadyAt(System.currentTimeMillis() + COOLDOWN);
         wasOpen = open;
         if (++ticks % 20 != 0) return;
@@ -127,7 +127,7 @@ public final class UbikCubeReminder {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (!cfg().ubikHud || mc.options.hideGui || text.isEmpty() || hud == null) return;
+        if (!cfg().ubikHud || mc.gui.hud.isHidden() || text.isEmpty() || hud == null) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), text);
     }
 }

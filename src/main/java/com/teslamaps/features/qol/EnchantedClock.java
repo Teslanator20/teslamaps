@@ -75,7 +75,7 @@ public class EnchantedClock {
     private static void tick() {
         if (++ticks % 20 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Enchanted Time Clock")) {
             readMenu(cs);
             return;

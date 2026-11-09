@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.Vec3;
@@ -20,7 +21,7 @@ public final class StormFx {
         Sim.chat("§4[BOSS] Storm§r§c: " + text);
         Sim.sound(SoundEvents.WITHER_AMBIENT, 5f, 1.19f, w != null ? w.pos : null);
         if (w == null) return;
-        ArmorStand s = new ArmorStand(EntityType.ARMOR_STAND, Sim.level());
+        ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
         Station.setMarker(s);
         s.setCustomName(Sim.legacy("§4§l" + text));
@@ -48,7 +49,7 @@ public final class StormFx {
 
     public static Vec3 bolt(double x, double z, double fromY, boolean thunder) {
         Vec3 p = new Vec3(x, ground(x, z, fromY), z);
-        LightningBolt b = new LightningBolt(EntityType.LIGHTNING_BOLT, Sim.level());
+        LightningBolt b = new LightningBolt(EntityTypes.LIGHTNING_BOLT, Sim.level());
         b.setVisualOnly(true);
         b.snapTo(p.x, p.y, p.z, 0f, 0f);
         Sim.spawn(b);

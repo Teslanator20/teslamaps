@@ -127,15 +127,15 @@ public class WitherDragons {
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         if (!active()) return;
         // Devonian M7Events: flames at y 27 = the dragon spawns high
-        boolean high = packet.getY() == 27.0 && (TeslaMapsConfig.get().witherDragonShowHigh || TeslaMapsConfig.get().dragonStackAimer);
-        if (packet.getCount() != 20 || (packet.getY() != 19.0 && !high) || packet.getParticle().getType() != ParticleTypes.FLAME
-                || packet.getXDist() != 2f || packet.getYDist() != 3f || packet.getZDist() != 2f
-                || packet.getMaxSpeed() != 0f || packet.getX() % 1 != 0.0 || packet.getZ() % 1 != 0.0) return;
+        boolean high = packet.y() == 27.0 && (TeslaMapsConfig.get().witherDragonShowHigh || TeslaMapsConfig.get().dragonStackAimer);
+        if (packet.count() != 20 || (packet.y() != 19.0 && !high) || packet.particle().getType() != ParticleTypes.FLAME
+                || packet.xDist() != 2f || packet.yDist() != 3f || packet.zDist() != 2f
+                || packet.xMaxSpeed() != 0f || packet.x() % 1 != 0.0 || packet.z() % 1 != 0.0) return;
 
         // Ported from Odin's handleSpawnPacket (post M7 update: dragons spawn one after another)
         for (Dragon dragon : Dragon.values()) {
-            boolean inRange = !(packet.getX() < dragon.xMin || packet.getX() > dragon.xMax
-                    || packet.getZ() < dragon.zMin || packet.getZ() > dragon.zMax);
+            boolean inRange = !(packet.x() < dragon.xMin || packet.x() > dragon.xMax
+                    || packet.z() < dragon.zMin || packet.z() > dragon.zMax);
             if (!inRange) continue;
             if (dragon.state == State.SPAWNING) {
                 if (high) dragon.high = true;
@@ -386,8 +386,8 @@ public class WitherDragons {
         mc.execute(() -> {
             if (mc.player == null) return;
             TeslaMapsConfig c = TeslaMapsConfig.get();
-            mc.gui.setTimes(0, Math.max(1, c.witherDragonAlertTicks), 5);
-            mc.gui.setTitle(Component.literal(title));
+            mc.gui.hud.setTimes(0, Math.max(1, c.witherDragonAlertTicks), 5);
+            mc.gui.hud.setTitle(Component.literal(title));
             if (!c.witherDragonAlertMute) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
         });
     }

@@ -24,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -101,7 +102,7 @@ public class TicTacToePuzzle extends WorldPuzzle {
         if (w == null) return;
         Placement pl = placement();
         Direction facing = PuzzleBlocks.rotation(pl != null ? pl.quarterTurns() : 0).rotate(Direction.EAST);
-        ItemFrame frame = new ItemFrame(EntityType.ITEM_FRAME, Sim.level(), new BlockPos(w.x, w.y, w.z), facing);
+        ItemFrame frame = new ItemFrame(EntityTypes.ITEM_FRAME, Sim.level(), new BlockPos(w.x, w.y, w.z), facing);
         frame.setInvulnerable(true);
         boolean isX = m == TttLogic.Mark.X;
         ensureMaps();

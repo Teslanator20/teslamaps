@@ -65,8 +65,8 @@ public final class BossTickHuds {
         List<DungeonTimers.Row> row = ROWS.get(key);
         if (row == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
-        if (mc.screen != null && !(mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen)) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
+        if (mc.gui.screen() != null && !(mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen)) return;
         DungeonTimers.drawRows(g, mc, el.x(), el.y(), el.scale(), row);
     }
 }

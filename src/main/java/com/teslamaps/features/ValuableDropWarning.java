@@ -96,9 +96,9 @@ public final class ValuableDropWarning {
             if (now < titleUntil && value <= titleValue) return;
             titleUntil = now + TITLE_MS;
             titleValue = value;
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal(what));
-            mc.gui.setSubtitle(Component.literal("§6" + ItemPrice.format(value)));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal(what));
+            mc.gui.hud.setSubtitle(Component.literal("§6" + ItemPrice.format(value)));
             mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
         }
     }

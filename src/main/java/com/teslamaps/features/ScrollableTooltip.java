@@ -24,7 +24,7 @@ public class ScrollableTooltip {
 
     private static int focusedSlot() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             Slot s = ((HandledScreenAccessor) cs).getFocusedSlot();
             return (s == null || s.getItem().isEmpty()) ? -1 : s.index;
         }

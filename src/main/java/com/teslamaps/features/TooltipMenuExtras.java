@@ -76,7 +76,7 @@ public final class TooltipMenuExtras {
         timer = 10;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             fannCoinsLine = fannBitsLine = null;
             return;
         }
@@ -190,7 +190,7 @@ public final class TooltipMenuExtras {
         }
         if (c.tooltipCookieBits) cookie(stack, lines);
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.strip(cs.getTitle().getString()).trim();
         if (c.tooltipStonksPrice && title.equals("Stonks Auction")) stonks(stack, lines);
         if (c.tooltipFannCost && title.startsWith("Training Slot")) fann(lines);

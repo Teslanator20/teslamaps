@@ -49,7 +49,7 @@ public final class GardenPlotBorders {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        boolean down = mc.screen == null && c.plotBorderKey != -1 && KeyNames.isDown(c.plotBorderKey);
+        boolean down = mc.gui.screen() == null && c.plotBorderKey != -1 && KeyNames.isDown(c.plotBorderKey);
         if (down && !keyWasDown && SkyblockUtils.isInGarden()) toggled = !toggled;
         keyWasDown = down;
         if (!SkyblockUtils.isInGarden()) {

@@ -99,7 +99,7 @@ public final class BitsShopHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) {
                 lastScreen = null;
                 shop = Shop.NONE;
@@ -232,7 +232,7 @@ public final class BitsShopHelper {
         if (shop == Shop.NONE || !cfg().bitsShopHighlight || feature == null || !feature.active()) return;
         if (bestAll < 0 && bestSelling < 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
         Perf.begin("BitsShopHelper.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;

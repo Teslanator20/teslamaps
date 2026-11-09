@@ -40,7 +40,7 @@ public final class TooltipBorder {
     }
 
     public static void draw(GuiGraphicsExtractor ctx, int x, int y, int w, int h) {
-        if (pending == -1 || Minecraft.getInstance().screen != pendingScreen) return;
+        if (pending == -1 || Minecraft.getInstance().gui.screen() != pendingScreen) return;
         if (feature == null || !feature.active()) return;
         int a = Math.round(Math.max(0f, Math.min(1f, cfg().rarityTooltipBorderOpacity)) * 255);
         if (a == 0) return;

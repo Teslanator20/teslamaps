@@ -87,7 +87,7 @@ public final class DwarvenMinimap {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), true);
     }
 

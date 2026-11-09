@@ -68,7 +68,7 @@ public final class AdmCore {
         return ClientCommands.literal(name)
                 .executes(c -> {
                     Minecraft mc = Minecraft.getInstance();
-                    mc.schedule(() -> mc.setScreen(MapConfigScreen.openAdm()));
+                    mc.schedule(() -> mc.gui.setScreen(MapConfigScreen.openAdm()));
                     return 1;
                 })
                 .then(ClientCommands.literal("help").executes(c -> {

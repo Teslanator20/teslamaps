@@ -93,7 +93,7 @@ public final class Composter {
     private static void tick() {
         if (++ticks % 20 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) readUpgrades(cs);
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) readUpgrades(cs);
         boolean garden = SkyblockUtils.isInGarden();
         if (garden) readTab();
         long now = System.currentTimeMillis();
@@ -179,9 +179,9 @@ public final class Composter {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + msg));
-        mc.gui.setTimes(0, 60, 10);
-        mc.gui.setTitle(Component.literal(msg));
-        mc.gui.setSubtitle(Component.empty());
+        mc.gui.hud.setTimes(0, 60, 10);
+        mc.gui.hud.setTitle(Component.literal(msg));
+        mc.gui.hud.setSubtitle(Component.empty());
     }
 
     private static void warnEmpty(Minecraft mc, boolean garden, String msg, long now) {
@@ -194,14 +194,14 @@ public final class Composter {
                     .withHoverEvent(new HoverEvent.ShowText(Component.literal("§eClick to warp to the Garden"))));
         }
         mc.player.sendSystemMessage(line);
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(Component.literal("§eComposter Warning!"));
-        mc.gui.setSubtitle(Component.empty());
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(Component.literal("§eComposter Warning!"));
+        mc.gui.hud.setSubtitle(Component.empty());
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         if (SkyblockUtils.isInGarden()) {
             if (c.composterHud && !lines.isEmpty() && hud != null) TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);

@@ -106,7 +106,7 @@ public final class VisualTweaks {
     private static void renderVignette(GuiGraphicsExtractor g, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
         Player p = mc.player;
-        if (p == null || mc.options.hideGui || !p.isAlive() || p.isCreative() || p.isSpectator()) return;
+        if (p == null || mc.gui.hud.isHidden() || !p.isAlive() || p.isCreative() || p.isSpectator()) return;
         float max = p.getMaxHealth();
         if (max <= 0) return;
         float ratio = (p.getHealth() + p.getAbsorptionAmount()) / max;

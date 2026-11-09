@@ -45,7 +45,7 @@ public final class CommandHelpers {
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
                 .then(ClientCommands.literal("colors").executes(c -> { printColors(); return 1; }))
                 .then(ClientCommands.literal("clearchat").executes(c -> {
-                    Minecraft.getInstance().gui.getChat().clearMessages(false);
+                    Minecraft.getInstance().gui.hud.getChat().clearMessages(false);
                     return 1;
                 }))));
         Feature.of("CommandHelpers").section("Chat")

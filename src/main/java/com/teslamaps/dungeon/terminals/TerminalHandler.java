@@ -31,7 +31,7 @@ public abstract class TerminalHandler {
 
     public void updateSlot(int slotIndex, ItemStack itemStack, List<Slot> slots) {
         if (slots.isEmpty() || slotIndex < 0 || slotIndex >= type.windowSize - 9
-                || itemStack.getItem() == Items.BLACK_STAINED_GLASS_PANE) return;
+                || itemStack.getItem() == Items.STAINED_GLASS_PANE.black()) return;
 
         int index = -1;
         for (int i = 0; i < clickedSlots.size(); i++) {
@@ -71,7 +71,7 @@ public abstract class TerminalHandler {
         if (simulateClick) simulateClick(slotIndex, mappedButton);
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof TermSimGUI sim) {
+        if (mc.gui.screen() instanceof TermSimGUI sim) {
             sim.clickIndex(slotIndex, mappedButton);
             return;
         }

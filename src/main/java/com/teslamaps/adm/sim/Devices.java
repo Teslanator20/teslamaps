@@ -17,6 +17,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -360,8 +361,8 @@ public class Devices {
             return l;
         }
 
-        public void place() { reset(); blocks.forEach(b -> Blocks.set(b, net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA.defaultBlockState())); }
-        public void clear() { lit = -1; blocks.forEach(b -> Blocks.set(b, net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA.defaultBlockState())); }
+        public void place() { reset(); blocks.forEach(b -> Blocks.set(b, net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue().defaultBlockState())); }
+        public void clear() { lit = -1; blocks.forEach(b -> Blocks.set(b, net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue().defaultBlockState())); }
 
         private void reset() { lit = -1; hits = 0; order = shuffledCells(); grid = R.nextInt(10); shownOnce = false; }
 
@@ -404,7 +405,7 @@ public class Devices {
             if (onPlate()) {
                 if (current() >= 0 && lit != current()) light();
             } else if (lit >= 0 || hits > 0) {
-                if (lit >= 0) Blocks.set(blocks.get(lit), net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA.defaultBlockState());
+                if (lit >= 0) Blocks.set(blocks.get(lit), net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue().defaultBlockState());
                 reset();
             }
         }
@@ -420,7 +421,7 @@ public class Devices {
             if (st.done || current() < 0 || !pos.equals(blocks.get(current()))) return;
             if (!shownOnce) return;
             if (lit < 0 && hits == 0 && !onPlate()) return;
-            if (lit == current()) { Blocks.set(pos, net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA.defaultBlockState()); lit = -1; }
+            if (lit == current()) { Blocks.set(pos, net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue().defaultBlockState()); lit = -1; }
             hits++;
             if (hits >= 9) { clear(); st.complete(plateBy != null ? plateBy : Sim.me()); }
         }
@@ -462,19 +463,19 @@ public class Devices {
             Boolean wool = EXTRAS.get(layout).get(i);
             if (solution.get(i) < 0 && wool == null) continue;
             BlockPos pos = new BlockPos(-2, 120 + i % 5, 75 + i / 5);
-            ItemFrame f = new ItemFrame(EntityType.ITEM_FRAME, Sim.level(), pos, Direction.EAST);
+            ItemFrame f = new ItemFrame(EntityTypes.ITEM_FRAME, Sim.level(), pos, Direction.EAST);
             f.setInvulnerable(true);
             if (solution.get(i) >= 0) {
                 f.setItem(new ItemStack(Items.ARROW), false);
                 f.setRotation(solution.get(i));
             } else f.setItem(
-                Boolean.TRUE.equals(wool) ? Terminals.named(Items.LIME_WOOL, "Start", 1, false, ChatFormatting.GREEN)
-                    : Terminals.named(Items.RED_WOOL, "End", 1, false, ChatFormatting.RED), false);
+                Boolean.TRUE.equals(wool) ? Terminals.named(Items.WOOL.lime(), "Start", 1, false, ChatFormatting.GREEN)
+                    : Terminals.named(Items.WOOL.red(), "End", 1, false, ChatFormatting.RED), false);
             frames.put(i, Sim.spawn(f));
         }
         for (int i = 0; i < 25; i++) {
             boolean lit = frames.containsKey(i) && (solution.get(i) < 0 || R.nextInt(8) == 0);
-            Blocks.set(-3, 120 + i % 5, 75 + i / 5, (lit ? net.minecraft.world.level.block.Blocks.SEA_LANTERN : net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA).defaultBlockState());
+            Blocks.set(-3, 120 + i % 5, 75 + i / 5, (lit ? net.minecraft.world.level.block.Blocks.SEA_LANTERN : net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue()).defaultBlockState());
         }
         Map.Entry<Integer, ItemFrame> best = null;
         int bestD = 0;

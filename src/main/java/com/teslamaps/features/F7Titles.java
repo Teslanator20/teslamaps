@@ -94,7 +94,7 @@ public final class F7Titles {
             maxorSeen = maxorDead = goldorStart = goldorDead = necronStart = necronDead = false;
         }
         if (!cfg().f7BossTitles || !inF7Boss()) return;
-        var events = ((com.teslamaps.mixin.BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        var events = ((com.teslamaps.mixin.BossHealthOverlayAccessor) mc.gui.hud.getBossOverlay()).teslamaps$getEvents();
         if (events == null) return;
         for (LerpingBossEvent ev : events.values()) {
             if (ev.getName() == null) continue;
@@ -117,9 +117,9 @@ public final class F7Titles {
 
     private static void subtitle(String text, boolean sound) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 40, 10);
-        mc.gui.setSubtitle(Component.literal(text));
-        mc.gui.setTitle(Component.empty());
+        mc.gui.hud.setTimes(0, 40, 10);
+        mc.gui.hud.setSubtitle(Component.literal(text));
+        mc.gui.hud.setTitle(Component.empty());
         if (sound && mc.player != null) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 0.25f, 1f);
     }
 }

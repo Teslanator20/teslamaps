@@ -71,7 +71,7 @@ public final class VanquisherAlert {
             own = null;
         }
         waypoints.tick();
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().vanquisherShareKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().vanquisherShareKey);
         if (down && !keyWasDown) share();
         keyWasDown = down;
     }

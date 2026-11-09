@@ -390,7 +390,7 @@ public final class P3Sim {
                     : rb.bounds(w - 4 - runW, 4, runW, 16)).build();
             widgets.add(run);
             int gx = single != null ? run.getX() + run.getWidth() + 4 : ads.getX() - 40;
-            widgets.add(Button.builder(Component.literal("GUI"), b -> Minecraft.getInstance().setScreen(new AdsHubScreen(screen)))
+            widgets.add(Button.builder(Component.literal("GUI"), b -> Minecraft.getInstance().gui.setScreen(new AdsHubScreen(screen)))
                     .bounds(gx, ads.getY(), 36, ads.getHeight()).build());
         }
     }
@@ -406,7 +406,7 @@ public final class P3Sim {
         for (Button b : buttons) if (LAN_KEYS.contains(key(b))) { lan = b; break; }
         for (Button b : buttons) if (QUIT_KEYS.contains(key(b))) { quit = b; break; }
         if (quit == null) for (Button b : buttons) if (quit == null || b.getY() > quit.getY()) quit = b;
-        Button.Builder main = Button.builder(Component.literal("§6" + NAME + " Menu"), b -> Minecraft.getInstance().setScreen(new SimRestartScreen()));
+        Button.Builder main = Button.builder(Component.literal("§6" + NAME + " Menu"), b -> Minecraft.getInstance().gui.setScreen(new SimRestartScreen()));
         Button b;
         if (lan != null) {
             widgets.remove(lan);
@@ -442,7 +442,7 @@ public final class P3Sim {
     public static void openMenuOrSim() {
         if (!gate()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (inSim()) mc.execute(() -> mc.setScreen(new SimRestartScreen()));
+        if (inSim()) mc.execute(() -> mc.gui.setScreen(new SimRestartScreen()));
         else SimWorld.open();
     }
 

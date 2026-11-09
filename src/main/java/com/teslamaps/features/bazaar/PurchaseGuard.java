@@ -65,7 +65,7 @@ public final class PurchaseGuard {
     }
 
     private static void tick() {
-        if (screen != null && Minecraft.getInstance().screen != screen) clear();
+        if (screen != null && Minecraft.getInstance().gui.screen() != screen) clear();
     }
 
     private static void clear() {
@@ -74,7 +74,7 @@ public final class PurchaseGuard {
     }
 
     public static boolean pending() {
-        return screen != null && Minecraft.getInstance().screen == screen;
+        return screen != null && Minecraft.getInstance().gui.screen() == screen;
     }
 
     /** Slot click hook: true = swallow the click. */

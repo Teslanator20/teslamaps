@@ -47,7 +47,7 @@ public final class StorageApiFill {
             return;
         }
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen == null || !com.teslamaps.utils.StringUtil.stripTrim(mc.screen.getTitle().getString()).equals("Storage")) return;
+        if (mc.gui.screen() == null || !com.teslamaps.utils.StringUtil.stripTrim(mc.gui.screen().getTitle().getString()).equals("Storage")) return;
         String key = SbProfile.key();
         String name = SbProfile.name();
         if (key == null || !requested.add(key) || !cacheEmpty()) return;

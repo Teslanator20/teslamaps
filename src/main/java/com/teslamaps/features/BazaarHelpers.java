@@ -100,13 +100,13 @@ public final class BazaarHelpers {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !inBazaar(cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !inBazaar(cs)) {
             lastScreen = null;
             panel.clear();
             return;
         }
-        if (lastScreen != mc.screen) {
-            lastScreen = mc.screen;
+        if (lastScreen != mc.gui.screen()) {
+            lastScreen = mc.gui.screen();
             ticks = 0;
         }
         if (ticks++ % 5 != 0) return;
@@ -205,7 +205,7 @@ public final class BazaarHelpers {
     public static void render(GuiGraphicsExtractor g, int mx, int my) {
         if (feature == null || !feature.active() || panel.empty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (mc.gui.screen() != lastScreen || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         panel.render(g, cs, 0, mx, my);
     }
 }

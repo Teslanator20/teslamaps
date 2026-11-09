@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 // Drops the spawn packet for purely decorative entities instead of skipping them in
 // EntityRenderDispatcher.shouldRender, so they are never created or ticked at all.
@@ -23,10 +24,10 @@ public class PacketHiders {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.packetHiders) return false;
 
-        boolean cancel = (type == EntityType.LIGHTNING_BOLT && cfg.noLightning)
-                || (type == EntityType.FALLING_BLOCK && cfg.noFallingBlocks)
-                || (type == EntityType.EXPERIENCE_ORB && cfg.noXpOrbs)
-                || (type == EntityType.FIREWORK_ROCKET && cfg.hideFireworks);
+        boolean cancel = (type == EntityTypes.LIGHTNING_BOLT && cfg.noLightning)
+                || (type == EntityTypes.FALLING_BLOCK && cfg.noFallingBlocks)
+                || (type == EntityTypes.EXPERIENCE_ORB && cfg.noXpOrbs)
+                || (type == EntityTypes.FIREWORK_ROCKET && cfg.hideFireworks);
         if (cancel) cancelled++;
         return cancel;
     }

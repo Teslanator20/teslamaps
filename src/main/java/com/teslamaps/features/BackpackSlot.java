@@ -79,7 +79,7 @@ public class BackpackSlot {
 
     public static boolean onScroll(double dy) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null || mc.player == null || dy == 0 || !cfg().backpackSlotScroll || !FEATURE.active()) return false;
+        if (mc.gui.screen() != null || mc.player == null || dy == 0 || !cfg().backpackSlotScroll || !FEATURE.active()) return false;
         var inv = mc.player.getInventory();
         if (selected) {
             selected = false;
@@ -97,7 +97,7 @@ public class BackpackSlot {
 
     public static boolean handleKey(long window, int action, int k) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null || mc.player == null || !FEATURE.active()) return false;
+        if (mc.gui.screen() != null || mc.player == null || !FEATURE.active()) return false;
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
         TeslaMapsConfig c = cfg();
         if (c.backpackSlotKey != -1 && k == c.backpackSlotKey) {
@@ -126,7 +126,7 @@ public class BackpackSlot {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         int w = g.guiWidth(), h = g.guiHeight();
         int x = c.backpackSlotLeft ? w / 2 - 91 - 29 - (mc.player.getOffhandItem().isEmpty() ? 0 : 29) : w / 2 + 91 + 6;

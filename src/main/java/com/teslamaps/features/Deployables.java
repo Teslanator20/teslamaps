@@ -233,27 +233,27 @@ public class Deployables {
         if (FlareExtras.hideParticle(p)) return true;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.deployableHideParticles || !cfg.section("Skills")) return false;
-        if (!p.alwaysShow() || !p.isOverrideLimiter()) return false;
-        var type = p.getParticle().getType();
+        if (!p.alwaysShow() || !p.overrideLimiter()) return false;
+        var type = p.particle().getType();
         if (type == net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER) {
-            if (p.getMaxSpeed() != 0f) return false;
-            if (p.getCount() == 4) return p.getXDist() == 0.3f && p.getYDist() == 0.2f && p.getZDist() == 0.3f;
-            if (p.getCount() != 1 || p.getXDist() != 0f || p.getYDist() != 0f || p.getZDist() != 0f) return false;
+            if (p.xMaxSpeed() != 0f) return false;
+            if (p.count() == 4) return p.xDist() == 0.3f && p.yDist() == 0.2f && p.zDist() == 0.3f;
+            if (p.count() != 1 || p.xDist() != 0f || p.yDist() != 0f || p.zDist() != 0f) return false;
             for (Track t : tracks.values()) {
-                if (t.active && Math.abs(t.x - p.getX()) < 2 && Math.abs(t.y - 1 - p.getY()) < 3 && Math.abs(t.z - p.getZ()) < 2) return true;
+                if (t.active && Math.abs(t.x - p.x()) < 2 && Math.abs(t.y - 1 - p.y()) < 3 && Math.abs(t.z - p.z()) < 2) return true;
             }
             return false;
         }
         if (type == net.minecraft.core.particles.ParticleTypes.DUST) {
-            if (p.getCount() != 0 || p.getMaxSpeed() != 1f) return false;
-            if (!(p.getParticle() instanceof net.minecraft.core.particles.DustParticleOptions o) || o.getScale() != 1f) return false;
+            if (p.count() != 0 || p.xMaxSpeed() != 1f) return false;
+            if (!(p.particle() instanceof net.minecraft.core.particles.DustParticleOptions o) || o.getScale() != 1f) return false;
             var col = o.getColor();
             int rgb = (Math.round(col.x() * 255f) << 16) | (Math.round(col.y() * 255f) << 8) | Math.round(col.z() * 255f);
             return ORB_DUST.contains(rgb);
         }
         if (type == net.minecraft.core.particles.ParticleTypes.FLAME) {
-            return p.getCount() == 11 && p.getMaxSpeed() == 0.35f
-                    && p.getXDist() == 1f && p.getYDist() == 1f && p.getZDist() == 1f;
+            return p.count() == 11 && p.xMaxSpeed() == 0.35f
+                    && p.xDist() == 1f && p.yDist() == 1f && p.zDist() == 1f;
         }
         return false;
     }

@@ -106,7 +106,7 @@ public final class TreeProgressHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = line;
         Minecraft mc = Minecraft.getInstance();
-        if (l == null || hud == null || mc.options.hideGui) return;
+        if (l == null || hud == null || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

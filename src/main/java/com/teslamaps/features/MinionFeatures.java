@@ -203,13 +203,13 @@ public final class MinionFeatures {
             lastMinion = null;
             minionOpen = storageOpen = false;
         }
-        if (mc.screen == null && mc.crosshairPickEntity instanceof ArmorStand as) {
+        if (mc.gui.screen() == null && mc.crosshairPickEntity instanceof ArmorStand as) {
             looked = as.blockPosition();
             lookedAt = now;
         }
         boolean island = SkyblockUtils.isInArea("Private Island");
 
-        AbstractContainerScreen<?> cs = mc.screen instanceof AbstractContainerScreen<?> s ? s : null;
+        AbstractContainerScreen<?> cs = mc.gui.screen() instanceof AbstractContainerScreen<?> s ? s : null;
         String title = cs == null ? "" : StringUtil.stripTrim(cs.getTitle().getString());
         Matcher tm = TITLE.matcher(title);
         boolean isMinion = cs != null && tm.matches() && "Collect All".equals(slotName(cs, 48));
@@ -350,9 +350,9 @@ public final class MinionFeatures {
         if (full) lastFullWarn = now;
         else lastReachWarn = now;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTitle(Component.literal(full ? "§cMinion Storage Full!" : "§cMinion Can't Reach Mobs!"));
-        mc.gui.setSubtitle(Component.empty());
-        mc.gui.setTimes(5, 40, 10);
+        mc.gui.hud.setTitle(Component.literal(full ? "§cMinion Storage Full!" : "§cMinion Can't Reach Mobs!"));
+        mc.gui.hud.setSubtitle(Component.empty());
+        mc.gui.hud.setTimes(5, 40, 10);
         LoudSound.play(SoundOptions.resolve(cfg().minionWarnSound), 1f, 1f);
     }
 

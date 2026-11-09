@@ -190,9 +190,9 @@ public final class CropMilestoneHud {
         if (!c.cropMilestoneWarn || secs > 6 || in.tier == warnedTier) return;
         warnedTier = in.tier;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 60, 10);
-        mc.gui.setTitle(Component.literal("§b" + crop + " " + in.next));
-        mc.gui.setSubtitle(Component.literal("§7in " + secs + "s"));
+        mc.gui.hud.setTimes(0, 60, 10);
+        mc.gui.hud.setTitle(Component.literal("§b" + crop + " " + in.next));
+        mc.gui.hud.setSubtitle(Component.literal("§7in " + secs + "s"));
     }
 
     private static String fmt(long v) {
@@ -201,7 +201,7 @@ public final class CropMilestoneHud {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         if (!lines.isEmpty() && hud != null) TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
         if (!cowLines.isEmpty() && cowHud != null) TextHud.draw(g, mc, cowHud.x(), cowHud.y(), cowHud.scale(), cowLines, cowWidth);
     }

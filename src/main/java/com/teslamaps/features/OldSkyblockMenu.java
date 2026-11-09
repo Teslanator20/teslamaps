@@ -76,7 +76,7 @@ public class OldSkyblockMenu {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !StringUtil.stripTrim(cs.getTitle().getString()).equals("SkyBlock Menu")
                 || "The Rift".equals(com.teslamaps.utils.SkyblockUtils.getArea())) {
             open = false;
@@ -148,7 +148,7 @@ public class OldSkyblockMenu {
         int i = slot.index;
         if (i < 0 || i >= 54 || bySlot[i] == null) return null;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != openFor) return null;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != openFor) return null;
         if (slot.container instanceof Inventory) return null;
         return shown[i];
     }

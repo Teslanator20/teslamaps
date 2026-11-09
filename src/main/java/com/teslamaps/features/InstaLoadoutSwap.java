@@ -30,7 +30,7 @@ public class InstaLoadoutSwap {
         if (LegitMode.blocksCheats()) return;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        AbstractContainerScreen<?> loadouts = mc.screen instanceof AbstractContainerScreen<?> cs
+        AbstractContainerScreen<?> loadouts = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.strip(cs.getTitle().getString()).endsWith("Loadouts") ? cs : null;
 
         if (pending >= 0) {
@@ -52,7 +52,7 @@ public class InstaLoadoutSwap {
             else if (closeTicks-- == 0) loadouts.onClose();
         }
 
-        boolean free = mc.screen == null;
+        boolean free = mc.gui.screen() == null;
         for (int i = 0; i < 9; i++) {
             int key = c.instaLoadoutKeys[i];
             boolean down = key != -1 && KeyNames.isDown(key);

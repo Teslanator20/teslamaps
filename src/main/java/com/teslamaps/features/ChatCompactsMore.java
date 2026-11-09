@@ -99,7 +99,7 @@ public final class ChatCompactsMore {
         if (cfg().compactJacobClaim && jacobOpen && (jacobBits || now - jacobLast >= 300)) jacobPublish();
         if (cfg().compactExperimentRewards) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.screen instanceof AbstractContainerScreen<?> && experimentTitle(mc.screen.getTitle().getString())) {
+            if (mc.gui.screen() instanceof AbstractContainerScreen<?> && experimentTitle(mc.gui.screen().getTitle().getString())) {
                 expMenuSeen = now;
             }
             if (!expRewards.isEmpty() && now - expLast >= 150) expPublish();

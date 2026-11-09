@@ -95,14 +95,14 @@ public final class StereoHarmony {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            inStereo = mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            inStereo = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                     && StringUtil.stripTrim(cs.getTitle().getString()).equals("Stereo Harmony");
             java.util.Arrays.fill(highlight, 0);
         }
         if (ticks++ % 10 != 0) return;
-        if (inStereo && mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (inStereo && mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             List<Slot> slots = cs.getMenu().slots;
             if (slots.size() > 4) readPlaying(slots.get(4).getItem());
             if (cfg().stereoContestHighlight) buildHighlights(slots);
@@ -199,7 +199,7 @@ public final class StereoHarmony {
     /** Icon to draw for a slot; the stack itself when nothing changes. */
     public static ItemStack icon(Slot slot, ItemStack stack) {
         if (!inStereo || stack.isEmpty() || slot.container instanceof Inventory) return stack;
-        if (Minecraft.getInstance().screen != lastScreen || iconFeature == null || !iconFeature.active()) return stack;
+        if (Minecraft.getInstance().gui.screen() != lastScreen || iconFeature == null || !iconFeature.active()) return stack;
         int i = slot.index;
         if (!(i >= 11 && i <= 15) && !(i >= 20 && i <= 24) && !(i >= 30 && i <= 32)) return stack;
         String id = ItemUtil.skyblockId(stack);

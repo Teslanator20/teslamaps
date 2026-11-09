@@ -92,7 +92,7 @@ public final class CoralFishHelper {
         }
         for (int i = 0; i < size; i++) {
             ItemStack st = menu.getSlot(i).getItem();
-            if (!st.is(Items.GRAY_DYE)) continue;
+            if (!st.is(Items.DYE.gray())) continue;
             String name = StringUtil.stripTrim(st.getHoverName().getString());
             if (!NAME.matcher(name).matches()) continue;
             String id = SkyblockItems.idForName(name);

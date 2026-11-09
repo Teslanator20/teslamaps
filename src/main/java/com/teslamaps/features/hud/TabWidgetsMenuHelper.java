@@ -98,7 +98,7 @@ public final class TabWidgetsMenuHelper {
         int from = top ? 10 : 19, to = size - 9;
         for (int slot = from; slot < to; slot++) {
             ItemStack st = menu.getSlot(slot).getItem();
-            if (st.isEmpty() || st.is(Items.BLACK_STAINED_GLASS_PANE)) continue;
+            if (st.isEmpty() || st.is(Items.STAINED_GLASS_PANE.black())) continue;
             String name = StringUtil.strip(st.getHoverName().getString()).trim();
             if (name.isEmpty()) continue;
             ItemLore lore = st.get(DataComponents.LORE);

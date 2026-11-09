@@ -262,7 +262,7 @@ public class Splits {
         String l = currentLine;
         if (l == null || currentHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         drawCurrent(g, mc, currentHud.x(), currentHud.y(), currentHud.scale(), l);
     }
 

@@ -276,7 +276,7 @@ public class ItemIndex {
         if (mc.level == null) return;
         boolean tracker = TeslaMapsConfig.get().islandChestTracker;
         if (tracker) sweepChests(mc);
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { flush(); return; }
 
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (title.isEmpty()) { flush(); return; }
@@ -422,8 +422,8 @@ public class ItemIndex {
 
     private static boolean junk(ItemStack st, String type) {
         var item = st.getItem();
-        if (item == Items.BLACK_STAINED_GLASS_PANE || item == Items.GRAY_STAINED_GLASS_PANE
-                || item == Items.LIGHT_GRAY_STAINED_GLASS_PANE || item == Items.BARRIER
+        if (item == Items.STAINED_GLASS_PANE.black() || item == Items.STAINED_GLASS_PANE.gray()
+                || item == Items.STAINED_GLASS_PANE.lightGray() || item == Items.BARRIER
                 || item == Items.ARROW) return true;
         String n = StringUtil.stripTrim(st.getHoverName().getString());
         if (n.isEmpty() || NAV.contains(n)) return true;

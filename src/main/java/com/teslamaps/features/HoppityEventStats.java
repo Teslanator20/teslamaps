@@ -197,11 +197,11 @@ public final class HoppityEventStats {
 
     // CAUGHT! strays in the Chocolate Factory, one count per slot and name
     private static void scanStrays(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) { lastScreen = null; straySlots.clear(); }
             return;
         }
-        if (lastScreen != mc.screen) { lastScreen = mc.screen; straySlots.clear(); }
+        if (lastScreen != mc.gui.screen()) { lastScreen = mc.gui.screen(); straySlots.clear(); }
         if (!eventActive() || !StringUtil.stripTrim(cs.getTitle().getString()).equals("Chocolate Factory")) return;
         var slots = cs.getMenu().slots;
         if (lbScreen != cs && mc.level != lbLevel) scanLeaderboard(cs, mc);
@@ -360,7 +360,7 @@ public final class HoppityEventStats {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

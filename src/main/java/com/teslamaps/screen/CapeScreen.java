@@ -509,7 +509,7 @@ public class CapeScreen extends Screen {
     @Override
     public void onClose() {
         TeslaMapsConfig.save();
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
     @Override

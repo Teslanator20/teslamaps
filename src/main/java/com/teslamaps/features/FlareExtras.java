@@ -65,9 +65,9 @@ public final class FlareExtras {
             // one warning per flare, keyed by where it stands
             String key = f.type().name() + (int) f.x() + "," + (int) f.z();
             if (warned.add(key)) {
-                mc.gui.setTimes(0, 30, 10);
-                mc.gui.setTitle(Component.literal(f.type().displayName + " §eexpires in §b" + f.secondsLeft() + "s"));
-                mc.gui.setSubtitle(Component.literal(""));
+                mc.gui.hud.setTimes(0, 30, 10);
+                mc.gui.hud.setTitle(Component.literal(f.type().displayName + " §eexpires in §b" + f.secondsLeft() + "s"));
+                mc.gui.hud.setSubtitle(Component.literal(""));
                 mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
             }
         }
@@ -125,9 +125,9 @@ public final class FlareExtras {
     /** Main thread, from Deployables.hideParticle. */
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         if (!cfg().deployableFlareHideParticles || !on() || flares.isEmpty()) return false;
-        if (p.getParticle().getType() != ParticleTypes.FLAME) return false;
+        if (p.particle().getType() != ParticleTypes.FLAME) return false;
         for (Deployables.FlarePos f : flares) {
-            double dx = f.x() - p.getX(), dy = f.y() - p.getY(), dz = f.z() - p.getZ();
+            double dx = f.x() - p.x(), dy = f.y() - p.y(), dz = f.z() - p.z();
             if (dx * dx + dy * dy + dz * dz < 6.25 + 2) return true;
         }
         return false;

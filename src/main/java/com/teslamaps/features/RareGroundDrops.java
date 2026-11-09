@@ -62,8 +62,8 @@ public final class RareGroundDrops {
     private static void alert(Minecraft mc, String title) {
         if (mc.player == null) return;
         int ticks = Math.max(10, Math.round(TeslaMapsConfig.get().rareGroundDropsTime * 20));
-        mc.gui.setTimes(0, ticks, 5);
-        mc.gui.setTitle(Component.literal(title));
+        mc.gui.hud.setTimes(0, ticks, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
         mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
     }
 }

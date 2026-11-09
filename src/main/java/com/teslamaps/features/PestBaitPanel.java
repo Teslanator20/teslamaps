@@ -52,13 +52,13 @@ public final class PestBaitPanel {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!SkyblockUtils.isInGarden() || !trap(mc.screen)) {
+        if (!SkyblockUtils.isInGarden() || !trap(mc.gui.screen())) {
             lastScreen = null;
             panel.clear();
             return;
         }
-        if (lastScreen == mc.screen) return;
-        lastScreen = mc.screen;
+        if (lastScreen == mc.gui.screen()) return;
+        lastScreen = mc.gui.screen();
         List<EcoPanel.Row> rows = new ArrayList<>(SPRAYS.length + 1);
         rows.add(EcoPanel.Row.of("§ePest Bait Types"));
         for (String[] s : SPRAYS) {
@@ -78,13 +78,13 @@ public final class PestBaitPanel {
     public static void render(GuiGraphicsExtractor g, int mx, int my) {
         if (feature == null || !feature.active() || panel.empty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (mc.gui.screen() != lastScreen || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         panel.render(g, cs, 0, mx, my);
     }
 
     public static boolean click(double mx, double my, int button) {
         if (feature == null || !feature.active() || panel.empty()) return false;
-        if (Minecraft.getInstance().screen != lastScreen) return false;
+        if (Minecraft.getInstance().gui.screen() != lastScreen) return false;
         return panel.click(mx, my, button);
     }
 }

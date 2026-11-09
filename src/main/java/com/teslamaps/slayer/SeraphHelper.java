@@ -19,10 +19,11 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -128,7 +129,7 @@ public final class SeraphHelper {
             if (s.distanceToSqr(mc.player) > 48 * 48) continue;
             String name = s.getName().getString();
             if (!name.contains("Voidgloom Seraph")) continue;
-            Entity body = NametagMobs.mobForTag(EntityType.ENDERMAN, s);
+            Entity body = NametagMobs.mobForTag(EntityTypes.ENDERMAN, s);
             found.add(new Seraph(s, body, SlayerHUD.ownerOf(s)));
         }
         seraphs = found;
@@ -213,7 +214,7 @@ public final class SeraphHelper {
             Matcher hp = HP.matcher(name);
             out.add("§fHP: §c" + (hp.find() ? hp.group(1) + "❤" : "?"));
         }
-        boolean holding = s.body() instanceof EnderMan em && em.getCarriedBlock() != null
+        boolean holding = s.body() instanceof Enderman em && em.getCarriedBlock() != null
                 && em.getCarriedBlock().is(Blocks.BEACON);
         out.add("§fHolding Beacon: " + (holding ? "§cYes" : "§7No"));
         if (beacons.isEmpty()) {
@@ -288,7 +289,7 @@ public final class SeraphHelper {
     public static boolean shouldHide(Entity e) {
         List<Seraph> list = seraphs;
         if (list.isEmpty() || !(e instanceof LivingEntity)) return false;
-        if (e instanceof ArmorStand || e instanceof EnderMan || e instanceof Guardian) return false;
+        if (e instanceof ArmorStand || e instanceof Enderman || e instanceof Guardian) return false;
         TeslaMapsConfig c = cfg();
         if (!c.voidgloomHideSummons || !c.section("Combat")) return false;
         if (e == Minecraft.getInstance().player) return false;
@@ -303,7 +304,7 @@ public final class SeraphHelper {
         List<String> l = lines;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

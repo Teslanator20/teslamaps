@@ -356,7 +356,7 @@ public class RoomScanner {
                     BlockPos pos = new BlockPos(checkX, checkY, checkZ);
                     Block block = mc.level.getBlockState(pos).getBlock();
 
-                    if (block == Blocks.BLUE_TERRACOTTA) {
+                    if (block == Blocks.DYED_TERRACOTTA.blue()) {
                         int rotation = i * 90;
                         TeslaMaps.LOGGER.debug("Detected rotation {} for room '{}' (blue terracotta at corner {}, pos [{},{},{}])",
                                 rotation, room.getName(), i, checkX, checkY, checkZ);

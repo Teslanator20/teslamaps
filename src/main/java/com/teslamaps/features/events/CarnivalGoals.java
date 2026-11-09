@@ -178,7 +178,7 @@ public final class CarnivalGoals {
 
     private static void readMenu() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             lastScreen = null;
             return;
         }
@@ -265,7 +265,7 @@ public final class CarnivalGoals {
         List<String> l = lines;
         if (l.isEmpty() || hud == null || !cfg().carnivalGoals || !Carnival.inArea()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), l, TextHud.width(l));
     }
 }

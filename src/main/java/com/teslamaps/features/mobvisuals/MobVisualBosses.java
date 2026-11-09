@@ -29,7 +29,7 @@ import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.ElderGuardian;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.monster.Guardian;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.monster.breeze.Breeze;
@@ -96,10 +96,10 @@ final class MobVisualBosses {
     /** Main thread only; the netty-thread call of the same hook is ignored. */
     static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!Minecraft.getInstance().isSameThread()) return;
-        if (packet.getParticle().getType() != ParticleTypes.CRIT) return;
+        if (packet.particle().getType() != ParticleTypes.CRIT) return;
         if (!MobArea.MOONGLADE_MARSH.isHere() || !invisibugWanted()) return;
         if (pendingCrits.size() >= MAX_PENDING_CRITS) return;
-        pendingCrits.add(new Vec3(packet.getX(), packet.getY(), packet.getZ()));
+        pendingCrits.add(new Vec3(packet.x(), packet.y(), packet.z()));
     }
 
     private static boolean any(Mob... mobs) {

@@ -21,6 +21,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -76,7 +77,7 @@ public final class MortNpc {
         if (at == null) return;
         home = at;
         Ec.safely("ads mort", () -> {
-            Mannequin m = new Mannequin(EntityType.MANNEQUIN, Sim.level());
+            Mannequin m = new Mannequin(EntityTypes.MANNEQUIN, Sim.level());
             String skin = Base64.getEncoder().encodeToString(
                     ("{\"textures\":{\"SKIN\":{\"url\":\"http://textures.minecraft.net/texture/" + SKIN + "\",\"metadata\":{\"model\":\"slim\"}}}}").getBytes(StandardCharsets.UTF_8));
             GameProfile profile = new GameProfile(UUID.nameUUIDFromBytes("ads:mort".getBytes(StandardCharsets.UTF_8)), "Mort",

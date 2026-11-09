@@ -62,8 +62,8 @@ public final class SecretsWaypointsCategory {
                 .desc("In dungeons right-click adds/removes a waypoint (Add Waypoint #1 style), also in mid-air");
         b.toggle("    Sneak + Right-Click Sets Title", () -> config.waypointEditTitles, v -> config.waypointEditTitles = v).fresh();
         b.keybind("    Edit Mode Key", () -> config.waypointEditModeKey, v -> config.waypointEditModeKey = v).fresh();
-        b.button("  Waypoint Packs...", () -> Minecraft.getInstance().setScreen(
-                new com.teslamaps.screen.WaypointPackScreen(Minecraft.getInstance().screen))).fresh();
+        b.button("  Waypoint Packs...", () -> Minecraft.getInstance().gui.setScreen(
+                new com.teslamaps.gui.screen().WaypointPackScreen(Minecraft.getInstance().gui.screen()))).fresh();
         b.toggle("  New Waypoints Use Block Size", () -> config.waypointUseBlockSize, v -> config.waypointUseBlockSize = v);
         b.slider("  Size X", 0.1f, 5f, () -> config.waypointSizeX, v -> config.waypointSizeX = v, 2);
         b.slider("  Size Y", 0.1f, 5f, () -> config.waypointSizeY, v -> config.waypointSizeY = v, 2);

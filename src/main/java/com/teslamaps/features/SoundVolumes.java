@@ -47,7 +47,7 @@ public final class SoundVolumes {
 
     public static void record(SoundInstance instance) {
         if (!TeslaMapsConfig.get().soundManager) return;
-        if (Minecraft.getInstance().screen instanceof SoundManagerScreen) return;
+        if (Minecraft.getInstance().gui.screen() instanceof SoundManagerScreen) return;
         Identifier id;
         try { id = instance.getIdentifier(); } catch (Throwable t) { return; }
         if (id == null) return;

@@ -56,7 +56,7 @@ public final class EasySuperboom {
         if (useAt == 0 || System.currentTimeMillis() < useAt) return;
         useAt = 0;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.screen != null || LegitMode.blocksCheats() || !DungeonManager.isInDungeon()
+        if (mc.player == null || mc.gui.screen() != null || LegitMode.blocksCheats() || !DungeonManager.isInDungeon()
                 || TeslaMapsConfig.get().waypointEditMode) return;
         if (mc.player.getInventory().getSelectedSlot() != useSlot) return;
         if (!SUPERBOOM.equals(ItemUtil.skyblockId(mc.player.getMainHandItem()))) return;

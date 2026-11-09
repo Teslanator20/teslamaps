@@ -494,7 +494,7 @@ public class ChatFilter {
         if (pet.endsWith("!")) pet = pet.substring(0, pet.length() - 1);
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         switch (mode) {
-            case "Action Bar" -> mc.gui.setOverlayMessage(Component.literal("§cAutopet §eequipped §f" + pet), false);
+            case "Action Bar" -> mc.gui.hud.setOverlayMessage(Component.literal("§cAutopet §eequipped §f" + pet), false);
             case "Toast" -> mc.getToastManager().addToast(net.minecraft.client.gui.components.toasts.SystemToast.multiline(mc,
                     new net.minecraft.client.gui.components.toasts.SystemToast.SystemToastId((long) (c.chatAutopetToastSeconds * 1000)),
                     Component.literal("§cAutopet"), Component.literal(pet)));

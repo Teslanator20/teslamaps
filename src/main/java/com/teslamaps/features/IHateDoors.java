@@ -119,7 +119,7 @@ public final class IHateDoors {
 
     private static int typeOf(Block b) {
         if (b == Blocks.COAL_BLOCK) return WITHER;
-        if (b == Blocks.RED_TERRACOTTA) return BLOOD;
+        if (b == Blocks.DYED_TERRACOTTA.red()) return BLOOD;
         if (b == Blocks.INFESTED_STONE || b == Blocks.INFESTED_COBBLESTONE || b == Blocks.INFESTED_STONE_BRICKS
                 || b == Blocks.INFESTED_MOSSY_STONE_BRICKS || b == Blocks.INFESTED_CRACKED_STONE_BRICKS
                 || b == Blocks.INFESTED_CHISELED_STONE_BRICKS || b == Blocks.INFESTED_DEEPSLATE) return ENTRANCE;

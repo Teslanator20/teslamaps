@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -129,7 +130,7 @@ public class BlazePuzzle extends WorldPuzzle {
             BlazeLayout.Cell c = BlazeLayout.cell(k, higher);
             WorldPos w = world(c.x, c.y, c.z);
             if (w == null) continue;
-            Blaze body = new Blaze(EntityType.BLAZE, Sim.level());
+            Blaze body = new Blaze(EntityTypes.BLAZE, Sim.level());
             body.setNoAi(true);
             body.setNoGravity(true);
             body.setPersistenceRequired();

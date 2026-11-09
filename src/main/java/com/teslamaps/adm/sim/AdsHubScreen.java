@@ -45,10 +45,10 @@ public class AdsHubScreen extends Screen {
         Minecraft mc = Minecraft.getInstance();
         entries = List.of(
                 new Entry("Terms", 0xFFF0A21C, Identifier.withDefaultNamespace("textures/block/command_block_front.png"), 4, () -> SimWorld.open()),
-                new Entry("Solo Clear", 0xFF5BBCE8, Identifier.withDefaultNamespace("textures/item/ender_pearl.png"), 1, () -> mc.setScreen(new com.teslamaps.adm.sim.clear.ui.RunStartScreen())),
-                new Entry("Scenarios", 0xFFB4B4B4, Identifier.withDefaultNamespace("textures/item/spyglass.png"), 1, () -> mc.setScreen(new com.teslamaps.adm.sim.clear.ui.LayoutBrowserScreen(new com.teslamaps.adm.sim.clear.ui.RunStartScreen()))),
-                new Entry("Practice", 0xFF213F9A, Identifier.withDefaultNamespace("textures/item/paper.png"), 1, () -> mc.setScreen(new com.teslamaps.adm.sim.clear.ui.PracticeScreen(this))),
-                new Entry("Settings", 0xFF4A4A4A, null, 1, () -> mc.setScreen(com.teslamaps.screen.MapConfigScreen.openAdm()))
+                new Entry("Solo Clear", 0xFF5BBCE8, Identifier.withDefaultNamespace("textures/item/ender_pearl.png"), 1, () -> mc.gui.setScreen(new com.teslamaps.adm.sim.clear.ui.RunStartScreen())),
+                new Entry("Scenarios", 0xFFB4B4B4, Identifier.withDefaultNamespace("textures/item/spyglass.png"), 1, () -> mc.gui.setScreen(new com.teslamaps.adm.sim.clear.ui.LayoutBrowserScreen(new com.teslamaps.adm.sim.clear.ui.RunStartScreen()))),
+                new Entry("Practice", 0xFF213F9A, Identifier.withDefaultNamespace("textures/item/paper.png"), 1, () -> mc.gui.setScreen(new com.teslamaps.adm.sim.clear.ui.PracticeScreen(this))),
+                new Entry("Settings", 0xFF4A4A4A, null, 1, () -> mc.gui.setScreen(com.teslamaps.screen.MapConfigScreen.openAdm()))
         );
     }
 
@@ -70,7 +70,7 @@ public class AdsHubScreen extends Screen {
     }
 
     @Override
-    public void onClose() { Minecraft.getInstance().setScreen(parent); }
+    public void onClose() { Minecraft.getInstance().gui.setScreen(parent); }
 
     private static class BigButton extends AbstractButton {
         final Entry e;

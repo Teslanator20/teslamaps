@@ -59,6 +59,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -960,7 +961,7 @@ public final class SecretsModule implements AdsModule, SecretService {
         rd.later.add(start + 1, () -> {
             ServerLevel level = RunBlocks.level();
             if (level != null && RunBlocks.isLoaded(s.x, s.z)) {
-                Zombie z = EntityType.ZOMBIE.create(level, EntitySpawnReason.EVENT);
+                Zombie z = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.EVENT);
                 if (z != null) {
                     z.setPos(s.x + 0.5, (double) s.y, s.z + 0.5);
                     z.setNoAi(true);

@@ -22,7 +22,7 @@ public class KeybindMessage {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null || mc.getWindow() == null) return;
         HotkeyRules.runPending();
-        if (mc.screen != null) { screenOpenMs = System.currentTimeMillis(); heldKeys.clear(); heldWp.clear(); return; }
+        if (mc.gui.screen() != null) { screenOpenMs = System.currentTimeMillis(); heldKeys.clear(); heldWp.clear(); return; }
 
         // grace period after closing a screen: still track key state, but don't fire — stops a key you
         // just typed (e.g. "o" in a chat message) from being seen as a fresh press the moment chat closes

@@ -11,6 +11,7 @@ import com.teslamaps.adm.sim.run.RunBlocks;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.phys.Vec3;
@@ -54,7 +55,7 @@ public final class RoomDecor {
     }
 
     public static class StillMinecart extends Minecart {
-        public StillMinecart(net.minecraft.world.level.Level level) { super(EntityType.MINECART, level); }
+        public StillMinecart(net.minecraft.world.level.Level level) { super(EntityTypes.MINECART, level); }
 
         @Override public void tick() {}
 

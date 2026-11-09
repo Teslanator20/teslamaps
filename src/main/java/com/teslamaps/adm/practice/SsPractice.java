@@ -169,7 +169,7 @@ public final class SsPractice {
     private static View frameView(Placement p) {
         Minecraft mc = Minecraft.getInstance();
         float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        Vec3 cam = mc.gameRenderer.getMainCamera().position();
+        Vec3 cam = mc.gameRenderer.mainCamera().position();
         return view(p, pt, mc.options.getCameraType().isFirstPerson() ? cam : null);
     }
 
@@ -180,7 +180,7 @@ public final class SsPractice {
         Minecraft mc = Minecraft.getInstance();
         if (p == null || p.level != mc.level) return;
         View v = frameView(p);
-        PracticeUtil.safely("ss practice draw", () -> draw(p, v, context, mc.gameRenderer.getMainCamera().position()));
+        PracticeUtil.safely("ss practice draw", () -> draw(p, v, context, mc.gameRenderer.mainCamera().position()));
     }
 
     /** World pass: the outline of the block you look at, and the solver's boxes. */
@@ -222,7 +222,7 @@ public final class SsPractice {
         PracticeUtil.safely("ss practice summon", () -> {
             for (int y = 119; y <= 124; y++) for (int z = 91; z <= 96; z++) {
                 boolean grid = y >= 120 && y <= 123 && z >= 92 && z <= 95;
-                p.set(new BlockPos(111, y, z), grid ? Blocks.OBSIDIAN.defaultBlockState() : Blocks.BLACK_WOOL.defaultBlockState());
+                p.set(new BlockPos(111, y, z), grid ? Blocks.OBSIDIAN.defaultBlockState() : Blocks.WOOL.black().defaultBlockState());
             }
             p.set(START, BUTTON);
             p.set(EXTRA, BUTTON);
@@ -392,7 +392,7 @@ public final class SsPractice {
         Placement p = placed;
         if (p == null) return;
         for (int lvl = -1; lvl <= 2; lvl++)
-            p.set(rngButton(lvl).east(), lvl == rngLevel ? Blocks.LIGHT_GRAY_WOOL.defaultBlockState() : Blocks.BLACK_WOOL.defaultBlockState());
+            p.set(rngButton(lvl).east(), lvl == rngLevel ? Blocks.WOOL.lightGray().defaultBlockState() : Blocks.WOOL.black().defaultBlockState());
     }
 
     private static void pressRng(int lvl) {
@@ -483,8 +483,8 @@ public final class SsPractice {
     private static void markMode(int mode) {
         Placement p = placed;
         if (p == null) return;
-        BlockState grey = Blocks.LIGHT_GRAY_WOOL.defaultBlockState();
-        BlockState black = Blocks.BLACK_WOOL.defaultBlockState();
+        BlockState grey = Blocks.WOOL.lightGray().defaultBlockState();
+        BlockState black = Blocks.WOOL.black().defaultBlockState();
         p.set(START.east(), mode == 0 ? grey : black);
         p.set(EXTRA.east(), mode == 1 ? grey : black);
         for (int n = 3; n <= 4; n++) p.set(fromButton(n).east(), mode == n ? grey : black);
@@ -574,7 +574,7 @@ public final class SsPractice {
         Placement p = placed;
         if (p == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null) return;
+        if (mc.gui.screen() != null) return;
         BlockPos pos = target();
         if (pos == null) return;
         int cell = -1;
@@ -971,7 +971,7 @@ public final class SsPractice {
             placed = null; hit = null; gen++; jobs.clear(); device.clear(); running = false;
             Real.reset();
         }
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().admSsPracticeKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().admSsPracticeKey);
         if (down && !keyDown && mc.player != null) {
             if (!InfNumbersSim.openFromLeap()) summonOrRemove();
         }

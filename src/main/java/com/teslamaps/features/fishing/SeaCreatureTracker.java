@@ -183,7 +183,7 @@ public final class SeaCreatureTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || cfg().seaCreatureTrackerOnlyFishing && !fishing(mc)) return;
+        if (mc.gui.hud.isHidden() || cfg().seaCreatureTrackerOnlyFishing && !fishing(mc)) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 

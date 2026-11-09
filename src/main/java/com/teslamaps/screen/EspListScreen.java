@@ -132,7 +132,7 @@ public class EspListScreen extends Screen {
         }
         if (in(mx, my, defaultX, footerY, DEFAULT_W, FOOTER_H)) {
             GuiSounds.press();
-            minecraft.setScreen(new ColorPickerWidget(this, cfg.colorESPCustom, hex -> {
+            minecraft.gui.setScreen(new ColorPickerWidget(this, cfg.colorESPCustom, hex -> {
                 cfg.colorESPCustom = hex;
                 TeslaMapsConfig.save();
             }));
@@ -153,7 +153,7 @@ public class EspListScreen extends Screen {
             if (in(mx, my, swatchX, ry, SWATCH_W, 22)) {
                 GuiSounds.press();
                 final String entry = b.get(idx);
-                minecraft.setScreen(new ColorPickerWidget(this, colorHex(entry), hex -> {
+                minecraft.gui.setScreen(new ColorPickerWidget(this, colorHex(entry), hex -> {
                     if (!entry.isBlank()) cfg.customESPColors.put(entry.toLowerCase(), hex);
                     TeslaMapsConfig.save();
                 }));
@@ -308,7 +308,7 @@ public class EspListScreen extends Screen {
         // blank rows would match every entity, so they never survive the screen
         list().removeIf(String::isBlank);
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(null);
+        Minecraft.getInstance().gui.setScreen(null);
     }
 
     @Override

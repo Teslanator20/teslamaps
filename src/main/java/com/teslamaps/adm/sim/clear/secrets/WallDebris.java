@@ -10,6 +10,7 @@ import java.util.Iterator;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -44,7 +45,7 @@ public final class WallDebris {
         if (state.isAir() || !RunBlocks.isLoaded(x, z)) return;
         Ec.safely("ads wall debris", () -> {
             double px = x + 0.5, pz = z + 0.5, py = y + DY;
-            Bat b = new Bat(EntityType.BAT, Sim.level());
+            Bat b = new Bat(EntityTypes.BAT, Sim.level());
             b.setSilent(true); b.setInvulnerable(true); b.setInvisible(true);
             b.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
             b.setNoAi(true); b.setNoGravity(true);

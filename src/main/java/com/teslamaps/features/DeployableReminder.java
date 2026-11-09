@@ -62,9 +62,9 @@ public final class DeployableReminder {
 
     private static void warn(String msg) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(5, 50, 10);
-        mc.gui.setTitle(Component.literal("§4§l" + msg));
-        mc.gui.setSubtitle(Component.empty());
+        mc.gui.hud.setTimes(5, 50, 10);
+        mc.gui.hud.setTitle(Component.literal("§4§l" + msg));
+        mc.gui.hud.setSubtitle(Component.empty());
         LoudSound.play(SoundEvents.VILLAGER_NO, 1.0f, 1.0f);
     }
 }

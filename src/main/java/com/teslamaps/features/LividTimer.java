@@ -58,8 +58,8 @@ public final class LividTimer {
         row = null;
         if (!cfg().lividTimerHud || !cfg().lividIceSprayAlert) return;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal("§bIce Spray Livid!"));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal("§bIce Spray Livid!"));
         if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
     }
 
@@ -75,7 +75,7 @@ public final class LividTimer {
         List<DungeonTimers.Row> r = row;
         if (r == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         DungeonTimers.drawRows(g, mc, c.lividTimerX, c.lividTimerY, c.lividTimerScale, r);
     }

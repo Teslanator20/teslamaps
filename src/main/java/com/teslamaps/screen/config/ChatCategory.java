@@ -109,8 +109,8 @@ public final class ChatCategory {
         b.dropdown("  Prefix Text", com.teslamaps.features.ChromaPrefix.STYLES,
                 () -> config.chatPrefixStyle, v -> config.chatPrefixStyle = v).fresh()
                 .desc("Long = [TeslaMaps], Short = [TM], Custom = your own text below").tags("prefix", "tag", "short");
-        b.button("  Edit Custom Prefix", () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.TextFieldsScreen(
-                Minecraft.getInstance().screen, "Chat Prefix", "& or § for colors, e.g. &b[TM]",
+        b.button("  Edit Custom Prefix", () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.TextFieldsScreen(
+                Minecraft.getInstance().gui.screen(), "Chat Prefix", "& or § for colors, e.g. &b[TM]",
                 java.util.List.of(new com.teslamaps.screen.TextFieldsScreen.Field("Prefix",
                         () -> config.chatPrefixCustom, v -> config.chatPrefixCustom = v))))).fresh();
         b.label("Filter");

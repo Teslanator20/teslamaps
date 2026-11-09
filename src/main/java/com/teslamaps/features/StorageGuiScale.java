@@ -67,8 +67,8 @@ public final class StorageGuiScale {
     private static void tick() {
         if (!applied) return;
         Minecraft mc = Minecraft.getInstance();
-        if (isStorage(mc.screen) && enabled()) return;
-        if (mc.screen == null && System.currentTimeMillis() < expectUntil) return;
+        if (isStorage(mc.gui.screen()) && enabled()) return;
+        if (mc.gui.screen() == null && System.currentTimeMillis() < expectUntil) return;
         restore();
     }
 

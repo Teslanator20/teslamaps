@@ -430,10 +430,10 @@ public final class HoneyhiveHelper {
         TeslaMapsConfig c = cfg();
         Minecraft mc = Minecraft.getInstance();
         Hive hovered = null;
-        if (mc.screen instanceof AbstractContainerScreen<?>) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?>) {
             double mx = mc.mouseHandler.getScaledXPos(mc.getWindow());
             double my = mc.mouseHandler.getScaledYPos(mc.getWindow());
-            if (!covered(mc.screen, mx, my)) hovered = hiveAt(mx, my);
+            if (!covered(mc.gui.screen(), mx, my)) hovered = hiveAt(mx, my);
         }
         draw(g, mc, c.honeyhiveX, c.honeyhiveY, c.honeyhiveScale, hovered);
     }

@@ -176,7 +176,7 @@ public class RushSplits {
         int[] x = colX;
         if (t == null || x == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !DungeonManager.isInDungeon()) return;
+        if (mc.gui.hud.isHidden() || !DungeonManager.isInDungeon()) return;
         if (!cfg().rushSplitsClasses.allowsLocal()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), t, x);
     }

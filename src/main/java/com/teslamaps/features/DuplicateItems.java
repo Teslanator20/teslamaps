@@ -55,7 +55,7 @@ public final class DuplicateItems {
         if (timer-- > 0) return;
         timer = 10;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             marked = Set.of();
             dupeUuids = Set.of();
             return;

@@ -69,7 +69,7 @@ public final class TimiteHelper {
     }
 
     private static boolean timitePane(BlockState st) {
-        return st.is(Blocks.BLUE_STAINED_GLASS_PANE) || st.is(Blocks.LIGHT_BLUE_STAINED_GLASS_PANE);
+        return st.is(Blocks.STAINED_GLASS_PANE.blue()) || st.is(Blocks.STAINED_GLASS_PANE.lightBlue());
     }
 
     private static void tick() {
@@ -130,11 +130,11 @@ public final class TimiteHelper {
             BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
             for (int dx = -15; dx <= 15; dx++) for (int dy = -15; dy <= 15; dy++) for (int dz = -15; dz <= 15; dz++) {
                 m.set(pp.getX() + dx, pp.getY() + dy, pp.getZ() + dz);
-                if (mc.level.getBlockState(m).is(Blocks.BLUE_STAINED_GLASS_PANE)) seen.putIfAbsent(m.immutable(), now);
+                if (mc.level.getBlockState(m).is(Blocks.STAINED_GLASS_PANE.blue())) seen.putIfAbsent(m.immutable(), now);
             }
             seen.entrySet().removeIf(e -> {
                 BlockState st = mc.level.getBlockState(e.getKey());
-                return st.isAir() || st.is(Blocks.LIGHT_BLUE_STAINED_GLASS_PANE)
+                return st.isAir() || st.is(Blocks.STAINED_GLASS_PANE.lightBlue())
                         || now - e.getValue() > EXPIRY_MS + 30_000 || e.getKey().distSqr(pp) > 64 * 64;
             });
         }
@@ -161,7 +161,7 @@ public final class TimiteHelper {
         String t = timer;
         if (t == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), t);
     }
 

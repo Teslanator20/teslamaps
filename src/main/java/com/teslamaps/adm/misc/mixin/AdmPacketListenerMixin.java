@@ -10,6 +10,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,12 +22,12 @@ public abstract class AdmPacketListenerMixin {
     @Inject(method = "startWaitingForNewLevel", at = @At("TAIL"))
     private void teslamaps$admSkipLoadingScreen(LocalPlayer player, ClientLevel level, LevelLoadingScreen.Reason reason, CallbackInfo ci) {
         if (!RandomStuff.skipsLoadingScreen()) return;
-        if (Minecraft.getInstance().screen instanceof LevelLoadingScreen screen) screen.onClose();
+        if (Minecraft.getInstance().gui.screen() instanceof LevelLoadingScreen screen) screen.onClose();
     }
 
     @Inject(method = "handleAddEntity", at = @At("TAIL"))
     private void teslamaps$admWitherSpawn(ClientboundAddEntityPacket packet, CallbackInfo ci) {
-        if (packet.getType() == EntityType.WITHER) Witherborn.onSpawn(packet.getId(), packet.getX(), packet.getY(), packet.getZ());
+        if (packet.getType() == EntityTypes.WITHER) Witherborn.onSpawn(packet.getId(), packet.getX(), packet.getY(), packet.getZ());
     }
 
     @Inject(method = "handleRespawn", at = @At("TAIL"))

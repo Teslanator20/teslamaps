@@ -45,7 +45,7 @@ public class CustomizeButton extends AbstractWidget {
     @Override
     public void onClick(MouseButtonEvent click, boolean doubled) {
         Minecraft client = Minecraft.getInstance();
-        client.setScreen(new CustomizeScreen(client.screen, false));
+        client.gui.setScreen(new CustomizeScreen(client.gui.screen(), false));
     }
 
     @Override

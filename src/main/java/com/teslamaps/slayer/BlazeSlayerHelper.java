@@ -204,7 +204,7 @@ public final class BlazeSlayerHelper {
         String top = daggerTop, bottom = daggerBottom;
         if (top == null || daggerHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.screen != null) return;
+        if (mc.gui.hud.isHidden() || mc.gui.screen() != null) return;
         draw(g, mc, daggerHud.x(), daggerHud.y(), daggerHud.scale(), top, bottom);
     }
 
@@ -232,8 +232,8 @@ public final class BlazeSlayerHelper {
         double limit = pitMaxHp * 0.33;
         if (hp > 0 && hp < limit && pitLastHp >= limit) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§cFire Pits!"));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§cFire Pits!"));
             pitWarnAt = now;
         }
         pitLastHp = hp;

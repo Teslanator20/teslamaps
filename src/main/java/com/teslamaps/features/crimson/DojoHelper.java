@@ -183,10 +183,10 @@ public final class DojoHelper {
         if (mc.player == null || !listening()) return;
         BlockPos p = pos.immutable();
         if (test == Test.SWIFTNESS) {
-            if (state.is(Blocks.LIME_WOOL)) lastSwift = p;
+            if (state.is(Blocks.WOOL.lime())) lastSwift = p;
             return;
         }
-        if (state.is(Blocks.LIME_WOOL)) {
+        if (state.is(Blocks.WOOL.lime())) {
             blockOrder.remove(p);
             blockOrder.add(p);
             long travel = (long) (mc.player.position().distanceTo(Vec3.atCenterOf(p)) * 1000 / 60);
@@ -200,8 +200,8 @@ public final class DojoHelper {
     /** From the particle packet hook; only the main-thread call counts. */
     public static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!inArena || test != Test.TENACITY || !Minecraft.getInstance().isSameThread()) return;
-        if (packet.getParticle().getType() != ParticleTypes.FLAME) return;
-        Vec3 pp = new Vec3(packet.getX(), packet.getY(), packet.getZ());
+        if (packet.particle().getType() != ParticleTypes.FLAME) return;
+        Vec3 pp = new Vec3(packet.x(), packet.y(), packet.z());
         ArmorStand nearest = null;
         double best = 50;
         for (ArmorStand f : fireballs.keySet()) {

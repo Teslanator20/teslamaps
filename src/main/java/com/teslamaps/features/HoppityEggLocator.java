@@ -178,8 +178,8 @@ public final class HoppityEggLocator {
     public static void onParticle(ClientboundLevelParticlesPacket p) {
         if (lastClick == 0 || System.currentTimeMillis() - lastClick > 5000) return;
         if (!Minecraft.getInstance().isSameThread() || feature == null || !feature.active() || !cfg().hoppityEggGuess) return;
-        if (p.getParticle().getType() != ParticleTypes.HAPPY_VILLAGER || p.getCount() != 1 || p.getMaxSpeed() != 0f) return;
-        if (!fitter.tryAdd(new Vec3(p.getX(), p.getY(), p.getZ()), 3.0)) return;
+        if (p.particle().getType() != ParticleTypes.HAPPY_VILLAGER || p.count() != 1 || p.xMaxSpeed() != 0f) return;
+        if (!fitter.tryAdd(new Vec3(p.x(), p.y(), p.z()), 3.0)) return;
         Vec3 solved = fitter.solve();
         if (solved == null) return;
         List<Spot> spots = islandSpots();

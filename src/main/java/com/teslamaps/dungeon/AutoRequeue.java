@@ -108,9 +108,9 @@ public class AutoRequeue {
         }
         if (c.requeueKuudraFastStop > 0 && runMs > 0 && runMs <= c.requeueKuudraFastStop * 1000L) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(5, 40, 10);
-            mc.gui.setTitle(Component.literal("§e§lAUTO REQUEUE PAUSED"));
-            mc.gui.setSubtitle(Component.literal("§fRun: " + String.format(java.util.Locale.ROOT, "%.2fs", runMs / 1000.0)));
+            mc.gui.hud.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§e§lAUTO REQUEUE PAUSED"));
+            mc.gui.hud.setSubtitle(Component.literal("§fRun: " + String.format(java.util.Locale.ROOT, "%.2fs", runMs / 1000.0)));
             feedback("fast run (" + String.format(java.util.Locale.ROOT, "%.2fs", runMs / 1000.0) + ")");
             return;
         }
@@ -120,9 +120,9 @@ public class AutoRequeue {
 
     private static void cancelTitle(String who) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(5, 45, 10);
-        mc.gui.setTitle(Component.literal("§c§lREQUEUE CANCELLED"));
-        mc.gui.setSubtitle(Component.literal("§e" + (who == null || who.isEmpty() ? "DT requested" : who)));
+        mc.gui.hud.setTimes(5, 45, 10);
+        mc.gui.hud.setTitle(Component.literal("§c§lREQUEUE CANCELLED"));
+        mc.gui.hud.setSubtitle(Component.literal("§e" + (who == null || who.isEmpty() ? "DT requested" : who)));
     }
 
     public static void tick() {

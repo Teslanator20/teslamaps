@@ -142,9 +142,9 @@ public final class FireFreezeVisual {
     /** Main thread. True = drop Hypixel's ring particle. */
     public static boolean hideParticle(ClientboundLevelParticlesPacket packet) {
         if (areas.isEmpty() || !on() || !cfg().fireFreezeCircle) return false;
-        if (packet.getParticle().getType() != ParticleTypes.DUST || packet.getCount() != 0 || packet.getMaxSpeed() != 1.0f) return false;
-        if (Math.abs(packet.getXDist() - PARTICLE_OFFSET) > 1e-6f || Math.abs(packet.getZDist() - PARTICLE_OFFSET) > 1e-6f) return false;
-        Vec3 p = new Vec3(packet.getX(), packet.getY(), packet.getZ());
+        if (packet.particle().getType() != ParticleTypes.DUST || packet.count() != 0 || packet.xMaxSpeed() != 1.0f) return false;
+        if (Math.abs(packet.xDist() - PARTICLE_OFFSET) > 1e-6f || Math.abs(packet.zDist() - PARTICLE_OFFSET) > 1e-6f) return false;
+        Vec3 p = new Vec3(packet.x(), packet.y(), packet.z());
         long now = System.currentTimeMillis();
         for (Area a : areas) if (!a.finished(now) && a.inside(p, 0.5)) return true;
         return false;

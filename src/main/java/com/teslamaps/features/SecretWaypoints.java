@@ -546,7 +546,7 @@ public class SecretWaypoints {
             int x = corner[2];
             int z = corner[3];
 
-            if (world.getBlockState(new BlockPos(x, height, z)).getBlock() == Blocks.BLUE_TERRACOTTA) {
+            if (world.getBlockState(new BlockPos(x, height, z)).getBlock() == Blocks.DYED_TERRACOTTA.blue()) {
                 return new int[]{idx * 90, x, z};
             }
         }

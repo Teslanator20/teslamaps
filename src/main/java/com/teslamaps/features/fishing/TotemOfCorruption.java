@@ -87,9 +87,9 @@ public final class TotemOfCorruption {
         best = pick;
         int warn = cfg().deployableTotemWarn;
         if (pick != null && warn > 0 && pick.seconds <= warn && warned.add(pick.id)) {
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal("§c§lTotem of Corruption §eabout to expire!"));
-            mc.gui.setSubtitle(Component.literal(""));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§c§lTotem of Corruption §eabout to expire!"));
+            mc.gui.hud.setSubtitle(Component.literal(""));
             mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 0.5f);
         }
         if (warned.size() > 64) warned.clear();
@@ -127,9 +127,9 @@ public final class TotemOfCorruption {
     /** Main thread, from Deployables.hideParticle. */
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         if (!cfg().deployableTotemHideParticles || !on() || totems.isEmpty()) return false;
-        if (p.getParticle().getType() != ParticleTypes.WITCH || p.getMaxSpeed() != 0f) return false;
+        if (p.particle().getType() != ParticleTypes.WITCH || p.xMaxSpeed() != 0f) return false;
         for (Totem t : totems) {
-            double dx = t.x - p.getX(), dy = t.y - p.getY(), dz = t.z - p.getZ();
+            double dx = t.x - p.x(), dy = t.y - p.y(), dz = t.z - p.z();
             if (dx * dx + dy * dy + dz * dz < 16) return true;
         }
         return false;

@@ -17,7 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -73,7 +73,7 @@ public final class MobHighlights {
         List<Mark> out = new ArrayList<>();
 
         if (EndProtector.inArea() && (c.mobHighlightChestZealot || c.mobHighlightZealot)) {
-            for (EnderMan e : EntityCache.byType(EnderMan.class)) {
+            for (Enderman e : EntityCache.byType(Enderman.class)) {
                 if (e.isRemoved() || e.isDeadOrDying()) continue;
                 BlockState held = e.getCarriedBlock();
                 if (held != null && held.is(Blocks.END_PORTAL_FRAME)) continue;
@@ -103,7 +103,7 @@ public final class MobHighlights {
         marks = out;
     }
 
-    private static boolean zealotOrBruiser(EnderMan e) {
+    private static boolean zealotOrBruiser(Enderman e) {
         double hp = e.getAttributeBaseValue(Attributes.MAX_HEALTH);
         return hp == 13_000 || hp == 65_000 || hp == 52_000 || hp == 260_000;
     }

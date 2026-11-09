@@ -16,7 +16,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 
 import java.util.List;
 import java.util.Locale;
@@ -126,9 +126,9 @@ public final class BroodmotherTracker {
         if (s == Stage.ALIVE) {
             spawnAt = 0;
             if (c.broodmotherSpawnAlert) {
-                mc.gui.setTimes(5, 50, 10);
-                mc.gui.setTitle(Component.literal("BROODMOTHER SPAWNED").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-                mc.gui.setSubtitle(Component.empty());
+                mc.gui.hud.setTimes(5, 50, 10);
+                mc.gui.hud.setTitle(Component.literal("BROODMOTHER SPAWNED").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+                mc.gui.hud.setSubtitle(Component.empty());
                 LoudSound.play(SoundEvents.ZOMBIE_BREAK_WOODEN_DOOR, 1.0f, 1.0f);
                 mc.player.sendSystemMessage(Component.literal("§eThe Broodmother has spawned! §b[Click to warp to the Top of the Nest]")
                         .withStyle(st -> st.withClickEvent(new ClickEvent.RunCommand("/warp nest"))));
@@ -162,9 +162,9 @@ public final class BroodmotherTracker {
     private static void scanBal(Minecraft mc) {
         for (MagmaCube m : mc.level.getEntitiesOfClass(MagmaCube.class, mc.player.getBoundingBox().inflate(64))) {
             if (m.getSize() <= 10 || !balSeen.add(m.getId())) continue;
-            mc.gui.setTimes(5, 50, 10);
-            mc.gui.setTitle(Component.literal("BAL SPAWNED").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-            mc.gui.setSubtitle(Component.empty());
+            mc.gui.hud.setTimes(5, 50, 10);
+            mc.gui.hud.setTitle(Component.literal("BAL SPAWNED").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            mc.gui.hud.setSubtitle(Component.empty());
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
         }
     }
@@ -173,7 +173,7 @@ public final class BroodmotherTracker {
         List<String> l = lines;
         if (l.isEmpty() || hud == null || !cfg().broodmotherHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         CropStats.drawLines(g, mc, hud.x(), hud.y(), hud.scale(), l, lineW);
     }
 }

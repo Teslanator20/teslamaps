@@ -114,7 +114,7 @@ public final class VanillaManaBar {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         int value = mana, max = maxMana, of = overflow;
         long now = System.currentTimeMillis();
         boolean blinkOn = cfg().vanillaManaBarBlink;

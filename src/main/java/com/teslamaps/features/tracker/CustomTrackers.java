@@ -102,8 +102,8 @@ public final class CustomTrackers {
                         for (int i = 0; i < SLOTS; i++) if (SLOT_NAMES[i].equals(v)) selected = i;
                     });
                     b.toggle("    Enabled", () -> def(selected).enabled, v -> def(selected).enabled = v);
-                    b.button("    Name / Islands / Items", () -> Minecraft.getInstance().setScreen(new TextFieldsScreen(
-                            Minecraft.getInstance().screen, SLOT_NAMES[selected],
+                    b.button("    Name / Islands / Items", () -> Minecraft.getInstance().gui.setScreen(new TextFieldsScreen(
+                            Minecraft.getInstance().gui.screen(), SLOT_NAMES[selected],
                             "Islands empty = everywhere. Items: ENCHANTED_BONE, Enchanted Rotten Flesh, ...",
                             List.of(new TextFieldsScreen.Field("Name", () -> def(selected).name, v -> def(selected).name = v),
                                     new TextFieldsScreen.Field("Islands", () -> def(selected).areas, v -> def(selected).areas = v),
@@ -231,7 +231,7 @@ public final class CustomTrackers {
         }
         Map<String, Integer> before = inventory;
         inventory = now;
-        if (before == null || mc.screen != null) return;
+        if (before == null || mc.gui.screen() != null) return;
         for (Map.Entry<String, Integer> e : now.entrySet()) {
             long gained = e.getValue() - before.getOrDefault(e.getKey(), 0);
             if (gained <= 0) continue;
@@ -263,7 +263,7 @@ public final class CustomTrackers {
         if (value < 0) return;
         long gain = purse < 0 ? 0 : value - purse;
         purse = value;
-        if (gain <= 0 || mc.screen != null) return;
+        if (gain <= 0 || mc.gui.screen() != null) return;
         for (int i = 0; i < SLOTS; i++) if (active[i] && def(i).coins) trackers[i].addCoins(gain);
     }
 
@@ -334,7 +334,7 @@ public final class CustomTrackers {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !anyActive()) return;
+        if (mc.gui.hud.isHidden() || !anyActive()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

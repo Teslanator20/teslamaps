@@ -73,13 +73,13 @@ public class SharedImageChatRenderer {
         if (!c.imageShareReceive) return;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         if (mc.options.chatVisibility().get() == ChatVisiblity.HIDDEN) return;
         // with the chat open the screen dims everything the hud drew, so ChatScreenMixin
         // repeats this on top instead and the hud pass steps aside
-        if (!fromChatScreen && mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen) return;
+        if (!fromChatScreen && mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen) return;
 
-        ChatComponent chat = mc.gui.getChat();
+        ChatComponent chat = mc.gui.hud.getChat();
         ChatComponentAccessor acc = (ChatComponentAccessor) chat;
         List<GuiMessage.Line> lines = acc.teslamaps$getTrimmedMessages();
         if (lines.isEmpty()) return;
@@ -102,7 +102,7 @@ public class SharedImageChatRenderer {
         float maxWidth = (float) (chat.getWidth() * scale);
 
         boolean focused = chat.isChatFocused();
-        int guiTicks = mc.gui.getGuiTicks();
+        int guiTicks = mc.gui.hud.getGuiTicks();
         float chatBottom = guiHeight - CHAT_BOTTOM_OFFSET;
         float chatTop = chatBottom - visible * rowHeight;
 

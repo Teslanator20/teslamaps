@@ -24,7 +24,7 @@ public class MapPeek {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        boolean down = mc.screen == null && mc.getWindow() != null && KeyNames.isDown(c.mapPeekKey);
+        boolean down = mc.gui.screen() == null && mc.getWindow() != null && KeyNames.isDown(c.mapPeekKey);
         if (down && !wasDown) toggled = !toggled;
         wasDown = down;
         active = c.mapPeekToggle ? toggled : down;

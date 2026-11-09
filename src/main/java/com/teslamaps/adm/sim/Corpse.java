@@ -7,6 +7,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.decoration.Mannequin;
@@ -20,7 +21,7 @@ public final class Corpse {
     public static void spawn(ServerPlayer p, int ticks) {
         ArrayList<Entity> made = new ArrayList<>();
         Ec.safely("p3sim corpse", () -> {
-            Mannequin m = new Mannequin(EntityType.MANNEQUIN, Sim.level());
+            Mannequin m = new Mannequin(EntityTypes.MANNEQUIN, Sim.level());
             m.setComponent(DataComponents.PROFILE, ResolvableProfile.createResolved(p.getGameProfile()));
             m.setInvulnerable(true);
             m.setNoGravity(true);

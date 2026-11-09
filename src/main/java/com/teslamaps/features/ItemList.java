@@ -68,7 +68,7 @@ public final class ItemList {
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7Enable Inventory > Item List & Recipe Book first."));
             return 1;
         }
-        mc.execute(() -> mc.setScreen(new ItemListScreen(query)));
+        mc.execute(() -> mc.gui.setScreen(new ItemListScreen(query)));
         return 1;
     }
 
@@ -76,15 +76,15 @@ public final class ItemList {
     public static boolean handleKey(long window, int action) {
         Minecraft mc = Minecraft.getInstance();
         if (!enabled() || mc.getWindow() == null || window != mc.getWindow().handle()) return false;
-        boolean ours = mc.screen instanceof ItemListScreen;
-        if (mc.screen != null && !ours) return false;
+        boolean ours = mc.gui.screen() instanceof ItemListScreen;
+        if (mc.gui.screen() != null && !ours) return false;
         if (action == GLFW.GLFW_PRESS) {
             if (ours) {
-                mc.setScreen(null);
+                mc.gui.setScreen(null);
             } else {
                 ItemListScreen s = new ItemListScreen("");
                 s.swallowNextChar = true;
-                mc.setScreen(s);
+                mc.gui.setScreen(s);
             }
         }
         return true;

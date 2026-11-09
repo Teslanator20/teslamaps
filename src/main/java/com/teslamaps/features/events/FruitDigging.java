@@ -421,7 +421,7 @@ public final class FruitDigging {
         List<String> l = hudLines;
         if (l.isEmpty() || hud == null || !playing || !Carnival.inArea()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), l, TextHud.width(l));
     }
 }

@@ -4,6 +4,7 @@ package com.teslamaps.adm.sim;
 
 import java.lang.reflect.Field;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
@@ -11,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class Debris extends FallingBlockEntity {
     public Debris(Level level, BlockState state) {
-        super(EntityType.FALLING_BLOCK, level);
+        super(EntityTypes.FALLING_BLOCK, level);
         setState(this, state);
     }
 

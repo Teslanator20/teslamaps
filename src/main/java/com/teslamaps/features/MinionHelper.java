@@ -76,7 +76,7 @@ public class MinionHelper {
         if (++ticks % 10 != 0) return;
         TeslaMapsConfig c = cfg();
         Minecraft mc = Minecraft.getInstance();
-        if (c.minionUpgrades && mc.screen instanceof AbstractContainerScreen<?> cs
+        if (c.minionUpgrades && mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && CRAFTED.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) {
             readCrafted(cs);
         } else if (!panel.isEmpty()) {
@@ -101,7 +101,7 @@ public class MinionHelper {
                 int n = 0;
                 for (String l : ItemUtil.loreLines(st)) if (l.contains("✔")) n++;
                 if (n > 0) tiers.merge(part, n, Math::max);
-            } else if (st.is(Items.GRAY_DYE)) {
+            } else if (st.is(Items.DYE.gray())) {
                 tiers.putIfAbsent(part, 0);
             }
         }
@@ -191,7 +191,7 @@ public class MinionHelper {
         List<String> l = hud;
         if (l.isEmpty() || el == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, el.x(), el.y(), el.scale(), l, hudWidth);
     }
 
@@ -199,7 +199,7 @@ public class MinionHelper {
         List<String> l = panel;
         if (l.isEmpty() || feature == null || !feature.active() || !cfg().minionUpgrades) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int x = acc.getX() + acc.getImageWidth() + 6, y = acc.getY() + 4;
         int rows = Math.min(l.size(), Math.max(2, (mc.getWindow().getGuiScaledHeight() - y - 4) / ROW));

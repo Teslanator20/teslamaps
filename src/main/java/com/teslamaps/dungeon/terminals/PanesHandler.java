@@ -17,7 +17,7 @@ public class PanesHandler extends TerminalHandler {
     public List<Integer> solve(List<Slot> slots, int updatedIndex) {
         List<Integer> out = new ArrayList<>();
         for (int i = 0; i < slots.size(); i++) {
-            if (slots.get(i).getItem().getItem() == Items.RED_STAINED_GLASS_PANE) out.add(i);
+            if (slots.get(i).getItem().getItem() == Items.STAINED_GLASS_PANE.red()) out.add(i);
         }
         return out;
     }

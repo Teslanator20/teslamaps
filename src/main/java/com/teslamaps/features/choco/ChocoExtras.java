@@ -84,10 +84,10 @@ public final class ChocoExtras {
     private static void tick() {
         ticks++;
         Minecraft mc = Minecraft.getInstance();
-        String title = mc.screen instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
+        String title = mc.gui.screen() instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
         inShop = title.equals("Chocolate Shop");
         inHitman = title.equals("Rabbit Hitman");
-        if (ticks % 10 == 0 && mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (ticks % 10 == 0 && mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             if (inShop && cfg().cfShopPrice) buildShop(cs);
             if (inHitman && cfg().cfHitman) buildHitman(cs);
         }
@@ -106,8 +106,8 @@ public final class ChocoExtras {
             ChocoData.changed();
             if (c.cfTimeTowerExpired) {
                 Minecraft mc = Minecraft.getInstance();
-                mc.gui.setTimes(0, 50, 10);
-                mc.gui.setTitle(Component.literal("§dTime Tower ran out"));
+                mc.gui.hud.setTimes(0, 50, 10);
+                mc.gui.hud.setTitle(Component.literal("§dTime Tower ran out"));
                 String left = s.ttCharges >= 0 ? " §7(" + s.ttCharges + " charge" + (s.ttCharges == 1 ? "" : "s") + " left)" : "";
                 ChocoData.chatOpen("§dYour Time Tower has run out!" + left + " §eClick to open the factory.");
                 ChocoData.beep();
@@ -242,7 +242,7 @@ public final class ChocoExtras {
         TeslaMapsConfig c = cfg();
         if (!c.cfHitman || !c.section(ChocoData.CATEGORY)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         if (inHitman && !hitmanLine.isEmpty()) {
             ctx.centeredText(mc.font, hitmanLine, mc.getWindow().getGuiScaledWidth() / 2, Math.max(2, acc.getY() - 12), 0xFFFFFFFF);

@@ -38,12 +38,12 @@ public class StartGUI extends TermSimGUI {
 
     private static List<ItemStack> buildTermItems() {
         return List.of(
-                buildTermItem(TerminalTypes.PANES, Items.LIME_DYE, "§a"),
-                buildTermItem(TerminalTypes.RUBIX, Items.RED_DYE, "§6"),
-                buildTermItem(TerminalTypes.NUMBERS, Items.CYAN_DYE, "§3"),
-                buildTermItem(TerminalTypes.STARTS_WITH, Items.PINK_DYE, "§5"),
-                buildTermItem(TerminalTypes.SELECT, Items.BROWN_DYE, "§b"),
-                buildTermItem(TerminalTypes.MELODY, Items.PURPLE_DYE, "§d"));
+                buildTermItem(TerminalTypes.PANES, Items.DYE.lime(), "§a"),
+                buildTermItem(TerminalTypes.RUBIX, Items.DYE.red(), "§6"),
+                buildTermItem(TerminalTypes.NUMBERS, Items.DYE.cyan(), "§3"),
+                buildTermItem(TerminalTypes.STARTS_WITH, Items.DYE.pink(), "§5"),
+                buildTermItem(TerminalTypes.SELECT, Items.DYE.brown(), "§b"),
+                buildTermItem(TerminalTypes.MELODY, Items.DYE.purple(), "§d"));
     }
 
     private static ItemStack button(Item item, String name) {
@@ -62,8 +62,8 @@ public class StartGUI extends TermSimGUI {
     public void create() {
         List<ItemStack> termItems = buildTermItems();
         setSlots(slot -> switch (slot.index) {
-            case 4 -> button(Items.BLACK_DYE, "§cReset PBs!");
-            case 13 -> button(Items.WHITE_DYE, "§7Random");
+            case 4 -> button(Items.DYE.black(), "§cReset PBs!");
+            case 13 -> button(Items.DYE.white(), "§7Random");
             case 10, 11, 12 -> termItems.get(slot.index - 10);
             case 14, 15, 16 -> termItems.get(slot.index - 11);
             default -> blackPane;

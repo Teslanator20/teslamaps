@@ -20,12 +20,12 @@ public class ChatScreenMixin {
 
     @Inject(method = "removed", at = @At("HEAD"))
     private void teslamaps$saveScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
-        com.teslamaps.features.ChatKeepScroll.onClose(Minecraft.getInstance().gui.getChat());
+        com.teslamaps.features.ChatKeepScroll.onClose(Minecraft.getInstance().gui.hud.getChat());
     }
 
     @Inject(method = "init", at = @At("TAIL"))
     private void teslamaps$restoreScroll(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
-        com.teslamaps.features.ChatKeepScroll.onOpen(Minecraft.getInstance().gui.getChat());
+        com.teslamaps.features.ChatKeepScroll.onOpen(Minecraft.getInstance().gui.hud.getChat());
     }
 
     @org.spongepowered.asm.mixin.Shadow protected net.minecraft.client.gui.components.EditBox input;
@@ -61,7 +61,7 @@ public class ChatScreenMixin {
         if (hit == null) return;
 
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(com.teslamaps.screen.ImageViewerScreen.forUrl(mc.screen, hit.sender(), hit.url()));
+        mc.setScreen(com.teslamaps.gui.screen().ImageViewerScreen.forUrl(mc.gui.screen(), hit.sender(), hit.url()));
         cir.setReturnValue(true);
     }
 
@@ -104,7 +104,7 @@ public class ChatScreenMixin {
     private static GuiMessage teslamaps$lineAt(Minecraft mc, double mouseY) {
         if (com.teslamaps.features.ChatHover.works()) return com.teslamaps.features.ChatHover.hovered();
 
-        ChatComponent chat = mc.gui.getChat();
+        ChatComponent chat = mc.gui.hud.getChat();
         ChatComponentAccessor acc = (ChatComponentAccessor) chat;
         List<GuiMessage.Line> lines = acc.teslamaps$getTrimmedMessages();
         if (lines.isEmpty()) return null;

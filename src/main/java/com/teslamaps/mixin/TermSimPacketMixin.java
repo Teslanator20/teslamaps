@@ -24,7 +24,7 @@ public class TermSimPacketMixin {
     @Inject(method = "sendPacket", at = @At("HEAD"), cancellable = true)
     private void teslamaps$blockTermSimClicks(Packet<?> packet, ChannelFutureListener listener, boolean flush, CallbackInfo ci) {
         if (!(packet instanceof ServerboundContainerClickPacket click)) return;
-        if (!(Minecraft.getInstance().screen instanceof TermSimGUI sim)) return;
+        if (!(Minecraft.getInstance().gui.screen() instanceof TermSimGUI sim)) return;
         if (click.containerInput() != ContainerInput.PICKUP_ALL) {
             sim.clickIndex(click.slotNum(), click.buttonNum());
         }

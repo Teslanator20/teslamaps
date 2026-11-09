@@ -126,7 +126,7 @@ public final class ForgeSlotHud {
     private static void tick() {
         if (!loaded) load();
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && cs.getTitle().getString().startsWith("The Forge")) scanMenu(cs);
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && cs.getTitle().getString().startsWith("The Forge")) scanMenu(cs);
         if (++ticks % 20 != 0) return;
         if (Mining.onMiningIsland()) readTab();
         checkReady(mc);
@@ -232,9 +232,9 @@ public final class ForgeSlotHud {
             if (state[i] != ITEM || alerted[i] || end[i] > now) continue;
             alerted[i] = true;
             if (!cfg().forgeSlotHud || !cfg().forgeSlotReadyAlert || mc.player == null) continue;
-            mc.gui.setTitle(Component.literal("§a§lForge Ready!"));
-            mc.gui.setSubtitle(Component.literal("§e" + name[i]));
-            mc.gui.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§a§lForge Ready!"));
+            mc.gui.hud.setSubtitle(Component.literal("§e" + name[i]));
+            mc.gui.hud.setTimes(5, 40, 10);
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f);
         }
     }

@@ -168,8 +168,8 @@ public final class TreasureChestHelper {
 
     public static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!Minecraft.getInstance().isSameThread() || chests.isEmpty() || !active() || !cfg().treasureChestLockpick) return;
-        if (packet.getParticle().getType() != ParticleTypes.CRIT) return;
-        particles.add(new double[]{packet.getX(), packet.getY(), packet.getZ(), System.currentTimeMillis()});
+        if (packet.particle().getType() != ParticleTypes.CRIT) return;
+        particles.add(new double[]{packet.x(), packet.y(), packet.z(), System.currentTimeMillis()});
         if (particles.size() > 64) particles.remove(0);
     }
 
@@ -248,7 +248,7 @@ public final class TreasureChestHelper {
         String line = hudLine;
         if (line == null || hud == null || !on || !cfg().treasureChestTimer) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         drawText(g, mc, hud.x(), hud.y(), hud.scale(), line);
     }
 

@@ -41,13 +41,13 @@ public class AuctionPriceCompare {
 
     public static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!TeslaMapsConfig.get().auctionPriceCompare || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!TeslaMapsConfig.get().auctionPriceCompare || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             reset();
             return;
         }
 
-        if (lastScreen != mc.screen) {
-            lastScreen = mc.screen;
+        if (lastScreen != mc.gui.screen()) {
+            lastScreen = mc.gui.screen();
             deals.clear();
             ticks = 0;
             inAuctions = isAuctionTitle(cs.getTitle().getString());
@@ -176,7 +176,7 @@ public class AuctionPriceCompare {
         if (!TeslaMapsConfig.get().auctionPriceCompare) return List.of();
 
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return List.of();
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return List.of();
         Slot slot = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (slot == null || slot.getItem() != stack) return List.of();
 

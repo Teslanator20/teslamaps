@@ -38,7 +38,7 @@ public class SlotHighlighter {
         boolean quality = c.salvageQuality && c.section("Inventory");
         if (!c.salvageHelper && !c.salvageMuseumGuard && !c.sellableHighlighter &&!c.showSelectedPet && !c.highlightDisabledPotions && !quality) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
         if (quality) return true;
         String t = strip(cs.getTitle().getString());
         return ((c.salvageHelper || c.salvageMuseumGuard) && t.startsWith("Salvage Items"))
@@ -57,7 +57,7 @@ public class SlotHighlighter {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         String t = strip(cs.getTitle().getString());
         TeslaMapsConfig c = TeslaMapsConfig.get();

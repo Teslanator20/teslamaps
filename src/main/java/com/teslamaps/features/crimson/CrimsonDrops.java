@@ -130,7 +130,7 @@ public final class CrimsonDrops {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (!cfg().crimsonLootTracker || mc.options.hideGui || hud == null || !Crimson.here()) return;
+        if (!cfg().crimsonLootTracker || mc.gui.hud.isHidden() || hud == null || !Crimson.here()) return;
         tracker.draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

@@ -157,7 +157,7 @@ public final class Masks {
 
         private ItemStack worn(EquipmentSlot eq, String empty) {
             ItemStack s = sp.getItemBySlot(eq).copy();
-            return !s.isEmpty() ? s : Terminals.named(Items.GRAY_STAINED_GLASS_PANE, "§7Empty " + empty + " Slot");
+            return !s.isEmpty() ? s : Terminals.named(Items.STAINED_GLASS_PANE.gray(), "§7Empty " + empty + " Slot");
         }
 
         private void draw() {

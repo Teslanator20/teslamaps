@@ -59,11 +59,11 @@ public class SimRestartScreen extends Screen {
         int roleX = right + SIDE_W + GAP;
 
         addRenderableWidget(Button.builder(Component.literal("§aRestart P3"), b -> {
-            mc().setScreen(null);
+            mc().gui.setScreen(null);
             SimActions.send("start", kv("what", Fight.Start.P3.name()));
         }).tooltip(tip("Starts P3 over from its beginning, everything reset (Stop: ends it)." + (inParty() ? " For the whole party." : ""))).bounds(cx - RESTART_W / 2, restartY, RESTART_W, 20).build());
         addRenderableWidget(Button.builder(Component.literal("§cStop"), b -> {
-            mc().setScreen(null);
+            mc().gui.setScreen(null);
             SimActions.send("stop");
         }).tooltip(tip("Ends the run: the fight stops and the splits clear." + (inParty() ? " For the whole party." : ""))).bounds(cx - RESTART_W / 2, restartY - ROW, RESTART_W, 20).build());
 
@@ -71,10 +71,10 @@ public class SimRestartScreen extends Screen {
                 .tooltip(tip("Starts a full F7 run: countdown, the dungeon, the blood room, then the boss. Choose the layout, party and lag first. Rebuilds the world."))
                 .bounds(cx - RESTART_W / 2, restartY - 2 * ROW, RESTART_W, 20).build());
         if (com.teslamaps.adm.sim.run.ClientRun.inClear()) {
-            addRenderableWidget(Button.builder(Component.literal("§eRestart Room"), b -> { mc().setScreen(null); com.teslamaps.adm.sim.clear.ui.UiServer.send("restart", "room"); })
+            addRenderableWidget(Button.builder(Component.literal("§eRestart Room"), b -> { mc().gui.setScreen(null); com.teslamaps.adm.sim.clear.ui.UiServer.send("restart", "room"); })
                     .tooltip(tip("Back to where you entered the room you stand in: the run's state, the clock and your gear as they were."))
                     .bounds(cx - RESTART_W / 2, restartY - 3 * ROW, RESTART_W, 20).build());
-            addRenderableWidget(Button.builder(Component.literal("§eRestart Run"), b -> { mc().setScreen(null); com.teslamaps.adm.sim.clear.ui.UiServer.send("restart"); })
+            addRenderableWidget(Button.builder(Component.literal("§eRestart Run"), b -> { mc().gui.setScreen(null); com.teslamaps.adm.sim.clear.ui.UiServer.send("restart"); })
                     .tooltip(tip("Back to the start of this run (the same dungeon, no rebuild)."))
                     .bounds(cx - RESTART_W / 2, restartY - 4 * ROW, RESTART_W, 20).build());
         }
@@ -752,7 +752,7 @@ public class SimRestartScreen extends Screen {
             for (PartyClient.Mate m : PartyClient.team) if (m.player) names.add(m.name);
             line.accept("§7In a party");
             line.accept("§7" + String.join(", ", names) + " §8" + names.size() + "/5");
-            addRenderableWidget(Button.builder(Component.literal("Leave Party"), b -> { mc().setScreen(null); SimWorld.leave(); })
+            addRenderableWidget(Button.builder(Component.literal("Leave Party"), b -> { mc().gui.setScreen(null); SimWorld.leave(); })
                     .tooltip(tip("Back to the title screen; the host's sim goes on.")).bounds(x, y[0], PARTY_W, 20).build());
             return;
         }
@@ -764,7 +764,7 @@ public class SimRestartScreen extends Screen {
         box.setMaxLength(64);
         box.setHint(Component.literal("§8ip:port"));
         addRenderableWidget(box);
-        addRenderableWidget(Button.builder(Component.literal("Join"), b -> { if (!box.getValue().isBlank()) { mc().setScreen(null); P3Party.join(box.getValue()); } })
+        addRenderableWidget(Button.builder(Component.literal("Join"), b -> { if (!box.getValue().isBlank()) { mc().gui.setScreen(null); P3Party.join(box.getValue()); } })
                 .tooltip(tip("Joins a friend's sim by the ip:port their Host Party showed.")).bounds(x + PARTY_W - 40, y[0], 40, 20).build());
     }
 
@@ -808,7 +808,7 @@ public class SimRestartScreen extends Screen {
     }
 
     private Button act(String label, int w, String about, Runnable run) {
-        return Button.builder(Component.literal(label), b -> { mc().setScreen(null); run.run(); }).tooltip(tip(about)).width(w).build();
+        return Button.builder(Component.literal(label), b -> { mc().gui.setScreen(null); run.run(); }).tooltip(tip(about)).width(w).build();
     }
 
     private String pick(String name, boolean on) { return on ? "§a§n" + name : name; }

@@ -195,9 +195,9 @@ public final class ScathaAlerts {
 
     private static void title(String title, String sub, int stay) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, stay, 5);
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal(sub));
+        mc.gui.hud.setTimes(0, stay, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
+        mc.gui.hud.setSubtitle(Component.literal(sub));
     }
 
     private static void sound(SoundEvent ev, float pitch) {

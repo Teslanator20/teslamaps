@@ -60,11 +60,11 @@ public final class QuickCraftConfirm {
 
     private static boolean active() {
         TeslaMapsConfig c = cfg();
-        return c.quickCraftConfirm && c.section("Inventory") && Minecraft.getInstance().screen == screen;
+        return c.quickCraftConfirm && c.section("Inventory") && Minecraft.getInstance().gui.screen() == screen;
     }
 
     private static void tick() {
-        Screen s = Minecraft.getInstance().screen;
+        Screen s = Minecraft.getInstance().gui.screen();
         if (s != screen) {
             screen = s;
             type = NONE;

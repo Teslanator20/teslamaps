@@ -13,7 +13,7 @@ public class HoveredSlot {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.hoveredSlotOutline) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();

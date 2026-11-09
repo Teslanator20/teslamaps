@@ -246,9 +246,9 @@ public final class EffectTimers {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
-            if (mc.screen != lastScreen) {
-                lastScreen = mc.screen;
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
+            if (mc.gui.screen() != lastScreen) {
+                lastScreen = mc.gui.screen();
                 openedAt = System.currentTimeMillis();
             }
             if (timer % 10 == 0 && System.currentTimeMillis() - openedAt > 500
@@ -289,7 +289,7 @@ public final class EffectTimers {
 
     private static void readTab(Minecraft mc) {
         List<String> src = new ArrayList<>();
-        Component footer = ((PlayerTabOverlayAccessor) mc.gui.getTabList()).teslamaps$getFooter();
+        Component footer = ((PlayerTabOverlayAccessor) mc.gui.hud.getTabList()).teslamaps$getFooter();
         String[] foot = footer == null ? new String[0] : StringUtil.strip(footer.getString()).split("\n");
         cookie = null;
         for (int i = 0; i < foot.length; i++) {
@@ -344,9 +344,9 @@ public final class EffectTimers {
             }
             if (left < at - 3 || !warned.add(e)) continue;
             if (c.effectTimersWarn) {
-                mc.gui.setTimes(0, 40, 10);
-                mc.gui.setTitle(Component.literal(e.display));
-                mc.gui.setSubtitle(Component.literal("§erunning out soon!"));
+                mc.gui.hud.setTimes(0, 40, 10);
+                mc.gui.hud.setTitle(Component.literal(e.display));
+                mc.gui.hud.setSubtitle(Component.literal("§erunning out soon!"));
                 if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + e.display + " §eis running out soon!"));
                 Notifications.show(e.display + " §eis running out in " + at + "s!", 15);
             }
@@ -403,7 +403,7 @@ public final class EffectTimers {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

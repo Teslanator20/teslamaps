@@ -18,7 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.cubemob.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -176,9 +176,9 @@ public final class BacteHelper {
         long now = System.currentTimeMillis();
         if (now - killMsgAt > 250 || now >= killDeadline) return;
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 3, 0);
-        mc.gui.setTitle(Component.literal("§cGet back in the arena!"));
-        mc.gui.setSubtitle(Component.literal(String.format(Locale.US, "§7%.2fs left", (killDeadline - now) / 1000.0)));
+        mc.gui.hud.setTimes(0, 3, 0);
+        mc.gui.hud.setTitle(Component.literal("§cGet back in the arena!"));
+        mc.gui.hud.setSubtitle(Component.literal(String.format(Locale.US, "§7%.2fs left", (killDeadline - now) / 1000.0)));
     }
 
     private static void tickBlobbercysts() {

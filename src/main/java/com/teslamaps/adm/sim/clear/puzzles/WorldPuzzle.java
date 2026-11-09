@@ -24,6 +24,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -262,7 +263,7 @@ public abstract class WorldPuzzle implements Puzzle {
 
     /** A stand with a name above it; marker gives it no hitbox; tagged so the module can tell whose it is. */
     protected ArmorStand spawnStand(String name, double x, double y, double z, boolean invisible, boolean marker) {
-        ArmorStand s = new ArmorStand(EntityType.ARMOR_STAND, Sim.level());
+        ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         s.setInvisible(invisible);
         s.setNoGravity(true);
         s.setInvulnerable(true);

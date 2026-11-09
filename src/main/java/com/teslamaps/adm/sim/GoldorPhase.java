@@ -21,6 +21,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.Giant;
 import net.minecraft.world.entity.player.Inventory;
@@ -775,7 +776,7 @@ public class GoldorPhase extends Fight.Phase {
     }
 
     public static class SimGiant extends Giant {
-        public SimGiant(Level level) { super(EntityType.GIANT, level); }
+        public SimGiant(Level level) { super(EntityTypes.GIANT, level); }
 
         @Override
         public void checkDespawn() {}

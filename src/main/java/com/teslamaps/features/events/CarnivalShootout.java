@@ -251,7 +251,7 @@ public final class CarnivalShootout {
         List<String> l = lampLines;
         if (l.isEmpty() || hud == null || !cfg().carnivalZombieShootout) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), l, TextHud.width(l));
     }
 }

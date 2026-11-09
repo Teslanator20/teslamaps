@@ -57,7 +57,7 @@ public final class CustomTodos {
                     b.label("Custom Todos");
                     b.toggle("Custom Todos", () -> c.customTodos, v -> c.customTodos = v)
                             .desc("Your own timers: a chat line you pick starts a countdown until the todo is ready again (/tmap gui)");
-                    b.button("  Edit Todos", () -> Minecraft.getInstance().setScreen(
+                    b.button("  Edit Todos", () -> Minecraft.getInstance().gui.setScreen(
                             new com.teslamaps.screen.CustomTodoScreen(b.screen())));
                     b.toggle("  Sound When Ready", () -> c.customTodoSound, v -> c.customTodoSound = v);
                     b.toggle("  Only Show Ready", () -> c.customTodoOnlyReady, v -> c.customTodoOnlyReady = v);
@@ -138,7 +138,7 @@ public final class CustomTodos {
         List<String> l = lines;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         Reminders.draw(g, mc, hud.x(), hud.y(), hud.scale(), l, linesWidth);
     }
 

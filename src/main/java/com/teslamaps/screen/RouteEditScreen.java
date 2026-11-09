@@ -371,7 +371,7 @@ public class RouteEditScreen extends Screen {
             RouteStorage.put(name, waypoints);
             if (OrderedWaypoints.isActive(name)) OrderedWaypoints.setActiveRoute(name, waypoints);
         }
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     @Override

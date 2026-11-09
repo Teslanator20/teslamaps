@@ -114,7 +114,7 @@ public class ShardOverlay {
 
     /** Tier and disabled state per slot, so the render pass only does lookups. */
     private static void updateMenuExtras(Minecraft mc) {
-        if (!menuExtrasWanted() || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!menuExtrasWanted() || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             slotTiers = java.util.Map.of();
             disabledSlots = java.util.Set.of();
             return;
@@ -138,7 +138,7 @@ public class ShardOverlay {
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (header.isEmpty() && rows.isEmpty() && footer.isEmpty()) return;
         draw(ctx, mc, cs, header, rows, footer, mouseX, mouseY);
     }
@@ -274,7 +274,7 @@ public class ShardOverlay {
     /** Which slot of the open menu holds which shard, so a hovered row can point at it. */
     private static java.util.Map<String, Integer> shardSlots() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return java.util.Map.of();
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return java.util.Map.of();
 
         java.util.Map<String, Integer> out = new java.util.HashMap<>();
         List<net.minecraft.world.inventory.Slot> slots = cs.getMenu().slots;
@@ -403,7 +403,7 @@ public class ShardOverlay {
         TeslaMapsConfig config = TeslaMapsConfig.get();
 
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<net.minecraft.world.inventory.Slot> slots = cs.getMenu().slots;
 
@@ -434,7 +434,7 @@ public class ShardOverlay {
     public static boolean mouseScrolled(double amount) {
         if (!shouldRender() || rows.size() <= visibleRows) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?>)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?>)) return false;
         scroll = Math.max(0, Math.min(rows.size() - visibleRows, scroll - (float) amount));
         return true;
     }

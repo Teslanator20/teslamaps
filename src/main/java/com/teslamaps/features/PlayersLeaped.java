@@ -137,8 +137,8 @@ public final class PlayersLeaped {
             current.leapedIds.add(pl.getId());
             int max = current.maxCount();
             if (current.leapedIds.size() == max && cfg().playersLeapedAlert) {
-                mc.gui.setTimes(10, 40, 10);
-                mc.gui.setTitle(Component.literal("§aEveryone Leaped!"));
+                mc.gui.hud.setTimes(10, 40, 10);
+                mc.gui.hud.setTitle(Component.literal("§aEveryone Leaped!"));
                 mc.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f, 1f);
             }
             if (current.leapedIds.size() >= max && current.completeAt < 0) current.completeAt = now + 1000;
@@ -148,7 +148,7 @@ public final class PlayersLeaped {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
         Region r = current;
-        if (r == null || mc.options.hideGui) return;
+        if (r == null || mc.gui.hud.isHidden()) return;
         int max = r.maxCount();
         if (max <= 0) return;
         int count = r.leapedIds.size();

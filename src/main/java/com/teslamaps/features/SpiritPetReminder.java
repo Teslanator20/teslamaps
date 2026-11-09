@@ -48,8 +48,8 @@ public class SpiritPetReminder {
                 Minecraft mc = Minecraft.getInstance();
                 if (mc.player != null) {
                     mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §cSomeone in your party has a Spirit Pet equipped!"));
-                    mc.gui.setTimes(5, 30, 10);
-                    mc.gui.setTitle(Component.literal("§cSpirit Pet"));
+                    mc.gui.hud.setTimes(5, 30, 10);
+                    mc.gui.hud.setTitle(Component.literal("§cSpirit Pet"));
                     mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
                 }
             }

@@ -132,7 +132,7 @@ public final class ReadyUpMenu {
             head.set(DataComponents.CUSTOM_NAME, Component.literal("§b" + sp.getGameProfile().name()).withStyle(s -> s.withItalic(false)));
             c.setItem(4, head);
             boolean ready = !notReady.contains(sp.getUUID());
-            c.setItem(13, ready ? Terminals.named(Items.LIME_STAINED_GLASS_PANE, "§aReady") : Terminals.named(Items.RED_STAINED_GLASS_PANE, "§cNot Ready"));
+            c.setItem(13, ready ? Terminals.named(Items.STAINED_GLASS_PANE.lime(), "§aReady") : Terminals.named(Items.STAINED_GLASS_PANE.red(), "§cNot Ready"));
             PlayerRecord me = run == null ? null : run.state.players.get(sp.getUUID());
             String mine = me == null ? null : me.dungeonClass;
             for (int i = 0; i < CLASSES.size(); i++) {
@@ -145,11 +145,11 @@ public final class ReadyUpMenu {
                 c.setItem(29 + i, it);
                 int n = 0;
                 if (run != null) for (PlayerRecord r : run.state.players.values()) if (eqIc(r.dungeonClass, cls)) n++;
-                c.setItem(38 + i, n == 0 ? Terminals.named(Items.GRAY_DYE, "§70 Players") : Terminals.named(Items.LIME_DYE, "§a" + n + " Player(s)", 1, yours));
+                c.setItem(38 + i, n == 0 ? Terminals.named(Items.DYE.gray(), "§70 Players") : Terminals.named(Items.DYE.lime(), "§a" + n + " Player(s)", 1, yours));
             }
             c.setItem(45, texHead(ORB_TEX, "§aDungeon Orb"));
             c.setItem(49, Terminals.named(Items.BARRIER, "§cClose"));
-            c.setItem(53, Terminals.named(Items.LIME_STAINED_GLASS, "§aToggle Auto Ready Up"));
+            c.setItem(53, Terminals.named(Items.STAINED_GLASS.lime(), "§aToggle Auto Ready Up"));
         }
 
         @Override public void clicked(int slot, int button, ContainerInput input, Player p) {

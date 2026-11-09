@@ -68,7 +68,7 @@ public final class BazaarPurchaseHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (searched == null || !(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (searched == null || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !cs.getTitle().getString().contains("Bazaar")) {
             cachedScreen = null;
             marked = new int[0];
@@ -91,7 +91,7 @@ public final class BazaarPurchaseHelper {
         int[] m = marked;
         if (m.length == 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != cachedScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != cachedScreen) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         var slots = cs.getMenu().slots;
         for (int i : m) {

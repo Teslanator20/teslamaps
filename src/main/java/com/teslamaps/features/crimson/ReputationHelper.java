@@ -290,7 +290,7 @@ public final class ReputationHelper {
     }
 
     private static void checkTownBoard(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             lastScreen = null;
             challengeTest = null;
             return;
@@ -352,7 +352,7 @@ public final class ReputationHelper {
 
     private static boolean keyGate(Minecraft mc) {
         if (!cfg().crimsonRepHotkeyOnly) return true;
-        return (mc.screen == null || mc.screen instanceof InventoryScreen) && KeyNames.isDown(cfg().crimsonRepKey);
+        return (mc.gui.screen() == null || mc.gui.screen() instanceof InventoryScreen) && KeyNames.isDown(cfg().crimsonRepKey);
     }
 
     private static void tick() {
@@ -460,7 +460,7 @@ public final class ReputationHelper {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || !keyGate(mc)) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null || !keyGate(mc)) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 
@@ -473,7 +473,7 @@ public final class ReputationHelper {
     public static void drawSlot(GuiGraphicsExtractor g, Slot slot) {
         String test = challengeTest;
         if (test == null || !cfg().crimsonRepHelper || slot.container instanceof Inventory || slot.getItem().isEmpty()) return;
-        if (Minecraft.getInstance().screen != lastScreen) return;
+        if (Minecraft.getInstance().gui.screen() != lastScreen) return;
         if (StringUtil.strip(slot.getItem().getHoverName().getString()).contains(test)) {
             g.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x8055FFFF);
         }

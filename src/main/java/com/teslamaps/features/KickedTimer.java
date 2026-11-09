@@ -54,7 +54,7 @@ public class KickedTimer {
             if (cfg.kickedTimer) {
                 LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.6f);
                 ScreenFlash.alert(cfg.screenFlashKicked);
-                if (cfg.kickedTitle) Minecraft.getInstance().gui.setTitle(
+                if (cfg.kickedTitle) Minecraft.getInstance().gui.hud.setTitle(
                         net.minecraft.network.chat.Component.literal("§eTry rejoining SkyBlock now!"));
             }
             kickedAtMs = 0;

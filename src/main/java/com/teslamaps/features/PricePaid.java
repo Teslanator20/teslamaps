@@ -100,7 +100,7 @@ public final class PricePaid {
     private static void tick() {
         if (ticks++ % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("BIN Auction View")) return;
         if (cs.getMenu().slots.size() < 14) return;
         ItemStack item = cs.getMenu().slots.get(13).getItem();

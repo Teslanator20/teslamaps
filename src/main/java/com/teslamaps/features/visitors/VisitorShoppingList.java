@@ -155,7 +155,7 @@ public final class VisitorShoppingList {
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
         drawn = false;
-        if (mc.screen instanceof AbstractContainerScreen<?> || rows.isEmpty() || !where(mc)) return;
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> || rows.isEmpty() || !where(mc)) return;
         drawAt(g, mc);
     }
 
@@ -164,7 +164,7 @@ public final class VisitorShoppingList {
         drawn = false;
         if (feature == null || !feature.active() || rows.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         boolean show = inBazaar(cs) ? cfg().visitorShoppingBazaar && SkyblockUtils.isInSkyblock()
                 : where(mc) && (cs instanceof InventoryScreen || Visitors.open() != null);
         if (show) drawAt(g, mc);

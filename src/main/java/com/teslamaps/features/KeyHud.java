@@ -54,7 +54,7 @@ public final class KeyHud {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if ((!wither && !blood) || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), wither, blood);
     }
 

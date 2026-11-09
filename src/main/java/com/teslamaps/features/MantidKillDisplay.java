@@ -145,7 +145,7 @@ public final class MantidKillDisplay {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || !visible || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines);
     }
 

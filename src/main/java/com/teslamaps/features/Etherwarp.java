@@ -83,7 +83,7 @@ public class Etherwarp {
                 .when(() -> TeslaMapsConfig.get().etherwarp && TeslaMapsConfig.get().etherwarpFailReason)
                 .hud("etherwarpfailreason", (g, d) -> {
                     Minecraft mc = Minecraft.getInstance();
-                    if (failReason.isEmpty() || failEl == null || mc.options.hideGui || !previewShown()) return;
+                    if (failReason.isEmpty() || failEl == null || mc.gui.hud.isHidden() || !previewShown()) return;
                     drawReason(g, mc, failEl.x(), failEl.y(), failEl.scale(), failReason);
                 });
     }
@@ -187,7 +187,7 @@ public class Etherwarp {
         if (!config.etherwarp) return;
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.level == null || mc.screen != null) return;
+        if (player == null || mc.level == null || mc.gui.screen() != null) return;
 
         CompoundTag data = etherwarpData(player.getMainHandItem());
         if (data == null) return;

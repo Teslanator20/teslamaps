@@ -156,7 +156,7 @@ public class CombatTimers {
         if (line == null || shieldHud == null || !SkyblockUtils.isInSkyblock()) return;
         if (cfg().witherShieldHideReady && shieldCooldown == 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, shieldHud.x(), shieldHud.y(), shieldHud.scale(), line);
     }
 
@@ -164,7 +164,7 @@ public class CombatTimers {
         String line = tacticalLine;
         if (line == null || tacticalHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, tacticalHud.x(), tacticalHud.y(), tacticalHud.scale(), line);
     }
 

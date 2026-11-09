@@ -48,7 +48,7 @@ public final class AnvilHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        inAnvil = mc.screen instanceof AbstractContainerScreen<?> cs
+        inAnvil = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && "Anvil".equals(StringUtil.stripTrim(cs.getTitle().getString()));
         if (!inAnvil) {
             matches = Set.of();
@@ -57,7 +57,7 @@ public final class AnvilHelper {
         }
         if (timer-- > 0) return;
         timer = 3;
-        var slots = ((AbstractContainerScreen<?>) mc.screen).getMenu().slots;
+        var slots = ((AbstractContainerScreen<?>) mc.gui.screen()).getMenu().slots;
         if (slots.size() <= RIGHT) return;
         ItemStack left = slots.get(LEFT).getItem(), right = slots.get(RIGHT).getItem();
         String lk = key(left), rk = key(right);

@@ -303,8 +303,8 @@ public final class CarryTracker {
         rebuild();
         if (best.done == best.requested) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§eCarry done!"));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§eCarry done!"));
             msg("§aCarry done for §b" + best.customer + "§a!");
         }
     }
@@ -346,7 +346,7 @@ public final class CarryTracker {
         List<String> l = lines;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

@@ -77,14 +77,14 @@ public class SlotLock {
 
     private static void tickWorldKey() {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = mc.screen == null && com.teslamaps.utils.KeyNames.isDown(TeslaMapsConfig.get().slotLockWorldKey);
+        boolean down = mc.gui.screen() == null && com.teslamaps.utils.KeyNames.isDown(TeslaMapsConfig.get().slotLockWorldKey);
         if (down && !worldKeyDown && mc.player != null) toggle(mc.player.getInventory().getSelectedSlot());
         worldKeyDown = down;
     }
 
     private static void renderHotbar(GuiGraphicsExtractor ctx, net.minecraft.client.DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui || mc.player.isSpectator()) return;
+        if (mc.player == null || mc.gui.hud.isHidden() || mc.player.isSpectator()) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         int col = (TeslaMapsConfig.parseColor(c.colorSlotLock) & 0x00FFFFFF) | 0xE0000000;
         int left = ctx.guiWidth() / 2 - 91, top = ctx.guiHeight() - 19;
@@ -177,7 +177,7 @@ public class SlotLock {
         if (!c.slotLock) return;
         if (locks().isEmpty() && !(c.slotLockBinds && c.slotBinds)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         int col = TeslaMapsConfig.parseColor(c.colorSlotLock);

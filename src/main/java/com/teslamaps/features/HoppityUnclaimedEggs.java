@@ -220,8 +220,8 @@ public final class HoppityUnclaimedEggs {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
         String cmd = "/warp " + cfg().hoppityUnclaimedWarp;
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(Component.literal("§d§lAll Hoppity Eggs Ready!"));
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(Component.literal("§d§lAll Hoppity Eggs Ready!"));
         mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §dAll six Hoppity eggs are ready! §eClick to " + cmd)
                 .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand(cmd))
                         .withHoverEvent(new HoverEvent.ShowText(Component.literal("§eClick to run " + cmd)))));
@@ -237,7 +237,7 @@ public final class HoppityUnclaimedEggs {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

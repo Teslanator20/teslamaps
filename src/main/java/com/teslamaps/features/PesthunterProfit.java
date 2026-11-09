@@ -57,7 +57,7 @@ public final class PesthunterProfit {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !StringUtil.stripTrim(cs.getTitle().getString()).equals("Pesthunter's Wares")) {
             if (lastScreen != null) {
                 lastScreen = null;
@@ -162,7 +162,7 @@ public final class PesthunterProfit {
         List<Row> rs = rows;
         if (rs.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
         Perf.begin("PesthunterProfit.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int pad = HudStyle.padding();

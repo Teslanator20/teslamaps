@@ -128,7 +128,7 @@ public class HarpHelper {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !on() || !cfg().harpKeyLabels) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !on() || !cfg().harpKeyLabels) return;
         if (!isHarp(title(cs))) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;

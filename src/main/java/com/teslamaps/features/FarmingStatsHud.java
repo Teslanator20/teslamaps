@@ -164,7 +164,7 @@ public final class FarmingStatsHud {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || lines.isEmpty() || mc.options.hideGui) return;
+        if (hud == null || lines.isEmpty() || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 

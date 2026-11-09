@@ -26,7 +26,7 @@ public final class ESPCategory {
                 () -> config.espFadeDistance, v -> config.espFadeDistance = v, 0).fresh()
                 .desc("Boxes fade out with distance, half visible at this many blocks. Far ones are skipped. 0 = off");
         b.button("Custom Entries (/tmap esp)",
-                () -> Minecraft.getInstance().setScreen(new EspListScreen()));
+                () -> Minecraft.getInstance().gui.setScreen(new EspListScreen()));
         b.customEspList("Custom ESP Mobs").desc("Tick mobs seen nearby to highlight them. Right-click a row for its colour.")
                 .tags("custom", "mob", "highlight");
         b.fresh(() -> com.teslamaps.features.MobSpawnAlert.config(b));
@@ -109,8 +109,8 @@ public final class ESPCategory {
         b.toggle("  Livid Dead Message (/pc)", () -> config.lividDeathMessage, v -> config.lividDeathMessage = v);
         b.toggle("  Livid Color Title", () -> config.lividColorTitle, v -> config.lividColorTitle = v).fresh();
         b.toggle("  Announce Livid Color (/pc)", () -> config.lividAnnounce, v -> config.lividAnnounce = v).fresh();
-        b.button("    Edit Announce Text", () -> net.minecraft.client.Minecraft.getInstance().setScreen(
-                new com.teslamaps.screen.LividMessageScreen(net.minecraft.client.Minecraft.getInstance().screen))).fresh();
+        b.button("    Edit Announce Text", () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(
+                new com.teslamaps.gui.screen().LividMessageScreen(net.minecraft.client.Minecraft.getInstance().gui.screen()))).fresh();
         b.toggle("  Livid HP Label (3D)", () -> config.lividHpLabel, v -> config.lividHpLabel = v).fresh();
         b.toggle("  Livid HP HUD", () -> config.lividHpHud, v -> config.lividHpHud = v).fresh();
         b.toggle("  Keep Wrong Livids Visible", () -> config.lividShowWrong, v -> config.lividShowWrong = v).legit();

@@ -3,6 +3,7 @@ package com.teslamaps.adm.sim;
 
 import java.util.HashMap;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.phys.Vec3;
@@ -44,7 +45,7 @@ public class BossWither {
     }
 
     private ArmorStand marker(String text, double dy) {
-        ArmorStand s = new ArmorStand(EntityType.ARMOR_STAND, Sim.level());
+        ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
         Station.setMarker(s);
         s.setCustomName(Sim.legacy(text));

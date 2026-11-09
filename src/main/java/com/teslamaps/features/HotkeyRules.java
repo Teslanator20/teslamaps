@@ -79,8 +79,8 @@ public final class HotkeyRules {
             if (low.equals("sound")) {
                 mc.player.playSound(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f, 1f);
             } else if (low.startsWith("title:")) {
-                mc.gui.setTimes(5, 30, 10);
-                mc.gui.setTitle(Component.literal(a.substring(6).replace('&', '§')));
+                mc.gui.hud.setTimes(5, 30, 10);
+                mc.gui.hud.setTitle(Component.literal(a.substring(6).replace('&', '§')));
             } else if (low.startsWith("note:")) {
                 mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §f" + a.substring(5).replace('&', '§')));
             }

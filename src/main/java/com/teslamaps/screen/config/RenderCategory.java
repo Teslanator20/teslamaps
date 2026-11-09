@@ -158,6 +158,6 @@ public final class RenderCategory {
         b.slider("  Waviness", 0f, 1f,
                 () -> config.capeWaviness, v -> config.capeWaviness = v, 2);
         b.button("Choose Cape",
-                () -> Minecraft.getInstance().setScreen(new CapeScreen(b.screen())));
+                () -> Minecraft.getInstance().gui.setScreen(new CapeScreen(b.screen())));
     }
 }

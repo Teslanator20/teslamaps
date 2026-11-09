@@ -259,8 +259,8 @@ public class SimonSaysSolver {
 
     private static void title(Minecraft mc, String text) {
         if (mc.gui == null) return;
-        mc.gui.setTimes(0, 25, 5);
-        mc.gui.setTitle(net.minecraft.network.chat.Component.literal(text));
+        mc.gui.hud.setTimes(0, 25, 5);
+        mc.gui.hud.setTitle(net.minecraft.network.chat.Component.literal(text));
     }
 
     // true = swallow the click: it's a device button but not the next one in the sequence (sneak overrides)

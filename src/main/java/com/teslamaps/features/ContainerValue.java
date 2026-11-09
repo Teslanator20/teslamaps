@@ -75,7 +75,7 @@ public class ContainerValue {
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().containerValue) return false;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?>)) return false;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?>)) return false;
         // both panels sit right of the container, so the shard ones win where they apply
         if (!TeslaMapsConfig.get().containerValueFreePos) {
             if (TeslaMapsConfig.get().section("Shards")
@@ -88,7 +88,7 @@ public class ContainerValue {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) {
                 lastScreen = null;
                 lines = List.of();
@@ -97,8 +97,8 @@ public class ContainerValue {
             }
             return;
         }
-        if (lastScreen != mc.screen) {
-            lastScreen = mc.screen;
+        if (lastScreen != mc.gui.screen()) {
+            lastScreen = mc.gui.screen();
             breakdowns.clear();
             ticks = 0;
         }
@@ -177,7 +177,7 @@ public class ContainerValue {
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         List<String> ls = lines;
         if (ls.isEmpty()) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;

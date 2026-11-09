@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public final class DragonRecolor {
 
     /** Spawn packet, any thread: type = nearest dragon spawn. */
     public static void onAddEntity(ClientboundAddEntityPacket packet) {
-        if (packet.getType() != EntityType.ENDER_DRAGON || !cfg().dragonRecolor) return;
+        if (packet.getType() != EntityTypes.ENDER_DRAGON || !cfg().dragonRecolor) return;
         int best = 0;
         double bestD = Double.MAX_VALUE;
         WitherDragons.Dragon[] all = WitherDragons.Dragon.values();
@@ -125,8 +126,8 @@ public final class DragonRecolor {
             s[3] = 1;
             Integer t = types.get(d.getId());
             WitherDragons.Dragon type = t != null ? WitherDragons.Dragon.values()[t] : nearest(d);
-            mc.gui.setTimes(0, 30, 5);
-            mc.gui.setTitle(Component.literal("§" + type.colorCode + type.dispName + " §fperched!"));
+            mc.gui.hud.setTimes(0, 30, 5);
+            mc.gui.hud.setTitle(Component.literal("§" + type.colorCode + type.dispName + " §fperched!"));
             if (mc.player != null) mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
         }
         perch.keySet().removeIf(id -> mc.level.getEntity(id) == null);

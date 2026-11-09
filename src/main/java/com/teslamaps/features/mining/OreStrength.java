@@ -24,16 +24,16 @@ public enum OreStrength {
     NETHERRACK("Netherrack", Items.NETHERRACK, 4, 1, true),
     HARD_STONE("Hard Stone", Items.STONE, 50, 4, true),
     OBSIDIAN("Obsidian", Items.OBSIDIAN, 500, 1, false),
-    GRAY_MITHRIL("Gray Mithril", Items.GRAY_WOOL, 500, 4, false),
+    GRAY_MITHRIL("Gray Mithril", Items.WOOL.gray(), 500, 4, false),
     GREEN_MITHRIL("Green Mithril", Items.PRISMARINE, 800, 4, false),
-    BLUE_MITHRIL("Blue Mithril", Items.LIGHT_BLUE_WOOL, 1500, 4, false),
+    BLUE_MITHRIL("Blue Mithril", Items.WOOL.lightBlue(), 1500, 4, false),
     TITANIUM("Titanium", Items.POLISHED_DIORITE, 2000, 5, false),
-    RUBY("Ruby", Items.RED_STAINED_GLASS, 2300, 6, false),
-    NUCLEUS_GEMS("Amber/Amethyst/Jade/Sapphire", Items.LIGHT_BLUE_STAINED_GLASS, 3000, 7, false),
-    TOPAZ("Topaz", Items.YELLOW_STAINED_GLASS, 3800, 8, false),
-    OPAL("Opal", Items.WHITE_STAINED_GLASS, 3800, 8, false),
-    JASPER("Jasper", Items.MAGENTA_STAINED_GLASS, 4800, 9, false),
-    TUNNEL_GEMS("Onyx/Aquamarine/Citrine/Peridot", Items.BLACK_STAINED_GLASS, 5200, 10, false),
+    RUBY("Ruby", Items.STAINED_GLASS.red(), 2300, 6, false),
+    NUCLEUS_GEMS("Amber/Amethyst/Jade/Sapphire", Items.STAINED_GLASS.lightBlue(), 3000, 7, false),
+    TOPAZ("Topaz", Items.STAINED_GLASS.yellow(), 3800, 8, false),
+    OPAL("Opal", Items.STAINED_GLASS.white(), 3800, 8, false),
+    JASPER("Jasper", Items.STAINED_GLASS.magenta(), 4800, 9, false),
+    TUNNEL_GEMS("Onyx/Aquamarine/Citrine/Peridot", Items.STAINED_GLASS.black(), 5200, 10, false),
     UMBER("Umber", Items.RED_SANDSTONE, 5600, 9, false),
     TUNGSTEN("Tungsten", Items.CLAY, 5600, 9, false),
     GLACITE("Glacite", Items.PACKED_ICE, 6000, 9, false);
@@ -84,13 +84,13 @@ public enum OreStrength {
         if (b == Blocks.COAL_BLOCK || b == Blocks.IRON_BLOCK || b == Blocks.GOLD_BLOCK || b == Blocks.LAPIS_BLOCK
                 || b == Blocks.REDSTONE_BLOCK || b == Blocks.EMERALD_BLOCK || b == Blocks.DIAMOND_BLOCK
                 || b == Blocks.QUARTZ_BLOCK) return PURE_ORES;
-        if (b == Blocks.GRAY_WOOL || b == Blocks.CYAN_TERRACOTTA) return GRAY_MITHRIL;
+        if (b == Blocks.WOOL.gray() || b == Blocks.DYED_TERRACOTTA.cyan()) return GRAY_MITHRIL;
         if (b == Blocks.PRISMARINE || b == Blocks.PRISMARINE_BRICKS || b == Blocks.DARK_PRISMARINE) return GREEN_MITHRIL;
-        if (b == Blocks.LIGHT_BLUE_WOOL) return BLUE_MITHRIL;
+        if (b == Blocks.WOOL.lightBlue()) return BLUE_MITHRIL;
         if (b == Blocks.POLISHED_DIORITE) return TITANIUM;
         if (b == Blocks.PACKED_ICE) return GLACITE;
         if (b == Blocks.CLAY || b == Blocks.INFESTED_COBBLESTONE) return TUNGSTEN;
-        if (b == Blocks.TERRACOTTA || b == Blocks.BROWN_TERRACOTTA || b == Blocks.SMOOTH_RED_SANDSTONE) return UMBER;
+        if (b == Blocks.TERRACOTTA || b == Blocks.DYED_TERRACOTTA.brown() || b == Blocks.SMOOTH_RED_SANDSTONE) return UMBER;
         DyeColor color = b instanceof StainedGlassBlock g ? g.getColor()
                 : b instanceof StainedGlassPaneBlock p ? p.getColor() : null;
         if (color == null) return null;

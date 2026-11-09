@@ -42,7 +42,7 @@ public final class PickobulusHelper {
 
     private static final Set<Block> CONVERT_INTO_BEDROCK = Set.of(
             Blocks.STONE, Blocks.COBBLESTONE, Blocks.POLISHED_DIORITE, Blocks.PRISMARINE, Blocks.PRISMARINE_BRICKS,
-            Blocks.DARK_PRISMARINE, Blocks.CYAN_TERRACOTTA, Blocks.LIGHT_BLUE_WOOL, Blocks.GRAY_WOOL,
+            Blocks.DARK_PRISMARINE, Blocks.DYED_TERRACOTTA.cyan(), Blocks.WOOL.lightBlue(), Blocks.WOOL.gray(),
             Blocks.LAPIS_BLOCK, Blocks.GOLD_BLOCK, Blocks.IRON_BLOCK, Blocks.DIAMOND_BLOCK, Blocks.EMERALD_BLOCK,
             Blocks.REDSTONE_BLOCK, Blocks.COAL_BLOCK, Blocks.QUARTZ_BLOCK, Blocks.GOLD_ORE, Blocks.IRON_ORE,
             Blocks.COAL_ORE, Blocks.LAPIS_ORE, Blocks.REDSTONE_ORE, Blocks.DIAMOND_ORE, Blocks.EMERALD_ORE,
@@ -232,12 +232,12 @@ public final class PickobulusHelper {
 
     private static boolean mithril(BlockState s) {
         return s.is(Blocks.PRISMARINE) || s.is(Blocks.PRISMARINE_BRICKS) || s.is(Blocks.DARK_PRISMARINE)
-                || s.is(Blocks.LIGHT_BLUE_WOOL) || s.is(Blocks.GRAY_WOOL) || s.is(Blocks.CYAN_TERRACOTTA);
+                || s.is(Blocks.WOOL.lightBlue()) || s.is(Blocks.WOOL.gray()) || s.is(Blocks.DYED_TERRACOTTA.cyan());
     }
 
     private static int powder(BlockState s) {
-        if (s.is(Blocks.LIGHT_BLUE_WOOL)) return 5;
-        if (s.is(Blocks.GRAY_WOOL) || s.is(Blocks.CYAN_TERRACOTTA)) return 1;
+        if (s.is(Blocks.WOOL.lightBlue())) return 5;
+        if (s.is(Blocks.WOOL.gray()) || s.is(Blocks.DYED_TERRACOTTA.cyan())) return 1;
         return 3;
     }
 
@@ -263,7 +263,7 @@ public final class PickobulusHelper {
             drops[TITANIUM]++;
             return 1;
         }
-        if (s.is(Blocks.INFESTED_STONE) || s.is(Blocks.LIGHT_GRAY_CARPET)) {
+        if (s.is(Blocks.INFESTED_STONE) || s.is(Blocks.CARPET.lightGray())) {
             drops[HARDSTONE]++;
             return 1;
         }
@@ -273,7 +273,7 @@ public final class PickobulusHelper {
             drops[POWDER] += powder(s);
             return 1;
         }
-        if (s.is(Blocks.BROWN_TERRACOTTA) || s.is(Blocks.TERRACOTTA) || s.is(Blocks.SMOOTH_RED_SANDSTONE)) {
+        if (s.is(Blocks.DYED_TERRACOTTA.brown()) || s.is(Blocks.TERRACOTTA) || s.is(Blocks.SMOOTH_RED_SANDSTONE)) {
             drops[PITY] += 2;
             drops[UMBER]++;
             return 1;
@@ -297,7 +297,7 @@ public final class PickobulusHelper {
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || !visible || !cfg().pickobulusHud || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines);
     }
 

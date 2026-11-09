@@ -34,13 +34,13 @@ public class DungeonTimers {
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
         if (lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return;
+        if (mc.player == null || mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
 
         // the invincibility block stays up in the inventory so it can be dragged there.
         // Chat does not count as a screen, the timers have to survive typing a message.
-        boolean inScreen = mc.screen != null
-                && !(mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen);
+        boolean inScreen = mc.gui.screen() != null
+                && !(mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen);
         if (inScreen && !inInventory(mc)) return;
 
         List<Row> inv = new ArrayList<>();
@@ -55,7 +55,7 @@ public class DungeonTimers {
     }
 
     private static boolean inInventory(Minecraft mc) {
-        return mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+        return mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
     }
 
     public static boolean invincibilityVisible() {

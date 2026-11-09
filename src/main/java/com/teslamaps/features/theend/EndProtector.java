@@ -325,7 +325,7 @@ public class EndProtector {
             day30Warned = false;
             stage4StartMillis = System.currentTimeMillis();
             if (c.endProtectorStage4Title) {
-                mc.gui.setTitle(Component.literal("PROTECTOR STAGE 4")
+                mc.gui.hud.setTitle(Component.literal("PROTECTOR STAGE 4")
                         .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
                 LoudSound.play(SoundEvents.IRON_GOLEM_HURT, 1.0f, 1.0f);
             }
@@ -347,7 +347,7 @@ public class EndProtector {
                 stage5TargetTicks = ServerTicks.now(mc.level.getGameTime()) + 400;
             }
             if (c.endProtectorStage4Title) {
-                mc.gui.setTitle(Component.literal("PROTECTOR STAGE 5")
+                mc.gui.hud.setTitle(Component.literal("PROTECTOR STAGE 5")
                         .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
                 LoudSound.play(SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
             }
@@ -543,8 +543,8 @@ public class EndProtector {
 
         if (!c.endProtectorDropAlert || ignored) return;
 
-        mc.gui.setTitle(Component.literal("DROP!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-        mc.gui.setSubtitle(Component.empty().append(item)
+        mc.gui.hud.setTitle(Component.literal("DROP!").withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+        mc.gui.hud.setSubtitle(Component.empty().append(item)
                 .append(Component.literal(" x" + count).withStyle(ChatFormatting.GRAY)));
 
         if (mc.player != null) {

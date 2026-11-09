@@ -51,8 +51,8 @@ public final class PartyJoinAlerts {
         lastLimbo = now;
         Minecraft mc = Minecraft.getInstance();
         LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
-        mc.gui.setTitle(Component.literal("§c§lLIMBO"));
-        mc.gui.setSubtitle(Component.literal("§7You were sent to Limbo"));
+        mc.gui.hud.setTitle(Component.literal("§c§lLIMBO"));
+        mc.gui.hud.setSubtitle(Component.literal("§7You were sent to Limbo"));
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§c§l[Limbo] §7You were sent to Limbo. §f/lobby §7to get out."));
     }
 }

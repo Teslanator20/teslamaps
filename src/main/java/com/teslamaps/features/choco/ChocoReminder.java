@@ -111,7 +111,7 @@ public final class ChocoReminder {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        String title = mc.screen instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
+        String title = mc.gui.screen() instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
         inMenu = ChocoData.inFactory() || title.equals("Chocolate Shop") || title.equals("Chocolate Factory Milestones");
         if (++ticks % 20 != 0) return;
         ChocoData.State s = ChocoData.state();
@@ -140,8 +140,8 @@ public final class ChocoReminder {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (lines.isEmpty() || hud == null || mc.options.hideGui) return;
-        boolean show = inMenu || (cfg().cfReminderOutside && mc.screen == null && SkyblockUtils.isInSkyblock());
+        if (lines.isEmpty() || hud == null || mc.gui.hud.isHidden()) return;
+        boolean show = inMenu || (cfg().cfReminderOutside && mc.gui.screen() == null && SkyblockUtils.isInSkyblock());
         if (!show) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }

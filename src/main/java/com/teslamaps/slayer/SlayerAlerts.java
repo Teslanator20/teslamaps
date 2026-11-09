@@ -60,7 +60,7 @@ public class SlayerAlerts {
     private static void setTitle(String title, String subtitle) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, Math.max(5, c.slayerAlertTicks), 5);
+        mc.gui.hud.setTimes(0, Math.max(5, c.slayerAlertTicks), 5);
         MutableComponent t;
         if (c.slayerAlertCustomColor) {
             t = Component.literal(StringUtil.strip(title)).withColor(rgb(c.slayerAlertColor));
@@ -68,8 +68,8 @@ public class SlayerAlerts {
         } else {
             t = Component.literal(title);
         }
-        mc.gui.setTitle(t);
-        if (subtitle != null) mc.gui.setSubtitle(Component.literal(subtitle));
+        mc.gui.hud.setTitle(t);
+        if (subtitle != null) mc.gui.hud.setSubtitle(Component.literal(subtitle));
     }
 
     private static int rgb(String hex) {

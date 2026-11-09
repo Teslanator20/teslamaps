@@ -55,7 +55,7 @@ public final class Rev5TntPing {
     private static boolean danger(BlockState s) {
         Block b = s.getBlock();
         return b == Blocks.QUARTZ_SLAB || b == Blocks.QUARTZ_STAIRS || b == Blocks.ACACIA_STAIRS || b == Blocks.ACACIA_SLAB
-                || b == Blocks.WHITE_TERRACOTTA || b == Blocks.LIGHT_GRAY_TERRACOTTA || b == Blocks.RED_TERRACOTTA
+                || b == Blocks.DYED_TERRACOTTA.white() || b == Blocks.DYED_TERRACOTTA.lightGray() || b == Blocks.DYED_TERRACOTTA.red()
                 || b == Blocks.BEDROCK;
     }
 }

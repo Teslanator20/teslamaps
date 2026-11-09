@@ -130,8 +130,8 @@ public final class SlayerRngDisplay {
         if (old != -1) {
             if (!selected && cfg().slayerRngDisplayWarnEmpty && mc.player != null) {
                 mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cNo Slayer RNG Meter item selected!"));
-                mc.gui.setTimes(0, 40, 5);
-                mc.gui.setTitle(Component.literal("§cNo RNG Meter Item!"));
+                mc.gui.hud.setTimes(0, 40, 5);
+                mc.gui.hud.setTitle(Component.literal("§cNo RNG Meter Item!"));
             }
             long diff = now - old;
             if (diff > 0) {
@@ -153,7 +153,7 @@ public final class SlayerRngDisplay {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             if (cs != lastScreen) {
                 lastScreen = cs;
                 screenTicks = 0;
@@ -269,7 +269,7 @@ public final class SlayerRngDisplay {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

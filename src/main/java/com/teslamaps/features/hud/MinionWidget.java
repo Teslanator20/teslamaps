@@ -77,7 +77,7 @@ public final class MinionWidget {
             m.put("Chicken", Items.CHICKEN); m.put("Cocoa Beans", Items.COCOA_BEANS); m.put("Cow", Items.BEEF);
             m.put("Melon", Items.MELON_SLICE); m.put("Mushroom", Items.RED_MUSHROOM); m.put("Nether Wart", Items.NETHER_WART);
             m.put("Pig", Items.PORKCHOP); m.put("Potato", Items.POTATO); m.put("Pumpkin", Items.PUMPKIN);
-            m.put("Rabbit", Items.RABBIT); m.put("Sheep", Items.WHITE_WOOL); m.put("Sugar Cane", Items.SUGAR_CANE);
+            m.put("Rabbit", Items.RABBIT); m.put("Sheep", Items.WOOL.white()); m.put("Sugar Cane", Items.SUGAR_CANE);
             m.put("Wheat", Items.WHEAT); m.put("Clay", Items.CLAY); m.put("Fishing", Items.FISHING_ROD);
             m.put("Lily Pad", Items.LILY_PAD); m.put("Coal", Items.COAL); m.put("Cobblestone", Items.COBBLESTONE);
             m.put("Diamond", Items.DIAMOND); m.put("Emerald", Items.EMERALD); m.put("End Stone", Items.END_STONE);
@@ -178,7 +178,7 @@ public final class MinionWidget {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || rows.isEmpty()) return;
+        if (mc.gui.hud.isHidden() || rows.isEmpty()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), rows, width);
     }
 }

@@ -316,7 +316,7 @@ public final class DragonProfitTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         tracker.draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

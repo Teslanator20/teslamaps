@@ -66,14 +66,14 @@ public final class GardenPlotMenu {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            inMenu = mc.screen instanceof ContainerScreen cs && SkyblockUtils.isInGarden()
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            inMenu = mc.gui.screen() instanceof ContainerScreen cs && SkyblockUtils.isInGarden()
                     && StringUtil.stripTrim(cs.getTitle().getString()).equals("Configure Plots");
             ticks = 0;
         }
         if (ticks++ % 20 == 0 && SkyblockUtils.isInGarden()) syncSpray();
-        if (inMenu && ticks % 10 == 1 && mc.screen instanceof ContainerScreen cs) scan(cs);
+        if (inMenu && ticks % 10 == 1 && mc.gui.screen() instanceof ContainerScreen cs) scan(cs);
     }
 
     private static void syncSpray() {
@@ -142,7 +142,7 @@ public final class GardenPlotMenu {
     }
 
     private static boolean live() {
-        return inMenu && Minecraft.getInstance().screen == lastScreen && feature != null && feature.active();
+        return inMenu && Minecraft.getInstance().gui.screen() == lastScreen && feature != null && feature.active();
     }
 
     /** Behind the item, from SlotBackgrounds. */

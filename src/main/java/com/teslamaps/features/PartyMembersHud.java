@@ -118,7 +118,7 @@ public final class PartyMembersHud {
         List<String> l = lines;
         if (l.isEmpty() || el == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, el.x(), el.y(), el.scale(), l, width);
     }
 }

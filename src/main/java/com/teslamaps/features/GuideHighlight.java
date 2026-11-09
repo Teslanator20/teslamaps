@@ -94,7 +94,7 @@ public class GuideHighlight {
 
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { lastScreen = null; raffleScreen = null; return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { lastScreen = null; raffleScreen = null; return; }
         if (raffle(ctx, cs)) return;
 
         Entry entry = entryFor(cs);

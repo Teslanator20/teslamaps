@@ -59,7 +59,7 @@ public final class StarlynCouponProfit {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (lastScreen != null) reset();
             return;
         }
@@ -140,7 +140,7 @@ public final class StarlynCouponProfit {
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         if (coupon == null || rows.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
         Perf.begin("StarlynCouponProfit.render");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Row> r = rows;

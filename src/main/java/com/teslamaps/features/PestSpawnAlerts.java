@@ -61,9 +61,9 @@ public final class PestSpawnAlerts {
         Minecraft mc = Minecraft.getInstance();
         if (spawn.amount() < 0) {
             if (c.pestSpawnTitle && mc.gui != null) {
-                mc.gui.setTimes(0, 100, 10);
-                mc.gui.setTitle(Component.literal("§ePests spawned offline"));
-                mc.gui.setSubtitle(Component.literal("§7in §bPlots " + String.join(", ", spawn.plots())));
+                mc.gui.hud.setTimes(0, 100, 10);
+                mc.gui.hud.setTitle(Component.literal("§ePests spawned offline"));
+                mc.gui.hud.setSubtitle(Component.literal("§7in §bPlots " + String.join(", ", spawn.plots())));
             }
             return false;
         }
@@ -72,9 +72,9 @@ public final class PestSpawnAlerts {
         String msg = "§e" + spawn.amount() + " §a" + (spawn.amount() == 1 ? "Pest" : "Pests") + " Spawned in §b"
                 + (plot.equals("The Barn") ? plot : "Plot " + plot) + "§a!";
         if (c.pestSpawnTitle && mc.gui != null) {
-            mc.gui.setTimes(0, 120, 10);
-            mc.gui.setTitle(Component.literal(msg));
-            mc.gui.setSubtitle(Component.empty());
+            mc.gui.hud.setTimes(0, 120, 10);
+            mc.gui.hud.setTitle(Component.literal(msg));
+            mc.gui.hud.setSubtitle(Component.empty());
         }
         if (!c.pestSpawnCompact || mc.player == null) return false;
         String tp = plot.equals("The Barn") ? "barn" : plot;

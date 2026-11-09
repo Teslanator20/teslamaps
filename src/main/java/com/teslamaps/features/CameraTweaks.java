@@ -54,7 +54,7 @@ public final class CameraTweaks {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = mc.screen == null && KeyNames.isDown(cfg().noFrontViewKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(cfg().noFrontViewKey);
         if (down && !keyDown) {
             cfg().noFrontView = !cfg().noFrontView;
             TeslaMapsConfig.save();

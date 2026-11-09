@@ -120,7 +120,7 @@ public class ScreenshotScreen extends Screen {
         addButton(3, perRow, bw, firstRowY, "§eFolder", ScreenshotManager::openFolder);
         if (editor()) addButton(4, perRow, bw, firstRowY, "§aEdit", () -> {
             File f = current();
-            if (f != null) minecraft.setScreen(new ScreenshotEditorScreen(this, f));
+            if (f != null) minecraft.gui.setScreen(new ScreenshotEditorScreen(this, f));
         });
 
         ScreenFit.clamp(this); // keep every widget reachable at any gui scale
@@ -233,7 +233,7 @@ public class ScreenshotScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (parent != null) minecraft.setScreen(parent);
+        if (parent != null) minecraft.gui.setScreen(parent);
         else super.onClose();
     }
 
@@ -262,7 +262,7 @@ public class ScreenshotScreen extends Screen {
             status = "§cCannot preview " + file.getName();
             return;
         }
-        minecraft.setScreen(ImageViewerScreen.forTexture(this, file.getName(),
+        minecraft.gui.setScreen(ImageViewerScreen.forTexture(this, file.getName(),
                 thumb.id(), thumb.width(), thumb.height()).gallery(this::browse, from, slideDir));
     }
 

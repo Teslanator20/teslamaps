@@ -82,7 +82,7 @@ public final class BpsDisplay {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || mc.options.hideGui) return;
+        if (hud == null || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), text);
     }
 

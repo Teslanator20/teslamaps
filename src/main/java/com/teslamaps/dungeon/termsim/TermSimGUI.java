@@ -45,7 +45,7 @@ public class TermSimGUI extends ContainerScreen {
         this.name = name;
         this.size = size;
         this.inv = inv;
-        this.blackPane = new ItemStack(Items.BLACK_STAINED_GLASS_PANE);
+        this.blackPane = new ItemStack(Items.STAINED_GLASS_PANE.black());
         this.blackPane.set(DataComponents.CUSTOM_NAME, Component.literal(""));
     }
 
@@ -72,7 +72,7 @@ public class TermSimGUI extends ContainerScreen {
     }
 
     public void open(long terminalPing) {
-        Minecraft.getInstance().setScreen(this);
+        Minecraft.getInstance().gui.setScreen(this);
         create();
         ping = terminalPing;
     }
@@ -102,11 +102,11 @@ public class TermSimGUI extends ContainerScreen {
 
     private void delaySlotClick(Slot slot, int button) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof StartGUI) { slotClick(slot, button); return; }
-        if (slot.container != inv || slot.getItem().getItem() == Items.BLACK_STAINED_GLASS_PANE) return;
+        if (mc.gui.screen() instanceof StartGUI) { slotClick(slot, button); return; }
+        if (slot.container != inv || slot.getItem().getItem() == Items.STAINED_GLASS_PANE.black()) return;
         if (ping <= 0L) { slotClick(slot, button); return; }
         TickScheduler.schedule((int) Math.max(ping / 50, 0), () -> {
-            if (mc.screen == this) slotClick(slot, button);
+            if (mc.gui.screen() == this) slotClick(slot, button);
         });
     }
 

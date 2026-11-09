@@ -202,7 +202,7 @@ public final class MovableVanillaHud {
             return;
         }
         g.pose().translate(-tabLeft, -9);
-        mc.gui.getTabList().extractRenderState(g, sw(), sb, sb.getDisplayObjective(DisplaySlot.LIST));
+        mc.gui.hud.getTabList().extractRenderState(g, sw(), sb, sb.getDisplayObjective(DisplaySlot.LIST));
     }
 
     // same layout maths as PlayerTabOverlay, so the box matches what vanilla draws
@@ -210,7 +210,7 @@ public final class MovableVanillaHud {
         if (++timer % 10 != 1) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null || mc.level == null) return;
-        PlayerTabOverlay overlay = mc.gui.getTabList();
+        PlayerTabOverlay overlay = mc.gui.hud.getTabList();
         Font font = mc.font;
         Scoreboard sb = mc.level.getScoreboard();
         Objective obj = sb.getDisplayObjective(DisplaySlot.LIST);

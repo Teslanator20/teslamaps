@@ -141,14 +141,14 @@ public class PracticeScreen extends Screen {
         RunConfig config = new RunConfig("F7", new LayoutSource.Practice(c.name), System.nanoTime(), false, 1, LagPreset.OFF, false, 1.0, null, null, null);
         RunStarter.start(config, line -> {
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§8[§6ADS§8] §7" + line));
-            mc.execute(() -> { if (mc.screen == this) { said = line; rebuildWidgets(); } });
+            mc.execute(() -> { if (mc.gui.screen() == this) { said = line; rebuildWidgets(); } });
         });
     }
 
     private List<PracticePlan.Choice> load() {
         PackSet set = Packs.current;
         if (set == null) {
-            Packs.loadAsync().thenAccept(s -> Minecraft.getInstance().execute(() -> { if (Minecraft.getInstance().screen == this) rebuildWidgets(); }));
+            Packs.loadAsync().thenAccept(s -> Minecraft.getInstance().execute(() -> { if (Minecraft.getInstance().gui.screen() == this) rebuildWidgets(); }));
             return null;
         }
         LayoutPack pack = set.layouts;
@@ -163,7 +163,7 @@ public class PracticeScreen extends Screen {
     }
 
     @Override
-    public void onClose() { Minecraft.getInstance().setScreen(parent); }
+    public void onClose() { Minecraft.getInstance().gui.setScreen(parent); }
 
     @Override
     public boolean isPauseScreen() { return false; }

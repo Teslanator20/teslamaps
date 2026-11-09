@@ -39,7 +39,7 @@ public class ItemHighlight {
             String q = StringUtil.strip(hovered.getItem().getHoverName().getString()).trim();
             com.teslamaps.screen.ItemSearchScreen s = new com.teslamaps.screen.ItemSearchScreen(q);
             s.swallowNextChar = true;
-            Minecraft.getInstance().setScreen(s);
+            Minecraft.getInstance().gui.setScreen(s);
             return true;
         }
         return false;
@@ -64,7 +64,7 @@ public class ItemHighlight {
     public static void render(GuiGraphicsExtractor ctx) {
         if (until == 0) return;
         if (System.currentTimeMillis() > until) { until = 0; return; }
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         List<Slot> slots = cs.getMenu().slots;

@@ -77,8 +77,8 @@ public final class ReplayClient {
             case "inv" -> mc.execute(() -> {
                 LocalPlayer p = mc.player;
                 if (p == null) return;
-                if (v[1].equals("1")) { if (mc.screen == null) mc.setScreen(new InventoryScreen(p)); }
-                else if (mc.screen instanceof InventoryScreen) mc.setScreen(null);
+                if (v[1].equals("1")) { if (mc.gui.screen() == null) mc.gui.setScreen(new InventoryScreen(p)); }
+                else if (mc.gui.screen() instanceof InventoryScreen) mc.gui.setScreen(null);
             });
             default -> {}
         }

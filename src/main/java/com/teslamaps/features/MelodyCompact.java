@@ -61,7 +61,7 @@ public final class MelodyCompact {
     }
 
     private static void delete(String plain) {
-        ChatComponentAccessor acc = (ChatComponentAccessor) Minecraft.getInstance().gui.getChat();
+        ChatComponentAccessor acc = (ChatComponentAccessor) Minecraft.getInstance().gui.hud.getChat();
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
         for (int i = 0; i < Math.min(all.size(), 100); i++) {
             if (ChatTimestamps.cut(StringUtil.strip(all.get(i).content().getString())).equals(plain)) {

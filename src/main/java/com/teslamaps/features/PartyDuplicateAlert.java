@@ -71,8 +71,8 @@ public class PartyDuplicateAlert {
         }
         if (plain.isEmpty()) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal(title.toString()));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal(title.toString()));
         mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] " + title));
         if (c.partyDuplicateSound) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
         if (c.partyDuplicateMessage) Announce.party("Dupe " + String.join(" | ", plain));

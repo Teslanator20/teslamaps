@@ -85,7 +85,7 @@ public class LastBreathSound {
         String line = hudLine;
         if (line == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), line);
     }
 

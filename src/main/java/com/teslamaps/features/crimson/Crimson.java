@@ -22,9 +22,9 @@ public final class Crimson {
 
     public static void title(String title, String sub, SoundEvent sound) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(5, 50, 10);
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal(sub == null ? "" : sub));
+        mc.gui.hud.setTimes(5, 50, 10);
+        mc.gui.hud.setTitle(Component.literal(title));
+        mc.gui.hud.setSubtitle(Component.literal(sub == null ? "" : sub));
         if (sound != null) LoudSound.play(sound, 1f, 1f);
     }
 

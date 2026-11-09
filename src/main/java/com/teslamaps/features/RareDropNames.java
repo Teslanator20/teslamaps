@@ -150,7 +150,7 @@ public final class RareDropNames {
         long now = System.currentTimeMillis();
         if (bookName == null || now - bookLineAt > 2000 || now - bookNameAt > 2000) return;
         String name = bookName;
-        ChatComponentAccessor acc = (ChatComponentAccessor) Minecraft.getInstance().gui.getChat();
+        ChatComponentAccessor acc = (ChatComponentAccessor) Minecraft.getInstance().gui.hud.getChat();
         List<GuiMessage> all = acc.teslamaps$getAllMessages();
         for (int i = 0; i < Math.min(all.size(), 20); i++) {
             GuiMessage g = all.get(i);

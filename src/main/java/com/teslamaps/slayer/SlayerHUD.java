@@ -306,7 +306,7 @@ public class SlayerHUD {
     // Skytils slayerCarryMode: middle click a boss to follow it
     private static void tickCarryClick(Minecraft mc) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        boolean down = c.slayerCarryMode && mc.screen == null && org.lwjgl.glfw.GLFW.glfwGetMouseButton(
+        boolean down = c.slayerCarryMode && mc.gui.screen() == null && org.lwjgl.glfw.GLFW.glfwGetMouseButton(
                 mc.getWindow().handle(), org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
         if (!c.slayerCarryMode) carryTag = null;
         if (down && !middleDown) {
@@ -402,12 +402,12 @@ public class SlayerHUD {
     }
 
     private static net.minecraft.world.entity.EntityType<?> bossType(String name) {
-        if (name.contains("Revenant") || name.contains("Atoned")) return net.minecraft.world.entity.EntityType.ZOMBIE;
-        if (name.contains("Tarantula") || name.contains("Conjoined")) return net.minecraft.world.entity.EntityType.SPIDER;
-        if (name.contains("Sven")) return net.minecraft.world.entity.EntityType.WOLF;
-        if (name.contains("Voidgloom")) return net.minecraft.world.entity.EntityType.ENDERMAN;
-        if (name.contains("Demonlord")) return net.minecraft.world.entity.EntityType.BLAZE;
-        if (name.contains("Bloodfiend")) return net.minecraft.world.entity.EntityType.PLAYER;
+        if (name.contains("Revenant") || name.contains("Atoned")) return net.minecraft.world.entity.EntityTypes.ZOMBIE;
+        if (name.contains("Tarantula") || name.contains("Conjoined")) return net.minecraft.world.entity.EntityTypes.SPIDER;
+        if (name.contains("Sven")) return net.minecraft.world.entity.EntityTypes.WOLF;
+        if (name.contains("Voidgloom")) return net.minecraft.world.entity.EntityTypes.ENDERMAN;
+        if (name.contains("Demonlord")) return net.minecraft.world.entity.EntityTypes.BLAZE;
+        if (name.contains("Bloodfiend")) return net.minecraft.world.entity.EntityTypes.PLAYER;
         return null;
     }
 

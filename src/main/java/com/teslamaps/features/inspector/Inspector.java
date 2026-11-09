@@ -110,15 +110,15 @@ public final class Inspector {
 
     private static void openEntities(Entity focus, int radius) {
         com.teslamaps.utils.TickScheduler.schedule(1, () ->
-                Minecraft.getInstance().setScreen(new InspectorScreen(focus, radius)));
+                Minecraft.getInstance().gui.setScreen(new InspectorScreen(focus, radius)));
     }
 
     private static void openItem(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        net.minecraft.client.gui.screens.Screen parent = mc.screen;
+        net.minecraft.client.gui.screens.Screen parent = mc.gui.screen();
         com.teslamaps.utils.TickScheduler.schedule(1, () ->
-                mc.setScreen(new InspectorScreen(stack, parent instanceof net.minecraft.client.gui.screens.ChatScreen ? null : parent)));
+                mc.gui.setScreen(new InspectorScreen(stack, parent instanceof net.minecraft.client.gui.screens.ChatScreen ? null : parent)));
     }
 
     /** Container key over a slot; true = consumed. */
@@ -131,13 +131,13 @@ public final class Inspector {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean down = cfg().devInspector && mc.screen == null && KeyNames.isDown(cfg().entityInspectorKey);
+        boolean down = cfg().devInspector && mc.gui.screen() == null && KeyNames.isDown(cfg().entityInspectorKey);
         if (down && !entityKeyDown) {
             Entity e = lookedAt(mc, 64);
             if (e != null) openEntities(e, 32);
         }
         entityKeyDown = down;
-        if (!(mc.screen instanceof InspectorScreen) && highlighted != -1 && System.currentTimeMillis() > highlightUntil) highlighted = -1;
+        if (!(mc.gui.screen() instanceof InspectorScreen) && highlighted != -1 && System.currentTimeMillis() > highlightUntil) highlighted = -1;
     }
 
     /** Keeps the highlight a few seconds after the browser closes. */

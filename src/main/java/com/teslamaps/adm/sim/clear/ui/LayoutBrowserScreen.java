@@ -80,7 +80,7 @@ public class LayoutBrowserScreen extends Screen {
         for (LayoutRow r : LayoutBrowserModel.page(view, page, pageSize)) {
             String text = font.plainSubstrByWidth(r.line(), w - 12);
             String chosen = parentChoice();
-            addRenderableWidget(Button.builder(Component.literal(r.id.equals(chosen) ? "§a§n" + text : text), b -> { parent.chose(r.id); mc.setScreen(parent); })
+            addRenderableWidget(Button.builder(Component.literal(r.id.equals(chosen) ? "§a§n" + text : text), b -> { parent.chose(r.id); mc.gui.setScreen(parent); })
                     .tooltip(tip(detail(r))).bounds(cx - w / 2, y, w, 20).build());
             y += ROW;
         }
@@ -114,7 +114,7 @@ public class LayoutBrowserScreen extends Screen {
         PackSet set = Packs.current;
         if (set == null) {
             message = null;
-            Packs.loadAsync().thenAccept(s -> Minecraft.getInstance().execute(() -> { if (Minecraft.getInstance().screen == this) rebuildWidgets(); }));
+            Packs.loadAsync().thenAccept(s -> Minecraft.getInstance().execute(() -> { if (Minecraft.getInstance().gui.screen() == this) rebuildWidgets(); }));
             return null;
         }
         LayoutPack pack = set.layouts;
@@ -129,7 +129,7 @@ public class LayoutBrowserScreen extends Screen {
     }
 
     @Override
-    public void onClose() { Minecraft.getInstance().setScreen(parent); }
+    public void onClose() { Minecraft.getInstance().gui.setScreen(parent); }
 
     @Override
     public boolean isPauseScreen() { return false; }

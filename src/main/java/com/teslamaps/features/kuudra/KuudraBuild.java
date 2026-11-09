@@ -126,7 +126,7 @@ public final class KuudraBuild {
 
         if (!stunAlerted && c.kuuBuildStunPercent > 0 && Kuudra.tier() >= 3 && buildPercent >= c.kuuBuildStunPercent) {
             stunAlerted = true;
-            mc.gui.setTitle(Component.literal("§3§lGo to stun"));
+            mc.gui.hud.setTitle(Component.literal("§3§lGo to stun"));
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
         }
     }
@@ -191,7 +191,7 @@ public final class KuudraBuild {
         String[] lines = hudLines;
         if (lines == null || hud == null || !cfg().kuuBuildHud) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines);
     }
 

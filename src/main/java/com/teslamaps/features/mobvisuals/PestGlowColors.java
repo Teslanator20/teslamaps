@@ -89,7 +89,7 @@ public final class PestGlowColors {
     }
 
     private static void trackStereo(Minecraft mc) {
-        if (mc.screen instanceof ContainerScreen screen
+        if (mc.gui.screen() instanceof ContainerScreen screen
                 && StringUtil.stripTrim(screen.getTitle().getString()).equals("Stereo Harmony")) {
             stereo = screen;
             stereoVinyl = "";

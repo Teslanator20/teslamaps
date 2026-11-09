@@ -53,7 +53,7 @@ public final class HideExCoopMembers {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { scanned = null; openedAt = 0; return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { scanned = null; openedAt = 0; return; }
         if (scanned == cs) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Historic Members")) { scanned = cs; return; }
         if (openedAt == 0) openedAt = System.currentTimeMillis();
@@ -81,7 +81,7 @@ public final class HideExCoopMembers {
     private static void onTooltip(List<Component> lines) {
         if (cfg().hiddenCoopMembers.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (!title.endsWith("Collection") && !title.endsWith("Collections")) return;
 

@@ -281,7 +281,7 @@ public final class GardenMilestoneData {
                 readTab();
             }
         }
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && ticks % 10 == 0) readMenu(cs);
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && ticks % 10 == 0) readMenu(cs);
         if (dirty && ticks % 600 == 0) save();
     }
 

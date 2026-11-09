@@ -119,14 +119,14 @@ public final class QuiverHud {
     }
 
     private static void alert(Minecraft mc, String title, float pitch, boolean critical) {
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal("§f" + String.format(Locale.ROOT, "%,d", count) + " left"));
+        mc.gui.hud.setTitle(Component.literal(title));
+        mc.gui.hud.setSubtitle(Component.literal("§f" + String.format(Locale.ROOT, "%,d", count) + " left"));
         LoudSound.play(critical ? SoundEvents.ANVIL_LAND : SoundEvents.ARROW_HIT_PLAYER, 1.0f, pitch);
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

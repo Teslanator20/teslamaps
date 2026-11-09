@@ -122,8 +122,8 @@ public class SixthVisitor {
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal("§a§l6TH VISITOR READY"));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal("§a§l6TH VISITOR READY"));
         if (c.sixthVisitorVolume > 0f) {
             LoudSound.play(SoundOptions.resolve(c.sixthVisitorSound), c.sixthVisitorVolume, 1.0f);
         }
@@ -194,7 +194,7 @@ public class SixthVisitor {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || hudLines.isEmpty() || mc.options.hideGui || !SkyblockUtils.isInGarden()) return;
+        if (hud == null || hudLines.isEmpty() || mc.gui.hud.isHidden() || !SkyblockUtils.isInGarden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), hudLines, hudWidth);
     }
 

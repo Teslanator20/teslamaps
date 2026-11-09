@@ -20,7 +20,7 @@ public class CommissionHighlight {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!TeslaMapsConfig.get().commissionHighlight) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!cs.getTitle().getString().contains("Commissions")) return;
 
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
@@ -51,9 +51,9 @@ public class CommissionHighlight {
         if (!c.commissionStatusIcons || !c.commissionHighlight || !stack.is(net.minecraft.world.item.Items.WRITABLE_BOOK)) return stack;
         if (slot.container instanceof net.minecraft.world.entity.player.Inventory) return stack;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            inMenu = mc.screen instanceof AbstractContainerScreen<?> cs && cs.getTitle().getString().contains("Commissions")
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            inMenu = mc.gui.screen() instanceof AbstractContainerScreen<?> cs && cs.getTitle().getString().contains("Commissions")
                     && c.section("Inventory");
         }
         if (!inMenu) return stack;

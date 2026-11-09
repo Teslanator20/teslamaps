@@ -35,7 +35,7 @@ public final class AuctionSortWarning {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             warning = null;
             return;
         }
@@ -60,7 +60,7 @@ public final class AuctionSortWarning {
         String w = warning;
         if (w == null || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != shownOn || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (mc.gui.screen() != shownOn || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int cx = acc.getX() + acc.getImageWidth() / 2 + 9;
         int cy = acc.getY() + 26;

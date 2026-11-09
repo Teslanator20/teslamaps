@@ -190,7 +190,7 @@ public final class TrevorTrapper {
         tickAuto(mc, now);
         if (!c.trevorHelper) return;
 
-        boolean down = mc.screen == null && KeyNames.isDown(c.trevorWarpKey);
+        boolean down = mc.gui.screen() == null && KeyNames.isDown(c.trevorWarpKey);
         if (down && !keyDown && now - lastWarp > 3000 && mc.getConnection() != null) {
             lastWarp = now;
             mc.getConnection().sendCommand("warp trapper");
@@ -346,7 +346,7 @@ public final class TrevorTrapper {
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         String l = cooldownLine;
         Minecraft mc = Minecraft.getInstance();
-        if (l == null || hud == null || !cfg().trevorHelper || !cfg().trevorCooldownHud || mc.options.hideGui) return;
+        if (l == null || hud == null || !cfg().trevorHelper || !cfg().trevorCooldownHud || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 
@@ -360,8 +360,8 @@ public final class TrevorTrapper {
 
     private static void title(String text) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 30, 10);
-        mc.gui.setTitle(Component.literal(text));
+        mc.gui.hud.setTimes(0, 30, 10);
+        mc.gui.hud.setTitle(Component.literal(text));
         LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f);
     }
 

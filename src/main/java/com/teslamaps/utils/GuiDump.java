@@ -33,7 +33,7 @@ public class GuiDump {
         Minecraft mc = Minecraft.getInstance();
         int key = com.teslamaps.config.TeslaMapsConfig.get().dumpGuiKey;
         if (key < 0 || mc.getWindow() == null) return;
-        if (mc.screen instanceof net.minecraft.client.gui.screens.ChatScreen) return;
+        if (mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen) return;
 
         boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(), key)
                 == org.lwjgl.glfw.GLFW.GLFW_PRESS;
@@ -48,7 +48,7 @@ public class GuiDump {
     }
 
     private static ItemStack hovered() {
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen)) return null;
+        if (!(Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?> screen)) return null;
         Slot slot = ((com.teslamaps.mixin.HandledScreenAccessor) screen).getFocusedSlot();
         return slot == null || slot.getItem().isEmpty() ? null : slot.getItem();
     }
@@ -129,7 +129,7 @@ public class GuiDump {
         if (mc.player == null || mc.level == null) return;
 
         ItemStack stack = ItemStack.EMPTY;
-        if (mc.screen instanceof AbstractContainerScreen<?> screen) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> screen) {
             Slot slot = ((com.teslamaps.mixin.HandledScreenAccessor) screen).getFocusedSlot();
             if (slot != null) stack = slot.getItem();
         }
@@ -190,7 +190,7 @@ public class GuiDump {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> screen)) {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §fNo container menu open"));
             return;
         }

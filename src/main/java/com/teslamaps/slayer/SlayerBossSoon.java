@@ -71,8 +71,8 @@ public final class SlayerBossSoon {
         Minecraft mc = Minecraft.getInstance();
         LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.5f);
         if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §eSlayer boss soon!"));
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal("§eSlayer boss soon!"));
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal("§eSlayer boss soon!"));
     }
 
     private static double num(String s) {

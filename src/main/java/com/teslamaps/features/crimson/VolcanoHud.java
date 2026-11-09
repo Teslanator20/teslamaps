@@ -83,7 +83,7 @@ public final class VolcanoHud {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (!cfg().volcanoHud || mc.options.hideGui || lines.isEmpty() || hud == null) return;
+        if (!cfg().volcanoHud || mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

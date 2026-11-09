@@ -24,7 +24,7 @@ public class BazaarOwnOrders {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.bazaarOwnOrders && !config.bazaarOnlyMyOrders) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return;
 
         String title = com.teslamaps.utils.StringUtil.strip(cs.getTitle().getString());
         if (!title.contains("Bazaar") && !title.contains("➜") && !title.contains("Orders")) return;

@@ -32,7 +32,7 @@ public final class ArrowPoison {
                 .when(() -> TeslaMapsConfig.get().arrowPoisonIndicator || TeslaMapsConfig.get().arrowPoisonHud)
                 .tick(ArrowPoison::tick)
                 .hudHiddenInInventory("arrowpoisonhud", (g, d) -> {
-                    if (!TeslaMapsConfig.get().arrowPoisonHud || Minecraft.getInstance().options.hideGui) return;
+                    if (!TeslaMapsConfig.get().arrowPoisonHud || Minecraft.getInstance().gui.hud.isHidden()) return;
                     drawHud(g, Minecraft.getInstance(), hud.x(), hud.y(), hud.scale(), hudW, toxicText, twilightText);
                 })
                 .config("Combat", b -> {
@@ -50,8 +50,8 @@ public final class ArrowPoison {
         if (timer-- > 0) return;
         timer = 10;
         if (toxicIcon == null) {
-            toxicIcon = new ItemStack(Items.LIME_DYE);
-            twilightIcon = new ItemStack(Items.PURPLE_DYE);
+            toxicIcon = new ItemStack(Items.DYE.lime());
+            twilightIcon = new ItemStack(Items.DYE.purple());
         }
         Inventory inv = Minecraft.getInstance().player.getInventory();
         int first = 0, toxic = 0, twilight = 0;
@@ -90,8 +90,8 @@ public final class ArrowPoison {
 
     private static void drawHud(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float scale, int w, String toxic, String twilight) {
         if (toxicIcon == null) {
-            toxicIcon = new ItemStack(Items.LIME_DYE);
-            twilightIcon = new ItemStack(Items.PURPLE_DYE);
+            toxicIcon = new ItemStack(Items.DYE.lime());
+            twilightIcon = new ItemStack(Items.DYE.purple());
         }
         Perf.begin("ArrowPoison.hud");
         g.pose().pushMatrix();

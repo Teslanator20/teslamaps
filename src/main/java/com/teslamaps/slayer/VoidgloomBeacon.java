@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -104,7 +104,7 @@ public final class VoidgloomBeacon {
         }
 
         Entity boss = SlayerHUD.ownBoss() ? SlayerHUD.getBossEntity() : null;
-        boolean carrying = boss instanceof EnderMan e && e.getCarriedBlock() != null && e.getCarriedBlock().is(Blocks.BEACON);
+        boolean carrying = boss instanceof Enderman e && e.getCarriedBlock() != null && e.getCarriedBlock().is(Blocks.BEACON);
         if (boss != null) {
             if (wasCarrying && !carrying) onThrow(mc);
             wasCarrying = carrying;
@@ -144,8 +144,8 @@ public final class VoidgloomBeacon {
         beaconThrown = true;
         thrownMs = System.currentTimeMillis();
         if (!cfg().voidgloomYangGlyphAlert) return;
-        mc.gui.setTimes(5, 20, 10);
-        mc.gui.setTitle(Component.literal("§cYang Glyph!"));
+        mc.gui.hud.setTimes(5, 20, 10);
+        mc.gui.hud.setTitle(Component.literal("§cYang Glyph!"));
         LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 0.5f);
     }
 

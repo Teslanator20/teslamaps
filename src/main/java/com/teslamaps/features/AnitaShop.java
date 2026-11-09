@@ -76,19 +76,19 @@ public final class AnitaShop {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!cfg().anitaMedalProfit || !inAnita(mc.screen)) {
+        if (!cfg().anitaMedalProfit || !inAnita(mc.gui.screen())) {
             lastScreen = null;
             panel.clear();
             return;
         }
-        if (lastScreen != mc.screen) {
-            lastScreen = mc.screen;
+        if (lastScreen != mc.gui.screen()) {
+            lastScreen = mc.gui.screen();
             ticks = 0;
         }
         if (ticks++ % 10 != 0) return;
         PriceManager.ensureFresh();
         if (cfg().anitaExtraFortune && levels.isEmpty()) load();
-        build((AbstractContainerScreen<?>) mc.screen);
+        build((AbstractContainerScreen<?>) mc.gui.screen());
     }
 
     private record Entry(EcoPanel.Row row, double perBronze) {}
@@ -190,7 +190,7 @@ public final class AnitaShop {
     public static void render(GuiGraphicsExtractor g, int mx, int my) {
         if (feature == null || !feature.active() || panel.empty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (mc.gui.screen() != lastScreen || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         panel.render(g, cs, 0, mx, my);
     }
 
@@ -200,7 +200,7 @@ public final class AnitaShop {
 
     private static void tooltip(ItemStack stack, List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (!inAnita(mc.screen)) return;
+        if (!inAnita(mc.gui.screen())) return;
         if (!StringUtil.stripTrim(stack.getHoverName().getString()).equals("Extra Farming Fortune")) return;
         Map<Integer, Cost> lv = levels;
         if (lv.isEmpty()) {

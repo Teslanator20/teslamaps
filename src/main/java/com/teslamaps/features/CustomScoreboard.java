@@ -247,7 +247,7 @@ public final class CustomScoreboard {
         List<FormattedCharSequence> r = rows;
         if (hud == null || (r.isEmpty() && title == null)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), title, r, width);
     }
 

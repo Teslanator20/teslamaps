@@ -46,7 +46,7 @@ public class DragonESP {
     }
 
     private static int colorFromBossbar(Minecraft mc, TeslaMapsConfig c) {
-        var events = ((com.teslamaps.mixin.BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        var events = ((com.teslamaps.mixin.BossHealthOverlayAccessor) mc.gui.hud.getBossOverlay()).teslamaps$getEvents();
         if (events == null) return -1;
         for (net.minecraft.client.gui.components.LerpingBossEvent ev : events.values()) {
             if (ev.getName() == null) continue;

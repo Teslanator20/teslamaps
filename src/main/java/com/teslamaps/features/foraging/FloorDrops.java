@@ -63,9 +63,9 @@ public final class FloorDrops {
     /** Only note the position, the world is checked in the tick. */
     public static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!Minecraft.getInstance().isSameThread()) return;
-        if (!active || !cfg().floorDrops || packet.getParticle().getType() != ParticleTypes.HAPPY_VILLAGER) return;
+        if (!active || !cfg().floorDrops || packet.particle().getType() != ParticleTypes.HAPPY_VILLAGER) return;
         if (pending.size() >= MAX_PENDING) return;
-        pending.add(BlockPos.containing(packet.getX(), packet.getY() - 1, packet.getZ()));
+        pending.add(BlockPos.containing(packet.x(), packet.y() - 1, packet.z()));
     }
 
     private static boolean onIsland() {

@@ -34,7 +34,7 @@ public final class WorldOverlayToggle {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         int key = cfg().worldOverlayKey;
-        boolean down = key != -1 && mc.screen == null && KeyNames.isDown(key);
+        boolean down = key != -1 && mc.gui.screen() == null && KeyNames.isDown(key);
         if (down && !keyDown) {
             float now = factor();
             hidden = !hidden;

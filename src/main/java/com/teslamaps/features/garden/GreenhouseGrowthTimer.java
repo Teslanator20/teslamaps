@@ -61,7 +61,7 @@ public final class GreenhouseGrowthTimer {
         if (++ticks % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Crop Diagnostics")) {
             read(cs, c);
         }
@@ -129,7 +129,7 @@ public final class GreenhouseGrowthTimer {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || !SkyblockUtils.isInSkyblock()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null || !SkyblockUtils.isInSkyblock()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

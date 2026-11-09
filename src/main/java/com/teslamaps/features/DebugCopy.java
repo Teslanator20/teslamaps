@@ -89,7 +89,7 @@ public final class DebugCopy {
     private static List<String> bossbar() {
         Minecraft mc = Minecraft.getInstance();
         List<String> out = new ArrayList<>();
-        for (var e : ((BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents().values()) {
+        for (var e : ((BossHealthOverlayAccessor) mc.gui.hud.getBossOverlay()).teslamaps$getEvents().values()) {
             out.add(e.getName().getString() + " | progress=" + e.getProgress() + " | color=" + e.getColor() + " | overlay=" + e.getOverlay());
         }
         return out;
@@ -97,7 +97,7 @@ public final class DebugCopy {
 
     private static List<String> tab() {
         Minecraft mc = Minecraft.getInstance();
-        PlayerTabOverlayAccessor acc = (PlayerTabOverlayAccessor) mc.gui.getTabList();
+        PlayerTabOverlayAccessor acc = (PlayerTabOverlayAccessor) mc.gui.hud.getTabList();
         List<String> out = new ArrayList<>();
         out.add("--- header ---");
         if (acc.teslamaps$getHeader() != null) out.add(acc.teslamaps$getHeader().getString());

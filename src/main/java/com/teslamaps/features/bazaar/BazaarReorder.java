@@ -50,7 +50,7 @@ public final class BazaarReorder {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !StringUtil.stripTrim(cs.getTitle().getString()).startsWith("Order options")) {
             scanned = null;
             return;
@@ -80,7 +80,7 @@ public final class BazaarReorder {
         if (slot.index != 11 && slot.index != 13) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).startsWith("Order options")) return;
         ItemStack stack = slot.getItem();
-        if (!stack.is(net.minecraft.world.level.block.Blocks.GREEN_TERRACOTTA.asItem())) return;
+        if (!stack.is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.green().asItem())) return;
         long h = Minecraft.getInstance().getWindow().handle();
         if (GLFW.glfwGetKey(h, GLFW.GLFW_KEY_LEFT_CONTROL) != GLFW.GLFW_PRESS
                 && GLFW.glfwGetKey(h, GLFW.GLFW_KEY_RIGHT_CONTROL) != GLFW.GLFW_PRESS) return;

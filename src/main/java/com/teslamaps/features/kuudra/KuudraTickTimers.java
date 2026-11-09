@@ -73,7 +73,7 @@ public final class KuudraTickTimers {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         String s = supplyLine, b = buildLine;
         if (s != null && supplyHud != null) draw(g, mc, supplyHud.x(), supplyHud.y(), supplyHud.scale(), s);
         if (b != null && buildHud != null) draw(g, mc, buildHud.x(), buildHud.y(), buildHud.scale(), b);

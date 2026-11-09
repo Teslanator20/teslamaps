@@ -132,8 +132,8 @@ public final class InfernoHelper {
         lastWarn = now;
         TickScheduler.schedule(10, () -> {
             LoudSound.play(SoundEvents.ANVIL_LAND, 0.5f, 1.0f);
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal("§4§lNo Polar Bear Active!"));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("§4§lNo Polar Bear Active!"));
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cYou do not have an active Re-heated Gummy Polar Bear! ")
                     .append(Component.literal("§a[Bazaar]").withStyle(s -> s.withClickEvent(
                             new ClickEvent.RunCommand("/bz Re-heated Gummy Polar Bear")))));
@@ -218,13 +218,13 @@ public final class InfernoHelper {
         int sec = Integer.parseInt(bestM.group(1));
         totemLine = "§6Totem: §e" + sec + "s §7| §c" + bestM.group(2) + " hits";
         if (c.infernoTotemPing > 0 && sec == c.infernoTotemPing && sec != lastTotemSec) {
-            mc.gui.setTimes(0, 20, 5);
-            mc.gui.setTitle(Component.literal("§6§lTotem!"));
+            mc.gui.hud.setTimes(0, 20, 5);
+            mc.gui.hud.setTitle(Component.literal("§6§lTotem!"));
             LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.5f);
         }
         if (c.firePillarTitle && sec <= 5 && sec != lastTotemSec && bestD <= 22 * 22) {
-            mc.gui.setTimes(0, 15, 3);
-            mc.gui.setTitle(Component.literal("§5§l" + sec + "s " + bestM.group(2) + " hits"));
+            mc.gui.hud.setTimes(0, 15, 3);
+            mc.gui.hud.setTitle(Component.literal("§5§l" + sec + "s " + bestM.group(2) + " hits"));
             if (c.firePillarSound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 1.0f);
         }
         lastTotemSec = sec;
@@ -232,13 +232,13 @@ public final class InfernoHelper {
 
     private static void renderTotem(GuiGraphicsExtractor g, DeltaTracker d) {
         List<String> ls = totemLines;
-        if (totemHud == null || ls.isEmpty() || !cfg().infernoTotemDisplay || Minecraft.getInstance().options.hideGui) return;
+        if (totemHud == null || ls.isEmpty() || !cfg().infernoTotemDisplay || Minecraft.getInstance().gui.hud.isHidden()) return;
         TextHud.draw(g, Minecraft.getInstance(), totemHud.x(), totemHud.y(), totemHud.scale(), ls, totemW);
     }
 
     private static void renderGummy(GuiGraphicsExtractor g, DeltaTracker d) {
         List<String> ls = gummyLines;
-        if (gummyHud == null || ls.isEmpty() || !cfg().gummyTimer || Minecraft.getInstance().options.hideGui) return;
+        if (gummyHud == null || ls.isEmpty() || !cfg().gummyTimer || Minecraft.getInstance().gui.hud.isHidden()) return;
         TextHud.draw(g, Minecraft.getInstance(), gummyHud.x(), gummyHud.y(), gummyHud.scale(), ls, gummyW);
     }
 }

@@ -10,6 +10,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 
 public class HideWitherKing {
 
@@ -32,10 +33,10 @@ public class HideWitherKing {
 
     /** Netty thread: reads the tick-computed flag only. */
     public static boolean shouldCancelSpawn(ClientboundAddEntityPacket p) {
-        return active && p.getType() == EntityType.ARMOR_STAND && inArea(p.getY(), p.getZ());
+        return active && p.getType() == EntityTypes.ARMOR_STAND && inArea(p.getY(), p.getZ());
     }
 
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
-        return active && p.getParticle().getType() == ParticleTypes.WITCH && inArea(p.getY(), p.getZ());
+        return active && p.particle().getType() == ParticleTypes.WITCH && inArea(p.y(), p.z());
     }
 }

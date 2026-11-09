@@ -307,7 +307,7 @@ public class DungeonWaypoints {
                     for (int dz = 0; dz <= ComponentGrid.ROOM_SIZE - 1 && found < 12; dz++)
                         for (int y = 150; y >= 11; y--) {
                             if (lvl.getBlockState(mb.set(corner[0] + dx, y, corner[1] + dz))
-                                    .is(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA)) {
+                                    .is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue())) {
                                 msg.accept("§9terracotta §fat §e" + (corner[0] + dx) + "," + y + "," + (corner[1] + dz)
                                         + "§7 (offset from corner " + dx + "," + dz + ", expected one of 0/30)");
                                 found++;
@@ -616,7 +616,7 @@ public class DungeonWaypoints {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.waypointEditMode || !c.dungeonWaypoints || !c.section("Secrets & Waypoints")) return false;
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.screen != null || mc.player == null || !DungeonManager.isInDungeon()) return false;
+        if (mc.gui.screen() != null || mc.player == null || !DungeonManager.isInDungeon()) return false;
         long now = System.currentTimeMillis();
         boolean repeat = now - lastUseMs < 260;
         lastUseMs = now;
@@ -625,14 +625,14 @@ public class DungeonWaypoints {
         if (pos == null) return false;
         int color = TeslaMapsConfig.parseColor(c.waypointAddColor);
         if (c.waypointEditTitles && mc.player.isShiftKeyDown()) {
-            mc.setScreen(new com.teslamaps.screen.TextPromptScreen("Waypoint Title", text -> {
+            mc.gui.setScreen(new com.teslamaps.screen.TextPromptScreen("Waypoint Title", text -> {
                 String r = addAt(pos, color, c.waypointAddFilled, c.waypointAddThroughWalls, c.waypointAddType, text);
-                mc.gui.setOverlayMessage(net.minecraft.network.chat.Component.literal(r), false);
+                mc.gui.hud.setOverlayMessage(net.minecraft.network.chat.Component.literal(r), false);
             }));
             return true;
         }
         String r = addAt(pos, color, c.waypointAddFilled, c.waypointAddThroughWalls, c.waypointAddType, null);
-        mc.gui.setOverlayMessage(net.minecraft.network.chat.Component.literal(r), false);
+        mc.gui.hud.setOverlayMessage(net.minecraft.network.chat.Component.literal(r), false);
         return true;
     }
 
@@ -1019,7 +1019,7 @@ public class DungeonWaypoints {
                 int bx = corner[0] + ComponentGrid.HALF_ROOM_SIZE + ROT_OFFSETS[r][0];
                 int bz = corner[1] + ComponentGrid.HALF_ROOM_SIZE + ROT_OFFSETS[r][1];
                 for (int y = 150; y >= 11; y--) {
-                    if (level.getBlockState(m.set(bx, y, bz)).is(net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA)
+                    if (level.getBlockState(m.set(bx, y, bz)).is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue())
                             && (!multi || neighborsClear(level, bx, y, bz))) {
                         return new int[]{bx, bz, r};
                     }
@@ -1034,7 +1034,7 @@ public class DungeonWaypoints {
         int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (int[] d : dirs) {
             net.minecraft.world.level.block.Block b = level.getBlockState(m.set(x + d[0], y, z + d[1])).getBlock();
-            if (b != net.minecraft.world.level.block.Blocks.AIR && b != net.minecraft.world.level.block.Blocks.BLUE_TERRACOTTA) {
+            if (b != net.minecraft.world.level.block.Blocks.AIR && b != net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue()) {
                 return false;
             }
         }

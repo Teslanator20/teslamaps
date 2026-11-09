@@ -66,10 +66,10 @@ public final class EnderNodeFinder {
 
     public static void onParticle(ClientboundLevelParticlesPacket packet) {
         if (!inEnd || !cfg().enderNodeFinder || !Minecraft.getInstance().isSameThread()) return;
-        ParticleType<?> type = packet.getParticle().getType();
+        ParticleType<?> type = packet.particle().getType();
         boolean portal = type == ParticleTypes.PORTAL;
         if (!portal && type != ParticleTypes.WITCH) return;
-        double x = packet.getX(), y = packet.getY(), z = packet.getZ();
+        double x = packet.x(), y = packet.y(), z = packet.z();
         double xf = Mth.positiveModulo(x, 1), yf = Mth.positiveModulo(y, 1), zf = Mth.positiveModulo(z, 1);
         BlockPos pos;
         Direction dir;

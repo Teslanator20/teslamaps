@@ -71,7 +71,7 @@ public final class AbiphoneHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             inAbiphone = inDirectory = false;
             lastScreen = null;
             pendingRemove = null;
@@ -173,7 +173,7 @@ public final class AbiphoneHelper {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!favOn()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         boolean favOnly = cfg().abiphoneFavOnly;
@@ -199,7 +199,7 @@ public final class AbiphoneHelper {
 
     private static void tooltip(ItemStack stack, List<Component> lines) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Slot hovered = ((HandledScreenAccessor) cs).getFocusedSlot();
         if (hovered == null || hovered.getItem() != stack) return;
         TeslaMapsConfig c = cfg();

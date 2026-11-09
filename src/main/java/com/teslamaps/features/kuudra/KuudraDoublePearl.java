@@ -69,8 +69,8 @@ public final class KuudraDoublePearl {
         }
         if (level == 2 && alertedId != giant.getId()) {
             alertedId = giant.getId();
-            mc.gui.setTimes(0, 20, 8);
-            mc.gui.setTitle(Component.literal("§c§lDOUBLE PEARL"));
+            mc.gui.hud.setTimes(0, 20, 8);
+            mc.gui.hud.setTitle(Component.literal("§c§lDOUBLE PEARL"));
             if (TeslaMapsConfig.get().kuudraDoublePearlSound) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1.15f);
         }
     }

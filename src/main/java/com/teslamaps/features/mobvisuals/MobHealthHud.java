@@ -128,7 +128,7 @@ public final class MobHealthHud {
         List<String> l = lines;
         if (l.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         CropStats.drawLines(g, mc, hud.x(), hud.y(), hud.scale(), l, linesW);
     }
 }

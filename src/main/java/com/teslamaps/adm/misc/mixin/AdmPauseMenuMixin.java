@@ -35,7 +35,7 @@ public abstract class AdmPauseMenuMixin extends Screen {
         grid.defaultCellSetting().padding(4, 4, 4, 0);
         GridLayout.RowHelper helper = grid.createRowHelper(2);
         helper.addChild(Button.builder(Component.translatable("menu.returnToGame"), b -> {
-            minecraft.setScreen(null);
+            minecraft.gui.setScreen(null);
             minecraft.mouseHandler.grabMouse();
         }).width(204).build(), 2);
         Button.Builder options = Button.builder(Component.translatable("menu.options"),
@@ -43,7 +43,7 @@ public abstract class AdmPauseMenuMixin extends Screen {
         Screen mods = RandomStuff.modsScreen(self);
         if (mods != null) {
             helper.addChild(options.width(98).build());
-            helper.addChild(Button.builder(Component.literal("Mods"), b -> minecraft.setScreen(RandomStuff.modsScreen(self))).width(98).build());
+            helper.addChild(Button.builder(Component.literal("Mods"), b -> minecraft.gui.setScreen(RandomStuff.modsScreen(self))).width(98).build());
         } else {
             helper.addChild(options.width(204).build(), 2);
         }

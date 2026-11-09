@@ -66,7 +66,7 @@ public class RunStartScreen extends Screen {
             }
             case RECORDED -> {
                 String chosen = chosenId;
-                addRenderableWidget(Button.builder(Component.literal(chosen == null ? "Choose a layout..." : "§a" + LayoutBrowserModel.title(chosen)), b -> mc.setScreen(new LayoutBrowserScreen(this)))
+                addRenderableWidget(Button.builder(Component.literal(chosen == null ? "Choose a layout..." : "§a" + LayoutBrowserModel.title(chosen)), b -> mc.gui.setScreen(new LayoutBrowserScreen(this)))
                         .tooltip(tip(chosen == null ? "Opens the browser of recorded layouts." : chosen + ". Click: opens the browser to choose another."))
                         .bounds(cx - 90, y, 180, 20).build());
             }
@@ -175,7 +175,7 @@ public class RunStartScreen extends Screen {
             said.add(line);
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§8[§6ADS§8] §7" + line));
             mc.execute(() -> {
-                if (mc.screen == this) { problems.clear(); problems.addAll(said); rebuildWidgets(); }
+                if (mc.gui.screen() == this) { problems.clear(); problems.addAll(said); rebuildWidgets(); }
             });
         });
     }
@@ -219,7 +219,7 @@ public class RunStartScreen extends Screen {
         super.added();
         Minecraft mc = Minecraft.getInstance();
         if (Packs.current == null) Packs.loadAsync().thenAccept(set -> mc.execute(() -> {
-            if (mc.screen == this && !set.canBuildDungeon()) { problems.clear(); problems.addAll(set.userLines()); rebuildWidgets(); }
+            if (mc.gui.screen() == this && !set.canBuildDungeon()) { problems.clear(); problems.addAll(set.userLines()); rebuildWidgets(); }
         }));
         else {
             PackSet cur = Packs.current;

@@ -80,10 +80,10 @@ public final class BingoCardTips {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            inCard = mc.screen instanceof AbstractContainerScreen<?>
-                    && StringUtil.stripTrim(mc.screen.getTitle().getString()).equals("Bingo Card");
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            inCard = mc.gui.screen() instanceof AbstractContainerScreen<?>
+                    && StringUtil.stripTrim(mc.gui.screen().getTitle().getString()).equals("Bingo Card");
             colors = Map.of();
             goals = new IdentityHashMap<>();
             timer = 0;
@@ -91,7 +91,7 @@ public final class BingoCardTips {
         if (!inCard || timer-- > 0) return;
         timer = 10;
         fetch();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Map<Integer, Integer> col = new HashMap<>();
         Map<ItemStack, Goal> gs = new IdentityHashMap<>();
         boolean hideDone = TeslaMapsConfig.get().bingoHideDoneDifficulty;
@@ -148,7 +148,7 @@ public final class BingoCardTips {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!inCard || colors.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Perf.begin("BingoCardTips");
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot slot : cs.getMenu().slots) {

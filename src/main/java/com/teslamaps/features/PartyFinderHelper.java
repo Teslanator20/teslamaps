@@ -107,9 +107,9 @@ public final class PartyFinderHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            kind = kindOf(mc.screen);
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            kind = kindOf(mc.gui.screen());
             timer = 0;
             tooltipCache.clear();
             highlight = Map.of();
@@ -120,7 +120,7 @@ public final class PartyFinderHelper {
         }
         if (kind == 0 || timer-- > 0) return;
         timer = 5;
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
 
         Map<Integer, Integer> hl = new HashMap<>();
         Map<Integer, String> tips = new HashMap<>();
@@ -272,7 +272,7 @@ public final class PartyFinderHelper {
         boolean slotText = (c.pfFloorStack || c.pfMemberCount) && SlotText.shown(SlotText.PARTY_FINDER);
         if (!slotText && !extra) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof Inventory) continue;

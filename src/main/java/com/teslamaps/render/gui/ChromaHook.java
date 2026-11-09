@@ -1,8 +1,8 @@
 package com.teslamaps.render.gui;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.font.glyphs.BakedSheetGlyph;
@@ -46,7 +46,7 @@ public class ChromaHook {
         // "30" means 30% of the screen width, not 30 pixels
         float chromaSize = c.chromaSize * (mc.getWindow().getWidth() / 100f);
 
-        float ticks = mc.gui.getGuiTicks()
+        float ticks = mc.gui.hud.getGuiTicks()
                 + mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
         if (!c.chromaForward) ticks = -ticks;
 

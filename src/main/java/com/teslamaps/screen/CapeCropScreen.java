@@ -51,7 +51,7 @@ public class CapeCropScreen extends Screen {
 
     public static void open(String name, byte[] data, String subfolder) {
         Minecraft mc = Minecraft.getInstance();
-        mc.execute(() -> mc.setScreen(new CapeCropScreen(mc.screen, name, data, subfolder)));
+        mc.execute(() -> mc.gui.setScreen(new CapeCropScreen(mc.gui.screen(), name, data, subfolder)));
     }
 
     @Override
@@ -214,7 +214,7 @@ public class CapeCropScreen extends Screen {
         if (source != null) source.close();
         texture = null;
         source = null;
-        minecraft.setScreen(parent);
+        minecraft.gui.setScreen(parent);
     }
 
     @Override

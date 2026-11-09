@@ -83,8 +83,8 @@ public class CustomTitles {
 
     private static void setTitle(String title) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, TITLE_TICKS, 5);
-        mc.gui.setTitle(Component.literal(title));
+        mc.gui.hud.setTimes(0, TITLE_TICKS, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
     }
 
     private static boolean inThornBoss() {

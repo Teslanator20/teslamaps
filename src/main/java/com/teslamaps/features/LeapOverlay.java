@@ -73,7 +73,7 @@ public class LeapOverlay {
     private static boolean inBossRoom() {
         if (DungeonManager.isInBoss()) return true;
         if (mc.gui == null) return false;
-        var events = ((BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        var events = ((BossHealthOverlayAccessor) mc.gui.hud.getBossOverlay()).teslamaps$getEvents();
         if (events == null) return false;
         for (LerpingBossEvent ev : events.values()) {
             if (ev.getName() == null) continue;
@@ -90,9 +90,9 @@ public class LeapOverlay {
     public static boolean shouldRender() {
         if (!TeslaMapsConfig.get().leapOverlay) return false;
         if (!DungeonManager.isInDungeon()) return false;
-        if (mc.screen == null) return false;
+        if (mc.gui.screen() == null) return false;
 
-        if (mc.screen instanceof ContainerScreen containerScreen) {
+        if (mc.gui.screen() instanceof ContainerScreen containerScreen) {
             String title = containerScreen.getTitle().getString();
             String cleanTitle = ChatFormatting.stripFormatting(title);
             return "Spirit Leap".equals(cleanTitle) || "Teleport to Player".equals(cleanTitle);
@@ -185,7 +185,7 @@ public class LeapOverlay {
             return;
         }
 
-        ContainerScreen screen = (ContainerScreen) mc.screen;
+        ContainerScreen screen = (ContainerScreen) mc.gui.screen();
         if (screen == null) return;
 
         boolean selfDead = selfDead();
@@ -538,7 +538,7 @@ public class LeapOverlay {
         if (!shouldRender()) return false;
         if (button != 0) return false; // Only left click
 
-        ContainerScreen screen = (ContainerScreen) mc.screen;
+        ContainerScreen screen = (ContainerScreen) mc.gui.screen();
         if (screen == null) return false;
         if (TeslaMapsConfig.get().leapOnRelease) {
             mouseArmed = true;
@@ -551,7 +551,7 @@ public class LeapOverlay {
         if (!TeslaMapsConfig.get().leapOnRelease || button != 0 || !shouldRender()) { mouseArmed = false; return false; }
         if (!mouseArmed) return true;
         mouseArmed = false;
-        ContainerScreen screen = (ContainerScreen) mc.screen;
+        ContainerScreen screen = (ContainerScreen) mc.gui.screen();
         if (screen == null) return false;
         return trigger(screen, mouseX, mouseY);
     }

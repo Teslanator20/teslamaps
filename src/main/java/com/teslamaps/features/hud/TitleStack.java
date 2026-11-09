@@ -144,7 +144,7 @@ public final class TitleStack {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (ENTRIES.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         long now = System.currentTimeMillis();
         boolean up = cfg().titleStackUp;
         float s = hud.scale();

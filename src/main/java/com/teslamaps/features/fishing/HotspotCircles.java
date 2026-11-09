@@ -109,11 +109,11 @@ public final class HotspotCircles {
     private static final Vector3f WATER = new Vector3f(1.0f, 0.4117647f, 0.7058824f);
 
     private static boolean edgeParticle(ClientboundLevelParticlesPacket p) {
-        var type = p.getParticle().getType();
-        if (type == ParticleTypes.SMOKE) return p.getCount() == 5 || p.getCount() == 2;
+        var type = p.particle().getType();
+        if (type == ParticleTypes.SMOKE) return p.count() == 5 || p.count() == 2;
         if (type != ParticleTypes.DUST) return false;
-        if (p.getCount() != 0 || p.getMaxSpeed() != 1f || p.getXDist() != 1f) return false;
-        Vector3f c = ((DustParticleOptions) p.getParticle()).getColor();
+        if (p.count() != 0 || p.xMaxSpeed() != 1f || p.xDist() != 1f) return false;
+        Vector3f c = ((DustParticleOptions) p.particle()).getColor();
         return Math.abs(c.x - WATER.x) < 0.01f && Math.abs(c.y - WATER.y) < 0.01f && Math.abs(c.z - WATER.z) < 0.01f;
     }
 
@@ -127,7 +127,7 @@ public final class HotspotCircles {
         double bestD = (max + 1) * (max + 1);
         for (Spot s : spots.values()) {
             if (s.center == null) continue;
-            double dx = p.getX() - s.center.x, dz = p.getZ() - s.center.z;
+            double dx = p.x() - s.center.x, dz = p.z() - s.center.z;
             double d = dx * dx + dz * dz;
             if (d > bestD) continue;
             bestD = d;

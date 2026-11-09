@@ -150,9 +150,9 @@ public final class MiningNotifications {
 
     private static void notify(String title, String sub) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(5, 30, 5);
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal(sub));
+        mc.gui.hud.setTimes(5, 30, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
+        mc.gui.hud.setSubtitle(Component.literal(sub));
         if (cfg().miningNotifySound && mc.player != null) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
     }
 }

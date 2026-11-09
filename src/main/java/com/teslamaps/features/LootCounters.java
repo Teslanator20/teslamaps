@@ -74,7 +74,7 @@ public final class LootCounters {
     private static void renderGhost(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!inMines || ghostHud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         ghost.draw(g, mc, ghostHud.x(), ghostHud.y(), ghostHud.scale());
     }
 }

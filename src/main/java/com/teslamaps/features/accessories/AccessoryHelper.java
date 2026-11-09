@@ -77,7 +77,7 @@ public final class AccessoryHelper {
     private static void tick() {
         AccessoryData.tick();
         Minecraft mc = Minecraft.getInstance();
-        inBag = cfg().accessoryHelper && mc.screen instanceof AbstractContainerScreen<?> cs
+        inBag = cfg().accessoryHelper && mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && BAG_TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches();
         if (!inBag) {
             page = 0;
@@ -164,7 +164,7 @@ public final class AccessoryHelper {
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         if (!inBag || !active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         Font font = mc.font;
         int h = Math.max(120, acc.getImageHeight());
@@ -268,7 +268,7 @@ public final class AccessoryHelper {
         if (!cfg().accessorySlotSymbol || !active() || !AccessoryData.hasData()
                 || !com.teslamaps.features.SlotText.shown(com.teslamaps.features.SlotText.ACCESSORY)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot slot : cs.getMenu().slots) {
             ItemStack st = slot.getItem();

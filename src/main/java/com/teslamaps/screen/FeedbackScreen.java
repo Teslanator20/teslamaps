@@ -63,7 +63,7 @@ public class FeedbackScreen extends Screen {
             sending = false;
             if (line.startsWith("§a")) {
                 if (minecraft.player != null) minecraft.player.sendSystemMessage(Component.literal("§7[TeslaMaps] " + line));
-                if (minecraft.screen == this) onClose();
+                if (minecraft.gui.screen() == this) onClose();
                 return;
             }
             status = line;

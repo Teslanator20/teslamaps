@@ -29,8 +29,8 @@ public class SpringBootsHelper {
         if (!pling) { streak = 0; return; }
         if (!mc.player.isShiftKeyDown()) return;
         if (++streak == 5) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§cSpring Boots ready!"));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§cSpring Boots ready!"));
             mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 2f);
         }
     }

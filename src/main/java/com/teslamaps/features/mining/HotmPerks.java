@@ -99,10 +99,10 @@ public class HotmPerks {
 
     private static boolean inMenu() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != cachedScreen) {
-            cachedScreen = mc.screen;
+        if (mc.gui.screen() != cachedScreen) {
+            cachedScreen = mc.gui.screen();
             cache.clear();
-            cachedIn = mc.screen instanceof AbstractContainerScreen<?> cs
+            cachedIn = mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                     && StringUtil.stripTrim(cs.getTitle().getString()).startsWith("Heart of the Mountain");
         }
         return cachedIn;
@@ -141,7 +141,7 @@ public class HotmPerks {
     /** Level / token stack text, drawn over the container. */
     public static void render(GuiGraphicsExtractor ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot slot : cs.getMenu().slots) {
             if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;

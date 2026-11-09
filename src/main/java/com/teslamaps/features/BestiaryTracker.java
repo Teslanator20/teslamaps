@@ -316,7 +316,7 @@ public class BestiaryTracker {
     /** "Overall Progress" in the Bestiary menu is the only place the kills to max show up. */
     private static void readMenu() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)) return;
         if (!MENU_TITLE.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) return;
 
         boolean found = false;
@@ -575,7 +575,7 @@ public class BestiaryTracker {
     }
 
     private static boolean inInventory() {
-        return Minecraft.getInstance().screen
+        return Minecraft.getInstance().gui.screen()
                 instanceof net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
     }
 

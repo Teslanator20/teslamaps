@@ -77,7 +77,7 @@ public final class KuudraSupplySplits {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || !KuudraContext.inKuudra()) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || !KuudraContext.inKuudra()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, linesW);
     }
 

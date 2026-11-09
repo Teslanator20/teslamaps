@@ -317,7 +317,7 @@ public final class MythologicalTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         TeslaMapsConfig c = cfg();
         tracker.draw(g, mc, c.mythoTrackerX, c.mythoTrackerY, c.mythoTrackerScale);
     }

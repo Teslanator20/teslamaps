@@ -57,8 +57,8 @@ public class LatherReminder {
         mc.player.sendSystemMessage(Component.literal(
                 "§a[TeslaMaps] §eThe " + tree.color + tree.name + " Tree §elather ran out - honeycomb it again."));
         if (c.latherReminderTitle) {
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§6Lather the " + tree.name + " Tree!"));
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§6Lather the " + tree.name + " Tree!"));
         }
         if (c.latherReminderVolume > 0f) {
             com.teslamaps.utils.LoudSound.play(

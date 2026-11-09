@@ -120,7 +120,7 @@ public final class ForagingTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!show) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || com.teslamaps.utils.HudVisibility.suppressed()) return;
+        if (mc.gui.hud.isHidden() || com.teslamaps.utils.HudVisibility.suppressed()) return;
         TeslaMapsConfig c = cfg();
         shown().draw(g, mc, c.foragingTrackerX, c.foragingTrackerY, c.foragingTrackerScale);
     }

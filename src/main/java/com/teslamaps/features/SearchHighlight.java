@@ -111,7 +111,7 @@ public class SearchHighlight {
     /** Behind a container slot, from SlotBackgrounds. */
     public static void drawSlot(GuiGraphicsExtractor ctx, Slot slot) {
         if (!active()) return;
-        Screen s = Minecraft.getInstance().screen;
+        Screen s = Minecraft.getInstance().gui.screen();
         if (s != screen.get()) {
             screen = new WeakReference<>(s);
             String t = s instanceof AbstractContainerScreen<?> ? StringUtil.stripTrim(s.getTitle().getString()) : "";

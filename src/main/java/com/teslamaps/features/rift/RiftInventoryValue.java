@@ -57,12 +57,12 @@ public final class RiftInventoryValue {
 
     public static boolean shouldRender() {
         return feature != null && !lines.isEmpty() && feature.active()
-                && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?>;
+                && Minecraft.getInstance().gui.screen() instanceof AbstractContainerScreen<?>;
     }
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!RiftSpot.inRift() || !(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!RiftSpot.inRift() || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (!lines.isEmpty()) {
                 lines = List.of();
                 shown = List.of();
@@ -113,7 +113,7 @@ public final class RiftInventoryValue {
 
     public static void render(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         List<String> ls = lines;
         List<Entry> sh = shown;
         if (ls.isEmpty()) return;

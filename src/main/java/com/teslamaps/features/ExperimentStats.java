@@ -164,13 +164,13 @@ public final class ExperimentStats {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
         ticks++;
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            onOpen(mc.screen);
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            onOpen(mc.gui.screen());
         }
         if (ticks % 20 == 0 && dryLines.isEmpty() && c.expDryStreak) rebuildDry();
 
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && inTable) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && inTable) {
             if (c.expProfitTracker && ticks % 20 == 0) tracker.markActivity();
             String title = StringUtil.stripTrim(cs.getTitle().getString());
             if (c.expGuardianReminder && !guardianChecked && title.equals("Experimentation Table")
@@ -378,7 +378,7 @@ public final class ExperimentStats {
             total += st.getCount();
         }
         boolean near = mc.player.blockPosition().distSqr(tablePos) <= 15 * 15;
-        if (lastBottles >= 0 && total < lastBottles && near && mc.screen == null) {
+        if (lastBottles >= 0 && total < lastBottles && near && mc.gui.screen() == null) {
             for (var e : lastCounts.entrySet()) {
                 int used = e.getValue() - now.getOrDefault(e.getKey(), 0);
                 if (used > 0) tracker.addCoins(-(long) (bottlePrice(e.getKey()) * used));
@@ -403,7 +403,7 @@ public final class ExperimentStats {
 
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.screen != null || !cfg().expProfitTracker || !nearTable()) return;
+        if (mc.gui.hud.isHidden() || mc.gui.screen() != null || !cfg().expProfitTracker || !nearTable()) return;
         tracker.draw(g, mc, profitHud.x(), profitHud.y(), profitHud.scale());
     }
 
@@ -415,7 +415,7 @@ public final class ExperimentStats {
         if (c.expDryStreak && !dryLines.isEmpty()) TextHud.draw(g, mc, dryHud.x(), dryHud.y(), dryHud.scale(), dryLines, dryWidth);
         if (c.expProfitTracker) tracker.draw(g, mc, profitHud.x(), profitHud.y(), profitHud.scale());
         if (c.expGuardianReminder && guardianWarnAt != 0 && System.currentTimeMillis() - guardianWarnAt < 2000
-                && mc.screen instanceof AbstractContainerScreen<?> cs) {
+                && mc.gui.screen() instanceof AbstractContainerScreen<?> cs) {
             String t = "§cWrong Pet equipped!";
             int top = ((HandledScreenAccessor) cs).getY();
             g.pose().pushMatrix();

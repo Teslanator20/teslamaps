@@ -52,9 +52,9 @@ public final class MageBeam {
     /** Main thread only. True = drop the particle. */
     public static boolean onParticle(ClientboundLevelParticlesPacket p) {
         TeslaMapsConfig c = cfg();
-        if (!c.mageBeam || p.getParticle().getType() != ParticleTypes.FIREWORK || !c.section("Render")
+        if (!c.mageBeam || p.particle().getType() != ParticleTypes.FIREWORK || !c.section("Render")
                 || !DungeonManager.isInDungeon()) return false;
-        Vec3 pt = new Vec3(p.getX(), p.getY(), p.getZ());
+        Vec3 pt = new Vec3(p.x(), p.y(), p.z());
         Beam recent = beams.isEmpty() ? null : beams.get(beams.size() - 1);
         if (recent != null && tick - recent.lastTick < 1 && inDirection(recent.points, pt)) {
             recent.points.add(pt);

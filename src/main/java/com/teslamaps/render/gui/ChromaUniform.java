@@ -1,8 +1,8 @@
 package com.teslamaps.render.gui;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.buffers.Std140Builder;
-import com.mojang.blaze3d.buffers.Std140SizeCalculator;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.buffers.Std140Builder;
+import com.mojang.renderpearl.api.buffers.Std140SizeCalculator;
 import net.minecraft.client.renderer.DynamicUniformStorage;
 
 import java.nio.ByteBuffer;

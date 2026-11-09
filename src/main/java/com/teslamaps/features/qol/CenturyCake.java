@@ -130,7 +130,7 @@ public class CenturyCake {
         if (l == null || hud == null || !cfg().centuryCakeTimer || !SkyblockUtils.isInSkyblock()) return;
         if (cfg().centuryCakeOnlyExpired && !anyReady) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

@@ -790,6 +790,6 @@ public class ProfileViewerScreen extends Screen {
 
     public static void open(String playerName) {
         Minecraft mc = Minecraft.getInstance();
-        mc.schedule(() -> mc.setScreen(new ProfileViewerScreen(playerName)));
+        mc.schedule(() -> mc.gui.setScreen(new ProfileViewerScreen(playerName)));
     }
 }

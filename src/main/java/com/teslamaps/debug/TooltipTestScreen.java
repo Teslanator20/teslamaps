@@ -40,9 +40,9 @@ public class TooltipTestScreen extends Screen {
     /** -Dteslamaps.tooltiptest=true opens it once on the first tick with no screen up. */
     public static void autoOpen(net.minecraft.client.Minecraft client) {
         if (opened || !Boolean.getBoolean("teslamaps.tooltiptest")) return;
-        if (client.screen != null || client.level == null) return;
+        if (client.gui.screen() != null || client.level == null) return;
         opened = true;
-        client.setScreen(new TooltipTestScreen());
+        client.gui.setScreen(new TooltipTestScreen());
     }
 
     private final ItemStack stack = new ItemStack(Items.DIAMOND_SWORD);

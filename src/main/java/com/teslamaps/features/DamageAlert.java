@@ -86,9 +86,9 @@ public class DamageAlert {
         if (c.damageAlertSound) LoudSound.play(SoundOptions.resolve(c.damageAlertSoundType), 1f, 1f);
         if (c.damageAlertFlash) flashAt = System.currentTimeMillis();
         if (c.damageAlertTitle) {
-            mc.gui.setTimes(0, 15, 5);
-            mc.gui.setTitle(Component.literal(""));
-            mc.gui.setSubtitle(Component.literal("§c-" + dmg + " ❤"));
+            mc.gui.hud.setTimes(0, 15, 5);
+            mc.gui.hud.setTitle(Component.literal(""));
+            mc.gui.hud.setSubtitle(Component.literal("§c-" + dmg + " ❤"));
         }
         if (c.damageAlertChat && mc.player != null) mc.player.sendSystemMessage(Component.literal("§c[Damage] §f-" + dmg + " ❤ §7(" + cur + " left)"));
     }

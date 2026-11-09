@@ -15,7 +15,7 @@ public final class HudVisibility {
      */
     public static boolean suppressed() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.options.hideGui) return true;
-        return mc.screen != null && !(mc.screen instanceof ChatScreen);
+        if (mc.player == null || mc.gui.hud.isHidden()) return true;
+        return mc.gui.screen() != null && !(mc.gui.screen() instanceof ChatScreen);
     }
 }

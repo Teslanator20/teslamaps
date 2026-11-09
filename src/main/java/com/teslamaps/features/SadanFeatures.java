@@ -96,7 +96,7 @@ public class SadanFeatures {
             return;
         }
         UUID found = null;
-        var events = ((BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
+        var events = ((BossHealthOverlayAccessor) mc.gui.hud.getBossOverlay()).teslamaps$getEvents();
         if (events != null) {
             for (LerpingBossEvent ev : events.values()) {
                 if (ev.getName() != null && ev.getName().getString().contains("Sadan's Interest")) {

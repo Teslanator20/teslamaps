@@ -158,7 +158,7 @@ public class WaypointRoutesScreen extends Screen {
             }
             if (in(mx, my, editX, ry, EDIT_W, 22)) {
                 GuiSounds.press();
-                minecraft.setScreen(new RouteEditScreen(this, name));
+                minecraft.gui.setScreen(new RouteEditScreen(this, name));
                 return true;
             }
             if (in(mx, my, removeX, ry, REMOVE_W, 22)) {
@@ -281,7 +281,7 @@ public class WaypointRoutesScreen extends Screen {
     public void onClose() {
         commitRenames();
         TeslaMapsConfig.save();
-        Minecraft.getInstance().setScreen(null);
+        Minecraft.getInstance().gui.setScreen(null);
     }
 
     @Override

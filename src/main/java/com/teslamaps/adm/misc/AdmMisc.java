@@ -33,14 +33,14 @@ public final class AdmMisc {
 
     public static void chat(String text) {
         Minecraft mc = Minecraft.getInstance();
-        mc.execute(() -> mc.gui.getChat().addClientSystemMessage(Component.literal(text)));
+        mc.execute(() -> mc.gui.hud.getChat().addClientSystemMessage(Component.literal(text)));
     }
 
     /** Odin's alert: a title for a second, with a pling. */
     public static void alert(String title, boolean sound) {
         Minecraft mc = Minecraft.getInstance();
-        mc.gui.setTimes(0, 20, 5);
-        mc.gui.setTitle(Component.literal(title));
+        mc.gui.hud.setTimes(0, 20, 5);
+        mc.gui.hud.setTitle(Component.literal(title));
         if (sound && mc.player != null) mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
     }
 

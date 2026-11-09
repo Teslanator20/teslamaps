@@ -131,7 +131,7 @@ public class IceFillPuzzle extends WorldPuzzle {
                     IceFillLogic.Cell c = r.cell;
                     setAt(c.x, c.y - 1, c.z, Blocks.PACKED_ICE.defaultBlockState());
                     WorldPos w = world(c.x, c.y - 1, c.z);
-                    if (w != null) Sim.level().levelEvent(2001, new BlockPos(w.x, w.y, w.z), Block.getId(Blocks.WHITE_WOOL.defaultBlockState()));
+                    if (w != null) Sim.level().levelEvent(2001, new BlockPos(w.x, w.y, w.z), Block.getId(Blocks.WOOL.white().defaultBlockState()));
                     if (r.floorDone) floorDone(f, c, p.getUUID());
                     if (l.solved()) return;
                 }

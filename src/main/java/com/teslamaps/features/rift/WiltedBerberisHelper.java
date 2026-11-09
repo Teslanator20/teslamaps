@@ -46,8 +46,8 @@ public final class WiltedBerberisHelper {
 
     /** From ClientPlayNetworkHandlerMixin particle HEAD inject, any thread: only queues the position. */
     public static void onParticle(ClientboundLevelParticlesPacket p) {
-        if (!active || !cfg().riftBerberisHelper || p.getParticle().getType() != ParticleTypes.FIREWORK) return;
-        if (pending.size() < 256) pending.add(new Vec3(p.getX(), p.getY(), p.getZ()));
+        if (!active || !cfg().riftBerberisHelper || p.particle().getType() != ParticleTypes.FIREWORK) return;
+        if (pending.size() < 256) pending.add(new Vec3(p.x(), p.y(), p.z()));
     }
 
     private static void tick() {

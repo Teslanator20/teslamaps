@@ -76,9 +76,9 @@ public final class PestFinder {
         String text = StringUtil.strip(raw);
         if (cfg().pestFinderNoPestTitle && text.startsWith("There are not any Pests on your Garden right now")) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(0, 40, 5);
-            mc.gui.setTitle(Component.literal("§eNo pests!"));
-            mc.gui.setSubtitle(Component.empty());
+            mc.gui.hud.setTimes(0, 40, 5);
+            mc.gui.hud.setTitle(Component.literal("§eNo pests!"));
+            mc.gui.hud.setSubtitle(Component.empty());
             return;
         }
         PestSpawnAlerts.Spawn spawn = PestSpawnAlerts.parse(text);
@@ -166,7 +166,7 @@ public final class PestFinder {
 
     private static void pollKey(Minecraft mc) {
         int key = cfg().pestFinderKey;
-        if (key == -1 || mc.screen != null) { keyDown = false; return; }
+        if (key == -1 || mc.gui.screen() != null) { keyDown = false; return; }
         boolean down = KeyNames.isDown(key);
         if (down && !keyDown && System.currentTimeMillis() - lastKey > 2000) {
             lastKey = System.currentTimeMillis();

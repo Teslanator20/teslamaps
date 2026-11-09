@@ -17,13 +17,13 @@ public class MelodyHandler extends TerminalHandler {
     public List<Integer> solve(List<Slot> slots, int updatedIndex) {
         int magentaPane = -1;
         for (int i = 0; i < slots.size(); i++) {
-            if (slots.get(i).getItem().getItem() == Items.MAGENTA_STAINED_GLASS_PANE) { magentaPane = i; break; }
+            if (slots.get(i).getItem().getItem() == Items.STAINED_GLASS_PANE.magenta()) { magentaPane = i; break; }
         }
         int greenPane = -1, greenClay = -1;
         for (int i = 0; i < slots.size(); i++) {
             var item = slots.get(i).getItem().getItem();
-            if (item == Items.LIME_STAINED_GLASS_PANE) greenPane = i;
-            if (item == Items.LIME_TERRACOTTA) greenClay = i;
+            if (item == Items.STAINED_GLASS_PANE.lime()) greenPane = i;
+            if (item == Items.DYED_TERRACOTTA.lime()) greenClay = i;
         }
 
         List<Integer> out = new ArrayList<>();

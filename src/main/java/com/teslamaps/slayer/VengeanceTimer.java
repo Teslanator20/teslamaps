@@ -114,7 +114,7 @@ public final class VengeanceTimer {
         String l = line;
         if (l == null || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.screen != null) return;
+        if (mc.gui.hud.isHidden() || mc.gui.screen() != null) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

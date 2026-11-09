@@ -136,9 +136,9 @@ public final class OptimalSpeed {
         boolean ranchers = "RANCHERS_BOOTS".equals(ItemUtil.skyblockId(mc.player.getItemBySlot(EquipmentSlot.FEET)));
         if (!ranchers && c.gardenOptimalSpeedRanchersOnly) return;
         lastWarn = now;
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal("§cWrong speed!"));
-        mc.gui.setSubtitle(Component.empty());
+        mc.gui.hud.setTimes(0, 40, 5);
+        mc.gui.hud.setTitle(Component.literal("§cWrong speed!"));
+        mc.gui.hud.setSubtitle(Component.empty());
         Component msg = Component.literal("§b[TeslaMaps] §cWrong speed while farming " + crop.cropName + "! §eCurrent: §f"
                 + current + "§e, Optimal: §f" + optimal);
         if (ranchers) {
@@ -152,7 +152,7 @@ public final class OptimalSpeed {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || !cfg().gardenOptimalSpeedHud) return;
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null || !cfg().gardenOptimalSpeedHud) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

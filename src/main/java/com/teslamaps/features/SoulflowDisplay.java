@@ -64,8 +64,8 @@ public final class SoulflowDisplay {
         if (!c.lowSoulflowWarning || amount < 0) return;
         if (amount <= c.lowSoulflowThreshold) {
             if (!warned) {
-                mc.gui.setTimes(0, 20, 5);
-                mc.gui.setTitle(Component.literal("§cLow Soulflow"));
+                mc.gui.hud.setTimes(0, 20, 5);
+                mc.gui.hud.setTitle(Component.literal("§cLow Soulflow"));
                 warned = true;
             }
         } else {
@@ -105,7 +105,7 @@ public final class SoulflowDisplay {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty() || !cfg().soulflowDisplay) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

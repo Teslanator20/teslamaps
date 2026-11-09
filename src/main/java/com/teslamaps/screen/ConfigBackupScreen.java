@@ -150,9 +150,9 @@ public class ConfigBackupScreen extends Screen {
     @Override
     public void onClose() {
         if (parent instanceof MapConfigScreen m) {
-            minecraft.setScreen(MapConfigScreen.open());
+            minecraft.gui.setScreen(MapConfigScreen.open());
         } else {
-            minecraft.setScreen(parent);
+            minecraft.gui.setScreen(parent);
         }
     }
 }

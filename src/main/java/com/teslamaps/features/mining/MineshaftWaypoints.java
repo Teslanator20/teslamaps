@@ -82,7 +82,7 @@ public final class MineshaftWaypoints {
         }
 
         if (!cfg().mineshaftWaypoints) return;
-        boolean down = mc.screen == null && cfg().mineshaftShareKey != -1 && KeyNames.isDown(cfg().mineshaftShareKey);
+        boolean down = mc.gui.screen() == null && cfg().mineshaftShareKey != -1 && KeyNames.isDown(cfg().mineshaftShareKey);
         if (down && !keyDown) shareNearest();
         keyDown = down;
     }

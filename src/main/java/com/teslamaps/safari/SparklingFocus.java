@@ -15,6 +15,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -61,8 +62,8 @@ public final class SparklingFocus {
     /** Queue only, evaluated in the tick. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
         if (!enabled() || !Minecraft.getInstance().isSameThread()) return;
-        if (packet.getParticle().getType() != ParticleTypes.WAX_ON.getType()) return;
-        hits.add(new Hit(packet.getX(), packet.getY(), packet.getZ(), ticks));
+        if (packet.particle().getType() != ParticleTypes.WAX_ON.getType()) return;
+        hits.add(new Hit(packet.x(), packet.y(), packet.z(), ticks));
         if (hits.size() > MAX_HITS) hits.poll();
     }
 
@@ -133,9 +134,9 @@ public final class SparklingFocus {
 
     private static boolean mobLike(Entity e) {
         EntityType<?> t = e.getType();
-        return t != EntityType.ARMOR_STAND && t != EntityType.INTERACTION && t != EntityType.ITEM_DISPLAY
-                && t != EntityType.BLOCK_DISPLAY && t != EntityType.TEXT_DISPLAY && t != EntityType.PLAYER
-                && t != EntityType.ITEM;
+        return t != EntityTypes.ARMOR_STAND && t != EntityTypes.INTERACTION && t != EntityTypes.ITEM_DISPLAY
+                && t != EntityTypes.BLOCK_DISPLAY && t != EntityTypes.TEXT_DISPLAY && t != EntityTypes.PLAYER
+                && t != EntityTypes.ITEM;
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

@@ -2,11 +2,12 @@
 package com.teslamaps.adm.sim.clear.mobs;
 
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.level.Level;
 
 public class AdsZombie extends Zombie implements AdsMobBody {
-    public AdsZombie(Level level) { super(EntityType.ZOMBIE, level); }
+    public AdsZombie(Level level) { super(EntityTypes.ZOMBIE, level); }
 
     @Override protected void registerGoals() {}
     @Override protected boolean isSunSensitive() { return false; }

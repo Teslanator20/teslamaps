@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
@@ -266,7 +267,7 @@ public class P1Maxor extends Fight.Phase {
     private boolean inAbility() { return tauntAt >= 0 && t >= tauntAt - 1 && t < tauntAt + 62; }
 
     private EndCrystal spawnCrystal(Vec3 at) {
-        EndCrystal c = new EndCrystal(EntityType.END_CRYSTAL, Sim.level());
+        EndCrystal c = new EndCrystal(EntityTypes.END_CRYSTAL, Sim.level());
         c.setShowBottom(false);
         c.setInvulnerable(true);
         c.snapTo(at.x, at.y, at.z, 0f, 0f);
@@ -274,7 +275,7 @@ public class P1Maxor extends Fight.Phase {
     }
 
     private ArmorStand label(Vec3 at, String text) {
-        ArmorStand s = new ArmorStand(EntityType.ARMOR_STAND, Sim.level());
+        ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
         rename(s, text);
         s.snapTo(at.x, at.y, at.z, 0f, 0f);
@@ -403,9 +404,9 @@ public class P1Maxor extends Fight.Phase {
         int n = 0;
         for (int it : placeTimes) if (t >= it + 28) n++;
         BlockState state;
-        if (charged() && beacon) state = net.minecraft.world.level.block.Blocks.RED_STAINED_GLASS.defaultBlockState();
-        else if (n >= 1) state = net.minecraft.world.level.block.Blocks.YELLOW_STAINED_GLASS.defaultBlockState();
-        else state = net.minecraft.world.level.block.Blocks.BLACK_STAINED_GLASS.defaultBlockState();
+        if (charged() && beacon) state = net.minecraft.world.level.block.Blocks.STAINED_GLASS.red().defaultBlockState();
+        else if (n >= 1) state = net.minecraft.world.level.block.Blocks.STAINED_GLASS.yellow().defaultBlockState();
+        else state = net.minecraft.world.level.block.Blocks.STAINED_GLASS.black().defaultBlockState();
         for (int y = (t >= BEACON + 120 ? 222 : 223); y <= 224; y++) {
             if (!Objects.equals(Blocks.get(new BlockPos(73, y, 73)), state)) Blocks.set(new BlockPos(73, y, 73), state);
         }

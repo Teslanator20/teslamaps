@@ -38,10 +38,10 @@ public final class CustomizeKey {
             mc.player.sendSystemMessage(Component.literal("§e[TeslaMaps] §fNo uuid: this shows on every copy of this item"));
         ItemStack copy = stack.copy();
         if (screen instanceof InventoryScreen) {
-            mc.setScreen(new CustomizeScreen(screen, copy));
+            mc.gui.setScreen(new CustomizeScreen(screen, copy));
         } else {
             mc.player.closeContainer();
-            mc.setScreen(new CustomizeScreen(null, copy));
+            mc.gui.setScreen(new CustomizeScreen(null, copy));
         }
         return true;
     }

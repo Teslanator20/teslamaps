@@ -131,9 +131,9 @@ public class StarredMobESP {
 
         if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()
                 && !whoTitle(msg, "§8Wither Key")) {
-            mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
-            mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.GRAY));
-            mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
+            mc.gui.hud.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
+            mc.gui.hud.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.GRAY));
+            mc.gui.hud.setTimes(5, 30, 10); // fade in, stay, fade out
         }
 
         witherKeyOnGroundNotified = false;
@@ -152,9 +152,9 @@ public class StarredMobESP {
 
         if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()
                 && !whoTitle(msg, "§cBlood Key")) {
-            mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-            mc.gui.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.RED));
-            mc.gui.setTimes(5, 30, 10); // fade in, stay, fade out
+            mc.gui.hud.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+            mc.gui.hud.setSubtitle(Component.literal("picked up!").withStyle(ChatFormatting.RED));
+            mc.gui.hud.setTimes(5, 30, 10); // fade in, stay, fade out
         }
 
         bloodKeyOnGroundNotified = false;
@@ -179,9 +179,9 @@ public class StarredMobESP {
                     .map(com.teslamaps.player.PlayerTracker.DungeonPlayer::getDungeonClass).orElse(null);
             who = cls == null || cls.equals("EMPTY") || cls.equals("DEAD") ? "§f" + name : classColor(cls) + cls;
         }
-        mc.gui.setTitle(Component.literal(who + " §7Picked Up"));
-        mc.gui.setSubtitle(Component.literal(key));
-        mc.gui.setTimes(5, 30, 10);
+        mc.gui.hud.setTitle(Component.literal(who + " §7Picked Up"));
+        mc.gui.hud.setSubtitle(Component.literal(key));
+        mc.gui.hud.setTimes(5, 30, 10);
         return true;
     }
 
@@ -206,9 +206,9 @@ public class StarredMobESP {
         }
 
         if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
-            mc.gui.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
-            mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
-            mc.gui.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("WITHER KEY").withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.BOLD));
+            mc.gui.hud.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
+            mc.gui.hud.setTimes(5, 40, 10);
         }
     }
 
@@ -222,9 +222,9 @@ public class StarredMobESP {
         }
 
         if (TeslaMapsConfig.get().keyPickupTitle && TeslaMapsConfig.get().keySoundClasses.allowsLocal()) {
-            mc.gui.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
-            mc.gui.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
-            mc.gui.setTimes(5, 40, 10);
+            mc.gui.hud.setTitle(Component.literal("BLOOD KEY").withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+            mc.gui.hud.setSubtitle(Component.literal("on ground!").withStyle(ChatFormatting.YELLOW));
+            mc.gui.hud.setTimes(5, 40, 10);
         }
     }
 
@@ -495,7 +495,7 @@ public class StarredMobESP {
                         }
                         return; // Found door at this location
                     }
-                } else if (block == Blocks.RED_TERRACOTTA) {
+                } else if (block == Blocks.DYED_TERRACOTTA.red()) {
                     if (!couldBeBloodDoor(gridX, gridZ, xAligned)) return;
                     if (isValidDoor(mc, pos, xAligned)) {
                         AABB doorBox = findDoorBox(mc, pos, false);
@@ -540,7 +540,7 @@ public class StarredMobESP {
     }
 
     private static AABB findDoorBox(Minecraft mc, BlockPos start, boolean isWitherDoor) {
-        Block targetBlock = isWitherDoor ? Blocks.COAL_BLOCK : Blocks.RED_TERRACOTTA;
+        Block targetBlock = isWitherDoor ? Blocks.COAL_BLOCK : Blocks.DYED_TERRACOTTA.red();
 
         int minX = start.getX(), maxX = start.getX();
         int minY = start.getY(), maxY = start.getY();

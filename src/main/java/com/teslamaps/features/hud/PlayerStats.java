@@ -63,7 +63,7 @@ public final class PlayerStats {
                 net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
                         .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("bars").executes(x -> {
                             Minecraft mc = Minecraft.getInstance();
-                            mc.schedule(() -> mc.setScreen(new com.teslamaps.screen.StatusBarsScreen(null)));
+                            mc.schedule(() -> mc.gui.setScreen(new com.teslamaps.screen.StatusBarsScreen(null)));
                             return 1;
                         }))));
 
@@ -91,7 +91,7 @@ public final class PlayerStats {
                             .desc("Blue bar, cyan part = overflow mana");
                     b.slider("  Bar Width", 40f, 200f, () -> (float) c.statBarWidth, v -> c.statBarWidth = Math.round(v), 0);
                     b.button("  Status Bars Editor (/tmap bars)",
-                            () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.StatusBarsScreen(Minecraft.getInstance().screen)))
+                            () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.gui.screen().StatusBarsScreen(Minecraft.getInstance().gui.screen())))
                             .desc("Drag bars to move, drag the right edge for width, right-click for color, text, direction, max/overflow and on/off.");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->
@@ -112,7 +112,7 @@ public final class PlayerStats {
                 .hudHiddenInInventory(prefix.toLowerCase(Locale.ROOT), (g, d) -> {
                     Minecraft mc = Minecraft.getInstance();
                     String s = value.get();
-                    if (mc.options.hideGui || s.isEmpty() || !inSkyblock) return;
+                    if (mc.gui.hud.isHidden() || s.isEmpty() || !inSkyblock) return;
                     drawText(g, mc, e.x(), e.y(), e.scale(), s);
                 });
     }
@@ -125,7 +125,7 @@ public final class PlayerStats {
         Feature.of("PlayerStats." + label).when(() -> on() && enabled.getAsBoolean())
                 .hudHiddenInInventory(prefix.toLowerCase(Locale.ROOT), (g, d) -> {
                     Minecraft mc = Minecraft.getInstance();
-                    if (mc.options.hideGui || !inSkyblock) return;
+                    if (mc.gui.hud.isHidden() || !inSkyblock) return;
                     if (health) {
                         if (maxHp <= 0) return;
                         shownHp = shownHp < 0 ? hpFill : shownHp + (hpFill - shownHp) * 0.25f;

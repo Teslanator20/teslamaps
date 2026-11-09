@@ -54,7 +54,7 @@ public final class FocusMode {
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         if (lines.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || !SkyblockUtils.isInSkyblock()) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || !SkyblockUtils.isInSkyblock()) return;
         TeslaMapsConfig c = cfg();
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         if (c.focusModeSkipMenus) {

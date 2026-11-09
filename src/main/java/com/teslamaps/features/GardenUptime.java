@@ -157,7 +157,7 @@ public final class GardenUptime {
             }
         }
         if (++ticks % 10 != 0) return;
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && cs.getMenu().slots.size() > 29
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && cs.getMenu().slots.size() > 29
                 && StringUtil.stripTrim(cs.getMenu().slots.get(29).getItem().getHoverName().getString()).equals("Accept Offer")) {
             activity(VISITOR);
         }
@@ -220,7 +220,7 @@ public final class GardenUptime {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (hud == null || lines.isEmpty() || mc.options.hideGui) return;
+        if (hud == null || lines.isEmpty() || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 

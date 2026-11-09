@@ -79,7 +79,7 @@ public final class CurrentChatDisplay {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
-        if (mc.screen instanceof ChatScreen) closedAt = now;
+        if (mc.gui.screen() instanceof ChatScreen) closedAt = now;
         if (channel == null || now - closedAt > 2000) {
             line = null;
             return;
@@ -114,7 +114,7 @@ public final class CurrentChatDisplay {
         String l = line;
         if (l == null || el == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, el.x(), el.y(), el.scale(), l);
     }
 

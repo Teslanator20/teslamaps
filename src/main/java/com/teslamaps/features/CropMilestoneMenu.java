@@ -68,13 +68,13 @@ public final class CropMilestoneMenu {
     }
 
     private static String title(Minecraft mc) {
-        return mc.screen instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
+        return mc.gui.screen() instanceof AbstractContainerScreen<?> cs ? StringUtil.stripTrim(cs.getTitle().getString()) : "";
     }
 
     private static void tick() {
         if (++ticks % 5 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             if (!labels.isEmpty()) labels = List.of();
             average = "";
             return;
@@ -144,7 +144,7 @@ public final class CropMilestoneMenu {
     public static void render(GuiGraphicsExtractor ctx) {
         if (labels.isEmpty() && average.isEmpty() || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         List<Slot> slots = cs.getMenu().slots;

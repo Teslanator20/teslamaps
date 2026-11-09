@@ -138,8 +138,8 @@ public final class ChocoFactory {
 
     private static void renderHud(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || lines.isEmpty() || hud == null || !cfg().cfStats) return;
-        boolean show = ChocoData.inFactory() || (cfg().cfStatsOutside && mc.screen == null && SkyblockUtils.isInSkyblock());
+        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null || !cfg().cfStats) return;
+        boolean show = ChocoData.inFactory() || (cfg().cfStatsOutside && mc.gui.screen() == null && SkyblockUtils.isInSkyblock());
         if (!show) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
@@ -155,7 +155,7 @@ public final class ChocoFactory {
         TeslaMapsConfig c = cfg();
         if (!c.cfHelper || !ChocoData.inFactory() || !c.section(ChocoData.CATEGORY)) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         ChocoData.State s = ChocoData.state();
@@ -207,7 +207,7 @@ public final class ChocoFactory {
 
     static int slotOf(ItemStack stack) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return -1;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return -1;
         for (Slot s : cs.getMenu().slots) if (s.getItem() == stack) return s.index;
         return -1;
     }

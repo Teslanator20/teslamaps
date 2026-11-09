@@ -306,7 +306,7 @@ public final class HunterTrades {
         List<String> l = lines;
         if (l.isEmpty() || el == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         DungeonInfoHud.draw(g, mc, el.x(), el.y(), el.scale(), l, width);
     }
 }

@@ -55,7 +55,7 @@ public class PowerStoneStats {
     private static void tick() {
         if (++ticks % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         String t = StringUtil.stripTrim(cs.getTitle().getString());
         if (!t.equals("Your Bags") && !t.endsWith("Accessory Bag Thaumaturgy")) return;
         for (Slot slot : cs.getMenu().slots) {
@@ -76,7 +76,7 @@ public class PowerStoneStats {
     private static boolean applies(List<Component> lines) {
         for (Component l : lines) if (StringUtil.stripTrim(l.getString()).equals("Power Stone")) return true;
         Minecraft mc = Minecraft.getInstance();
-        return mc.screen instanceof AbstractContainerScreen<?> cs
+        return mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).endsWith("Accessory Bag Thaumaturgy");
     }
 

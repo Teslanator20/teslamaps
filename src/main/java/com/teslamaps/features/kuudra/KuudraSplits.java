@@ -119,9 +119,9 @@ public final class KuudraSplits {
         }
         if (c.kuudraSplitsPbTitle && old != null && total < old) {
             Minecraft mc = Minecraft.getInstance();
-            mc.gui.setTimes(0, 60, 10);
-            mc.gui.setTitle(Component.literal("§6§lNew Personal Best!"));
-            mc.gui.setSubtitle(Component.literal("§7" + secs(old) + " §f> §a" + secs(total)));
+            mc.gui.hud.setTimes(0, 60, 10);
+            mc.gui.hud.setTitle(Component.literal("§6§lNew Personal Best!"));
+            mc.gui.hud.setSubtitle(Component.literal("§7" + secs(old) + " §f> §a" + secs(total)));
         }
     }
 
@@ -202,7 +202,7 @@ public final class KuudraSplits {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         String[] l = lines;
         Minecraft mc = Minecraft.getInstance();
-        if (l == null || hud == null || mc.options.hideGui) return;
+        if (l == null || hud == null || mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), l);
     }
 

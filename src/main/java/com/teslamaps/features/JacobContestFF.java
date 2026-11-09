@@ -58,7 +58,7 @@ public final class JacobContestFF {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)
                 || !YOUR_CONTESTS.matcher(StringUtil.stripTrim(cs.getTitle().getString())).matches()) {
             if (!lines.isEmpty()) lines = List.of();
             lastSlot = null;

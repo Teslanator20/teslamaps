@@ -93,7 +93,7 @@ public class ItemTab extends GridLayoutTab {
         if (TeslaMapsConfig.get().customGlintColors) column.addChild(glintColorField, p -> p.paddingTop(4));
         column.addChild(Button.builder(Component.translatable("teslamaps.customize.item.selectModel"), b -> {
             Minecraft minecraft = Minecraft.getInstance();
-            minecraft.setScreen(new ModelSelectionPopup(parentScreen, model -> {
+            minecraft.gui.setScreen(new ModelSelectionPopup(parentScreen, model -> {
                 if (model != null) modelField.setValue(model.toString());
             }));
         }).width(120).build(), p -> p.paddingTop(4));
@@ -175,7 +175,7 @@ public class ItemTab extends GridLayoutTab {
             super(0, 20, 0, 0, Component.literal("Item Selector"), AbstractScrollArea.defaultSettings(8));
             layout.addChild(SpacerElement.height(32 + ADDED_ITEM_OFFSET));
             selectItemButton = layout.addChild(Button.builder(Component.translatable("teslamaps.customize.item.selectItem"), b ->
-                    Minecraft.getInstance().setScreen(new ItemSelectPopup(parentScreen, ItemTab.this::setCurrentItem))
+                    Minecraft.getInstance().gui.setScreen(new ItemSelectPopup(parentScreen, ItemTab.this::setCurrentItem))
             ).width(Button.SMALL_WIDTH).build());
             layout.arrangeElements();
             layout.setPosition(PADDING, PADDING);

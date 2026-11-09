@@ -90,7 +90,7 @@ public final class KuudraKeys {
         if (++ticks < 10) return;
         ticks = 0;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         Matcher shop = SHOP.matcher(StringUtil.stripTrim(cs.getTitle().getString()));
         if (!shop.matches()) return;
 

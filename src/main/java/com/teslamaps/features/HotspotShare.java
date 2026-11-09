@@ -186,8 +186,8 @@ public class HotspotShare {
                 t.missingSince = now;
             } else if (now - t.missingSince >= MISSING_GRACE_MS) {
                 if (c.hotspotClosedTitle && t.id.equals(nearestBefore)) {
-                    mc.gui.setTimes(0, 50, 5);
-                    mc.gui.setTitle(Component.literal("§d§lHotspot closed"));
+                    mc.gui.hud.setTimes(0, 50, 5);
+                    mc.gui.hud.setTitle(Component.literal("§d§lHotspot closed"));
                     LoudSound.play(SoundEvents.NOTE_BLOCK_BELL.value(), 0.8f, 0.9f);
                 }
                 it.remove();
@@ -203,9 +203,9 @@ public class HotspotShare {
                 Long last = recentAlerts.get(key);
                 if (last != null && now - last < SHARE_SUPPRESS_MS) continue;
                 recentAlerts.put(key, now);
-                mc.gui.setTimes(5, 40, 10);
-                mc.gui.setTitle(Component.literal("§d§lHOTSPOT"));
-                mc.gui.setSubtitle(Component.literal("§b" + t.stat));
+                mc.gui.hud.setTimes(5, 40, 10);
+                mc.gui.hud.setTitle(Component.literal("§d§lHOTSPOT"));
+                mc.gui.hud.setSubtitle(Component.literal("§b" + t.stat));
                 LoudSound.play(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
                 waypoints.add(new Waypoint(t.stat, t.pos, "", true));
             }

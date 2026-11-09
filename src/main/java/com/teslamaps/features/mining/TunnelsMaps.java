@@ -310,7 +310,7 @@ public final class TunnelsMaps {
     private static void keys(Minecraft mc) {
         TeslaMapsConfig c = cfg();
         long h = mc.getWindow().handle();
-        boolean free = mc.screen == null;
+        boolean free = mc.gui.screen() == null;
         boolean camp = free && c.tunnelsMapsCampfireKey > 0 && GLFW.glfwGetKey(h, c.tunnelsMapsCampfireKey) == GLFW.GLFW_PRESS;
         boolean nxt = free && c.tunnelsMapsNextKey > 0 && GLFW.glfwGetKey(h, c.tunnelsMapsNextKey) == GLFW.GLFW_PRESS;
         long now = System.currentTimeMillis();
@@ -331,7 +331,7 @@ public final class TunnelsMaps {
     }
 
     private static void scanCommissions(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) {
             lastScreen = null;
             return;
         }
@@ -433,7 +433,7 @@ public final class TunnelsMaps {
         List<String> ls = lines;
         if (!show || ls.isEmpty() || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         draw(g, mc, hud.x(), hud.y(), hud.scale(), ls, width);
     }
 

@@ -102,7 +102,7 @@ public final class ExcavatorProfitTracker {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs
                 && StringUtil.stripTrim(cs.getTitle().getString()).equals("Fossil Excavator")) {
             if (++ticks % 5 == 0 || cs != menu) readMenu(cs);
         } else {
@@ -147,7 +147,7 @@ public final class ExcavatorProfitTracker {
     public static void drawSlot(GuiGraphicsExtractor ctx, Slot slot) {
         if (menu == null || slot.index >= slotText.length || slot.container instanceof Inventory) return;
         String t = slotText[slot.index];
-        if (t == null || Minecraft.getInstance().screen != menu) return;
+        if (t == null || Minecraft.getInstance().gui.screen() != menu) return;
         var font = Minecraft.getInstance().font;
         ctx.text(font, t, slot.x + 17 - font.width(t), slot.y + 9, 0xFFFFFFFF, true);
     }
@@ -233,8 +233,8 @@ public final class ExcavatorProfitTracker {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (!cfg().excavatorTracker || hud == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
-        if (mc.screen instanceof AbstractContainerScreen<?> ? !inMenu : !inCenter) return;
+        if (mc.gui.hud.isHidden()) return;
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> ? !inMenu : !inCenter) return;
         tracker.draw(g, mc, hud.x(), hud.y(), hud.scale());
     }
 }

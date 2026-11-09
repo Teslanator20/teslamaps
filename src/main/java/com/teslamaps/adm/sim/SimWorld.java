@@ -85,7 +85,7 @@ public final class SimWorld {
         mc.execute(() -> {
             if (!P3Sim.inSim()) return;
             mc.disconnectFromWorld(Component.literal("Leaving ADS"));
-            mc.setScreen(new TitleScreen());
+            mc.gui.setScreen(new TitleScreen());
         });
     }
 
@@ -110,7 +110,7 @@ public final class SimWorld {
 
     private static void create() {
         Minecraft mc = mc();
-        mc.setScreen(new GenericMessageScreen(Component.literal(RunLauncher.pending != null ? "Building the dungeon..." : "Building the F7 boss...")));
+        mc.gui.setScreen(new GenericMessageScreen(Component.literal(RunLauncher.pending != null ? "Building the dungeon..." : "Building the F7 boss...")));
         boolean envPack = installEnvPack();
         WorldDataConfiguration dataConfiguration = !envPack ? WorldDataConfiguration.DEFAULT
                 : new WorldDataConfiguration(new DataPackConfig(List.of("vanilla", WorldEnv.PACK_ID), List.of()), WorldDataConfiguration.DEFAULT.enabledFeatures());
@@ -146,7 +146,7 @@ public final class SimWorld {
         Ec.LOG.error("[ec] p3sim {} failed", what, t);
         opening = false;
         RunLauncher.abort();
-        mc().setScreen(new TitleScreen());
+        mc().gui.setScreen(new TitleScreen());
     }
 
     public static boolean isBuilt(Path worldDir) {

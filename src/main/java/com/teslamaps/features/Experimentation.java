@@ -77,11 +77,11 @@ public final class Experimentation {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != lastScreen) {
-            lastScreen = mc.screen;
-            onOpen(mc.screen);
+        if (mc.gui.screen() != lastScreen) {
+            lastScreen = mc.gui.screen();
+            onOpen(mc.gui.screen());
         }
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         TeslaMapsConfig c = cfg();
 
         if (stakes && c.expMaxRoundsAlert) readRoundsNeeded(cs);
@@ -211,7 +211,7 @@ public final class Experimentation {
     public static void render(GuiGraphicsExtractor ctx) {
         if (feature == null || type == null || !"Superpairs".equals(type) || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         if (!xpText.isEmpty()) {
             for (Slot slot : cs.getMenu().slots) {

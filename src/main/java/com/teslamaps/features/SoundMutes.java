@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.AABB;
 
 public final class SoundMutes {
@@ -84,9 +85,9 @@ public final class SoundMutes {
         if (c.muteEndermanEnd && ENDERMAN.contains(id) && com.teslamaps.features.theend.EndProtector.inArea()) return true;
         if (c.muteRatPet) {
             // rat = bat squeak + chicken steps next to the player, with no real bat/chicken there
-            if (id.equals("minecraft:entity.bat.ambient")) return near(mc, s, 6) && none(mc, s, EntityType.BAT);
+            if (id.equals("minecraft:entity.bat.ambient")) return near(mc, s, 6) && none(mc, s, EntityTypes.BAT);
             if (!c.muteRatPetSqueakOnly && id.equals("minecraft:entity.chicken.step"))
-                return near(mc, s, 6) && none(mc, s, EntityType.CHICKEN);
+                return near(mc, s, 6) && none(mc, s, EntityTypes.CHICKEN);
         }
         return false;
     }

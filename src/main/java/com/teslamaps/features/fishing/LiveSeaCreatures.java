@@ -214,9 +214,9 @@ public final class LiveSeaCreatures {
 
     private static void alert(Minecraft mc, String title) {
         if (mc.player == null) return;
-        mc.gui.setTimes(0, 50, 10);
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal(""));
+        mc.gui.hud.setTimes(0, 50, 10);
+        mc.gui.hud.setTitle(Component.literal(title));
+        mc.gui.hud.setSubtitle(Component.literal(""));
         mc.player.playSound(SoundEvents.ARROW_HIT_PLAYER, 1f, 0.1f);
     }
 
@@ -229,7 +229,7 @@ public final class LiveSeaCreatures {
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         if (hud == null || lines.isEmpty() || !cfg().liveSeaCreatures) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || mc.player == null || !shown(mc)) return;
+        if (mc.gui.hud.isHidden() || mc.player == null || !shown(mc)) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 }

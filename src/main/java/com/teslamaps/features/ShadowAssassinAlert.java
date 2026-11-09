@@ -30,8 +30,8 @@ public final class ShadowAssassinAlert {
         if (f != null && f.getLevel() == 3 && DungeonManager.isInBossArea()) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
-        mc.gui.setTimes(0, 30, 5);
-        mc.gui.setTitle(Component.literal("§cShadow Assassin Jumping!"));
+        mc.gui.hud.setTimes(0, 30, 5);
+        mc.gui.hud.setTitle(Component.literal("§cShadow Assassin Jumping!"));
         mc.player.playSound(SoundEvents.NOTE_BLOCK_PLING.value(), 1.0f, 2.0f);
     }
 }

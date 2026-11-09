@@ -7,7 +7,7 @@ import com.teslamaps.registry.Feature;
 import com.teslamaps.render.ESPRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.phys.Vec3;
 
 public final class VoidgloomLaser {
@@ -42,7 +42,7 @@ public final class VoidgloomLaser {
 
     private static void tick() {
         Entity boss = SlayerHUD.getBossEntity();
-        boolean riding = boss instanceof EnderMan && boss.isAlive() && boss.getVehicle() instanceof ArmorStand;
+        boolean riding = boss instanceof Enderman && boss.isAlive() && boss.getVehicle() instanceof ArmorStand;
         long now = System.currentTimeMillis();
         if (riding && remaining <= 0 && now - lastStart >= 10_000) {
             lastStart = now;

@@ -118,7 +118,7 @@ public final class JacobContestMenus {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) { clear(); return; }
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) { clear(); return; }
         if (++ticks % 10 != 0) return;
         if (!isYourContests(cs)) { clear(); return; }
         inMenu = true;
@@ -216,7 +216,7 @@ public final class JacobContestMenus {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!inMenu || !anyMarks || !cfg().jacobContestMenus || !cfg().jacobMedalIcon || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         List<Slot> slots = cs.getMenu().slots;
         for (int i = 0; i < Math.min(54, slots.size()); i++) {

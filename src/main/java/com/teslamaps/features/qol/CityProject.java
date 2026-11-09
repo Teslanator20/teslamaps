@@ -60,13 +60,13 @@ public class CityProject {
     private static void tick() {
         if (++ticks % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen instanceof AbstractContainerScreen<?> cs && inProject(cs)) {
+        if (mc.gui.screen() instanceof AbstractContainerScreen<?> cs && inProject(cs)) {
             read(cs);
             return;
         }
         if (!panel.isEmpty()) panel = List.of();
         if (!ready.isEmpty()) ready = List.of();
-        if (!cfg().cityProjectReminder || mc.screen != null) return;
+        if (!cfg().cityProjectReminder || mc.gui.screen() != null) return;
         long now = System.currentTimeMillis();
         long next = QolStore.get().cityNext;
         if (next <= 0 || next > now || now - lastReminder < REPEAT) return;
@@ -167,7 +167,7 @@ public class CityProject {
         List<String> l = panel;
         if (r.isEmpty() && l.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != shownOn || !(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (mc.gui.screen() != shownOn || !(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         for (Slot s : r) {
             int x = acc.getX() + s.x, y = acc.getY() + s.y;

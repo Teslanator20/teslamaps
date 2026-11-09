@@ -182,13 +182,13 @@ public final class SunGeckoHelper {
     }
 
     private static void readMenu(Minecraft mc) {
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         if (!StringUtil.stripTrim(cs.getTitle().getString()).equals("Modifiers")) return;
         var slots = cs.getMenu().slots;
         if (slots.size() < 26) return;
         for (int i = 0; i < MODS.length; i++) {
             ItemStack st = slots.get(19 + i).getItem();
-            mods[i] = st.is(Items.LIME_STAINED_GLASS) || st.is(Items.LIME_STAINED_GLASS_PANE);
+            mods[i] = st.is(Items.STAINED_GLASS.lime()) || st.is(Items.STAINED_GLASS_PANE.lime());
         }
     }
 
@@ -249,7 +249,7 @@ public final class SunGeckoHelper {
         String[] l = lines;
         if (!inChamber || l.length == 0) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         TeslaMapsConfig c = cfg();
         RiftSpot.drawLines(g, mc, c.riftSunGeckoX, c.riftSunGeckoY, c.riftSunGeckoScale, l, null, w);
     }

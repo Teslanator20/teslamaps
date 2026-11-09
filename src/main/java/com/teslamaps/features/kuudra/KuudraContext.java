@@ -1,6 +1,6 @@
 package com.teslamaps.features.kuudra;
 
-import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 
 /** Thin view on {@link Kuudra} for the w16-08 helpers: phase as 0-4 (none, supplies, build, stun/dps, lair). */
 public final class KuudraContext {

@@ -197,9 +197,9 @@ public final class ChatCompacts {
     // the opening bar and blank line arrive before the title
     private static void dropRecentBorders() {
         Minecraft mc = Minecraft.getInstance();
-        var chat = mc.gui.getChat();
+        var chat = mc.gui.hud.getChat();
         List<GuiMessage> all = ((ChatComponentAccessor) chat).teslamaps$getAllMessages();
-        int now = mc.gui.getGuiTicks();
+        int now = mc.gui.hud.getGuiTicks();
         boolean removed = false;
         for (int i = 0; i < 2 && !all.isEmpty(); i++) {
             GuiMessage g = all.getFirst();

@@ -70,8 +70,8 @@ public final class MotesOrbHighlight {
 
     /** Particle hide chain, main thread. True = drop the particle. */
     public static boolean onParticle(ClientboundLevelParticlesPacket p) {
-        if (!inRift || p.getParticle().getType() != ParticleTypes.ENTITY_EFFECT || feature == null || !feature.active()) return false;
-        double x = p.getX() - 0.5, y = p.getY(), z = p.getZ() - 0.5;
+        if (!inRift || p.particle().getType() != ParticleTypes.ENTITY_EFFECT || feature == null || !feature.active()) return false;
+        double x = p.x() - 0.5, y = p.y(), z = p.z() - 0.5;
         long now = System.currentTimeMillis();
         Orb orb = null;
         for (Orb o : orbs) {

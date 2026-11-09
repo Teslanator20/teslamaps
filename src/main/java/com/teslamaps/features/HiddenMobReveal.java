@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.monster.Giant;
 
 import java.util.Collections;
@@ -66,7 +66,7 @@ public final class HiddenMobReveal {
     }
 
     private static boolean matches(TeslaMapsConfig c, Entity e) {
-        if (e instanceof EnderMan) return c.revealHiddenFels && "Dinnerbone".equals(e.getName().getString().trim());
+        if (e instanceof Enderman) return c.revealHiddenFels && "Dinnerbone".equals(e.getName().getString().trim());
         if (e instanceof Giant g) return c.revealHiddenStealthy && !g.getItemBySlot(EquipmentSlot.FEET).isEmpty();
         if (!(e instanceof AbstractClientPlayer)) return false;
         String name = e.getName().getString().trim();

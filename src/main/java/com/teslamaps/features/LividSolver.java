@@ -56,15 +56,15 @@ public class LividSolver {
 
 
     public enum Livid {
-        VENDETTA("Vendetta", 'f', 0xFFFFFFFF, Blocks.WHITE_WOOL),
-        CROSSED("Crossed", 'd', 0xFFAA00AA, Blocks.MAGENTA_WOOL),
-        ARCADE("Arcade", 'e', 0xFFFFFF55, Blocks.YELLOW_WOOL),
-        SMILE("Smile", 'a', 0xFF55FF55, Blocks.LIME_WOOL),
-        DOCTOR("Doctor", '7', 0xFFAAAAAA, Blocks.GRAY_WOOL),
-        FROG("Frog", '2', 0xFF00AA00, Blocks.GREEN_WOOL),
-        SCREAM("Scream", '9', 0xFF5555FF, Blocks.BLUE_WOOL),
-        PURPLE("Purple", '5', 0xFFAA00AA, Blocks.PURPLE_WOOL),
-        HOCKEY("Hockey", 'c', 0xFFFF5555, Blocks.RED_WOOL);
+        VENDETTA("Vendetta", 'f', 0xFFFFFFFF, Blocks.WOOL.white()),
+        CROSSED("Crossed", 'd', 0xFFAA00AA, Blocks.WOOL.magenta()),
+        ARCADE("Arcade", 'e', 0xFFFFFF55, Blocks.WOOL.yellow()),
+        SMILE("Smile", 'a', 0xFF55FF55, Blocks.WOOL.lime()),
+        DOCTOR("Doctor", '7', 0xFFAAAAAA, Blocks.WOOL.gray()),
+        FROG("Frog", '2', 0xFF00AA00, Blocks.WOOL.green()),
+        SCREAM("Scream", '9', 0xFF5555FF, Blocks.WOOL.blue()),
+        PURPLE("Purple", '5', 0xFFAA00AA, Blocks.WOOL.purple()),
+        HOCKEY("Hockey", 'c', 0xFFFF5555, Blocks.WOOL.red());
 
         public final String entityName;
         public final char colorCode;
@@ -324,8 +324,8 @@ public class LividSolver {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.lividColorTitle) {
-            mc.gui.setTimes(0, 40, 10);
-            mc.gui.setTitle(Component.literal(coloredName + " Livid"));
+            mc.gui.hud.setTimes(0, 40, 10);
+            mc.gui.hud.setTitle(Component.literal(coloredName + " Livid"));
         }
         // Skyblocker LividColor: [color] placeholder
         if (c.lividAnnounce && c.lividAnnounceText != null)

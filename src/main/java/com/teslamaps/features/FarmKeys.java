@@ -52,7 +52,7 @@ public final class FarmKeys {
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        boolean down = mc.screen == null && c.farmKeysToggleKey != -1 && KeyNames.isDown(c.farmKeysToggleKey);
+        boolean down = mc.gui.screen() == null && c.farmKeysToggleKey != -1 && KeyNames.isDown(c.farmKeysToggleKey);
         if (down && !toggleWasDown && SkyblockUtils.isInGarden()) {
             paused = !paused;
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal(
@@ -115,7 +115,7 @@ public final class FarmKeys {
     }
 
     private static boolean live() {
-        return active && Minecraft.getInstance().screen == null && cfg().farmKeys
+        return active && Minecraft.getInstance().gui.screen() == null && cfg().farmKeys
                 && cfg().section("Garden") && SkyblockUtils.isInGarden();
     }
 

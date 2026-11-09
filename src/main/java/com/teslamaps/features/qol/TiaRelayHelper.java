@@ -90,7 +90,7 @@ public final class TiaRelayHelper {
 
     private static void menuTick() {
         Minecraft mc = Minecraft.getInstance();
-        boolean open = mc.screen instanceof AbstractContainerScreen<?> s && s.getTitle().getString().contains("Network Relay");
+        boolean open = mc.gui.screen() instanceof AbstractContainerScreen<?> s && s.getTitle().getString().contains("Network Relay");
         inMenu = open;
         if (!open) {
             sounds.clear();
@@ -98,7 +98,7 @@ public final class TiaRelayHelper {
             hear = List.of();
             return;
         }
-        List<Slot> slots = ((AbstractContainerScreen<?>) mc.screen).getMenu().slots;
+        List<Slot> slots = ((AbstractContainerScreen<?>) mc.gui.screen()).getMenu().slots;
         for (int id : result.keySet()) {
             if (id >= 0 && id < slots.size() && ItemUtil.loreContains(slots.get(id).getItem(), "Done!")) {
                 result.clear();
@@ -177,7 +177,7 @@ public final class TiaRelayHelper {
     public static void render(GuiGraphicsExtractor ctx) {
         if (!inMenu || feature == null || !feature.active()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return;
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int left = acc.getX(), top = acc.getY();
         List<Slot> slots = cs.getMenu().slots;

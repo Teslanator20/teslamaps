@@ -89,7 +89,7 @@ public final class ExperimentHelper {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> s) || !SkyblockUtils.isInSkyblock()) {
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> s) || !SkyblockUtils.isInSkyblock()) {
             detach();
             return;
         }
@@ -227,7 +227,7 @@ public final class ExperimentHelper {
     // ---------------------------------------------------------------- render
 
     public static void drawSlot(GuiGraphicsExtractor ctx, Slot slot) {
-        if (game == null || screen == null || Minecraft.getInstance().screen != screen) return;
+        if (game == null || screen == null || Minecraft.getInstance().gui.screen() != screen) return;
         if (feature == null || !feature.active()) return;
         int idx = slot.index;
         if (idx < 0 || idx >= menuSize || slot.container == Minecraft.getInstance().player.getInventory()) return;

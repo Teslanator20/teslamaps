@@ -42,7 +42,7 @@ public final class WardrobeValue {
 
     private static List<Component> lines(ItemStack stack) {
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return List.of();
+        if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return List.of();
         Slot focused = ((com.teslamaps.mixin.HandledScreenAccessor) cs).getFocusedSlot();
         if (focused == null || focused.getItem() != stack || focused.index < 36 || focused.index > 44) return List.of();
         long now = System.currentTimeMillis();

@@ -42,7 +42,7 @@ public final class ConfigAccess {
                 if (!c.pauseMenuConfigButton || !pause.showsPauseMenu()) return;
                 int size = 20;
                 Screens.getWidgets(screen).add(new TeslaSettingsButton(w - size - 8, 8, size,
-                        () -> mc.setScreen(new MapConfigScreen(pause))));
+                        () -> mc.gui.setScreen(new MapConfigScreen(pause))));
                 return;
             }
             if (!c.skyblockMenuConfigButton || !(screen instanceof AbstractContainerScreen<?> cs)) return;
@@ -52,7 +52,7 @@ public final class ConfigAccess {
                     () -> {
                         Minecraft m = Minecraft.getInstance();
                         if (m.player != null) m.player.closeContainer();
-                        m.setScreen(new MapConfigScreen());
+                        m.gui.setScreen(new MapConfigScreen());
                     }));
         });
     }
