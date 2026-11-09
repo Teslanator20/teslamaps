@@ -42,7 +42,7 @@ public final class KuudraDoublePearl {
         giant = null;
         level = 0;
         if (!KuudraRunInfo.inKuudra()) { alertedId = -1; return; }
-        GuiAccessor gui = (GuiAccessor) mc.gui;
+        GuiAccessor gui = (GuiAccessor) mc.gui.hud;
         if (gui.teslamaps$titleTime() > 0) {
             Component t = gui.teslamaps$title(), s = gui.teslamaps$subtitle();
             if (t != lastTitle || s != lastSub) {

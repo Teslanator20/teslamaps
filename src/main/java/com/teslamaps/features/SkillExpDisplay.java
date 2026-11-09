@@ -137,7 +137,7 @@ public class SkillExpDisplay {
         if (!c.skillExpDisplay || line == null) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || !SkyblockUtils.isInSkyblock()) return;
-        if (((GuiAccessor) mc.gui).teslamaps$overlayMessageTime() <= 0) { line = null; return; }
+        if (((GuiAccessor) mc.gui.hud).teslamaps$overlayMessageTime() <= 0) { line = null; return; }
 
         draw(g, mc, c, x(mc, c), y(mc, c), c.skillExpDisplayScale, levelText, icon, line, fraction);
     }

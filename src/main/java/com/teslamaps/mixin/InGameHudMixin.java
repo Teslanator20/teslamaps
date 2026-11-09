@@ -3,7 +3,7 @@ package com.teslamaps.mixin;
 import com.teslamaps.features.RarityBackground;
 import com.teslamaps.scanner.SecretTracker;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Gui.class)
+@Mixin(Hud.class)
 public class InGameHudMixin {
     @org.spongepowered.asm.mixin.Shadow private int toolHighlightTimer;
     @org.spongepowered.asm.mixin.Shadow private ItemStack lastToolHighlight;

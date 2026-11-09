@@ -3,7 +3,7 @@ package com.teslamaps.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.core.Holder;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.player.Player;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 // NEU "Stop Hearts Bouncing": no regeneration wave over the hearts
-@Mixin(Gui.class)
+@Mixin(Hud.class)
 public class HeartsBounceMixin {
 
     @WrapOperation(method = "extractPlayerHealth",

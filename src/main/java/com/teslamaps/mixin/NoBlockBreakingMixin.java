@@ -18,8 +18,8 @@ public class NoBlockBreakingMixin {
         if (c.noBlockBreaking && (!c.noBlockBreakingGardenOnly || com.teslamaps.utils.SkyblockUtils.isInGarden())) ci.cancel();
     }
 
-    @Inject(method = "addBreakingBlockEffect", at = @At("HEAD"), cancellable = true)
-    private void teslamaps$noBlockHit(BlockPos pos, Direction side, CallbackInfo ci) {
+    @Inject(method = "addBreakingParticles", at = @At("HEAD"), cancellable = true)
+    private void teslamaps$noBlockHit(BlockPos pos, Direction side, BlockState state, CallbackInfo ci) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.noBlockBreaking && c.noBlockHitParticles
                 && (!c.noBlockBreakingGardenOnly || com.teslamaps.utils.SkyblockUtils.isInGarden())) ci.cancel();

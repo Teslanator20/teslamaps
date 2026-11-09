@@ -317,7 +317,7 @@ public class ChatMixin {
 
     // past every HEAD handler, right before the GuiMessage is built
     @ModifyVariable(method = ADD_MESSAGE, argsOnly = true, ordinal = 0,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;getGuiTicks()I"))
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Hud;getGuiTicks()I"))
     private Component teslamaps$filterRewrite(Component message) {
         Component split = com.teslamaps.dungeon.TerminalSplits.rewrite(message);
         if (split != message) com.teslamaps.features.ChatLog.noteRewrite("terminalSplits");

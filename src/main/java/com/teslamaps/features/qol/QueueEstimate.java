@@ -66,7 +66,7 @@ public final class QueueEstimate {
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
-        Component sub = ((GuiAccessor) mc.gui).teslamaps$subtitle();
+        Component sub = ((GuiAccessor) mc.gui.hud).teslamaps$subtitle();
         if (sub == null) {
             if (lastTitle != null) {
                 lastTitle = null;
