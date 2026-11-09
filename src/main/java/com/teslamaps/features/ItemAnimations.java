@@ -78,9 +78,9 @@ public final class ItemAnimations {
         if (!on()) return;
         TeslaMapsConfig c = cfg();
         if (mainHand.isEmpty() && !c.itemAnimEmptyHand) return;
-        if (c.itemAnimPitch != 0) pose.mulPose(Axis.XP.rotationDegrees(c.itemAnimPitch));
-        if (c.itemAnimYaw != 0) pose.mulPose(Axis.YP.rotationDegrees(c.itemAnimYaw));
-        if (c.itemAnimRoll != 0) pose.mulPose(Axis.ZP.rotationDegrees(c.itemAnimRoll));
+        if (c.itemAnimPitch != 0) pose.rotateDegrees(Axis.XP, c.itemAnimPitch);
+        if (c.itemAnimYaw != 0) pose.rotateDegrees(Axis.YP, c.itemAnimYaw);
+        if (c.itemAnimRoll != 0) pose.rotateDegrees(Axis.ZP, c.itemAnimRoll);
         if (c.itemAnimX != 0 || c.itemAnimY != 0 || c.itemAnimZ != 0) pose.translate(c.itemAnimX, c.itemAnimY, c.itemAnimZ);
     }
 

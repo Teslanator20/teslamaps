@@ -78,7 +78,7 @@ public final class TradeHistory {
                             .desc("Saves every finished trade (items, coins, partner, value). /tmap tradehistory opens the list.")
                             .tags("trade", "history", "log", "scam");
                     b.button("  Open Trade History", () -> Minecraft.getInstance().gui.setScreen(
-                            new com.teslamaps.gui.screen().TradeHistoryScreen(Minecraft.getInstance().gui.screen())));
+                            new com.teslamaps.screen.TradeHistoryScreen(Minecraft.getInstance().gui.screen())));
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")
                 .then(ClientCommands.literal("tradehistory").executes(c -> {

@@ -51,7 +51,7 @@ public class CapeLayerMixin {
             pose.translate(0f, -0.053125f, 0.06875f);
         }
         collector.submitModel(model, state, pose, RenderTypes.entitySolid(texture),
-                light, OverlayTexture.NO_OVERLAY, state.outlineColor, null);
+                light, OverlayTexture.NO_OVERLAY, state.outlineColor);
         pose.popPose();
     }
 }

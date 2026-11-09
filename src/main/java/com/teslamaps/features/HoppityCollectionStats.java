@@ -110,7 +110,7 @@ public final class HoppityCollectionStats {
         if (raw.length() > 1 && raw.charAt(0) == '§') f = ChatFormatting.getByCode(raw.charAt(1));
         if (f == null && col[0] != null) {
             for (ChatFormatting cf : ChatFormatting.values()) {
-                if (cf.isColor() && TextColor.fromLegacyFormat(cf).equals(col[0])) { f = cf; break; }
+                if (col[0].equals(TextColor.fromLegacyFormat(cf))) { f = cf; break; }
             }
         }
         if (f == null) return null;

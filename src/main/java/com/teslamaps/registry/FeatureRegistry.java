@@ -10,7 +10,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.teslamaps.render.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import com.teslamaps.screen.MapConfigScreen;
@@ -30,7 +31,7 @@ public final class FeatureRegistry {
     record Config(String category, Consumer<ConfigBuilder> build, boolean fresh) {}
     record Category(String name, String sidebarSection, boolean gated) {}
 
-    public record WorldCtx(PoseStack pose, MultiBufferSource buffers, Vec3 cam) {}
+    public record WorldCtx(PoseStack pose, MultiBufferSource buffers, Vec3 cam, SubmitNodeCollector collector) {}
 
     enum InventoryMode { ALWAYS, FOREGROUND, HIDDEN }
 
@@ -256,14 +257,14 @@ public final class FeatureRegistry {
         refresh(world);
     }
 
-    public static void world(PoseStack pose, MultiBufferSource buffers, Vec3 cam,
+    public static void world(PoseStack pose, SubmitNodeCollector collector, Vec3 cam,
                              net.minecraft.client.renderer.culling.Frustum frustum) {
         if (com.teslamaps.features.GlobalRender.off()) return;
         if (!com.teslamaps.features.WorldOverlayToggle.beginWorld()) return;
         ensureFresh(hasWorld());
         List<World> list = worldOn;
-        WorldCtx ctx = new WorldCtx(pose, buffers, cam);
-        com.teslamaps.render.ESPRenderer.beginFrame(frustum);
+        WorldCtx ctx = new WorldCtx(pose, com.teslamaps.render.WorldBuffers.INSTANCE, cam, collector);
+        com.teslamaps.render.ESPRenderer.beginFrame(frustum, collector);
         try {
             for (int i = 0, n = list.size(); i < n; i++) {
                 World w = list.get(i);
@@ -277,9 +278,7 @@ public final class FeatureRegistry {
                 Perf.end();
             }
         } finally {
-            Perf.begin("ESP.flush");
             com.teslamaps.render.ESPRenderer.endFrame();
-            Perf.end();
         }
     }
 

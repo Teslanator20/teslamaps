@@ -36,7 +36,7 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
-import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.RedstoneWireBlock;
 import net.minecraft.world.level.block.RedstoneTorchBlock;
 import net.minecraft.world.level.block.RepeaterBlock;
 import net.minecraft.world.level.block.SaplingBlock;
@@ -288,7 +288,7 @@ public class Etherwarp {
                 || b instanceof LiquidBlock || b instanceof VineBlock || b instanceof MushroomBlock
                 || b instanceof WebBlock || b instanceof DryVegetationBlock || b instanceof SmallDripleafBlock
                 || b instanceof LeverBlock || b instanceof NetherWartBlock || b instanceof NetherPortalBlock
-                || b instanceof RedStoneWireBlock || b instanceof ComparatorBlock || b instanceof RedstoneTorchBlock
+                || b instanceof RedstoneWireBlock || b instanceof ComparatorBlock || b instanceof RedstoneTorchBlock
                 || b instanceof RepeaterBlock;
     }
 

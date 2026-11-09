@@ -86,7 +86,7 @@ public class TranslucentLava {
     private static void reloadWorld() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.levelRenderer != null) {
-            mc.levelRenderer.allChanged();
+            mc.levelRenderer.invalidateCompiledGeometry(mc.level, mc.options, mc.gameRenderer.mainCamera(), mc.getBlockColors());
         }
     }
 

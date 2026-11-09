@@ -55,7 +55,7 @@ public class HaloLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
         pose.pushPose();
         pose.translate(0f, -offset - bob * 2f, 0f);
         collector.submitModel(model, state, pose, RenderTypes.entitySolid(WHITE),
-                LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0xFF000000 | look.halo(), null, 0, null);
+                LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0xFF000000 | look.halo(), null, 0);
         pose.popPose();
     }
 

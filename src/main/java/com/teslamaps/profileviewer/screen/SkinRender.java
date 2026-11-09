@@ -3,7 +3,8 @@ package com.teslamaps.profileviewer.screen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 
 /**
@@ -11,16 +12,16 @@ import net.minecraft.resources.Identifier;
  * player model plus the skin texture, so no fake entity is needed.
  */
 public class SkinRender {
-    private static PlayerModel wide;
-    private static PlayerModel slim;
+    private static Model.Simple wide;
+    private static Model.Simple slim;
 
-    private static PlayerModel model(boolean thin) {
+    private static Model.Simple model(boolean thin) {
         Minecraft mc = Minecraft.getInstance();
         if (thin) {
-            if (slim == null) slim = new PlayerModel(mc.getEntityModels().bakeLayer(ModelLayers.PLAYER_SLIM), true);
+            if (slim == null) slim = new Model.Simple(mc.getEntityModels().bakeLayer(ModelLayers.PLAYER_SLIM), RenderTypes::entityTranslucent);
             return slim;
         }
-        if (wide == null) wide = new PlayerModel(mc.getEntityModels().bakeLayer(ModelLayers.PLAYER), false);
+        if (wide == null) wide = new Model.Simple(mc.getEntityModels().bakeLayer(ModelLayers.PLAYER), RenderTypes::entityTranslucent);
         return wide;
     }
 

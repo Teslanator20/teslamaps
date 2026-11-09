@@ -3,13 +3,13 @@ package com.teslamaps.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.safari.SafariData;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 // Hypixel drives the Icy Biome cold with the vanilla freeze counter, so zeroing it here removes
 // the frost vignette without touching the cold value itself.
-@Mixin(Gui.class)
+@Mixin(Hud.class)
 public class ColdOverlayMixin {
 
     @ModifyExpressionValue(method = "extractCameraOverlays",

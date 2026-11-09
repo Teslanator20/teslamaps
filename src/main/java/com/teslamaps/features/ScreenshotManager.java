@@ -164,7 +164,7 @@ public class ScreenshotManager {
     public static void openFolder() {
         File dir = directory();
         dir.mkdirs();
-        net.minecraft.util.Util.getPlatform().openFile(dir);
+        com.mojang.blaze3d.Blaze3D.openPath(dir.toPath());
     }
 
     /** Reads, converts and copies off the main thread; onDone gets null or the error, on the main thread. */

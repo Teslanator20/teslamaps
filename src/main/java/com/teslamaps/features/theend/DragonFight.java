@@ -581,7 +581,7 @@ public final class DragonFight {
         TextColor want = TextColor.fromLegacyFormat(target);
         if (want == null) return false;
         if (want.equals(text.getStyle().getColor())) return true;
-        if (text.getString().contains("§" + target.getChar())) return true;
+        if (text.getString().contains(target.toString())) return true;
         for (Component s : text.getSiblings()) if (hasColor(s, target)) return true;
         return false;
     }

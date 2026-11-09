@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class GlowSectionMixin {
 
     @Inject(method = "isSectionCompiledAndVisible", at = @At("HEAD"), cancellable = true)
-    private void teslamaps$glowSection(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+    private void teslamaps$glowSection(BlockPos pos, long section, CallbackInfoReturnable<Boolean> cir) {
         if (!com.teslamaps.config.TeslaMapsConfig.get().glowUnbuiltSections) return;
         if (!MobVisuals.glowing.isEmpty()) {
             for (Entity e : MobVisuals.glowing) {

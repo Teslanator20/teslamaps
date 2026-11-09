@@ -2,10 +2,10 @@ package com.teslamaps.render.gui;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.textures.FilterMode;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
-import com.mojang.renderpearl.api.textures.TextureFormat;
 import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
@@ -40,7 +40,7 @@ public final class PanelBlur {
         if (oldView != null) { oldView.close(); oldView = null; }
         if (oldTex != null) { oldTex.close(); oldTex = null; }
         if (!wanted()) return;
-        RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
+        RenderTarget main = Minecraft.getInstance().gameRenderer.mainRenderTarget();
         if (main.width <= 0 || main.height <= 0) return;
         try {
             if (tex == null || tex.isClosed() || width != main.width || height != main.height) {
@@ -48,7 +48,7 @@ public final class PanelBlur {
                 oldView = view;
                 tex = RenderSystem.getDevice().createTexture("teslamaps panel blur",
                         GpuTexture.USAGE_COPY_DST | GpuTexture.USAGE_TEXTURE_BINDING,
-                        TextureFormat.RGBA8, main.width, main.height, 1, 1);
+                        GpuFormat.RGBA8_UNORM, main.width, main.height, 1, 1);
                 view = RenderSystem.getDevice().createTextureView(tex);
                 width = main.width;
                 height = main.height;

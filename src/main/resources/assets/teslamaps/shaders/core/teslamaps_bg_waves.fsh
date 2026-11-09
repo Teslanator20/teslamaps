@@ -1,10 +1,11 @@
 #version 330
+#extension GL_ARB_separate_shader_objects : require
 
-in vec2 localPos;
-in vec4 shapeParams;   // x=resX, y=resY, z=time, w=scale
-in vec4 vertexColor;
+layout(location = 0) in vec2 localPos;
+layout(location = 1) in vec4 shapeParams;   // x=resX, y=resY, z=time, w=scale
+layout(location = 2) in vec4 vertexColor;
 
-out vec4 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 #define u_Color      vertexColor
 #define u_Resolution shapeParams.xy
@@ -13,7 +14,7 @@ out vec4 fragColor;
 #define u_Speed      shapeParams.w
 #define u_Mouse      localPos
 
-#moj_import <teslamaps:bg_waves.glsl>
+#include <teslamaps:bg_waves.glsl>
 
 void main() {
     fragColor = teslamaps_bg_color(gl_FragCoord.xy);

@@ -143,7 +143,7 @@ public class TPMazeSolver {
 
     private static Comparator<BlockPos> yawComparator(Vec3 pos, float yaw) {
         return Comparator.comparingDouble(p -> {
-            Vec3 c = p.getCenter();
+            Vec3 c = Vec3.atCenterOf(p);
             float portalYaw = (float) (Math.atan2(c.z - pos.z, c.x - pos.x) * 180.0 / Math.PI) - 90.0f;
             return Math.abs(Mth.wrapDegrees(portalYaw) - Mth.wrapDegrees(yaw));
         });

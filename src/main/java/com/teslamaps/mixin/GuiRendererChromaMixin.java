@@ -22,14 +22,13 @@ public abstract class GuiRendererChromaMixin {
     }
 
     @Inject(method = "executeDrawRange", at = @At(value = "INVOKE",
-            target = "Lcom/mojang/blaze3d/systems/RenderPass;setUniform(Ljava/lang/String;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;)V",
-            ordinal = 1))
+            target = "Lcom/mojang/renderpearl/api/commands/RenderPass;setUniform(Ljava/lang/String;Lcom/mojang/renderpearl/api/buffers/GpuBufferSlice;)V"))
     private void teslamaps$bindChroma(CallbackInfo ci, @Local RenderPass renderPass) {
         ChromaHook.insertUniform(renderPass);
     }
 
     @WrapOperation(method = "addElementToMesh", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;pipeline()Lcom/mojang/blaze3d/pipeline/RenderPipeline;"))
+            target = "Lnet/minecraft/client/renderer/state/gui/GuiElementRenderState;pipeline()Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;"))
     private RenderPipeline teslamaps$chromaPipeline(GuiElementRenderState state, Operation<RenderPipeline> original) {
         return ChromaHook.replacePipeline(state, original.call(state));
     }

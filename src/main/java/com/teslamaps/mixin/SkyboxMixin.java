@@ -24,7 +24,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelRenderer.class)
 public abstract class SkyboxMixin {
 
-    @Final @Shadow private Minecraft minecraft;
     @Final @Shadow private LevelTargetBundle targets;
 
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
@@ -38,12 +37,13 @@ public abstract class SkyboxMixin {
         // effect, so leave it alone there.
         if (camera.fogType == FogType.LAVA || camera.fogType == FogType.POWDER_SNOW) return;
 
+        Minecraft minecraft = Minecraft.getInstance();
         PostChain chain = minecraft.getShaderManager()
                 .getPostChain(SkyboxRenderer.chainId(), LevelTargetBundle.MAIN_TARGETS);
         if (chain == null) return;
 
-        int width = minecraft.getMainRenderTarget().width;
-        int height = minecraft.getMainRenderTarget().height;
+        int width = minecraft.gameRenderer.mainRenderTarget().width;
+        int height = minecraft.gameRenderer.mainRenderTarget().height;
         SkyboxRenderer.updateUniforms(chain, width, height);
 
         FramePass fogPass = builder.addPass("teslamaps_skybox_fog");

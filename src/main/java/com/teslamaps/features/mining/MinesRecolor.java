@@ -35,7 +35,7 @@ public final class MinesRecolor {
                     && SkyblockUtils.isInArea("Dwarven Mines");
             if (want == carpets) return;
             carpets = want;
-            if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.allChanged();
+            if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.invalidateCompiledGeometry(mc.level, mc.options, mc.gameRenderer.mainCamera(), mc.getBlockColors());
         });
     }
 

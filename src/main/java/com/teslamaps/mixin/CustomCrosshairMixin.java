@@ -5,13 +5,13 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.teslamaps.features.CustomCrosshair;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(Gui.class)
+@Mixin(Hud.class)
 public class CustomCrosshairMixin {
 
     @ModifyExpressionValue(method = "extractCrosshair", at = @At(value = "INVOKE",
@@ -21,7 +21,7 @@ public class CustomCrosshairMixin {
     }
 
     @WrapOperation(method = "extractCrosshair", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V",
+            target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blitSprite(Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;Lnet/minecraft/resources/Identifier;IIII)V",
             ordinal = 0))
     private void teslamaps$crosshair(GuiGraphicsExtractor g, RenderPipeline pipeline, Identifier sprite,
                                      int x, int y, int w, int h, Operation<Void> original) {

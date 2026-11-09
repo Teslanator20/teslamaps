@@ -312,7 +312,7 @@ public class EnchantColors {
                     ChatFormatting f = ChatFormatting.getByCode(part.charAt(++i));
                     if (f == null) continue;
                     if (f == ChatFormatting.RESET) cur = style;
-                    else if (f.isColor()) cur = style.withColor(f).withBold(false).withItalic(false)
+                    else if (TextColor.fromLegacyFormat(f) != null) cur = style.withColor(f).withBold(false).withItalic(false)
                             .withUnderlined(false).withStrikethrough(false).withObfuscated(false);
                     else cur = cur.applyFormat(f);
                     continue;
