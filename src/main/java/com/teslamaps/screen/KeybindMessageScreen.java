@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 public class KeybindMessageScreen extends Screen {
     private static final int PANEL_W = 420, PANEL_H = 290;
@@ -123,8 +122,6 @@ public class KeybindMessageScreen extends Screen {
                 "§fDone", this::onClose));
     }
 
-    private static final int MOD_MASK = com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT | com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL | com.mojang.blaze3d.platform.InputConstants.MOD_ALT;
-
     private static boolean isModifierKey(int k) {
         return k == com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT || k == com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT
                 || k == com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL || k == com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL
@@ -165,7 +162,9 @@ public class KeybindMessageScreen extends Screen {
             if (event.key() != com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE && listening < binds().size()) {
                 TeslaMapsConfig.Keybind kb = binds().get(listening);
                 kb.key = event.key();
-                kb.modifiers = isModifierKey(event.key()) ? 0 : event.modifiers() & MOD_MASK;
+                kb.modifiers = isModifierKey(event.key()) ? 0 : (event.hasShiftDown() ? com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT : 0)
+                        | (event.hasControlDown() ? com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL : 0)
+                        | (event.hasAltDown() ? com.mojang.blaze3d.platform.InputConstants.MOD_ALT : 0);
             }
             listening = -1; // ESC just cancels
             rebuild();

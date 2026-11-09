@@ -5,7 +5,6 @@ import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.gui.GuiSounds;
 import com.teslamaps.render.gui.TeslaGui;
 import com.teslamaps.utils.LoudSound;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -986,9 +985,9 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
         boolean clicked = isMouseDown && !wasMouseDown; // Calculate BEFORE updating wasMouseDown
-        boolean isRightDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isRightDown = minecraft.mouseHandler.isRightPressed();
         boolean rightClicked = isRightDown && !wasRightDown;
         wasRightDown = isRightDown; // early, the block below has several return paths
         if (clicked && com.teslamaps.features.QuickModSwitch.covers(this, mouseX, mouseY)) clicked = false;

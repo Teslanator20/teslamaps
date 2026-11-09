@@ -210,7 +210,7 @@ public final class NpcWarps {
     }
 
     private static boolean shiftDown() {
-        return KeyNames.isDown(org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT) || KeyNames.isDown(org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT);
+        return KeyNames.isDown(com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT) || KeyNames.isDown(com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT);
     }
 
     private static void msg(String s) {

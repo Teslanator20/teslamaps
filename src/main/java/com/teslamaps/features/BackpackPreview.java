@@ -407,7 +407,7 @@ public class BackpackPreview {
         int[] r = frozenRect(mc.gui.screen().width, mc.gui.screen().height);
         boolean inside = mx >= r[0] && mx < r[0] + r[2] && my >= r[1] && my < r[1] + r[3];
         if (!inside) return false;
-        if (button == 1) frozen = null;
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) frozen = null;
         return true;
     }
 

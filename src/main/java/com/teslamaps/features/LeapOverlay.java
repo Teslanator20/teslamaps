@@ -12,7 +12,6 @@ import net.minecraft.client.gui.components.LerpingBossEvent;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.lwjgl.glfw.GLFW;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -536,7 +535,7 @@ public class LeapOverlay {
 
     public static boolean handleClick(double mouseX, double mouseY, int button) {
         if (!shouldRender()) return false;
-        if (button != 0) return false; // Only left click
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return false; // Only left click
 
         ContainerScreen screen = (ContainerScreen) mc.gui.screen();
         if (screen == null) return false;
@@ -548,7 +547,7 @@ public class LeapOverlay {
     }
 
     public static boolean handleRelease(double mouseX, double mouseY, int button) {
-        if (!TeslaMapsConfig.get().leapOnRelease || button != 0 || !shouldRender()) { mouseArmed = false; return false; }
+        if (!TeslaMapsConfig.get().leapOnRelease || button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || !shouldRender()) { mouseArmed = false; return false; }
         if (!mouseArmed) return true;
         mouseArmed = false;
         ContainerScreen screen = (ContainerScreen) mc.gui.screen();

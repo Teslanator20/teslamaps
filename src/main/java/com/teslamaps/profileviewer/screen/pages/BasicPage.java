@@ -152,7 +152,7 @@ public class BasicPage extends ProfileViewerPage {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button != 0 || parent == null) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || parent == null) return false;
         for (Link link : links) {
             if (mouseX >= link.x() && mouseX < link.x() + link.w() && mouseY >= link.y() && mouseY < link.y() + link.h()) {
                 return parent.openPage(link.page());

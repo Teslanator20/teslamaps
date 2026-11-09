@@ -159,7 +159,7 @@ public class CustomizeNameWidget extends AbstractContainerWidget {
                             sb.setLength(0);
                         }
                         if (format == ChatFormatting.RESET) current = style;
-                        else if (format.isColor()) current = style.withColor(format);
+                        else if (net.minecraft.network.chat.TextColor.fromLegacyFormat(format) != null) current = style.withColor(format);
                         else current = current.applyFormat(format);
                         continue;
                     }

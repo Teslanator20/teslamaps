@@ -277,7 +277,7 @@ public final class PetMenus {
 
     /** Click on the inventory panel sends /pets. */
     public static boolean click(AbstractContainerScreen<?> cs, double mx, double my, int button) {
-        if (panelW <= 0 || button != 0 || !(cs instanceof InventoryScreen)) return false;
+        if (panelW <= 0 || button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || !(cs instanceof InventoryScreen)) return false;
         if (mx < panelX || mx >= panelX + panelW || my < panelY || my >= panelY + panelH) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() != null) mc.getConnection().sendCommand("pets");

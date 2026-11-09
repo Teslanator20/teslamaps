@@ -14,7 +14,6 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -133,10 +132,7 @@ public final class AdmCore {
         var o = mc.options;
         if (!o.exclusiveFullscreen().get()) return;
         o.exclusiveFullscreen().set(false);
-        if (mc.getWindow().isFullscreen()) {
-            mc.getWindow().toggleFullScreen();
-            o.fullscreen().set(false);
-        }
+        if (com.teslamaps.features.WindowTweaks.isFullscreen(mc.getWindow())) o.fullscreen().set(false);
         o.save();
         TeslaMaps.LOGGER.info("[adm] exclusive fullscreen off (it breaks on Wayland once the game loses focus)");
     }
@@ -145,8 +141,8 @@ public final class AdmCore {
         if (!wayland()) { windowKept = true; return; }
         long h = mc.getWindow().handle();
         if (h == 0L) return;
-        GLFW.glfwSetWindowAttrib(h, GLFW.GLFW_AUTO_ICONIFY, GLFW.GLFW_FALSE);
-        if (GLFW.glfwGetWindowAttrib(h, GLFW.GLFW_ICONIFIED) == GLFW.GLFW_TRUE) GLFW.glfwRestoreWindow(h);
+        org.lwjgl.sdl.SDLHints.SDL_SetHint(org.lwjgl.sdl.SDLHints.SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+        if ((org.lwjgl.sdl.SDLVideo.SDL_GetWindowFlags(h) & org.lwjgl.sdl.SDLVideo.SDL_WINDOW_MINIMIZED) != 0) org.lwjgl.sdl.SDLVideo.SDL_RestoreWindow(h);
         windowKept = true;
     }
 

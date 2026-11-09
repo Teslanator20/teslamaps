@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.lwjgl.glfw.GLFW;
 
 /** Replaces the auction house / bazaar search sign with a textbox that suggests item names. */
 public class SearchOverlay {
@@ -75,9 +74,8 @@ public class SearchOverlay {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (key != com.mojang.blaze3d.platform.InputConstants.KEY_F || !c.searchOverlayCommands || !c.searchOverlayCtrlF) return false;
         Minecraft mc = Minecraft.getInstance();
-        long w = mc.getWindow().handle();
-        if (GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS
-                && GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS) return false;
+        if (!com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                && !com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL)) return false;
         String title = StringUtil.strip(screen.getTitle().getString());
         Location location = title.contains("Bazaar") ? Location.BAZAAR
                 : title.contains("Auction") ? Location.AUCTION : null;
@@ -126,7 +124,8 @@ public class SearchOverlay {
             if (sign == null) return;
 
             String[] lines = new String[4];
-            for (int i = 0; i < 4; i++) lines[i] = sign.getFrontText().getMessage(i, false).getString();
+            java.util.List<net.minecraft.network.chat.Component> msgs = sign.getText(net.minecraft.world.level.block.entity.SignTextSlot.FRONT).getMessages(false);
+            for (int i = 0; i < 4; i++) lines[i] = msgs.get(i).getString();
             if (!isQuerySign(lines)) return;
 
             Location location = locationOf(lastContainer);
@@ -140,7 +139,7 @@ public class SearchOverlay {
             // set the screen by hand so the sign gui does not close
             mc.execute(() -> {
                 SearchOverlayScreen next = new SearchOverlayScreen(sign, lines, location, start);
-                mc.screen = next;
+                mc.gui.screen = next;
                 next.init(width, height);
             });
         });
@@ -323,7 +322,7 @@ public class SearchOverlay {
             });
             return;
         }
-        mc.getConnection().send(new ServerboundSignUpdatePacket(
-                sign.getBlockPos(), true, first, second, originalText[2], originalText[3]));
+        mc.getConnection().send(new ServerboundSignUpdatePacket(sign.getBlockPos(),
+                java.util.List.of(first, second, originalText[2], originalText[3]), net.minecraft.world.level.block.entity.SignTextSlot.FRONT));
     }
 }

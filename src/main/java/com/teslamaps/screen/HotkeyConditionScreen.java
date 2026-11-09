@@ -110,7 +110,7 @@ public class HotkeyConditionScreen extends Screen {
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         if (listening) {
-            kb.seqKey = event.key() == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE ? -1 : event.key();
+            kb.seqKey = event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE ? -1 : event.key();
             listening = false;
             init();
             return true;

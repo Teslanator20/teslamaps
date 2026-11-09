@@ -7,7 +7,6 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +63,7 @@ public abstract class TerminalHandler {
         if (!canClick(slotIndex, button) || shouldProtect()) return;
 
         int mappedButton = (button == 1 && type == TerminalTypes.RUBIX)
-                ? com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT : com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE;
+                ? 1 : 2;
         clickedSlots.add(new int[]{slotIndex, mappedButton});
         lastClickTime = System.currentTimeMillis();
 
@@ -77,7 +76,7 @@ public abstract class TerminalHandler {
         }
         if (mc.player == null || mc.gameMode == null) return;
         mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, slotIndex, mappedButton,
-                mappedButton == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE ? ContainerInput.CLONE : ContainerInput.PICKUP, mc.player);
+                mappedButton == 2 ? ContainerInput.CLONE : ContainerInput.PICKUP, mc.player);
     }
 
     public boolean canClick(int slotIndex, int button) {

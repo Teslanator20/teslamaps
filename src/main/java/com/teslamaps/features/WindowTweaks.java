@@ -5,8 +5,11 @@ import com.mojang.blaze3d.platform.Window;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.sdl.SDLVideo;
+import org.lwjgl.sdl.SDL_Rect;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.IntBuffer;
 
 public final class WindowTweaks {
 
@@ -35,11 +38,19 @@ public final class WindowTweaks {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return;
         reconcileFullscreen(mc.getWindow());
-        ensureBorderless(mc.getWindow());
+        ensureBorderless(mc, mc.getWindow());
+    }
+
+    public static boolean isFullscreen(Window w) {
+        return flag(w.handle(), SDLVideo.SDL_WINDOW_FULLSCREEN);
+    }
+
+    private static boolean flag(long h, long f) {
+        return h != 0L && (SDLVideo.SDL_GetWindowFlags(h) & f) != 0;
     }
 
     private static void reconcileFullscreen(Window w) {
-        boolean fs = w.isFullscreen();
+        boolean fs = isFullscreen(w);
         Boolean prev = lastFullscreen;
         lastFullscreen = fs;
         if (prev == null || prev == fs) return;
@@ -54,17 +65,17 @@ public final class WindowTweaks {
         }
     }
 
-    private static void ensureBorderless(Window w) {
+    private static void ensureBorderless(Minecraft mc, Window w) {
         boolean want = cfg().borderlessWindow;
-        if (GLFW.glfwGetWindowAttrib(w.handle(), GLFW.GLFW_ICONIFIED) == GLFW.GLFW_TRUE) return;
-        if (w.isFullscreen()) {
+        long h = w.handle();
+        if (flag(h, SDLVideo.SDL_WINDOW_MINIMIZED)) return;
+        if (isFullscreen(w)) {
             if (want && !suppressNextWindowed) {
                 suppressNextWindowed = true;
-                w.toggleFullScreen();
+                mc.options.fullscreen().set(false);
             }
             return;
         }
-        long h = w.handle();
         if (want) {
             if (applied && isBorderlessApplied(h)) return;
             snapshot(h);
@@ -77,89 +88,75 @@ public final class WindowTweaks {
     }
 
     private static boolean decorated(long h) {
-        return GLFW.glfwGetWindowAttrib(h, GLFW.GLFW_DECORATED) == GLFW.GLFW_TRUE;
+        return !flag(h, SDLVideo.SDL_WINDOW_BORDERLESS);
     }
 
     private static void snapshot(long h) {
         if (!decorated(h)) return;
-        if (GLFW.glfwGetWindowAttrib(h, GLFW.GLFW_MAXIMIZED) == GLFW.GLFW_TRUE) {
+        if (flag(h, SDLVideo.SDL_WINDOW_MAXIMIZED)) {
             savedMaximized = true;
             return;
         }
-        int[] x = new int[1], y = new int[1], ww = new int[1], wh = new int[1];
-        GLFW.glfwGetWindowPos(h, x, y);
-        GLFW.glfwGetWindowSize(h, ww, wh);
-        if (ww[0] <= 0 || wh[0] <= 0) return;
-        savedX = x[0];
-        savedY = y[0];
-        savedW = Math.max(640, ww[0]);
-        savedH = Math.max(480, wh[0]);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1), ww = stack.mallocInt(1), wh = stack.mallocInt(1);
+            SDLVideo.SDL_GetWindowPosition(h, x, y);
+            SDLVideo.SDL_GetWindowSize(h, ww, wh);
+            if (ww.get(0) <= 0 || wh.get(0) <= 0) return;
+            savedX = x.get(0);
+            savedY = y.get(0);
+            savedW = Math.max(640, ww.get(0));
+            savedH = Math.max(480, wh.get(0));
+        }
         savedMaximized = false;
         hasSaved = true;
     }
 
-    private static long monitorUnder(long h) {
-        long primary = GLFW.glfwGetPrimaryMonitor();
-        var monitors = GLFW.glfwGetMonitors();
-        if (monitors == null || monitors.limit() <= 1) return primary;
-        int[] wx = new int[1], wy = new int[1], ww = new int[1], wh = new int[1], mx = new int[1], my = new int[1];
-        GLFW.glfwGetWindowPos(h, wx, wy);
-        GLFW.glfwGetWindowSize(h, ww, wh);
-        long best = 0, bestArea = 0;
-        for (int i = 0; i < monitors.limit(); i++) {
-            long m = monitors.get(i);
-            GLFWVidMode mode = GLFW.glfwGetVideoMode(m);
-            if (mode == null) continue;
-            GLFW.glfwGetMonitorPos(m, mx, my);
-            long ow = Math.max(0, Math.min(wx[0] + ww[0], mx[0] + mode.width()) - Math.max(wx[0], mx[0]));
-            long oh = Math.max(0, Math.min(wy[0] + wh[0], my[0] + mode.height()) - Math.max(wy[0], my[0]));
-            if (ow * oh > bestArea) {
-                bestArea = ow * oh;
-                best = m;
-            }
+    /** Bounds of the display the window is mostly on: x, y, w, h; null when unknown. */
+    private static int[] displayUnder(long h) {
+        int d = SDLVideo.SDL_GetDisplayForWindow(h);
+        if (d == 0) d = SDLVideo.SDL_GetPrimaryDisplay();
+        if (d == 0) return null;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            SDL_Rect r = SDL_Rect.calloc(stack);
+            if (!SDLVideo.SDL_GetDisplayBounds(d, r) || r.w() <= 0 || r.h() <= 0) return null;
+            return new int[]{r.x(), r.y(), r.w(), r.h()};
         }
-        return best != 0 ? best : primary;
     }
 
     private static void applyBorderless(long h) {
-        long m = monitorUnder(h);
-        GLFWVidMode mode = m != 0 ? GLFW.glfwGetVideoMode(m) : null;
-        int[] mx = new int[1], my = new int[1];
-        if (m != 0) GLFW.glfwGetMonitorPos(m, mx, my);
-        if (GLFW.glfwGetWindowAttrib(h, GLFW.GLFW_MAXIMIZED) == GLFW.GLFW_TRUE) GLFW.glfwRestoreWindow(h);
-        GLFW.glfwSetWindowAttrib(h, GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE);
-        GLFW.glfwSetWindowMonitor(h, 0L, mx[0], my[0],
-                mode != null ? mode.width() : savedW, mode != null ? mode.height() : savedH, GLFW.GLFW_DONT_CARE);
+        int[] d = displayUnder(h);
+        if (flag(h, SDLVideo.SDL_WINDOW_MAXIMIZED)) SDLVideo.SDL_RestoreWindow(h);
+        SDLVideo.SDL_SetWindowBordered(h, false);
+        SDLVideo.SDL_SetWindowPosition(h, d != null ? d[0] : 0, d != null ? d[1] : 0);
+        SDLVideo.SDL_SetWindowSize(h, d != null ? d[2] : savedW, d != null ? d[3] : savedH);
     }
 
     private static void restore(long h) {
-        long m = monitorUnder(h);
-        GLFWVidMode mode = m != 0 ? GLFW.glfwGetVideoMode(m) : null;
-        int maxW = mode != null ? Math.max(640, mode.width()) : Integer.MAX_VALUE;
-        int maxH = mode != null ? Math.max(480, mode.height()) : Integer.MAX_VALUE;
+        int[] d = displayUnder(h);
+        int maxW = d != null ? Math.max(640, d[2]) : Integer.MAX_VALUE;
+        int maxH = d != null ? Math.max(480, d[3]) : Integer.MAX_VALUE;
         int w = Math.min(maxW, Math.max(640, savedW));
         int hh = Math.min(maxH, Math.max(480, savedH));
-        int[] mx = new int[1], my = new int[1];
-        if (m != 0) GLFW.glfwGetMonitorPos(m, mx, my);
-        int x = hasSaved ? savedX : mx[0] + 50;
-        int y = hasSaved ? savedY : my[0] + 50;
-        GLFW.glfwSetWindowAttrib(h, GLFW.GLFW_DECORATED, GLFW.GLFW_TRUE);
-        GLFW.glfwSetWindowMonitor(h, 0L, x, y, w, hh, GLFW.GLFW_DONT_CARE);
+        int x = hasSaved ? savedX : (d != null ? d[0] : 0) + 50;
+        int y = hasSaved ? savedY : (d != null ? d[1] : 0) + 50;
+        SDLVideo.SDL_SetWindowBordered(h, true);
+        SDLVideo.SDL_SetWindowSize(h, w, hh);
+        SDLVideo.SDL_SetWindowPosition(h, x, y);
         if (savedMaximized) {
-            GLFW.glfwMaximizeWindow(h);
+            SDLVideo.SDL_MaximizeWindow(h);
             savedMaximized = false;
         }
     }
 
     private static boolean isBorderlessApplied(long h) {
         if (decorated(h)) return false;
-        long m = monitorUnder(h);
-        GLFWVidMode mode = m != 0 ? GLFW.glfwGetVideoMode(m) : null;
-        if (mode == null) return true;
-        int[] wx = new int[1], wy = new int[1], ww = new int[1], wh = new int[1], mx = new int[1], my = new int[1];
-        GLFW.glfwGetWindowPos(h, wx, wy);
-        GLFW.glfwGetWindowSize(h, ww, wh);
-        GLFW.glfwGetMonitorPos(m, mx, my);
-        return wx[0] == mx[0] && wy[0] == my[0] && ww[0] == mode.width() && wh[0] == mode.height();
+        int[] d = displayUnder(h);
+        if (d == null) return true;
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer wx = stack.mallocInt(1), wy = stack.mallocInt(1), ww = stack.mallocInt(1), wh = stack.mallocInt(1);
+            SDLVideo.SDL_GetWindowPosition(h, wx, wy);
+            SDLVideo.SDL_GetWindowSize(h, ww, wh);
+            return wx.get(0) == d[0] && wy.get(0) == d[1] && ww.get(0) == d[2] && wh.get(0) == d[3];
+        }
     }
 }

@@ -5,7 +5,6 @@ import com.mojang.blaze3d.platform.Window;
 import com.teslamaps.features.NoCursorReset;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,7 +38,7 @@ public class NoCursorResetMouseMixin implements com.teslamaps.utils.CursorAccess
         mouseGrabbed = false;
         xpos = pos[0];
         ypos = pos[1];
-        InputConstants.grabOrReleaseMouse(window, GLFW.GLFW_CURSOR_NORMAL, xpos, ypos);
+        InputConstants.releaseMouse(window, xpos, ypos);
         ci.cancel();
     }
 
@@ -47,6 +46,6 @@ public class NoCursorResetMouseMixin implements com.teslamaps.utils.CursorAccess
     public void teslamaps$setCursor(double x, double y) {
         xpos = x;
         ypos = y;
-        GLFW.glfwSetCursorPos(minecraft.getWindow().handle(), x, y);
+        org.lwjgl.sdl.SDLMouse.SDL_WarpMouseInWindow(minecraft.getWindow().handle(), (float) x, (float) y);
     }
 }

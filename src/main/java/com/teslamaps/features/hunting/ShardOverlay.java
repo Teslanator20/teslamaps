@@ -444,14 +444,14 @@ public class ShardOverlay {
         boolean inPanel = mouseX >= panelLeft - PAD && mouseX <= panelLeft + panelWidth + PAD;
         if (config().shardPanelSearch && searchTop >= 0) {
             boolean inBox = inPanel && mouseY >= searchTop && mouseY < searchTop + ROW;
-            if (inBox && button == 1) {
+            if (inBox && button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 setQuery("");
                 return true;
             }
-            if (button == 0) focused = inBox;
+            if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) focused = inBox;
             if (inBox) return true;
         }
-        if (button != 0 || lastClickQuery == null) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || lastClickQuery == null) return false;
         if (mouseX < listLeft - PAD || mouseX > listLeft + listWidth + PAD) return false;
         if (mouseY < listTop || mouseY >= listTop + visibleRows * ROW) return false;
 
@@ -474,9 +474,9 @@ public class ShardOverlay {
 
     public static boolean onKeyPressed(int key) {
         if (!focused || !config().shardPanelSearch || !shouldRender()) return false;
-        if (key == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
             if (!query.isEmpty()) setQuery(query.substring(0, query.length() - 1));
-        } else if (key == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || key == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RETURN) {
+        } else if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN) {
             focused = false;
         }
         return true;

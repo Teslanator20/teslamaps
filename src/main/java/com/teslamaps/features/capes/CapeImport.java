@@ -16,9 +16,11 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import java.nio.ByteBuffer;
+import org.lwjgl.sdl.SDLDialog;
+import org.lwjgl.sdl.SDL_DialogFileCallback;
+import org.lwjgl.sdl.SDL_DialogFileFilter;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * Brings a cape png in from disk or a url. One job at a time; the screen polls
@@ -59,29 +61,35 @@ public class CapeImport {
     /** Set when a job finished, so the screen can jump to the new cape. */
     public static volatile String importedId;
 
-    /** Native file picker. Blocks, so it gets its own thread. */
+    /** Native file picker (SDL, async). Filter memory lives until the callback ran. */
     public static void pickFile() {
         if (running) return;
         begin("Waiting for the file picker...");
-        new Thread(() -> {
-            String picked;
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                PointerBuffer filters = stack.mallocPointer(2);
-                filters.put(stack.UTF8("*.png"));
-                filters.put(stack.UTF8("*.gif"));
-                filters.flip();
-                picked = TinyFileDialogs.tinyfd_openFileDialog(
-                        "Choose a cape texture", null, filters, "PNG or GIF image", false);
-            } catch (Throwable t) {
-                fail("File picker unavailable");
-                return;
+        ByteBuffer name = MemoryUtil.memUTF8("PNG or GIF image");
+        ByteBuffer pattern = MemoryUtil.memUTF8("png;gif");
+        SDL_DialogFileFilter.Buffer filters = SDL_DialogFileFilter.calloc(1);
+        filters.get(0).set(name, pattern);
+        SDL_DialogFileCallback[] cb = new SDL_DialogFileCallback[1];
+        cb[0] = SDL_DialogFileCallback.create((userdata, filelist, filter) -> {
+            String picked = null;
+            boolean error = filelist == 0L;
+            if (!error) {
+                long first = MemoryUtil.memGetAddress(filelist);
+                if (first != 0L) picked = MemoryUtil.memUTF8(first);
             }
-            if (picked == null) {
-                reset();
-                return;
-            }
-            fromFile(Path.of(picked));
-        }, "TeslaMaps cape picker").start();
+            filters.free();
+            MemoryUtil.memFree(name);
+            MemoryUtil.memFree(pattern);
+            cb[0].free();
+            if (error) fail("File picker unavailable");
+            else if (picked == null) reset();
+            else fromFile(Path.of(picked));
+        });
+        try {
+            SDLDialog.SDL_ShowOpenFileDialog(cb[0], 0L, Minecraft.getInstance().getWindow().handle(), filters, (CharSequence) null, false);
+        } catch (Throwable t) {
+            fail("File picker unavailable");
+        }
     }
 
     /** Reads a local png with progress and stores it as a cape. */

@@ -34,7 +34,7 @@ public final class NoCropRotation {
                     && (c.noCropRotationEverywhere || SkyblockUtils.isInGarden());
             if (want == active) return;
             active = want;
-            if (mc.levelRenderer != null && mc.level != null) mc.levelRenderer.allChanged();
+            if (mc.levelExtractor != null && mc.level != null) mc.levelExtractor.allChanged();
         });
     }
 

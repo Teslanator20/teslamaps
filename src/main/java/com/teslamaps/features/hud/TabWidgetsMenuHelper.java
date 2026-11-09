@@ -68,7 +68,7 @@ public final class TabWidgetsMenuHelper {
                 draw(cs, g, mx, my);
             });
             ScreenMouseEvents.allowMouseClick(screen).register((s, e) ->
-                    !cfg().widgetsHelper || !cfg().widgetsHelperList || e.button() != 0 || !click(cs, e.x(), e.y()));
+                    !cfg().widgetsHelper || !cfg().widgetsHelperList || e.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || !click(cs, e.x(), e.y()));
         });
     }
 

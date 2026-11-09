@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 /** The ADS module's settings (Odin settings in ADM), stored as strings in TeslaMapsConfig.admSimSettings. */
 public final class SimSettings {

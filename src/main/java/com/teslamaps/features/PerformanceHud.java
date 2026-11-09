@@ -47,8 +47,8 @@ public class PerformanceHud {
         if (!TeslaMapsConfig.get().perfHud || !TeslaMapsConfig.get().perfHudCps) return;
         if (Minecraft.getInstance().gui.screen() != null) return;
         long now = System.currentTimeMillis();
-        if (button == 0) leftClicks[leftIdx++ & 63] = now;
-        else if (button == 1) rightClicks[rightIdx++ & 63] = now;
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) leftClicks[leftIdx++ & 63] = now;
+        else if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) rightClicks[rightIdx++ & 63] = now;
     }
 
     private static int cps(long[] clicks, long now) {

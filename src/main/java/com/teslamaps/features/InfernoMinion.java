@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,9 +116,8 @@ public final class InfernoMinion {
         if (!cfg().infernoFuelBlocker || slot == null || !cfg().section("Inventory")) return false;
         if (slot.index != FUEL_SLOT && slot.index != PICKUP_SLOT) return false;
         if (slot.container instanceof Inventory || !isInferno(cs) || !hasFuel(cs)) return false;
-        long w = Minecraft.getInstance().getWindow().handle();
-        return GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS
-                && GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS;
+        return !com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                && !com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL);
     }
 
     private static void tick() {

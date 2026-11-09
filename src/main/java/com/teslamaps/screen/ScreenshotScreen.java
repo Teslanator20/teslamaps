@@ -17,7 +17,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 /** Browses the screenshots folder: thumbnails, a preview, copy, delete, open folder. */
 public class ScreenshotScreen extends Screen {
@@ -279,7 +278,7 @@ public class ScreenshotScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean down = minecraft.mouseHandler.isLeftPressed();
         boolean clicked = down && !wasMouseDown;
 
         ctx.fill(0, 0, width, height, 0xB0000000);

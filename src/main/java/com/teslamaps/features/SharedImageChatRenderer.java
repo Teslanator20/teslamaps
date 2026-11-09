@@ -179,8 +179,8 @@ public class SharedImageChatRenderer {
 
     private static boolean fullSize() {
         long window = Minecraft.getInstance().getWindow().handle();
-        return org.lwjgl.glfw.GLFW.glfwGetKey(window, org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT) == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS
-                || org.lwjgl.glfw.GLFW.glfwGetKey(window, org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT) == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS;
+        return com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT);
     }
 
     /** Centered. A quarter of the screen normally, everything it can get while shift is held. */

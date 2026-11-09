@@ -13,7 +13,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -278,7 +277,7 @@ public class ScreenshotEditorScreen extends Screen {
         dragButton = event.button();
         dragX = mx;
         dragY = my;
-        if (event.button() != 0) return true;
+        if (event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return true;
         if (tool == Tool.DRAW) {
             float ix = (float) toImgX(mx), iy = (float) toImgY(my);
             before = snap();
@@ -303,7 +302,7 @@ public class ScreenshotEditorScreen extends Screen {
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (dragButton < 0) return super.mouseDragged(event, dx, dy);
         double mx = event.x(), my = event.y();
-        if (dragButton != 0 || tool == Tool.VIEW) {
+        if (dragButton != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || tool == Tool.VIEW) {
             panX += mx - dragX;
             panY += my - dragY;
         } else if (tool == Tool.DRAW && current != null) {
@@ -328,10 +327,10 @@ public class ScreenshotEditorScreen extends Screen {
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
         if (dragButton >= 0 && event.button() == dragButton) {
-            if (dragButton == 0 && tool == Tool.DRAW && current != null) {
+            if (dragButton == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && tool == Tool.DRAW && current != null) {
                 current = null;
                 commit(before);
-            } else if (dragButton == 0 && tool == Tool.CROP && cropStart != null) {
+            } else if (dragButton == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && tool == Tool.CROP && cropStart != null) {
                 cropStart = null;
                 if (crop[2] - crop[0] < MIN_CROP || crop[3] - crop[1] < MIN_CROP) crop = before.crop.clone();
                 else if (!java.util.Arrays.equals(crop, before.crop)) commit(before);

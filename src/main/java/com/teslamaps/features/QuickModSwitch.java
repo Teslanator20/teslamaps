@@ -67,7 +67,7 @@ public final class QuickModSwitch {
                 if (cfg().quickModSwitch && s == shownOn) draw(ctx, Minecraft.getInstance(), hud.x(), hud.y(), hud.scale(), mx, my);
             });
             ScreenMouseEvents.allowMouseClick(screen).register((s, event) -> {
-                if (!cfg().quickModSwitch || s != shownOn || event.button() != 0) return true;
+                if (!cfg().quickModSwitch || s != shownOn || event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return true;
                 Mod hit = at(event.x(), event.y());
                 if (hit == null) return true;
                 open(hit);

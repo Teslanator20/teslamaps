@@ -306,8 +306,7 @@ public class SlayerHUD {
     // Skytils slayerCarryMode: middle click a boss to follow it
     private static void tickCarryClick(Minecraft mc) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        boolean down = c.slayerCarryMode && mc.gui.screen() == null && org.lwjgl.glfw.GLFW.glfwGetMouseButton(
-                mc.getWindow().handle(), org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE) == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean down = c.slayerCarryMode && mc.gui.screen() == null && mc.mouseHandler.isMiddlePressed();
         if (!c.slayerCarryMode) carryTag = null;
         if (down && !middleDown) {
             Entity target = mc.crosshairPickEntity;

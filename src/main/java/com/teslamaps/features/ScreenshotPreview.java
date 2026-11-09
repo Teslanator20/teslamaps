@@ -208,7 +208,7 @@ public final class ScreenshotPreview {
 
     /** True = consumed. */
     private static boolean click(Screen screen, double x, double y, int button) {
-        if (button != 0 || imgRect == null || file == null) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || imgRect == null || file == null) return false;
         File f = file;
         Minecraft mc = Minecraft.getInstance();
         if (inside(closeRect, x, y)) {

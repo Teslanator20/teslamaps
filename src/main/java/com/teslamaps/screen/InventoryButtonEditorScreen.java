@@ -431,7 +431,7 @@ public class InventoryButtonEditorScreen extends Screen {
             int size = button.size();
             if (mouseX < x || mouseX > x + size || mouseY < y || mouseY > y + size) continue;
 
-            if (event.button() == 0) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) {
                 pressed = button;
                 pressX = mouseX;
                 pressY = mouseY;
@@ -483,10 +483,10 @@ public class InventoryButtonEditorScreen extends Screen {
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         boolean typing = commandBox.isFocused() || iconBox.isFocused() || nameBox.isFocused();
         if (editing != null && !typing) {
-            int step = (event.modifiers() & org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT) != 0 ? 5 : 1;
+            int step = (event.modifiers() & com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT) != 0 ? 5 : 1;
             int k = event.key();
-            int dx = k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -step : k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT ? step : 0;
-            int dy = k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_UP ? -step : k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_DOWN ? step : 0;
+            int dx = k == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -step : k == com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT ? step : 0;
+            int dy = k == com.mojang.blaze3d.platform.InputConstants.KEY_UP ? -step : k == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN ? step : 0;
             if (dx != 0 || dy != 0) {
                 editing.x += dx;
                 editing.y += dy;
@@ -567,7 +567,7 @@ public class InventoryButtonEditorScreen extends Screen {
             int top = guiTop + PRESET_FIRST_Y - 1 + PRESET_STEP * index++;
             if (mouseY < top || mouseY > top + PRESET_STEP) continue;
 
-            if (mouseButton == 1) {
+            if (mouseButton == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 if (ButtonPresets.delete(preset.getKey())) {
                     setStatus(Component.literal("Deleted " + preset.getKey() + "."));
                 } else {

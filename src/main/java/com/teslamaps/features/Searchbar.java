@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -53,11 +52,11 @@ public class Searchbar {
         HandledScreenAccessor acc = (HandledScreenAccessor) cs;
         int bx = acc.getX(), by = acc.getY() - BOX_H - 1;
         boolean inside = mx >= bx && mx <= bx + BOX_W && my >= by && my <= by + BOX_H;
-        if (button == 1) {
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
             if (inside) { query = ""; return true; }
             return false;
         }
-        if (button != 0) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return false;
         focused = inside;
         return inside;
     }

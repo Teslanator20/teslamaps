@@ -1,7 +1,6 @@
 package com.teslamaps.adm.sim.clear.ui;
 // Ported from ADM's p3sim/clear/ui/UiSettings.kt
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.teslamaps.adm.sim.Ec;
 import com.teslamaps.adm.sim.run.LagPreset;
 import com.teslamaps.adm.sim.settings.BoolSetting;
@@ -32,10 +31,10 @@ public final class UiSettings {
         mobHp = SimSettings.sel("Run Mob HP", MobHp.BASE, "Base: every mob has its base HP. Per run: each run draws its HP scale from the recorded per-run table, as the real dungeon's mobs vary.");
         strategy = SimSettings.str("Run Party Strategy", StrategyChoice.AUTO, 64, "Which party strategy the bots follow (auto, neutral or a plug-in preset's id). Chosen with the Party Strategy button on the start screen.");
         if (Ec.BETA) {
-            SimSettings.key("Run Start Screen Keybind", InputConstants.UNKNOWN.getValue(), "Opens the full run start screen (layout, party, lag).").onPress(UiModule::openStartScreen);
-            SimSettings.key("Run Restart Room Keybind", InputConstants.UNKNOWN.getValue(), "In a full run: go back to the savepoint taken when the party entered the room you are in, as /ads run restart room does.").onPress(() -> UiServer.send("restart", "room"));
-            SimSettings.key("Run Restart Keybind", InputConstants.UNKNOWN.getValue(), "In a full run: go back to the very start (the countdown), as /ads run restart does. The same dungeon, no rebuild.").onPress(() -> UiServer.send("restart"));
-            SimSettings.key("Run Savepoint Keybind", InputConstants.UNKNOWN.getValue(), "In a full run: take a savepoint right now (/ads run restore <number> goes back to it).").onPress(() -> UiServer.send("savepoint"));
+            SimSettings.key("Run Start Screen Keybind", -1, "Opens the full run start screen (layout, party, lag).").onPress(UiModule::openStartScreen);
+            SimSettings.key("Run Restart Room Keybind", -1, "In a full run: go back to the savepoint taken when the party entered the room you are in, as /ads run restart room does.").onPress(() -> UiServer.send("restart", "room"));
+            SimSettings.key("Run Restart Keybind", -1, "In a full run: go back to the very start (the countdown), as /ads run restart does. The same dungeon, no rebuild.").onPress(() -> UiServer.send("restart"));
+            SimSettings.key("Run Savepoint Keybind", -1, "In a full run: take a savepoint right now (/ads run restore <number> goes back to it).").onPress(() -> UiServer.send("savepoint"));
         }
         ready = true;
     }

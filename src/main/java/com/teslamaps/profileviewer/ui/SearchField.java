@@ -55,7 +55,7 @@ public class SearchField {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean inside = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + 14;
         focused = inside;
-        if (inside && button == 1) text = "";
+        if (inside && button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) text = "";
         return inside;
     }
 
@@ -68,11 +68,11 @@ public class SearchField {
     /** Backspace and escape while focused; escape only drops the focus, not the screen. */
     public boolean keyPressed(int key) {
         if (!focused) return false;
-        if (key == 259) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
             if (!text.isEmpty()) text = text.substring(0, text.length() - 1);
             return true;
         }
-        if (key == 256 || key == 257 || key == 335) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || key == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
             focused = false;
             return true;
         }

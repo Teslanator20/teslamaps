@@ -27,7 +27,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -395,7 +394,8 @@ public final class TunnelsMaps {
             int i = n == null ? -1 : n.indexOf('§');
             if (i >= 0 && i + 1 < n.length()) {
                 ChatFormatting f = ChatFormatting.getByCode(n.charAt(i + 1));
-                if (f != null && f.getColor() != null && f != ChatFormatting.WHITE) return 0xFF000000 | f.getColor();
+                net.minecraft.network.chat.TextColor tc = f != null ? net.minecraft.network.chat.TextColor.fromLegacyFormat(f) : null;
+                if (tc != null && f != ChatFormatting.WHITE) return 0xFF000000 | tc.getValue();
             }
         }
         return TeslaMapsConfig.parseColor(c.tunnelsMapsColor);

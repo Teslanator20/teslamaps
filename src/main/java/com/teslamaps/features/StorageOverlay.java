@@ -14,7 +14,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -611,8 +610,7 @@ public class StorageOverlay {
             int trackW = 10, trackX = sw - trackW - 3, trackTop = HEADER_PX, trackH = wallBottom - HEADER_PX;
             int thumbH = Math.max(24, (int) (trackH * Math.min(1f, visVirt / (contentVirt - startY()))));
             if (scrollDragging) {
-                long w = mc.getWindow().handle();
-                if (GLFW.glfwGetMouseButton(w, com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) != com.mojang.blaze3d.platform.InputConstants.PRESS) scrollDragging = false;
+                if (!mc.mouseHandler.isLeftPressed()) scrollDragging = false;
                 else {
                     float frac = (mouseY - trackTop - thumbH / 2f) / Math.max(1, trackH - thumbH);
                     scroll = Math.max(0, Math.min(maxScroll, frac * maxScroll));
@@ -1039,7 +1037,7 @@ public class StorageOverlay {
         if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs) || mc.player == null) return false;
         layout(cs.width, cs.height);
 
-        if (button == 2) {
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE) {
             Slot s = slotAt(mx, my);
             if (s != null && CopyItemName.copy(s.getItem())) return true;
             if (lastHover != null && CopyItemName.copy(lastHover)) return true;
@@ -1076,13 +1074,13 @@ public class StorageOverlay {
 
         int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
         int trackX = cs.width - 13;
-        if (button == 0 && mx >= trackX && my >= HEADER_PX && my <= wallBottom) { // scrollbar drag
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && mx >= trackX && my >= HEADER_PX && my <= wallBottom) { // scrollbar drag
             scrollDragging = true;
             searchFocused = false;
             return true;
         }
         if (inSearchBar(mx, my)) {
-            if (button == 1) setSearch(""); else searchFocused = true;
+            if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) setSearch(""); else searchFocused = true;
             return true;
         }
         if (resultsClick(mx, my, wallBottom)) { searchFocused = false; return true; }
@@ -1232,8 +1230,8 @@ public class StorageOverlay {
         }
         int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
         float maxScroll = Math.max(0, lay(visible()).contentH + startY() + 10 - wallBottom / scl());
-        boolean ctrl = GLFW.glfwGetKey(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) == com.mojang.blaze3d.platform.InputConstants.PRESS
-                || GLFW.glfwGetKey(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean ctrl = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL);
         int speed = Math.max(1, TeslaMapsConfig.get().storageScrollSpeed);
         scroll = Math.max(0, Math.min(maxScroll, scroll - (float) (sy * (ctrl ? speed * 4.5f : speed))));
         return true;

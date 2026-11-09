@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,7 +39,7 @@ public class ContainerKeyMixin {
         }
 
         if (com.teslamaps.features.StorageOverlay.active()) {
-            if (com.teslamaps.features.StorageOverlay.keyPressed(event.key(), event.scancode())) cir.setReturnValue(true);
+            if (com.teslamaps.features.StorageOverlay.keyPressed(event.key(), event.keycode())) cir.setReturnValue(true);
             return;
         }
 
@@ -59,7 +58,7 @@ public class ContainerKeyMixin {
             return;
         }
 
-        if (com.teslamaps.features.Searchbar.onKeyPressed(event.key(), event.scancode())) {
+        if (com.teslamaps.features.Searchbar.onKeyPressed(event.key(), event.keycode())) {
             cir.setReturnValue(true);
             return;
         }

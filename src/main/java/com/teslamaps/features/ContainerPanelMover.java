@@ -3,7 +3,6 @@ package com.teslamaps.features;
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Alt + drag moves the panels drawn next to container menus (Croesus profit, shard overlay).
@@ -77,12 +76,12 @@ public final class ContainerPanelMover {
         if (!on() || !Minecraft.getInstance().hasAltDown()) return false;
         int id = at(mx, my);
         if (id < 0) return false;
-        if (button == 1) {
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
             set(id, 0, 0);
             TeslaMapsConfig.save();
             return true;
         }
-        if (button != 0) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return false;
         dragging = id;
         grabX = (int) mx;
         grabY = (int) my;
@@ -99,7 +98,7 @@ public final class ContainerPanelMover {
         }
         Minecraft mc = Minecraft.getInstance();
         if (dragging >= 0) {
-            boolean down = GLFW.glfwGetMouseButton(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+            boolean down = mc.mouseHandler.isLeftPressed();
             if (!down) {
                 dragging = -1;
                 TeslaMapsConfig.save();

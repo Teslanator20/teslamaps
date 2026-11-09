@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /** After a rare catch, attack/use move to O/I for a moment so a stray click can't do anything. */

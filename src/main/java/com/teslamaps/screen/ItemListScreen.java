@@ -12,7 +12,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -184,7 +183,7 @@ public class ItemListScreen extends Screen {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (recipeId == null) {
-            if (event.button() == 1 && field != null && field.isMouseOver(event.x(), event.y())) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && field != null && field.isMouseOver(event.x(), event.y())) {
                 field.setValue("");
                 field.setFocused(true);
                 return true;
@@ -195,7 +194,7 @@ public class ItemListScreen extends Screen {
                 return true;
             }
         } else {
-            if (event.button() == 1) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 back();
                 return true;
             }

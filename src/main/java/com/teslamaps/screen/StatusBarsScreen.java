@@ -143,13 +143,13 @@ public class StatusBarsScreen extends Screen {
         }
         for (boolean h : new boolean[]{false, true}) {
             if (!over(h, mx, my)) continue;
-            if (event.button() == 1) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 menuFor = h;
                 menuX = (int) Math.min(mx, this.width - MENU_W - 4);
                 menuY = (int) Math.min(my, this.height - 14 - 6 * ROW_H - 4);
                 return true;
             }
-            if (event.button() == 0) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) {
                 el(h).bakeShift();
                 dragging = el(h);
                 dragHealth = h;

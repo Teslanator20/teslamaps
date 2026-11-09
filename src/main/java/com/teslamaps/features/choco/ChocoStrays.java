@@ -30,7 +30,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.item.component.ResolvableProfile;
-import org.lwjgl.glfw.GLFW;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -268,8 +267,8 @@ public final class ChocoStrays {
     private static int rarityOf(TextColor color) {
         if (color == null) return -1;
         for (int i = 0; i < FORMATS.length; i++) {
-            Integer v = FORMATS[i].getColor();
-            if (v != null && v == color.getValue()) return i;
+            TextColor v = TextColor.fromLegacyFormat(FORMATS[i]);
+            if (v != null && v.getValue() == color.getValue()) return i;
         }
         return -1;
     }

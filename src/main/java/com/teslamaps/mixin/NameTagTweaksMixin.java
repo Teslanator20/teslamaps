@@ -1,16 +1,16 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import net.minecraft.client.renderer.feature.NameTagFeatureRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollection;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Mixin(NameTagFeatureRenderer.class)
+@Mixin(SubmitNodeCollection.class)
 public class NameTagTweaksMixin {
-    private static final String DRAW = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/network/chat/Component;FFIZLorg/joml/Matrix4fc;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)V";
+    private static final String NAME_TAG = "Lnet/minecraft/client/renderer/SubmitNodeCollection;nameTag(Lorg/joml/Matrix4f;FFLnet/minecraft/util/FormattedCharSequence;IIILnet/minecraft/client/gui/Font$DisplayMode;)Lnet/minecraft/client/renderer/feature/TextFeatureRenderer$Submit;";
 
-    @ModifyArg(method = "renderTranslucent", at = @At(value = "INVOKE", target = DRAW), index = 8)
+    @ModifyArg(method = "submitNameTag", at = @At(value = "INVOKE", target = NAME_TAG), index = 6)
     private int teslamaps$noBackground(int color) {
         return TeslaMapsConfig.get().nametagNoBackground ? 0 : color;
     }

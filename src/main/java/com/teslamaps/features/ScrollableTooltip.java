@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositione
 import net.minecraft.world.inventory.Slot;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
-import org.lwjgl.glfw.GLFW;
 
 public class ScrollableTooltip {
 

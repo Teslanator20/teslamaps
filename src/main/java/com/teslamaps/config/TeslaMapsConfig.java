@@ -70,7 +70,7 @@ public class TeslaMapsConfig {
     public boolean legitMapOnly = false;      // Legit Mode affects only the map; don't block ESP/auto/cheats
     public boolean legitRoomGuess = false;    // guess puzzle/trap/miniboss behind unexplored doors (Odin special column)
     @Global
-    public int legitPeekKey = -1;             // Hold to reveal everything while legit mode is on (GLFW code, -1 = unbound)
+    public int legitPeekKey = -1;             // Hold to reveal everything while legit mode is on (-1 = unbound)
     public int mapX = 23;
     public int mapY = 172;
     public float mapScale = 1.5f;
@@ -311,7 +311,7 @@ public class TeslaMapsConfig {
     public boolean itemProtectionSell = true;    // Also block salvaging and shift-click selling
     public boolean itemProtectionMenus = false;  // also trade, AH, dungeon chests, any NPC shop
     public boolean itemProtectionUuid = false;   // per-item protection by Hypixel uuid
-    public int itemProtectionKey = 86;           // V over a slot toggles its protection
+    public int itemProtectionKey = com.mojang.blaze3d.platform.InputConstants.KEY_V;           // V over a slot toggles its protection
     @Global
     public java.util.Set<String> protectedItems = new java.util.HashSet<>();
 
@@ -500,7 +500,7 @@ public class TeslaMapsConfig {
     public int chatSpamHudX = 4;
     public int chatSpamHudY = 60;
     public float chatSpamHudScale = 1.0f;
-    public int chatFilterLineKey = -1;           // In open chat: filter the hovered line (GLFW code, -1 = unbound)
+    public int chatFilterLineKey = -1;           // In open chat: filter the hovered line (-1 = unbound)
 
     public static class ChatUserFilter {
         public String mode = "contains";         // contains / equals / startswith / endswith / regex
@@ -625,9 +625,9 @@ public class TeslaMapsConfig {
     public ClassFilter keySoundClasses = new ClassFilter(true, true, false, false, false);    // mage + archer
 
     public static class Keybind {
-        public int key = -1;          // GLFW key code, -1 = unbound
+        public int key = -1;          // SDL scancode, mouse = KeyNames.forMouse, -1 = unbound
         public String message = "";
-        public int modifiers = 0;     // GLFW mod bits: 1 shift, 2 ctrl, 4 alt; 0 = any
+        public int modifiers = 0;     // InputConstants.MOD_SHIFT/CONTROL/ALT bits; 0 = any
         public boolean enabled = true;
         public String cond = "None";      // hotkeyConditions: None/Holding Item/Inventory Contains/Sneaking/On SkyBlock
         public String condMode = "Name";  // Name/Lore/SkyBlock ID
@@ -655,7 +655,7 @@ public class TeslaMapsConfig {
     }
     public int hotkeyChatDelay = 250;            // ms to suppress hotkeys after closing a screen/chat (stops typed keys firing)
     @Global
-    public int configScreenKey = org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT;  // opens /tmap, -1 = unbound
+    public int configScreenKey = com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT;  // opens /tmap, -1 = unbound
     @Global
     public boolean configScreenKeyExclusive = true;  // eat the key so other mods bound to it stay quiet
 
@@ -961,7 +961,7 @@ public class TeslaMapsConfig {
     @Global
     public int dumpGuiKey = -1;                     // Dumps the open container to gui_dump.txt
     @Global
-    public int pestRoutineKey = -1;                  // Advances the pest routine (GLFW code, -1 = unbound)
+    public int pestRoutineKey = -1;                  // Advances the pest routine (-1 = unbound)
     public String pestChanceLoadout = "Loadout 7";  // Equipped after the cooldown message, to farm for spawns
     public String roseDragLoadout = "Loadout 6";    // Equipped once the pests have spawned
     public float pestWarpDelay = 1.5f;              // Seconds to block /warp garden after the previous step
@@ -1153,7 +1153,7 @@ public class TeslaMapsConfig {
     public boolean noEnchantGlint = true;   // Remove enchantment glint/shimmer on items
     public boolean zoomEnabled = true;       // Enable hold-key zoom
     @Global
-    public int zoomKey = -1;                 // Zoom keybind (GLFW code, -1 = unbound)
+    public int zoomKey = -1;                 // Zoom keybind (-1 = unbound)
     public int zoomFov = 30;                 // FOV while zoomed (1-110)
     public boolean zoomSmooth = true;        // Ease the FOV in and out instead of snapping
     public float zoomSmoothSpeed = 14f;      // Higher = snappier (1-30)
@@ -1632,7 +1632,7 @@ public class TeslaMapsConfig {
     public boolean priceLineCraft = false;          // raw craft cost line (NEU recipes)
     public boolean priceLineEach = false;           // "total coins (each)" in aligned columns
     public boolean priceLineRequireKey = false;     // price lines only while priceLineKey is held
-    public int priceLineKey = org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LALT;
+    public int priceLineKey = com.mojang.blaze3d.platform.InputConstants.KEY_LALT;
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
     public boolean containerValueGroup = false;     // same items in one row
     public boolean containerValueHover = false;     // hover a row: highlight its slots + value breakdown
@@ -1648,7 +1648,7 @@ public class TeslaMapsConfig {
     public int backpackPreviewFreezeKey = -1;      // pins the preview so its items can be hovered
     public boolean itemSearchIndex = true;          // remember opened containers so /tmap search can find items anywhere
     @Global
-    public int itemSearchKey = 79;                  // opens /tmap search (default O), -1 = unbound
+    public int itemSearchKey = com.mojang.blaze3d.platform.InputConstants.KEY_O;                  // opens /tmap search (default O), -1 = unbound
     public boolean islandChestTracker = false;      // private island only: real chests, large chests split, broken chests removed
     public boolean itemSearchGfsClick = false;      // right-click a sack hit in /tmap search -> /gfs prefilled
     public boolean customStorageOverlay = false;    // replace the vanilla "Storage" menu with a custom all-in-one view
@@ -1910,7 +1910,7 @@ public class TeslaMapsConfig {
     public float hoveredSlotFill = 0f;              // extra fill over the hovered slot (0 = off)
     public boolean slotLock = true;                // lock inventory slots from being moved/dropped/sold
     @Global
-    public int slotLockKey = 76;                    // keybind (over a slot) to toggle its lock
+    public int slotLockKey = com.mojang.blaze3d.platform.InputConstants.KEY_L;                    // keybind (over a slot) to toggle its lock
     public String slotLockStyle = "Box";            // Box = red fill + outline, Icon = padlock
     public String colorSlotLock = "#FF5555";        // locked slot outline color
     @Global
@@ -2165,7 +2165,7 @@ public class TeslaMapsConfig {
     @Global
     public int leapKeyArcher = -1, leapKeyBerserk = -1, leapKeyHealer = -1, leapKeyMage = -1, leapKeyTank = -1; // class keybinds
     @Global
-    public int leapKeyLastDoor = 32; // leap to the player who opened the most recent wither door
+    public int leapKeyLastDoor = com.mojang.blaze3d.platform.InputConstants.KEY_SPACE; // leap to the player who opened the most recent wither door
     @Global
     public int fastLeapKey = -1;     // Fast Leap: context-aware (door opener / boss phase / arena zone)
 
@@ -3874,7 +3874,7 @@ public class TeslaMapsConfig {
     public boolean visitorGuardLowLoss = false;
     public boolean visitorGuardHighLoss = false;
     public int visitorGuardLossLimit = 300000;
-    public int visitorGuardBypassKey = 341;
+    public int visitorGuardBypassKey = com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL;
     public boolean visitorGuardOutline = true;
     public boolean visitorArrivalTitle = false;
     public boolean visitorArrivalWarp = false;
@@ -3954,7 +3954,7 @@ public class TeslaMapsConfig {
     public boolean visitorHideNpcChat = true;
     public boolean visitorHideArrival = false;
     public boolean visitorLogbookNav = false;
-    public int visitorLogbookKey = 70;
+    public int visitorLogbookKey = com.mojang.blaze3d.platform.InputConstants.KEY_F;
     public boolean visitorStats = false;
     public boolean visitorStatsOnlyBarn = false;
     public long visitorStatAccepted = 0;
@@ -4114,7 +4114,7 @@ public class TeslaMapsConfig {
     public boolean jacobMedalBackground = true;
     public boolean jacobRewardStatus = true;
     public boolean jacobRealTime = true;
-    public int jacobEliteKey = 341;
+    public int jacobEliteKey = com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL;
     public boolean gardenOptimalSpeed = false;
     public boolean gardenOptimalSpeedHud = true;
     public boolean gardenOptimalSpeedWarn = true;
@@ -4280,7 +4280,7 @@ public class TeslaMapsConfig {
     // w12-09-eco
     public boolean priceLineVolume = false;
     public boolean priceLookup = false;
-    public int priceLookupKey = 295;
+    public int priceLookupKey = com.mojang.blaze3d.platform.InputConstants.KEY_F6;
     public int priceLookupRecipeKey = -1;
     public boolean sackValueHud = false;
     public boolean sackValueHudInSkyblockOnly = true;
@@ -5091,7 +5091,7 @@ public class TeslaMapsConfig {
     public float mayorOverlayScale = 1.0f;
     public boolean notificationPopups = false;
     public boolean notificationOverInventory = false;
-    public int notificationCloseKey = 88;
+    public int notificationCloseKey = com.mojang.blaze3d.platform.InputConstants.KEY_X;
     public boolean sackHud = false;
     public java.util.List<String> sackHudItems = new java.util.ArrayList<>();
     public int sackHudMax = 10;
@@ -5318,7 +5318,7 @@ public class TeslaMapsConfig {
     public boolean scoreboardLoggerDungeonsOnly = false;
     public boolean warpShortcuts = false;
     public boolean wikiLookup = false;
-    public int wikiLookupKey = 290;
+    public int wikiLookupKey = com.mojang.blaze3d.platform.InputConstants.KEY_F1;
     public boolean chatWaypointCommands = false;
     public boolean routeEditorExtras = false;
     public int routeEditKey = -1;
@@ -5583,7 +5583,7 @@ public class TeslaMapsConfig {
     // w05-08-inv
     public boolean slotTextControl = false;
     public String slotTextMode = "Hold To Hide";
-    public int slotTextKey = 342;
+    public int slotTextKey = com.mojang.blaze3d.platform.InputConstants.KEY_LALT;
     public List<String> slotTextDisabled = new ArrayList<>();
     public boolean enchantAbbrevBazaar = false;
     public boolean storageRememberLast = false;
@@ -5601,7 +5601,7 @@ public class TeslaMapsConfig {
     public boolean salvageMuseumBlock = false;
     public boolean compactorStatusIcon = false;
     public String compactorPreviewMode = "Always";
-    public int compactorPreviewKey = 340;
+    public int compactorPreviewKey = com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT;
     public boolean rarityBgHideHotbar = false;
     public String rarityBgPalette = "Hypixel";
     public boolean sackTable = false;
@@ -5668,7 +5668,7 @@ public class TeslaMapsConfig {
     public boolean customizeNoUuid = false;
     // w05-06-inv
     public boolean itemValueRequireKey = false;
-    public int itemValueKey = org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT;
+    public int itemValueKey = com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT;
     public boolean itemValueSkipMenus = false;
     public boolean customGlintColors = false;
     public java.util.Map<String, String> customGlintColor = new java.util.HashMap<>();

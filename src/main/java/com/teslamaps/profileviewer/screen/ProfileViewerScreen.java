@@ -600,7 +600,7 @@ public class ProfileViewerScreen extends Screen {
         }
 
         if (inside(nameRect, mx, my)) {
-            if (button == 1) {
+            if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 nameInput = "";
             } else if (nameInput == null) {
                 nameInput = profiles != null ? profiles.getDisplayName() : targetPlayer;
@@ -609,7 +609,7 @@ public class ProfileViewerScreen extends Screen {
         }
         nameInput = null;
 
-        if (error != null && button == 1 && errorCopy()) {
+        if (error != null && button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && errorCopy()) {
             Minecraft.getInstance().keyboardHandler.setClipboard(targetPlayer + ": " + error);
             errorCopiedAt = System.currentTimeMillis();
             return true;
@@ -630,11 +630,11 @@ public class ProfileViewerScreen extends Screen {
         // an open profile list floats over the page, so it eats the click first
         if (profileListOpen && handleClick(mx, my, event.button())) return true;
 
-        if (event.button() == 2
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE
                 && com.teslamaps.features.CopyItemName.copy(ItemGrid.lastHovered())) return true;
 
         ProfileViewerPage scrollable = scrollablePage();
-        if (scrollable != null && event.button() == 0 && mx >= barX() - 2 && mx <= barX() + BAR_WIDTH + 2
+        if (scrollable != null && event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && mx >= barX() - 2 && mx <= barX() + BAR_WIDTH + 2
                 && my >= BAR_TOP && my <= barBottom()) {
             draggingBar = true;
             dragBar(scrollable, my);
@@ -675,11 +675,11 @@ public class ProfileViewerScreen extends Screen {
         }
         if (nameInput != null) {
             int key = event.key();
-            if (key == 259) { // backspace
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) { // backspace
                 if (!nameInput.isEmpty()) nameInput = nameInput.substring(0, nameInput.length() - 1);
                 return true;
             }
-            if (key == 257 || key == 335) { // enter
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || key == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) { // enter
                 String wanted = nameInput.trim();
                 nameInput = null;
                 if (!wanted.isEmpty()) {
@@ -687,7 +687,7 @@ public class ProfileViewerScreen extends Screen {
                 }
                 return true;
             }
-            if (key == 256) { // escape leaves the box, not the screen
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) { // escape leaves the box, not the screen
                 nameInput = null;
                 return true;
             }

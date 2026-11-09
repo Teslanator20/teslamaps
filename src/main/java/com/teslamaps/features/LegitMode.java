@@ -2,7 +2,6 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 public class LegitMode {
     private static boolean peeking = false;

@@ -8,7 +8,6 @@ import com.teslamaps.utils.SoundOptions;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 
@@ -77,7 +76,7 @@ public class SoundPickerScreen extends Screen {
             }));
             addRenderableWidget(new TeslaButton(bx + bw + 4, by, bw, 16, "Folder", () -> {
                 com.teslamaps.utils.UserSounds.reload();
-                net.minecraft.util.Util.getPlatform().openPath(com.teslamaps.utils.UserSounds.dir());
+                com.mojang.blaze3d.Blaze3D.openPath(com.teslamaps.utils.UserSounds.dir());
             }));
         }
 
@@ -94,7 +93,7 @@ public class SoundPickerScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
         boolean clicked = isMouseDown && !wasMouseDown;
 
         ctx.fill(0, 0, width, height, 0xB0000000);

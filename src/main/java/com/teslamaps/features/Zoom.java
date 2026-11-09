@@ -2,7 +2,6 @@ package com.teslamaps.features;
 
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 // FOV is overridden via CameraZoomMixin while zoomed; the FOV option itself is
 // never touched (OptionInstance validates 30-110 and resets on out-of-range values).

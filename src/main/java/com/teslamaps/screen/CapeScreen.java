@@ -18,7 +18,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 /** Cape picker: what you own, a gallery of drawn capes, and a player lookup. */
 public class CapeScreen extends Screen {
@@ -101,7 +100,7 @@ public class CapeScreen extends Screen {
         int bw = Math.max(44, (panelW - 24 - 4 * 6) / 5);
         addRenderableWidget(new TeslaButton(panelX + 12, by, bw, 18, "§bFrom File", CapeImport::pickFile));
         addRenderableWidget(new TeslaButton(panelX + 12 + bw + 6, by, bw, 18, "§eFolder",
-                () -> net.minecraft.util.Util.getPlatform().openFile(CapeManager.DIR.toFile())));
+                () -> com.mojang.blaze3d.Blaze3D.openPath(CapeManager.DIR)));
         addRenderableWidget(new TeslaButton(panelX + 12 + (bw + 6) * 2, by, bw, 18, "§dPublish", this::publish));
         addRenderableWidget(new TeslaButton(panelX + 12 + (bw + 6) * 3, by, bw, 18, "§cDelete", this::deleteSelected));
         addRenderableWidget(new TeslaButton(panelX + 12 + (bw + 6) * 4, by, bw, 18, "§fClose", this::onClose));
@@ -221,13 +220,13 @@ public class CapeScreen extends Screen {
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         double mx = event.x(), my = event.y();
 
-        if (event.button() == 1 && field != null && field.isMouseOver(mx, my)) {
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && field != null && field.isMouseOver(mx, my)) {
             field.setValue("");
             field.setFocused(true);
             return true;
         }
 
-        if (event.button() == 0 && mx >= wavinessX() && mx < wavinessX() + wavinessW()
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && mx >= wavinessX() && mx < wavinessX() + wavinessW()
                 && my >= wavinessY() - 4 && my < wavinessY() + 10) {
             draggingWaviness = true;
             setDragging(true);
@@ -322,16 +321,14 @@ public class CapeScreen extends Screen {
         // mouseDragged does not reach us reliably, so the held bar is followed per frame instead
         if (draggingBar) {
             scrollToBar(mouseY);
-            if (GLFW.glfwGetMouseButton(minecraft.getWindow().handle(),
-                    com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) != com.mojang.blaze3d.platform.InputConstants.PRESS) {
+            if (!minecraft.mouseHandler.isLeftPressed()) {
                 draggingBar = false;
                 setDragging(false);
             }
         }
         if (draggingWaviness) {
             setWaviness(mouseX);
-            if (GLFW.glfwGetMouseButton(minecraft.getWindow().handle(),
-                    com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) != com.mojang.blaze3d.platform.InputConstants.PRESS) {
+            if (!minecraft.mouseHandler.isLeftPressed()) {
                 draggingWaviness = false;
                 setDragging(false);
             }

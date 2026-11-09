@@ -268,7 +268,7 @@ public final class JacobContests {
         mc.gui.hud.setSubtitle(Component.literal(crops));
         if (c.contestAlertVolume > 0f) LoudSound.play(SoundOptions.resolve(c.contestAlertSound), c.contestAlertVolume, 1.0f);
         if (c.contestCropWarnFlash && !mc.isWindowActive() && mc.getWindow() != null) {
-            org.lwjgl.glfw.GLFW.glfwRequestWindowAttention(mc.getWindow().handle());
+            org.lwjgl.sdl.SDLVideo.SDL_FlashWindow(mc.getWindow().handle(), org.lwjgl.sdl.SDLVideo.SDL_FLASH_BRIEFLY);
         }
     }
 

@@ -509,7 +509,7 @@ public final class FancyAuctionHouse {
         Minecraft mc = Minecraft.getInstance();
         Box b = box(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
         double lx = b.lx(e.x()), ly = b.ly(e.y());
-        int button = e.button();
+        int button = com.teslamaps.utils.KeyNames.toContainerButton(e.button());
         if (button > 1) return true;
         switch (mode) {
             case BROWSER -> clickBrowser(cs, lx, ly, button);
@@ -658,7 +658,7 @@ public final class FancyAuctionHouse {
         @Override
         public boolean mouseClicked(MouseButtonEvent e, boolean doubled) {
             double mx = e.x(), my = e.y();
-            if (e.button() == 0 && my >= py + 80 && my < py + 98) {
+            if (e.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && my >= py + 80 && my < py + 98) {
                 if (!min.isEmpty() && mx >= px + 12 && mx < px + 96) { finish(min); return true; }
                 if (mx >= px + PW - 96 && mx < px + PW - 12) { finish(value()); return true; }
             }

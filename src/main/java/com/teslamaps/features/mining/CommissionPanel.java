@@ -281,7 +281,7 @@ public final class CommissionPanel {
 
     public static boolean click(AbstractContainerScreen<?> cs, MouseButtonEvent e) {
         if (!active(cs)) return false;
-        if (e.button() > 1) return true;
+        if (com.teslamaps.utils.KeyNames.toContainerButton(e.button()) > 1) return true;
         Minecraft mc = Minecraft.getInstance();
         int w = mc.getWindow().getGuiScaledWidth(), h = mc.getWindow().getGuiScaledHeight();
         float s = scale(h);
@@ -300,7 +300,7 @@ public final class CommissionPanel {
             if (navSlots[i] < 0) continue;
             if (in(lx, ly, nx, ny, widths[i], NAV_H)) {
                 if (i == 0) cs.onClose();
-                else send(cs, navSlots[i], e.button());
+                else send(cs, navSlots[i], com.teslamaps.utils.KeyNames.toContainerButton(e.button()));
                 return true;
             }
             nx += widths[i] + 4;
