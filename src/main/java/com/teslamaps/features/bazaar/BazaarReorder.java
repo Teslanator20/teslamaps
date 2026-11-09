@@ -14,7 +14,6 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,9 +80,8 @@ public final class BazaarReorder {
         if (!StringUtil.stripTrim(cs.getTitle().getString()).startsWith("Order options")) return;
         ItemStack stack = slot.getItem();
         if (!stack.is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.green().asItem())) return;
-        long h = Minecraft.getInstance().getWindow().handle();
-        if (GLFW.glfwGetKey(h, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS
-                && GLFW.glfwGetKey(h, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS) return;
+        if (!com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                && !com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL)) return;
         Integer n = amount(stack, slot.index == 13 ? SELL : BUY);
         if (n == null) return;
         Minecraft mc = Minecraft.getInstance();

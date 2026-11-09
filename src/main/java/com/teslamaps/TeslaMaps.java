@@ -106,7 +106,7 @@ public class TeslaMaps implements ClientModInitializer {
         LevelRenderEvents.AFTER_TRANSLUCENT_TERRAIN.register(context -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.gameRenderer != null && mc.gameRenderer.mainCamera() != null) {
-                com.teslamaps.registry.FeatureRegistry.world(context.poseStack(), context.bufferSource(),
+                com.teslamaps.registry.FeatureRegistry.world(context.poseStack(), context.submitNodeCollector(),
                         mc.gameRenderer.mainCamera().position(),
                         context.levelState().cameraRenderState.cullFrustum);
             }

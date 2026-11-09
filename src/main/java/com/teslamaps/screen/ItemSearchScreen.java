@@ -9,7 +9,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -153,7 +152,7 @@ public class ItemSearchScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == 1 && field != null && field.isMouseOver(event.x(), event.y())) {
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && field != null && field.isMouseOver(event.x(), event.y())) {
             field.setValue("");
             field.setFocused(true);
             return true;
@@ -161,13 +160,13 @@ public class ItemSearchScreen extends Screen {
         int index = rowAt(event.x(), event.y());
         if (index >= 0) {
             Row row = rows.get(index);
-            if (event.button() == 1 && com.teslamaps.config.TeslaMapsConfig.get().itemSearchGfsClick
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && com.teslamaps.config.TeslaMapsConfig.get().itemSearchGfsClick
                     && row.where().stream().anyMatch(w -> ItemIndex.SACKS.equals(w.type()))) {
                 String id = com.teslamaps.utils.ItemUtil.skyblockId(row.stack());
                 minecraft.gui.setScreen(new net.minecraft.client.gui.screens.ChatScreen("/gfs " + (id.isEmpty() ? row.name() : id) + " ", false));
                 return true;
             }
-            if (event.button() == 2) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE) {
                 if (com.teslamaps.features.CopyItemName.copyText(row.name())) {
                     status = "§aCopied " + row.name();
                     return true;

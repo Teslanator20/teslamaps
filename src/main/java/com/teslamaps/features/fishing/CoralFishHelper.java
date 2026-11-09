@@ -68,7 +68,7 @@ public final class CoralFishHelper {
                 if (System.currentTimeMillis() - builtAt > 500) build(cs.getMenu());
                 draw(cs, g, mx, my);
             });
-            ScreenMouseEvents.allowMouseClick(screen).register((s, e) -> !active() || e.button() != 0 || !click(e.x(), e.y()));
+            ScreenMouseEvents.allowMouseClick(screen).register((s, e) -> !active() || e.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || !click(e.x(), e.y()));
             ScreenMouseEvents.allowMouseScroll(screen).register((s, mx, my, hs, vs) -> !active() || !onScroll(mx, my, vs));
         });
     }

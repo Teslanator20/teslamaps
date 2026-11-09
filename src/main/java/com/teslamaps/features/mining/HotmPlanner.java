@@ -245,9 +245,9 @@ public final class HotmPlanner {
             PerkRegistry.Perk p = at(event.x(), event.y());
             if (p != null) {
                 int step = event.hasShiftDown() ? 10 : 1;
-                if (event.button() == 0) change(p, step);
-                else if (event.button() == 1) change(p, -step);
-                else if (event.button() == 2) change(p, p.max());
+                if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) change(p, step);
+                else if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) change(p, -step);
+                else if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE) change(p, p.max());
                 return true;
             }
             return super.mouseClicked(event, doubleClick);

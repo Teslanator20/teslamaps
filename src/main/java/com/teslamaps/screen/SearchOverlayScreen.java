@@ -12,7 +12,6 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,7 +141,7 @@ public class SearchOverlayScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (event.button() == 1 && field != null
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && field != null
                 && event.x() >= panelX + 12 && event.x() < panelX + PANEL_W - 12
                 && event.y() >= panelY + 28 && event.y() < panelY + 44) {
             field.setValue("");
@@ -156,7 +155,7 @@ public class SearchOverlayScreen extends Screen {
         }
         int historyIndex = rowAt(event.x(), event.y(), historyY, history.size());
         if (historyIndex >= 0) {
-            if (event.button() == 1) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 SearchOverlay.removeHistory(location, history.get(historyIndex));
                 history = new ArrayList<>(SearchOverlay.history(location));
                 if (history.size() > 5) history = history.subList(0, 5);

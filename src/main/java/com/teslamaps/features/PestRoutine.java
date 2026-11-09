@@ -407,10 +407,10 @@ public class PestRoutine {
         int configured = TeslaMapsConfig.get().pestAttackKey;
 
         com.mojang.blaze3d.platform.InputConstants.Key key = configured >= 0
-                ? com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM.getOrCreate(configured)
+                ? com.mojang.blaze3d.platform.InputConstants.Type.KEYBOARD.getOrCreate(configured)
                 : mc.options.keyAttack.key;
 
-        if (key == null || key.getValue() < 0) {
+        if (key == null || key.equals(com.mojang.blaze3d.platform.InputConstants.UNKNOWN)) {
             mc.player.sendSystemMessage(Component.literal(
                     "\u00a7b[TeslaMaps] \u00a7fNo attack key bound"));
             return;

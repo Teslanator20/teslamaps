@@ -16,7 +16,7 @@ public class CopyItemName {
     private static long lastCopiedAt = 0;
 
     public static boolean onClick(Slot slot, int button) {
-        if (button != 2 || slot == null) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE || slot == null) return false;
         return copy(slot.getItem());
     }
 

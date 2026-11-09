@@ -329,7 +329,7 @@ public final class ComposterOverlay {
 
     /** From HandledScreenClickMixin. */
     public static boolean handleClick(double mx, double my, int button) {
-        if (button != 0 || rows.isEmpty() || feature == null || !feature.active()) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || rows.isEmpty() || feature == null || !feature.active()) return false;
         if (mx < panelX || mx >= panelX + panelW || my < panelY) return false;
         int i = (int) ((my - panelY) / LINE);
         if (i < 0 || i >= rows.size()) return false;

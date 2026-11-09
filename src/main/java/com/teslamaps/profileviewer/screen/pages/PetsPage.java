@@ -362,7 +362,7 @@ public class PetsPage extends ProfileViewerPage {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (sortW > 0 && mouseX >= sortX - 3 && mouseX <= sortX + sortW + 3
                 && mouseY >= lastTop + 3 && mouseY <= lastTop + 16) {
-            sortMode = (sortMode + (button == 1 ? SORT_NAMES.length - 1 : 1)) % SORT_NAMES.length;
+            sortMode = (sortMode + (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT ? SORT_NAMES.length - 1 : 1)) % SORT_NAMES.length;
             resort();
             page = 0;
             return true;

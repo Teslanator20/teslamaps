@@ -178,7 +178,7 @@ public final class JacobContestTimes {
 
     /** From HandledScreenClickMixin mouseClicked; the Bracket line cycles the medal. */
     public static boolean handleClick(double mx, double my, int button) {
-        if (lines.isEmpty() || button != 0 || feature == null || !feature.active()) return false;
+        if (lines.isEmpty() || button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || feature == null || !feature.active()) return false;
         int y = py + 4 + LINE;
         if (mx < px || mx >= px + pw || my < y - 1 || my >= y + LINE - 1) return false;
         Bracket[] all = Bracket.values();

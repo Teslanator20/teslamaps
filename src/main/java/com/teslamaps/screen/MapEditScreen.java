@@ -5,7 +5,6 @@ import com.teslamaps.scanner.ComponentGrid;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 public class MapEditScreen extends Screen {
     private final Screen parent;
@@ -47,7 +46,7 @@ public class MapEditScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
 
         if (isMouseDown && !wasMouseDown) {
             if (isMouseOverMap(mouseX, mouseY)) {

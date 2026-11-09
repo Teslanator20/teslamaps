@@ -1,7 +1,6 @@
 package com.teslamaps.screen;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
@@ -77,7 +76,7 @@ public class ColorPickerWidget extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
 
         int pickerX = popupX + PADDING;
         int pickerY = popupY + 25;

@@ -8,8 +8,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,8 +117,8 @@ public class LogSearchScreen extends Screen {
         int index = rowAt(event.x(), event.y());
         if (index >= 0) {
             LogSearch.Result r = results.get(index);
-            if (event.button() == 1) {
-                Util.getPlatform().openFile(r.file());
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
+                com.mojang.blaze3d.Blaze3D.openPath(r.file().toPath());
             } else {
                 minecraft.keyboardHandler.setClipboard(r.text());
                 status = "§aCopied";

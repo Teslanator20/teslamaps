@@ -91,7 +91,7 @@ public final class PlayerStats {
                             .desc("Blue bar, cyan part = overflow mana");
                     b.slider("  Bar Width", 40f, 200f, () -> (float) c.statBarWidth, v -> c.statBarWidth = Math.round(v), 0);
                     b.button("  Status Bars Editor (/tmap bars)",
-                            () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.gui.screen().StatusBarsScreen(Minecraft.getInstance().gui.screen())))
+                            () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.StatusBarsScreen(Minecraft.getInstance().gui.screen())))
                             .desc("Drag bars to move, drag the right edge for width, right-click for color, text, direction, max/overflow and on/off.");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.HEALTH_BAR, original ->

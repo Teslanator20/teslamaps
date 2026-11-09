@@ -101,7 +101,7 @@ public final class EcoPanel {
     }
 
     public boolean click(double mx, double my, int button) {
-        if (button != 0) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return false;
         int idx = rowAt(mx, my);
         if (idx < 0) return false;
         Row row = rows.get(idx);

@@ -147,10 +147,10 @@ public final class SackValueHud {
     /** From HandledScreenClickMixin, inventory only: left toggles the list, right opens /sacks. */
     public static boolean handleClick(double mx, double my, int button) {
         if (!cfg().sackValueHud || !cfg().section("Inventory") || !HudForeground.active() || header.isEmpty()) return false;
-        if (button != 0 && button != 1 || !inside(mx, my)) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT || !inside(mx, my)) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || !mc.player.containerMenu.getCarried().isEmpty()) return false;
-        if (button == 0) expanded = !expanded;
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) expanded = !expanded;
         else if (mc.getConnection() != null) mc.getConnection().sendCommand("sacks");
         return true;
     }

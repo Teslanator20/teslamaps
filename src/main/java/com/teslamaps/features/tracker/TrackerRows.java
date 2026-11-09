@@ -32,7 +32,7 @@ public final class TrackerRows {
         ScreenEvents.AFTER_INIT.register((client, screen, w, h) -> {
             if (!(screen instanceof AbstractContainerScreen<?>)) return;
             ScreenMouseEvents.allowMouseClick(screen).register((s, event) -> {
-                if (!cfg().trackerInteractive || event.button() != 0) return true;
+                if (!cfg().trackerInteractive || event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return true;
                 return !Tracker.click(event.x(), event.y(), event.hasControlDown());
             });
         });

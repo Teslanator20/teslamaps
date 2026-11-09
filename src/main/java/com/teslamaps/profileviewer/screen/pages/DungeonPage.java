@@ -418,12 +418,12 @@ public class DungeonPage extends ProfileViewerPage {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (!targetFocused) return false;
-        if (keyCode == 259) {
+        if (keyCode == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
             if (!targetText.isEmpty()) targetText = targetText.substring(0, targetText.length() - 1);
             return true;
         }
-        if (keyCode == 257 || keyCode == 335 || keyCode == 256) {
-            if (keyCode == 256) targetText = "";
+        if (keyCode == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || keyCode == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER || keyCode == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) {
+            if (keyCode == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) targetText = "";
             commitTarget();
             return true;
         }

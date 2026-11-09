@@ -332,7 +332,7 @@ public class FarmProfitOverlay {
         int index = (int) Math.floor((localY - itemsTop) / LINE);
         if (config.farmProfitItemOptions && localY >= itemsTop && index >= 0 && index < itemRows()) {
             String item = FarmProfit.entries().get(index).item();
-            if (button == 1) {
+            if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 long now = System.currentTimeMillis();
                 if (item.equals(hideArmed) && now - hideArmedAt < CONFIRM_MS) {
                     hideArmed = null;
@@ -347,7 +347,7 @@ public class FarmProfitOverlay {
             }
             return;
         }
-        if (button == 1) {
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
             FarmProfit.cycleWindowBack();
         } else {
             FarmProfit.cycleWindow();

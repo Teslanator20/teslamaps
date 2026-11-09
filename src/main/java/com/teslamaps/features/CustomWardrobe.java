@@ -258,11 +258,11 @@ public class CustomWardrobe {
             int[] p = cardPos(l, i);
             if (mx < p[0] || mx >= p[0] + l.cw || my < p[1] || my >= p[1] + l.ch) continue;
             Card card = visible.get(i);
-            if (e.button() == 1) {
+            if (e.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
                 java.util.Set<Integer> favs = cfg().wardrobeFavorites;
                 if (!favs.remove(card.id)) favs.add(card.id);
                 TeslaMapsConfig.save();
-            } else if (e.button() == 0 && !card.locked && !card.empty) {
+            } else if (e.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && !card.locked && !card.empty) {
                 send(cs, 36 + card.col);
             }
             return true;

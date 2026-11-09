@@ -5,7 +5,6 @@ import com.teslamaps.registry.HudEditElement;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,7 +185,7 @@ public class HudEditScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean extras = extras();
         boolean showOff = extras && cfg.hudEditShowDisabled;
@@ -247,7 +246,7 @@ public class HudEditScreen extends Screen {
         }
         wasMouseDown = isMouseDown;
         if (extras && cfg.hudEditJump) {
-            boolean mid = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+            boolean mid = minecraft.mouseHandler.isMiddlePressed();
             boolean midClicked = mid && !wasMiddleDown;
             wasMiddleDown = mid;
             HudEditElement hit = midClicked && dragging == null ? at(mouseX, mouseY) : null;

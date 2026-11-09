@@ -206,7 +206,7 @@ public final class VisitorShoppingList {
 
     /** Mouse click on a container screen: item row = /bz, visitor row = toggle ignore. */
     public static boolean click(double mx, double my, int button) {
-        if (!drawn || button != 0 || feature == null || !feature.active()) return false;
+        if (!drawn || button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || feature == null || !feature.active()) return false;
         Minecraft mc = Minecraft.getInstance();
         double lx = (mx - boxX) / boxScale, ly = (my - boxY) / boxScale;
         if (lx < 0 || lx > width + PAD * 2 || ly < PAD) return false;

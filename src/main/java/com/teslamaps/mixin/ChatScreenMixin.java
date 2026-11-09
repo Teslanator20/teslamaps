@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -61,7 +60,7 @@ public class ChatScreenMixin {
         if (hit == null) return;
 
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(com.teslamaps.gui.screen().ImageViewerScreen.forUrl(mc.gui.screen(), hit.sender(), hit.url()));
+        mc.gui.setScreen(com.teslamaps.screen.ImageViewerScreen.forUrl(mc.gui.screen(), hit.sender(), hit.url()));
         cir.setReturnValue(true);
     }
 

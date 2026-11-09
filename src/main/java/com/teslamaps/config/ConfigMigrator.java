@@ -1,9 +1,11 @@
 package com.teslamaps.config;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.teslamaps.TeslaMaps;
+import com.teslamaps.utils.KeyNames;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.nio.file.Files;
@@ -23,7 +25,7 @@ import java.util.function.UnaryOperator;
  */
 public final class ConfigMigrator {
 
-    public static final int CONFIG_VERSION = 2;
+    public static final int CONFIG_VERSION = 3;
     static final String KEY = "configVersion";
 
     private record Step(int version, String what, UnaryOperator<JsonObject> fix) {}
@@ -40,6 +42,7 @@ public final class ConfigMigrator {
         s.add(transform(2, "safariSparklingChannel", ConfigMigrator::boolToChannel));
         s.add(move(2, "safariShareTimeParty", "safariShareTimeChannel"));
         s.add(transform(2, "safariShareTimeChannel", ConfigMigrator::boolToChannel));
+        s.add(new Step(3, "glfw keys -> sdl scancodes", ConfigMigrator::glfwToSdl));
         for (Step step : s) {
             if (step.version() < 1 || step.version() > CONFIG_VERSION) {
                 String msg = "ConfigMigrator: step '" + step.what() + "' has version " + step.version()
@@ -58,6 +61,46 @@ public final class ConfigMigrator {
         if (v.isJsonPrimitive() && v.getAsJsonPrimitive().isBoolean())
             return new JsonPrimitive(v.getAsBoolean() ? "Party" : "Nobody");
         return v;
+    }
+
+    private static final java.util.regex.Pattern KEY_FIELD = java.util.regex.Pattern.compile("\\w*(Key|Keybind)|leapKey\\w+|farmKeys\\w+");
+
+    // 26.3: binds are SDL scancodes and 1-based mouse buttons, modifiers are SDL bits
+    private static JsonObject glfwToSdl(JsonObject json) {
+        for (java.util.Map.Entry<String, JsonElement> e : json.entrySet()) {
+            if (KEY_FIELD.matcher(e.getKey()).matches() && isNum(e.getValue()))
+                e.setValue(new JsonPrimitive(KeyNames.fromGlfw(e.getValue().getAsInt())));
+        }
+        for (String arr : new String[]{"wardrobeKeys", "loadoutKeys", "petKeys"}) {
+            if (!(json.get(arr) instanceof JsonArray a)) continue;
+            for (int i = 0; i < a.size(); i++)
+                if (isNum(a.get(i))) a.set(i, new JsonPrimitive(KeyNames.fromGlfw(a.get(i).getAsInt())));
+        }
+        if (json.get("featureToggleBinds") instanceof JsonObject m) {
+            for (java.util.Map.Entry<String, JsonElement> e : m.entrySet())
+                if (isNum(e.getValue())) e.setValue(new JsonPrimitive(KeyNames.fromGlfw(e.getValue().getAsInt())));
+        }
+        if (json.get("admSimSettings") instanceof JsonObject m) {
+            for (java.util.Map.Entry<String, JsonElement> e : m.entrySet()) {
+                if (!e.getKey().endsWith("Keybind") || !e.getValue().isJsonPrimitive()) continue;
+                try {
+                    e.setValue(new JsonPrimitive(Integer.toString(KeyNames.fromGlfw(Integer.parseInt(e.getValue().getAsString())))));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        if (json.get("keybinds") instanceof JsonArray binds) {
+            for (JsonElement el : binds) {
+                if (!(el instanceof JsonObject kb)) continue;
+                for (String f : new String[]{"key", "seqKey", "key2"})
+                    if (isNum(kb.get(f))) kb.addProperty(f, KeyNames.fromGlfw(kb.get(f).getAsInt()));
+                if (isNum(kb.get("modifiers"))) kb.addProperty("modifiers", KeyNames.modsFromGlfw(kb.get("modifiers").getAsInt()));
+            }
+        }
+        return json;
+    }
+
+    private static boolean isNum(JsonElement v) {
+        return v != null && v.isJsonPrimitive() && v.getAsJsonPrimitive().isNumber();
     }
 
     /** Renames a field; an existing value under the new name wins. */

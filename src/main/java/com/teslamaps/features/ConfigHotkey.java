@@ -3,7 +3,6 @@ package com.teslamaps.features;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.screen.MapConfigScreen;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Opens the config the same way /tmap does. Handled straight out of KeyboardHandler.keyPress

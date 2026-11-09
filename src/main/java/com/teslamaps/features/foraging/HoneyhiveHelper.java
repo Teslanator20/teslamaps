@@ -484,7 +484,7 @@ public final class HoneyhiveHelper {
     }
 
     private static boolean onClick(double mx, double my, int button) {
-        if (button != 0 || !visible()) return false;
+        if (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || !visible()) return false;
         Hive h = hiveAt(mx, my);
         if (h == null) return false;
         toggle(h);

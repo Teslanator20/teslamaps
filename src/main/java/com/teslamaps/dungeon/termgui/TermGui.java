@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +85,7 @@ public abstract class TermGui {
             }
             TerminalHandler term = TerminalUtils.getCurrentTerm();
             if (gui.hoveredSlotIndex != null && term != null) {
-                term.click(gui.hoveredSlotIndex, button, TerminalSolver.hideClicked());
+                term.click(gui.hoveredSlotIndex, com.teslamaps.utils.KeyNames.toContainerButton(button), TerminalSolver.hideClicked());
             }
         }
         return true;
@@ -104,7 +103,7 @@ public abstract class TermGui {
         TerminalHandler term = TerminalUtils.getCurrentTerm();
         if (gui.hoveredSlotIndex != null && term != null) {
             term.click(gui.hoveredSlotIndex,
-                    input.hasControlDown() ? com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT : com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT,
+                    input.hasControlDown() ? 1 : 0,
                     TerminalSolver.hideClicked());
         }
         return true;

@@ -186,13 +186,13 @@ public final class SackTable {
 
     /** Explicit click on a row: left opens /bz, right pulls one from sacks. */
     public static boolean handleClick(double mx, double my, int button) {
-        if (!cfg().sackTableClick || !shouldRender() || (button != 0 && button != 1)) return false;
+        if (!cfg().sackTableClick || !shouldRender() || (button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && button != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT)) return false;
         int row = rowAt(mx, my);
         String[] bz = rowBz, gfs = rowGfs;
         if (row < 0 || row >= bz.length) return false;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.getConnection() == null || !mc.player.containerMenu.getCarried().isEmpty()) return true;
-        if (button == 0) {
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) {
             com.teslamaps.features.bazaar.BazaarPurchaseHelper.expect(bz[row]);
             mc.getConnection().sendCommand("bz " + bz[row]);
         }

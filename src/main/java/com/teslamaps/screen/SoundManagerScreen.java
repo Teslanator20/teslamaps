@@ -139,7 +139,7 @@ public class SoundManagerScreen extends Screen {
                 return true;
             }
             if (mx >= sliderX() - 4 && mx <= sliderX() + SLIDER_W + 4) {
-                if (event.button() == 1) SoundVolumes.setPercent(s.id, 100);
+                if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) SoundVolumes.setPercent(s.id, 100);
                 else {
                     dragging = s.id;
                     setFromMouse(s.id, mx);

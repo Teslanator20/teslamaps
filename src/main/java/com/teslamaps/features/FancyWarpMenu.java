@@ -234,8 +234,8 @@ public final class FancyWarpMenu {
         Minecraft mc = Minecraft.getInstance();
         int w = mc.getWindow().getGuiScaledWidth(), h = mc.getWindow().getGuiScaledHeight();
         double mx = e.x(), my = e.y();
-        if (e.button() > 1) return true;
-        int button = e.button();
+        int button = com.teslamaps.utils.KeyNames.toContainerButton(e.button());
+        if (button > 1) return true;
         int[] m = map(w, h);
         int by = m[1] + m[3] + 10;
         if (my >= by && my < by + BAR_H) {

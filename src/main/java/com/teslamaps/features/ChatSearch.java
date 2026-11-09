@@ -54,7 +54,7 @@ public final class ChatSearch {
 
     /** Ctrl+F toggles, Esc/Enter end. True = key consumed. */
     public static boolean onKey(int key, boolean ctrl, EditBox input) {
-        if (key == 70 && ctrl) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_F && ctrl) {
             if (!searching && !enabled()) return false;
             searching = !searching;
             input.setValue("");
@@ -62,7 +62,7 @@ public final class ChatSearch {
             if (!searching) clear();
             return true;
         }
-        if (searching && (key == 256 || key == 257 || key == 335)) {
+        if (searching && (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || key == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER)) {
             searching = false;
             input.setValue("");
             clear();

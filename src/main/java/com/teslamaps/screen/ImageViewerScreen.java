@@ -56,9 +56,9 @@ public class ImageViewerScreen extends Screen {
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         int k = event.key();
-        if (k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) { onClose(); return true; }
-        if (navigate != null && (k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LEFT || k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT)) {
-            navigate.accept(k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -1 : 1);
+        if (k == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) { onClose(); return true; }
+        if (navigate != null && (k == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT || k == com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT)) {
+            navigate.accept(k == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -1 : 1);
             return true;
         }
         return super.keyPressed(event);

@@ -6,7 +6,7 @@ import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.ShareToLanScreen;
+import net.minecraft.client.gui.screens.WorldOptionsScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.CommonComponents;
@@ -39,7 +39,7 @@ public abstract class AdmPauseMenuMixin extends Screen {
             minecraft.mouseHandler.grabMouse();
         }).width(204).build(), 2);
         Button.Builder options = Button.builder(Component.translatable("menu.options"),
-                b -> minecraft.setScreen(new OptionsScreen(self, minecraft.options, true)));
+                b -> minecraft.gui.setScreen(new OptionsScreen(self, minecraft.options)));
         Screen mods = RandomStuff.modsScreen(self);
         if (mods != null) {
             helper.addChild(options.width(98).build());
@@ -48,8 +48,8 @@ public abstract class AdmPauseMenuMixin extends Screen {
             helper.addChild(options.width(204).build(), 2);
         }
         if (minecraft.hasSingleplayerServer())
-            helper.addChild(Button.builder(Component.translatable("menu.shareToLan"),
-                    b -> minecraft.setScreen(new ShareToLanScreen(self))).width(204).build(), 2);
+            helper.addChild(Button.builder(Component.translatable("options.worldOptions.button"),
+                    b -> minecraft.gui.setScreen(new WorldOptionsScreen(self, minecraft.level))).width(204).build(), 2);
         disconnectButton = helper.addChild(Button.builder(CommonComponents.disconnectButtonLabel(minecraft.isLocalServer()), b -> {
             b.active = false;
             minecraft.getReportingContext().draftReportHandled(minecraft, self, () -> minecraft.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);

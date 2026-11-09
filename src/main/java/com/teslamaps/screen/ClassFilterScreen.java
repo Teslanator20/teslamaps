@@ -7,7 +7,6 @@ import com.teslamaps.render.gui.TeslaGui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 public class ClassFilterScreen extends Screen {
     private static final int PANEL_W = 300, PANEL_H = 240;
@@ -68,7 +67,7 @@ public class ClassFilterScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
         boolean clicked = isMouseDown && !wasMouseDown;
 
         ctx.fill(0, 0, width, height, 0xB0000000);

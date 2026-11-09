@@ -55,8 +55,8 @@ public class TerminalSolver {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.section("Puzzles & Terminals")) return false;
         if (c.terminalMelodyKeys && term.type == TerminalTypes.MELODY
-                && key >= org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_1 && key <= org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_4) {
-            keyClick(term, (key - org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_1) * 9 + 16);
+                && key >= com.mojang.blaze3d.platform.InputConstants.KEY_1 && key <= com.mojang.blaze3d.platform.InputConstants.KEY_4) {
+            keyClick(term, (key - com.mojang.blaze3d.platform.InputConstants.KEY_1) * 9 + 16);
             return true;
         }
         if (c.terminalDropKey != -1 && key == c.terminalDropKey) {
@@ -75,12 +75,12 @@ public class TerminalSolver {
         }
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui.screen() instanceof TermSimGUI sim) {
-            sim.clickIndex(slot, org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE);
+            sim.clickIndex(slot, 2);
             return;
         }
         if (mc.player == null || mc.gameMode == null) return;
         mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, slot,
-                org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE, net.minecraft.world.inventory.ContainerInput.CLONE, mc.player);
+                2, net.minecraft.world.inventory.ContainerInput.CLONE, mc.player);
     }
     public static int renderType() { return TeslaMapsConfig.get().terminalRenderType; }
     public static float customTermSize() { return TeslaMapsConfig.get().terminalCustomSize; }

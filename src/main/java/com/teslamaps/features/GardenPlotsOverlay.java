@@ -234,7 +234,7 @@ public class GardenPlotsOverlay {
         }
 
         if (titleBarHovered) {
-            if (button == 1 && Minecraft.getInstance().hasShiftDown()) {
+            if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && Minecraft.getInstance().hasShiftDown()) {
                 TeslaMapsConfig.get().gardenPlotsX = 0;
                 TeslaMapsConfig.get().gardenPlotsY = 0;
                 TeslaMapsConfig.save();
@@ -248,7 +248,7 @@ public class GardenPlotsOverlay {
 
         if (hoveredSlot < 0) return false;
 
-        if (button == 1) {
+        if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) {
             if (hoveredSlot != GardenPlots.BARN_SLOT) editingSlot = hoveredSlot;
             return true;
         }
