@@ -73,11 +73,11 @@ public class SearchOverlay {
     /** Ctrl+F in the auction house / bazaar opens the search as a command. */
     public static boolean onContainerKey(AbstractContainerScreen<?> screen, int key) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (key != GLFW.GLFW_KEY_F || !c.searchOverlayCommands || !c.searchOverlayCtrlF) return false;
+        if (key != com.mojang.blaze3d.platform.InputConstants.KEY_F || !c.searchOverlayCommands || !c.searchOverlayCtrlF) return false;
         Minecraft mc = Minecraft.getInstance();
         long w = mc.getWindow().handle();
-        if (GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) != GLFW.GLFW_PRESS
-                && GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) != GLFW.GLFW_PRESS) return false;
+        if (GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS
+                && GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS) return false;
         String title = StringUtil.strip(screen.getTitle().getString());
         Location location = title.contains("Bazaar") ? Location.BAZAAR
                 : title.contains("Auction") ? Location.AUCTION : null;

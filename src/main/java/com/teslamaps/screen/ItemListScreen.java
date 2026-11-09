@@ -210,11 +210,11 @@ public class ItemListScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE && recipeId != null) {
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE && recipeId != null) {
             back();
             return true;
         }
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE && field != null && field.isFocused() && !field.getValue().isEmpty()) {
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE && field != null && field.isFocused() && !field.getValue().isEmpty()) {
             field.setValue("");
             return true;
         }

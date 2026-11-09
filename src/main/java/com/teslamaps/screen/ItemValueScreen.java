@@ -61,7 +61,7 @@ public class ItemValueScreen extends Screen {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
         if (mc.gui.screen() instanceof ItemValueScreen s) {
-            if (action == GLFW.GLFW_PRESS) s.onClose();
+            if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) s.onClose();
             return true;
         }
         if (!(mc.gui.screen() instanceof AbstractContainerScreen<?> cs)) return false;
@@ -69,7 +69,7 @@ public class ItemValueScreen extends Screen {
         if (slot == null || slot.getItem().isEmpty()) return false;
         List<EstimatedValue.Part> parts = EstimatedValue.parts(slot.getItem());
         if (parts.isEmpty()) return false;
-        if (action == GLFW.GLFW_PRESS) mc.gui.setScreen(new ItemValueScreen(cs, slot.getItem().copy(), parts));
+        if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) mc.gui.setScreen(new ItemValueScreen(cs, slot.getItem().copy(), parts));
         return true;
     }
 
@@ -97,7 +97,7 @@ public class ItemValueScreen extends Screen {
     @Override
     public boolean keyPressed(KeyEvent event) {
         int key = TeslaMapsConfig.get().itemValueScreenKey;
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE || (key != -1 && event.key() == key)) {
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || (key != -1 && event.key() == key)) {
             onClose();
             return true;
         }

@@ -161,11 +161,11 @@ public final class PurchaseGuard {
     /** Container key hook: true = handled. */
     public static boolean onKey(int key) {
         if (!pending()) return false;
-        if (key == GLFW.GLFW_KEY_Y || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_Y || key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || key == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
             confirm();
             return true;
         }
-        if (key == GLFW.GLFW_KEY_N || key == GLFW.GLFW_KEY_ESCAPE) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_N || key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) {
             clear();
             return true;
         }

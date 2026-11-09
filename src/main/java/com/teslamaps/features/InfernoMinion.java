@@ -118,8 +118,8 @@ public final class InfernoMinion {
         if (slot.index != FUEL_SLOT && slot.index != PICKUP_SLOT) return false;
         if (slot.container instanceof Inventory || !isInferno(cs) || !hasFuel(cs)) return false;
         long w = Minecraft.getInstance().getWindow().handle();
-        return GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) != GLFW.GLFW_PRESS
-                && GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) != GLFW.GLFW_PRESS;
+        return GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS
+                && GLFW.glfwGetKey(w, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS;
     }
 
     private static void tick() {

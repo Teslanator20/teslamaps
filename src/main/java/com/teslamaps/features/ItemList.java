@@ -78,7 +78,7 @@ public final class ItemList {
         if (!enabled() || mc.getWindow() == null || window != mc.getWindow().handle()) return false;
         boolean ours = mc.gui.screen() instanceof ItemListScreen;
         if (mc.gui.screen() != null && !ours) return false;
-        if (action == GLFW.GLFW_PRESS) {
+        if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) {
             if (ours) {
                 mc.gui.setScreen(null);
             } else {

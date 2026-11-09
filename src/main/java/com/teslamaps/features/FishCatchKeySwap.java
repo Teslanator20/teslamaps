@@ -30,8 +30,8 @@ public final class FishCatchKeySwap {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.rareCatchKeySwap || c.rareCatchKeySwapSeconds <= 0f) return;
         windowEnd = System.currentTimeMillis() + (long) (c.rareCatchKeySwapSeconds * 1000f);
-        attackConsumed = keyHeld(GLFW.GLFW_KEY_O);
-        useConsumed = keyHeld(GLFW.GLFW_KEY_I);
+        attackConsumed = keyHeld(com.mojang.blaze3d.platform.InputConstants.KEY_O);
+        useConsumed = keyHeld(com.mojang.blaze3d.platform.InputConstants.KEY_I);
         active = true;
     }
 
@@ -49,8 +49,8 @@ public final class FishCatchKeySwap {
     public static void overrideIsDown(KeyMapping mapping, CallbackInfoReturnable<Boolean> cir) {
         if (!isActive()) return;
         Options o = Minecraft.getInstance().options;
-        if (mapping == o.keyAttack) cir.setReturnValue(keyHeld(GLFW.GLFW_KEY_O));
-        else if (mapping == o.keyUse) cir.setReturnValue(keyHeld(GLFW.GLFW_KEY_I));
+        if (mapping == o.keyAttack) cir.setReturnValue(keyHeld(com.mojang.blaze3d.platform.InputConstants.KEY_O));
+        else if (mapping == o.keyUse) cir.setReturnValue(keyHeld(com.mojang.blaze3d.platform.InputConstants.KEY_I));
     }
 
     /** true = handled, mixin zeroes clickCount so accidental clicks don't fire after restore. */
@@ -58,14 +58,14 @@ public final class FishCatchKeySwap {
         if (!isActive()) return false;
         Options o = Minecraft.getInstance().options;
         if (mapping == o.keyAttack) {
-            boolean held = keyHeld(GLFW.GLFW_KEY_O);
+            boolean held = keyHeld(com.mojang.blaze3d.platform.InputConstants.KEY_O);
             boolean click = held && !attackConsumed;
             attackConsumed = held;
             cir.setReturnValue(click);
             return true;
         }
         if (mapping == o.keyUse) {
-            boolean held = keyHeld(GLFW.GLFW_KEY_I);
+            boolean held = keyHeld(com.mojang.blaze3d.platform.InputConstants.KEY_I);
             boolean click = held && !useConsumed;
             useConsumed = held;
             cir.setReturnValue(click);
@@ -88,6 +88,6 @@ public final class FishCatchKeySwap {
 
     private static boolean keyHeld(int key) {
         long handle = Minecraft.getInstance().getWindow().handle();
-        return GLFW.glfwGetKey(handle, key) == GLFW.GLFW_PRESS;
+        return com.mojang.blaze3d.platform.InputConstants.isKeyDown(key);
     }
 }

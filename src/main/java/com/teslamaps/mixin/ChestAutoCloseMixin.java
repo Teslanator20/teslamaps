@@ -28,12 +28,12 @@ public abstract class ChestAutoCloseMixin {
 
     @Unique
     private static final int[] KEYS_TO_CHECK = {
-        GLFW.GLFW_KEY_W, GLFW.GLFW_KEY_A, GLFW.GLFW_KEY_S, GLFW.GLFW_KEY_D,
-        GLFW.GLFW_KEY_SPACE, GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_LEFT_CONTROL,
-        GLFW.GLFW_KEY_1, GLFW.GLFW_KEY_2, GLFW.GLFW_KEY_3, GLFW.GLFW_KEY_4,
-        GLFW.GLFW_KEY_5, GLFW.GLFW_KEY_6, GLFW.GLFW_KEY_7, GLFW.GLFW_KEY_8, GLFW.GLFW_KEY_9,
-        GLFW.GLFW_KEY_Q, GLFW.GLFW_KEY_E, GLFW.GLFW_KEY_R, GLFW.GLFW_KEY_F,
-        GLFW.GLFW_KEY_TAB, GLFW.GLFW_KEY_ENTER
+        com.mojang.blaze3d.platform.InputConstants.KEY_W, com.mojang.blaze3d.platform.InputConstants.KEY_A, com.mojang.blaze3d.platform.InputConstants.KEY_S, com.mojang.blaze3d.platform.InputConstants.KEY_D,
+        com.mojang.blaze3d.platform.InputConstants.KEY_SPACE, com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL,
+        com.mojang.blaze3d.platform.InputConstants.KEY_1, com.mojang.blaze3d.platform.InputConstants.KEY_2, com.mojang.blaze3d.platform.InputConstants.KEY_3, com.mojang.blaze3d.platform.InputConstants.KEY_4,
+        com.mojang.blaze3d.platform.InputConstants.KEY_5, com.mojang.blaze3d.platform.InputConstants.KEY_6, com.mojang.blaze3d.platform.InputConstants.KEY_7, com.mojang.blaze3d.platform.InputConstants.KEY_8, com.mojang.blaze3d.platform.InputConstants.KEY_9,
+        com.mojang.blaze3d.platform.InputConstants.KEY_Q, com.mojang.blaze3d.platform.InputConstants.KEY_E, com.mojang.blaze3d.platform.InputConstants.KEY_R, com.mojang.blaze3d.platform.InputConstants.KEY_F,
+        com.mojang.blaze3d.platform.InputConstants.KEY_TAB, com.mojang.blaze3d.platform.InputConstants.KEY_RETURN
     };
 
     @Unique
@@ -76,7 +76,7 @@ public abstract class ChestAutoCloseMixin {
     private Set<Integer> getPressedKeys(long windowHandle) {
         Set<Integer> pressed = new HashSet<>();
         for (int key : KEYS_TO_CHECK) {
-            if (GLFW.glfwGetKey(windowHandle, key) == GLFW.GLFW_PRESS) {
+            if (com.mojang.blaze3d.platform.InputConstants.isKeyDown(key)) {
                 pressed.add(key);
             }
         }

@@ -337,7 +337,7 @@ public class MapConfigScreen extends Screen {
     public boolean keyPressed(KeyEvent event) {
         if (listeningKeybindEntry != null) {
             // Escape unbinds (-1), any other key binds it
-            listeningKeybindEntry.setKey(event.key() == GLFW.GLFW_KEY_ESCAPE ? -1 : event.key());
+            listeningKeybindEntry.setKey(event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE ? -1 : event.key());
             listeningKeybindEntry = null;
             GuiSounds.select();
             return true;
@@ -345,9 +345,9 @@ public class MapConfigScreen extends Screen {
         if (editingList != null) { editingList.key(event.key()); return true; }
         if (editingColor != null) {
             int k = event.key();
-            if (k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) { if (editingColor.commitHex(colorEditText)) editingColor = null; return true; }
-            if (k == GLFW.GLFW_KEY_ESCAPE) { editingColor = null; return true; }
-            if (k == GLFW.GLFW_KEY_BACKSPACE) {
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || k == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) { if (editingColor.commitHex(colorEditText)) editingColor = null; return true; }
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) { editingColor = null; return true; }
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
                 if (!colorEditText.isEmpty()) colorEditText = colorEditText.substring(0, colorEditText.length() - 1);
                 return true;
             }
@@ -355,9 +355,9 @@ public class MapConfigScreen extends Screen {
         }
         if (editingSlider != null) {
             int k = event.key();
-            if (k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) { commitSliderEdit(); return true; }
-            if (k == GLFW.GLFW_KEY_ESCAPE) { editingSlider = null; return true; } // cancel
-            if (k == GLFW.GLFW_KEY_BACKSPACE) {
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || k == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) { commitSliderEdit(); return true; }
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) { editingSlider = null; return true; } // cancel
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
                 if (!sliderEditText.isEmpty()) sliderEditText = sliderEditText.substring(0, sliderEditText.length() - 1);
                 return true;
             }
@@ -986,9 +986,9 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
         boolean clicked = isMouseDown && !wasMouseDown; // Calculate BEFORE updating wasMouseDown
-        boolean isRightDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
+        boolean isRightDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
         boolean rightClicked = isRightDown && !wasRightDown;
         wasRightDown = isRightDown; // early, the block below has several return paths
         if (clicked && com.teslamaps.features.QuickModSwitch.covers(this, mouseX, mouseY)) clicked = false;
@@ -2514,20 +2514,20 @@ public class MapConfigScreen extends Screen {
         }
 
         void key(int k) {
-            if (k == GLFW.GLFW_KEY_ESCAPE) { stopTyping(); return; }
-            boolean enter = k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER;
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) { stopTyping(); return; }
+            boolean enter = k == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || k == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER;
             if (typingColor) {
                 if (enter) {
                     if (colorText.length() == 6 && onColor != null) { onColor.accept(colorId, colorText); TeslaMapsConfig.save(); GuiSounds.select(); }
                     colorId = null;
                     stopTyping();
-                } else if (k == GLFW.GLFW_KEY_BACKSPACE && !colorText.isEmpty()) {
+                } else if (k == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE && !colorText.isEmpty()) {
                     colorText = colorText.substring(0, colorText.length() - 1);
                 }
                 return;
             }
             if (enter) { stopTyping(); return; }
-            if (k == GLFW.GLFW_KEY_BACKSPACE && !query.isEmpty()) { query = query.substring(0, query.length() - 1); scroll = 0; }
+            if (k == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE && !query.isEmpty()) { query = query.substring(0, query.length() - 1); scroll = 0; }
         }
 
         void chr(char c) {

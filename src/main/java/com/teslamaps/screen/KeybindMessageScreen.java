@@ -84,7 +84,7 @@ public class KeybindMessageScreen extends Screen {
                     Component.literal("§cAlso bound to:\n§7" + String.join("\n§7", clash))));
 
             String[] modNames = {"C", "A", "S"};
-            int[] modBits = {GLFW.GLFW_MOD_CONTROL, GLFW.GLFW_MOD_ALT, GLFW.GLFW_MOD_SHIFT};
+            int[] modBits = {com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL, com.mojang.blaze3d.platform.InputConstants.MOD_ALT, com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT};
             for (int m = 0; m < 3; m++) {
                 int bit = modBits[m];
                 boolean on = (kb.modifiers & bit) != 0;
@@ -123,12 +123,12 @@ public class KeybindMessageScreen extends Screen {
                 "§fDone", this::onClose));
     }
 
-    private static final int MOD_MASK = GLFW.GLFW_MOD_SHIFT | GLFW.GLFW_MOD_CONTROL | GLFW.GLFW_MOD_ALT;
+    private static final int MOD_MASK = com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT | com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL | com.mojang.blaze3d.platform.InputConstants.MOD_ALT;
 
     private static boolean isModifierKey(int k) {
-        return k == GLFW.GLFW_KEY_LEFT_SHIFT || k == GLFW.GLFW_KEY_RIGHT_SHIFT
-                || k == GLFW.GLFW_KEY_LEFT_CONTROL || k == GLFW.GLFW_KEY_RIGHT_CONTROL
-                || k == GLFW.GLFW_KEY_LEFT_ALT || k == GLFW.GLFW_KEY_RIGHT_ALT;
+        return k == com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT || k == com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT
+                || k == com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL || k == com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL
+                || k == com.mojang.blaze3d.platform.InputConstants.KEY_LALT || k == com.mojang.blaze3d.platform.InputConstants.KEY_RALT;
     }
 
     private String keyName(int key) {
@@ -156,13 +156,13 @@ public class KeybindMessageScreen extends Screen {
     @Override
     public boolean keyPressed(KeyEvent event) {
         if (listening2 >= 0) {
-            if (listening2 < binds().size()) binds().get(listening2).key2 = event.key() == GLFW.GLFW_KEY_ESCAPE ? -1 : event.key();
+            if (listening2 < binds().size()) binds().get(listening2).key2 = event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE ? -1 : event.key();
             listening2 = -1; // ESC clears the held key
             rebuild();
             return true;
         }
         if (listening >= 0) {
-            if (event.key() != GLFW.GLFW_KEY_ESCAPE && listening < binds().size()) {
+            if (event.key() != com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE && listening < binds().size()) {
                 TeslaMapsConfig.Keybind kb = binds().get(listening);
                 kb.key = event.key();
                 kb.modifiers = isModifierKey(event.key()) ? 0 : event.modifiers() & MOD_MASK;

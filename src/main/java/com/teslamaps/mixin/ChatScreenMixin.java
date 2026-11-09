@@ -32,7 +32,7 @@ public class ChatScreenMixin {
 
     @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
     private void teslamaps$chatSearchKeys(net.minecraft.client.input.KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
-        boolean ctrl = (event.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
+        boolean ctrl = (event.modifiers() & com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL) != 0;
         if (input != null && com.teslamaps.features.ChatSearch.onKey(event.key(), ctrl, input)) cir.setReturnValue(true);
     }
 
@@ -43,7 +43,7 @@ public class ChatScreenMixin {
 
     @Inject(method = "mouseClicked", at = @At("RETURN"))
     private void teslamaps$confirmPrompt(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT && !cir.getReturnValue()) com.teslamaps.features.ConfirmPrompt.onEmptyChatClick();
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && !cir.getReturnValue()) com.teslamaps.features.ConfirmPrompt.onEmptyChatClick();
     }
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
@@ -56,7 +56,7 @@ public class ChatScreenMixin {
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$openSharedImage(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
-        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_LEFT) return;
+        if (event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return;
         var hit = com.teslamaps.features.SharedImageChatRenderer.hitAt(event.x(), event.y());
         if (hit == null) return;
 
@@ -78,7 +78,7 @@ public class ChatScreenMixin {
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$copyOnRightClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         if (!TeslaMapsConfig.get().chatCopyEnabled) return;
-        if (event.button() != GLFW.GLFW_MOUSE_BUTTON_RIGHT) return;
+        if (event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT) return;
 
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
@@ -90,8 +90,8 @@ public class ChatScreenMixin {
         if (raw.isEmpty()) return;
 
         long handle = mc.getWindow().handle();
-        boolean keepColors = GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
-                || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+        boolean keepColors = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL);
         String text = keepColors ? com.teslamaps.utils.ChatText.formatted(content) : com.teslamaps.utils.StringUtil.strip(raw);
 
         mc.keyboardHandler.setClipboard(text);

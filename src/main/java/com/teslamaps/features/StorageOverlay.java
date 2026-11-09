@@ -612,7 +612,7 @@ public class StorageOverlay {
             int thumbH = Math.max(24, (int) (trackH * Math.min(1f, visVirt / (contentVirt - startY()))));
             if (scrollDragging) {
                 long w = mc.getWindow().handle();
-                if (GLFW.glfwGetMouseButton(w, GLFW.GLFW_MOUSE_BUTTON_LEFT) != GLFW.GLFW_PRESS) scrollDragging = false;
+                if (GLFW.glfwGetMouseButton(w, com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) != com.mojang.blaze3d.platform.InputConstants.PRESS) scrollDragging = false;
                 else {
                     float frac = (mouseY - trackTop - thumbH / 2f) / Math.max(1, trackH - thumbH);
                     scroll = Math.max(0, Math.min(maxScroll, frac * maxScroll));
@@ -1147,21 +1147,21 @@ public class StorageOverlay {
 
     public static boolean keyPressed(int key, int scancode) {
         if (rename != null) {
-            if (key == GLFW.GLFW_KEY_ESCAPE) finishRename(false);
-            else if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) finishRename(true);
-            else if (key == GLFW.GLFW_KEY_BACKSPACE && !renameText.isEmpty()) renameText = renameText.substring(0, renameText.length() - 1);
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) finishRename(false);
+            else if (key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || key == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) finishRename(true);
+            else if (key == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE && !renameText.isEmpty()) renameText = renameText.substring(0, renameText.length() - 1);
             return true;
         }
-        if (key == GLFW.GLFW_KEY_ESCAPE) return false;
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) return false;
         if (!searchFocused) {
-            if (key == GLFW.GLFW_KEY_A) { navigateDir(false); return true; }
-            if (key == GLFW.GLFW_KEY_D) { navigateDir(true); return true; }
-            if (key == GLFW.GLFW_KEY_W) { navigateRow(-cols()); return true; }
-            if (key == GLFW.GLFW_KEY_S) { navigateRow(cols()); return true; }
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_A) { navigateDir(false); return true; }
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_D) { navigateDir(true); return true; }
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_W) { navigateRow(-cols()); return true; }
+            if (key == com.mojang.blaze3d.platform.InputConstants.KEY_S) { navigateRow(cols()); return true; }
             return false;
         }
         if (TeslaMapsConfig.get().storageSearchResults && searchKeys(key)) return true;
-        if (key == GLFW.GLFW_KEY_BACKSPACE) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
             if (allSelected) { allSelected = false; setSearch(""); return true; }
             if (!search.isEmpty()) setSearch(search.substring(0, search.length() - 1));
             return true;
@@ -1175,14 +1175,14 @@ public class StorageOverlay {
     private static boolean searchKeys(int key) {
         Minecraft mc = Minecraft.getInstance();
         long w = mc.getWindow().handle();
-        boolean ctrl = GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
-                || GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+        boolean ctrl = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL);
         if (!ctrl) return false;
         switch (key) {
-            case GLFW.GLFW_KEY_A -> allSelected = !search.isEmpty();
-            case GLFW.GLFW_KEY_C -> mc.keyboardHandler.setClipboard(search);
-            case GLFW.GLFW_KEY_X -> { mc.keyboardHandler.setClipboard(search); allSelected = false; setSearch(""); }
-            case GLFW.GLFW_KEY_V -> {
+            case com.mojang.blaze3d.platform.InputConstants.KEY_A -> allSelected = !search.isEmpty();
+            case com.mojang.blaze3d.platform.InputConstants.KEY_C -> mc.keyboardHandler.setClipboard(search);
+            case com.mojang.blaze3d.platform.InputConstants.KEY_X -> { mc.keyboardHandler.setClipboard(search); allSelected = false; setSearch(""); }
+            case com.mojang.blaze3d.platform.InputConstants.KEY_V -> {
                 StringBuilder sb = new StringBuilder(allSelected ? "" : search);
                 for (char ch : mc.keyboardHandler.getClipboard().toCharArray())
                     if (ch >= 32 && ch != 127 && sb.length() < 64) sb.append(Character.toLowerCase(ch));
@@ -1232,8 +1232,8 @@ public class StorageOverlay {
         }
         int wallBottom = (int) ((mainY() - 13) * iscl()) - 2;
         float maxScroll = Math.max(0, lay(visible()).contentH + startY() + 10 - wallBottom / scl());
-        boolean ctrl = GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
-                || GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+        boolean ctrl = GLFW.glfwGetKey(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) == com.mojang.blaze3d.platform.InputConstants.PRESS
+                || GLFW.glfwGetKey(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) == com.mojang.blaze3d.platform.InputConstants.PRESS;
         int speed = Math.max(1, TeslaMapsConfig.get().storageScrollSpeed);
         scroll = Math.max(0, Math.min(maxScroll, scroll - (float) (sy * (ctrl ? speed * 4.5f : speed))));
         return true;

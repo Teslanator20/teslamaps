@@ -137,10 +137,10 @@ public class ContainerKeyMixin {
 
         if (c.pageKeybinds) {
             String want = switch (event.key()) {
-                case GLFW.GLFW_KEY_A -> "Previous Page";
-                case GLFW.GLFW_KEY_D -> "Next Page";
-                case GLFW.GLFW_KEY_W -> "Scroll Up";
-                case GLFW.GLFW_KEY_S -> "Scroll Down";
+                case com.mojang.blaze3d.platform.InputConstants.KEY_A -> "Previous Page";
+                case com.mojang.blaze3d.platform.InputConstants.KEY_D -> "Next Page";
+                case com.mojang.blaze3d.platform.InputConstants.KEY_W -> "Scroll Up";
+                case com.mojang.blaze3d.platform.InputConstants.KEY_S -> "Scroll Down";
                 default -> null;
             };
             if (want == null) return;

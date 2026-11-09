@@ -194,18 +194,18 @@ public class ScreenshotScreen extends Screen {
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         int k = event.key();
         if (!files.isEmpty()) {
-            int step = k == GLFW.GLFW_KEY_LEFT ? -1 : k == GLFW.GLFW_KEY_RIGHT ? 1
-                    : k == GLFW.GLFW_KEY_UP ? -cols : k == GLFW.GLFW_KEY_DOWN ? cols : 0;
+            int step = k == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -1 : k == com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT ? 1
+                    : k == com.mojang.blaze3d.platform.InputConstants.KEY_UP ? -cols : k == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN ? cols : 0;
             if (step != 0) {
                 select(Math.clamp(Math.max(0, selected) + step, 0, files.size() - 1));
                 return true;
             }
-            if ((k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) && current() != null) {
+            if ((k == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || k == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) && current() != null) {
                 openFullscreen(current(), tileRect(selected), 0);
                 return true;
             }
         }
-        if (k == GLFW.GLFW_KEY_BACKSPACE) { onClose(); return true; }
+        if (k == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) { onClose(); return true; }
         return super.keyPressed(event);
     }
 
@@ -279,7 +279,7 @@ public class ScreenshotScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        boolean down = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
         boolean clicked = down && !wasMouseDown;
 
         ctx.fill(0, 0, width, height, 0xB0000000);

@@ -483,10 +483,10 @@ public class InventoryButtonEditorScreen extends Screen {
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         boolean typing = commandBox.isFocused() || iconBox.isFocused() || nameBox.isFocused();
         if (editing != null && !typing) {
-            int step = (event.modifiers() & org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT) != 0 ? 5 : 1;
+            int step = (event.modifiers() & org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT) != 0 ? 5 : 1;
             int k = event.key();
-            int dx = k == org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT ? -step : k == org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT ? step : 0;
-            int dy = k == org.lwjgl.glfw.GLFW.GLFW_KEY_UP ? -step : k == org.lwjgl.glfw.GLFW.GLFW_KEY_DOWN ? step : 0;
+            int dx = k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -step : k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT ? step : 0;
+            int dy = k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_UP ? -step : k == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_DOWN ? step : 0;
             if (dx != 0 || dy != 0) {
                 editing.x += dx;
                 editing.y += dy;

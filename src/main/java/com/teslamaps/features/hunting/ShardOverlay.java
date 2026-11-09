@@ -474,9 +474,9 @@ public class ShardOverlay {
 
     public static boolean onKeyPressed(int key) {
         if (!focused || !config().shardPanelSearch || !shouldRender()) return false;
-        if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_BACKSPACE) {
+        if (key == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
             if (!query.isEmpty()) setQuery(query.substring(0, query.length() - 1));
-        } else if (key == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE || key == org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER) {
+        } else if (key == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || key == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RETURN) {
             focused = false;
         }
         return true;

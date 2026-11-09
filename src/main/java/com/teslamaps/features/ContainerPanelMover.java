@@ -99,7 +99,7 @@ public final class ContainerPanelMover {
         }
         Minecraft mc = Minecraft.getInstance();
         if (dragging >= 0) {
-            boolean down = GLFW.glfwGetMouseButton(mc.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+            boolean down = GLFW.glfwGetMouseButton(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
             if (!down) {
                 dragging = -1;
                 TeslaMapsConfig.save();

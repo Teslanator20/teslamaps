@@ -62,7 +62,7 @@ public final class SimSettings {
         for (SimSetting s : all()) {
             if (!(s instanceof KeySetting k)) continue;
             int key = k.key();
-            boolean down = key > 0 && mc.gui.screen() == null && GLFW.glfwGetKey(h, key) == GLFW.GLFW_PRESS;
+            boolean down = key > 0 && mc.gui.screen() == null && com.mojang.blaze3d.platform.InputConstants.isKeyDown(key);
             if (down && !k.down && k.onPress != null) {
                 try { k.onPress.run(); } catch (Throwable t) { com.teslamaps.adm.sim.Ec.LOG.error("[ads] key {} failed", k.name, t); }
             }

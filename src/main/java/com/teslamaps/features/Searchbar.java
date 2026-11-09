@@ -64,23 +64,23 @@ public class Searchbar {
 
     private static boolean ctrlDown() {
         long w = Minecraft.getInstance().getWindow().handle();
-        return GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
-                || GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
+        return com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL);
     }
 
     public static boolean onKeyPressed(int key, int scancode) {
         if (!enabled()) return false;
-        if (TeslaMapsConfig.get().searchbarCtrlF && (key == GLFW.GLFW_KEY_F || key == GLFW.GLFW_KEY_K) && ctrlDown()) {
+        if (TeslaMapsConfig.get().searchbarCtrlF && (key == com.mojang.blaze3d.platform.InputConstants.KEY_F || key == com.mojang.blaze3d.platform.InputConstants.KEY_K) && ctrlDown()) {
             shown = true;
             focused = true;
             return true;
         }
         if (!focused) return false;
-        if (key == GLFW.GLFW_KEY_BACKSPACE) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_BACKSPACE) {
             if (!query.isEmpty()) query = query.substring(0, query.length() - 1);
             return true;
         }
-        if (key == GLFW.GLFW_KEY_ESCAPE) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) {
             query = "";
             focused = false;
             return true;

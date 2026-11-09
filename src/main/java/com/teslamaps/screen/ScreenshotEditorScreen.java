@@ -355,11 +355,11 @@ public class ScreenshotEditorScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        boolean ctrl = (event.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
-        boolean shift = (event.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0;
+        boolean ctrl = (event.modifiers() & com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL) != 0;
+        boolean shift = (event.modifiers() & com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT) != 0;
         int k = event.key();
-        if (ctrl && k == GLFW.GLFW_KEY_Z) { if (shift) redo(); else undo(); return true; }
-        if (ctrl && k == GLFW.GLFW_KEY_Y) { redo(); return true; }
+        if (ctrl && k == com.mojang.blaze3d.platform.InputConstants.KEY_Z) { if (shift) redo(); else undo(); return true; }
+        if (ctrl && k == com.mojang.blaze3d.platform.InputConstants.KEY_Y) { redo(); return true; }
         return super.keyPressed(event);
     }
 

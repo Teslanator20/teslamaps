@@ -300,7 +300,7 @@ public class CapeScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == GLFW.GLFW_KEY_ENTER && field != null && field.isFocused()) {
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN && field != null && field.isFocused()) {
             submit();
             return true;
         }
@@ -323,7 +323,7 @@ public class CapeScreen extends Screen {
         if (draggingBar) {
             scrollToBar(mouseY);
             if (GLFW.glfwGetMouseButton(minecraft.getWindow().handle(),
-                    GLFW.GLFW_MOUSE_BUTTON_LEFT) != GLFW.GLFW_PRESS) {
+                    com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) != com.mojang.blaze3d.platform.InputConstants.PRESS) {
                 draggingBar = false;
                 setDragging(false);
             }
@@ -331,7 +331,7 @@ public class CapeScreen extends Screen {
         if (draggingWaviness) {
             setWaviness(mouseX);
             if (GLFW.glfwGetMouseButton(minecraft.getWindow().handle(),
-                    GLFW.GLFW_MOUSE_BUTTON_LEFT) != GLFW.GLFW_PRESS) {
+                    com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) != com.mojang.blaze3d.platform.InputConstants.PRESS) {
                 draggingWaviness = false;
                 setDragging(false);
             }

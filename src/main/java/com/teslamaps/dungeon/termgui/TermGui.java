@@ -104,7 +104,7 @@ public abstract class TermGui {
         TerminalHandler term = TerminalUtils.getCurrentTerm();
         if (gui.hoveredSlotIndex != null && term != null) {
             term.click(gui.hoveredSlotIndex,
-                    input.hasControlDown() ? GLFW.GLFW_MOUSE_BUTTON_2 : GLFW.GLFW_MOUSE_BUTTON_1,
+                    input.hasControlDown() ? com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT : com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT,
                     TerminalSolver.hideClicked());
         }
         return true;

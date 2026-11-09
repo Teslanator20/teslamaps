@@ -113,12 +113,12 @@ public class RouteEditScreen extends Screen {
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         if (extras && event.hasControlDown()) {
-            if (event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_Z) {
+            if (event.key() == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_Z) {
                 if (event.hasShiftDown()) restore(redo, undo);
                 else restore(undo, redo);
                 return true;
             }
-            if (event.key() == org.lwjgl.glfw.GLFW.GLFW_KEY_Y) {
+            if (event.key() == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_Y) {
                 restore(redo, undo);
                 return true;
             }

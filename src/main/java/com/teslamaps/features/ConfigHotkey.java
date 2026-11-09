@@ -29,7 +29,7 @@ public class ConfigHotkey {
         boolean ours = mc.gui.screen() instanceof MapConfigScreen;
         if (mc.gui.screen() != null && !ours) return false;
 
-        if (action == GLFW.GLFW_PRESS) {
+        if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) {
             mc.gui.setScreen(ours ? null : MapConfigScreen.open());
         }
         // release and repeat go the same way, otherwise the other mod still sees half the press
@@ -49,7 +49,7 @@ public class ConfigHotkey {
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
         boolean ours = mc.gui.screen() instanceof com.teslamaps.screen.ItemSearchScreen;
         if (mc.gui.screen() != null && !ours) return false;
-        if (action == GLFW.GLFW_PRESS) {
+        if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) {
             if (ours) {
                 mc.gui.setScreen(null);
             } else {

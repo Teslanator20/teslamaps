@@ -64,7 +64,7 @@ public abstract class TerminalHandler {
         if (!canClick(slotIndex, button) || shouldProtect()) return;
 
         int mappedButton = (button == 1 && type == TerminalTypes.RUBIX)
-                ? GLFW.GLFW_MOUSE_BUTTON_2 : GLFW.GLFW_MOUSE_BUTTON_3;
+                ? com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT : com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE;
         clickedSlots.add(new int[]{slotIndex, mappedButton});
         lastClickTime = System.currentTimeMillis();
 
@@ -77,7 +77,7 @@ public abstract class TerminalHandler {
         }
         if (mc.player == null || mc.gameMode == null) return;
         mc.gameMode.handleContainerInput(mc.player.containerMenu.containerId, slotIndex, mappedButton,
-                mappedButton == GLFW.GLFW_MOUSE_BUTTON_3 ? ContainerInput.CLONE : ContainerInput.PICKUP, mc.player);
+                mappedButton == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE ? ContainerInput.CLONE : ContainerInput.PICKUP, mc.player);
     }
 
     public boolean canClick(int slotIndex, int button) {

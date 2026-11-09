@@ -82,8 +82,8 @@ public final class BazaarReorder {
         ItemStack stack = slot.getItem();
         if (!stack.is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.green().asItem())) return;
         long h = Minecraft.getInstance().getWindow().handle();
-        if (GLFW.glfwGetKey(h, GLFW.GLFW_KEY_LEFT_CONTROL) != GLFW.GLFW_PRESS
-                && GLFW.glfwGetKey(h, GLFW.GLFW_KEY_RIGHT_CONTROL) != GLFW.GLFW_PRESS) return;
+        if (GLFW.glfwGetKey(h, com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS
+                && GLFW.glfwGetKey(h, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) != com.mojang.blaze3d.platform.InputConstants.PRESS) return;
         Integer n = amount(stack, slot.index == 13 ? SELL : BUY);
         if (n == null) return;
         Minecraft mc = Minecraft.getInstance();

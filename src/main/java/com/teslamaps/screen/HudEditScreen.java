@@ -131,14 +131,14 @@ public class HudEditScreen extends Screen {
     @Override
     public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
         int k = event.key();
-        if (k == GLFW.GLFW_KEY_TAB) {
+        if (k == com.mojang.blaze3d.platform.InputConstants.KEY_TAB) {
             showAll = !showAll;
             return true;
         }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (extras() && dragging == null) {
             HudEditElement t = target();
-            if (t != null && c.hudEditReset && k == GLFW.GLFW_KEY_R) {
+            if (t != null && c.hudEditReset && k == com.mojang.blaze3d.platform.InputConstants.KEY_R) {
                 t.resetToDefault(new TeslaMapsConfig());
                 TeslaMapsConfig.save();
                 flash(t.label + " reset");
@@ -147,12 +147,12 @@ public class HudEditScreen extends Screen {
             if (t != null && c.hudEditNudge) {
                 int step = minecraft.hasShiftDown() ? 10 : 1;
                 switch (k) {
-                    case GLFW.GLFW_KEY_LEFT -> { move(t, -step, 0); return true; }
-                    case GLFW.GLFW_KEY_RIGHT -> { move(t, step, 0); return true; }
-                    case GLFW.GLFW_KEY_UP -> { move(t, 0, -step); return true; }
-                    case GLFW.GLFW_KEY_DOWN -> { move(t, 0, step); return true; }
-                    case GLFW.GLFW_KEY_EQUAL, GLFW.GLFW_KEY_KP_ADD -> { t.nudgeScale(0.1f); TeslaMapsConfig.save(); return true; }
-                    case GLFW.GLFW_KEY_MINUS, GLFW.GLFW_KEY_KP_SUBTRACT -> { t.nudgeScale(-0.1f); TeslaMapsConfig.save(); return true; }
+                    case com.mojang.blaze3d.platform.InputConstants.KEY_LEFT -> { move(t, -step, 0); return true; }
+                    case com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT -> { move(t, step, 0); return true; }
+                    case com.mojang.blaze3d.platform.InputConstants.KEY_UP -> { move(t, 0, -step); return true; }
+                    case com.mojang.blaze3d.platform.InputConstants.KEY_DOWN -> { move(t, 0, step); return true; }
+                    case com.mojang.blaze3d.platform.InputConstants.KEY_EQUALS, com.mojang.blaze3d.platform.InputConstants.KEY_ADD -> { t.nudgeScale(0.1f); TeslaMapsConfig.save(); return true; }
+                    case com.mojang.blaze3d.platform.InputConstants.KEY_MINUS, org.lwjgl.sdl.SDLScancode.SDL_SCANCODE_KP_MINUS -> { t.nudgeScale(-0.1f); TeslaMapsConfig.save(); return true; }
                     default -> {}
                 }
             }
@@ -186,7 +186,7 @@ public class HudEditScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+        boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean extras = extras();
         boolean showOff = extras && cfg.hudEditShowDisabled;
@@ -208,7 +208,7 @@ public class HudEditScreen extends Screen {
 
         if (isMouseDown && !wasMouseDown) {
             HudEditElement hit = at(mouseX, mouseY);
-            if (hit != null && helpers && cfg.hudEditMultiDrag && keyDown(GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL)) {
+            if (hit != null && helpers && cfg.hudEditMultiDrag && keyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL)) {
                 if (!multi.remove(hit)) multi.add(hit);
             } else if (hit != null && helpers && cfg.hudEditResize && onGrip(hit, mouseX, mouseY)) {
                 selected = hit;
@@ -247,7 +247,7 @@ public class HudEditScreen extends Screen {
         }
         wasMouseDown = isMouseDown;
         if (extras && cfg.hudEditJump) {
-            boolean mid = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE) == GLFW.GLFW_PRESS;
+            boolean mid = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE) == com.mojang.blaze3d.platform.InputConstants.PRESS;
             boolean midClicked = mid && !wasMiddleDown;
             wasMiddleDown = mid;
             HudEditElement hit = midClicked && dragging == null ? at(mouseX, mouseY) : null;
@@ -261,7 +261,7 @@ public class HudEditScreen extends Screen {
         if (dragging != null) {
             int w = dragging.width(), h = dragging.height();
             int nx = mouseX - dragOffsetX, ny = mouseY - dragOffsetY;
-            if (helpers && !keyDown(GLFW.GLFW_KEY_LEFT_ALT, GLFW.GLFW_KEY_RIGHT_ALT)) {
+            if (helpers && !keyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LALT, com.mojang.blaze3d.platform.InputConstants.KEY_RALT)) {
                 int offX = dragging.boxX() - dragging.x(), offY = dragging.boxY() - dragging.y();
                 nx = snapX(nx + offX, w) - offX;
                 ny = snapY(ny + offY, h) - offY;
@@ -344,7 +344,7 @@ public class HudEditScreen extends Screen {
 
     private boolean keyDown(int a, int b) {
         long win = minecraft.getWindow().handle();
-        return GLFW.glfwGetKey(win, a) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(win, b) == GLFW.GLFW_PRESS;
+        return com.mojang.blaze3d.platform.InputConstants.isKeyDown(a) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(b);
     }
 
     private static boolean onGrip(HudEditElement e, int mx, int my) {
@@ -436,7 +436,7 @@ public class HudEditScreen extends Screen {
     @Override
     public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && extras() && c.hudEditShowDisabled && c.hudEditRightClickToggle && dragging == null) {
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT && extras() && c.hudEditShowDisabled && c.hudEditRightClickToggle && dragging == null) {
             HudEditElement hit = at((int) event.x(), (int) event.y());
             if (hit != null) {
                 rightClick(hit);

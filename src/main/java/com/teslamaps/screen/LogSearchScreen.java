@@ -133,7 +133,7 @@ public class LogSearchScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if ((event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) && field != null && field.isFocused()) {
+        if ((event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) && field != null && field.isFocused()) {
             search();
             return true;
         }

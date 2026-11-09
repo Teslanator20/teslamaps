@@ -107,15 +107,15 @@ public final class RngMeterHelper {
         }
         if (!inMenu) return;
         long h = mc.getWindow().handle();
-        boolean shift = GLFW.glfwGetKey(h, GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS
-                || GLFW.glfwGetKey(h, GLFW.GLFW_KEY_RIGHT_SHIFT) == GLFW.GLFW_PRESS;
+        boolean shift = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT);
         if (shift && !shiftLast && cfg().rngMeterFractions) {
             fractions = !fractions;
             cache.clear();
         }
         shiftLast = shift;
-        boolean left = GLFW.glfwGetKey(h, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
-        boolean right = GLFW.glfwGetKey(h, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
+        boolean left = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LEFT);
+        boolean right = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT);
         if (!arrowLast && (left || right)) {
             boolean dec = title.contains("Catacombs") ? right : left;
             selected = Math.max(0, selected + (dec ? -1 : 1));

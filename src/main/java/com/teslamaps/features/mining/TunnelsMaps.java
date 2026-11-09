@@ -311,8 +311,8 @@ public final class TunnelsMaps {
         TeslaMapsConfig c = cfg();
         long h = mc.getWindow().handle();
         boolean free = mc.gui.screen() == null;
-        boolean camp = free && c.tunnelsMapsCampfireKey > 0 && GLFW.glfwGetKey(h, c.tunnelsMapsCampfireKey) == GLFW.GLFW_PRESS;
-        boolean nxt = free && c.tunnelsMapsNextKey > 0 && GLFW.glfwGetKey(h, c.tunnelsMapsNextKey) == GLFW.GLFW_PRESS;
+        boolean camp = free && c.tunnelsMapsCampfireKey > 0 && com.mojang.blaze3d.platform.InputConstants.isKeyDown(c.tunnelsMapsCampfireKey);
+        boolean nxt = free && c.tunnelsMapsNextKey > 0 && com.mojang.blaze3d.platform.InputConstants.isKeyDown(c.tunnelsMapsNextKey);
         long now = System.currentTimeMillis();
         if (camp && !campDown && now - lastCampKey > 2000) {
             lastCampKey = now;

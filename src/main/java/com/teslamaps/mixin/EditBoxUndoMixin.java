@@ -52,8 +52,8 @@ public abstract class EditBoxUndoMixin {
     private void teslamaps$undoKeys(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!event.hasControlDown() || !TeslaMapsConfig.get().textFieldUndo || !canConsumeInput()) return;
         int key = event.key();
-        boolean redo = key == GLFW.GLFW_KEY_Y || (key == GLFW.GLFW_KEY_Z && event.hasShiftDown());
-        if (!redo && key != GLFW.GLFW_KEY_Z) return;
+        boolean redo = key == com.mojang.blaze3d.platform.InputConstants.KEY_Y || (key == com.mojang.blaze3d.platform.InputConstants.KEY_Z && event.hasShiftDown());
+        if (!redo && key != com.mojang.blaze3d.platform.InputConstants.KEY_Z) return;
         ArrayDeque<String> from = redo ? teslamaps$redo : teslamaps$undo;
         ArrayDeque<String> to = redo ? teslamaps$undo : teslamaps$redo;
         if (from != null && !from.isEmpty()) {

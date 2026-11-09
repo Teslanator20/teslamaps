@@ -101,9 +101,9 @@ public class KeybindMessage {
     }
 
     public static int heldModifiers(Minecraft mc) {
-        return (mc.hasShiftDown() ? GLFW.GLFW_MOD_SHIFT : 0)
-                | (mc.hasControlDown() ? GLFW.GLFW_MOD_CONTROL : 0)
-                | (mc.hasAltDown() ? GLFW.GLFW_MOD_ALT : 0);
+        return (mc.hasShiftDown() ? com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT : 0)
+                | (mc.hasControlDown() ? com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL : 0)
+                | (mc.hasAltDown() ? com.mojang.blaze3d.platform.InputConstants.MOD_ALT : 0);
     }
 
     /** A plain bind stays quiet while a bind on the same key with exactly these modifiers fires. */
@@ -125,9 +125,9 @@ public class KeybindMessage {
     }
 
     public static String modifierPrefix(int mods) {
-        return ((mods & GLFW.GLFW_MOD_CONTROL) != 0 ? "Ctrl+" : "")
-                + ((mods & GLFW.GLFW_MOD_ALT) != 0 ? "Alt+" : "")
-                + ((mods & GLFW.GLFW_MOD_SHIFT) != 0 ? "Shift+" : "");
+        return ((mods & com.mojang.blaze3d.platform.InputConstants.MOD_CONTROL) != 0 ? "Ctrl+" : "")
+                + ((mods & com.mojang.blaze3d.platform.InputConstants.MOD_ALT) != 0 ? "Alt+" : "")
+                + ((mods & com.mojang.blaze3d.platform.InputConstants.MOD_SHIFT) != 0 ? "Shift+" : "");
     }
 
     private static void pollWp(long handle, int key, boolean fire, Runnable action) {

@@ -22,7 +22,7 @@ public abstract class SignEnterMixin {
     private void teslamaps$signEnter(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.signEnterKey) return;
-        if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
             if (c.signEnterShiftNewline && event.hasShiftDown()) return;
             ((AbstractSignEditScreen) (Object) this).onClose();
             cir.setReturnValue(true);

@@ -353,7 +353,7 @@ public final class ChocoStrays {
     public static boolean blockKey(net.minecraft.client.input.KeyEvent event) {
         if (!cfg().section(ChocoData.CATEGORY)) return false;
         Minecraft mc = Minecraft.getInstance();
-        boolean close = event.key() == GLFW.GLFW_KEY_ESCAPE || mc.options.keyInventory.matches(event);
+        boolean close = event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE || mc.options.keyInventory.matches(event);
         if (!close || mc.hasShiftDown() || !protecting()) return false;
         blocked();
         return true;

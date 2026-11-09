@@ -35,7 +35,7 @@ public class ScrollableTooltip {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return false;
         long h = mc.getWindow().handle();
-        return GLFW.glfwGetKey(h, a) == GLFW.GLFW_PRESS || GLFW.glfwGetKey(h, b) == GLFW.GLFW_PRESS;
+        return com.mojang.blaze3d.platform.InputConstants.isKeyDown(a) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(b);
     }
 
     private static void track(int slot) {
@@ -51,9 +51,9 @@ public class ScrollableTooltip {
         if (slot == -1) return false;
         track(slot);
         double dir = c.tooltipScrollInvert ? -scrollY : scrollY;
-        if (c.tooltipScrollZoom && down(GLFW.GLFW_KEY_LEFT_CONTROL, GLFW.GLFW_KEY_RIGHT_CONTROL)) {
+        if (c.tooltipScrollZoom && down(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL, com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL)) {
             c.tooltipZoom = (float) Math.max(0.3, Math.min(3.0, c.tooltipZoom * (1 + 0.1 * Math.signum(scrollY))));
-        } else if (c.tooltipScrollHorizontal && down(GLFW.GLFW_KEY_LEFT_SHIFT, GLFW.GLFW_KEY_RIGHT_SHIFT)) {
+        } else if (c.tooltipScrollHorizontal && down(com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT, com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT)) {
             offsetX += (int) (dir * c.tooltipScrollStep);
         } else {
             offset += (int) (dir * c.tooltipScrollStep);

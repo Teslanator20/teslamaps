@@ -85,8 +85,8 @@ public final class ReforgeStoneStats {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return 0;
         long h = mc.getWindow().handle();
-        boolean left = GLFW.glfwGetKey(h, GLFW.GLFW_KEY_LEFT) == GLFW.GLFW_PRESS;
-        boolean right = GLFW.glfwGetKey(h, GLFW.GLFW_KEY_RIGHT) == GLFW.GLFW_PRESS;
+        boolean left = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LEFT);
+        boolean right = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT);
         int dir = !arrowLast && (left || right) ? (left ? -1 : 1) : 0;
         arrowLast = left || right;
         return dir;

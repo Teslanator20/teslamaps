@@ -582,8 +582,8 @@ public final class FancyAuctionHouse {
 
     public static boolean keyPressed(AbstractContainerScreen<?> cs, int key) {
         if (!active(cs) || mode != Mode.BROWSER) return false;
-        if ((key == GLFW.GLFW_KEY_UP || key == GLFW.GLFW_KEY_LEFT) && prevOk) { send(cs, PREV, 0); return true; }
-        if ((key == GLFW.GLFW_KEY_DOWN || key == GLFW.GLFW_KEY_RIGHT) && nextOk) { send(cs, NEXT, 0); return true; }
+        if ((key == com.mojang.blaze3d.platform.InputConstants.KEY_UP || key == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT) && prevOk) { send(cs, PREV, 0); return true; }
+        if ((key == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN || key == com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT) && nextOk) { send(cs, NEXT, 0); return true; }
         return false;
     }
 
@@ -668,7 +668,7 @@ public final class FancyAuctionHouse {
 
         @Override
         public boolean keyPressed(KeyEvent event) {
-            if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+            if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
                 finish(value());
                 return true;
             }

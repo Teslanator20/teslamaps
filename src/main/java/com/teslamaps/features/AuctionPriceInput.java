@@ -134,7 +134,7 @@ public class AuctionPriceInput {
     /** Called from ContainerKeyMixin - enter confirms the auction. Returns true if handled. */
     public static boolean onContainerKey(AbstractContainerScreen<?> screen, int key) {
         if (!TeslaMapsConfig.get().auctionPriceInput) return false;
-        if (key != GLFW.GLFW_KEY_ENTER && key != GLFW.GLFW_KEY_KP_ENTER) return false;
+        if (key != com.mojang.blaze3d.platform.InputConstants.KEY_RETURN && key != com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) return false;
 
         String title = strip(screen.getTitle().getString());
         int slotId;
@@ -256,7 +256,7 @@ public class AuctionPriceInput {
 
         @Override
         public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-            boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_LEFT) == GLFW.GLFW_PRESS;
+            boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
             boolean clicked = isMouseDown && !wasMouseDown;
 
             ctx.fill(0, 0, width, height, 0xC0000000);
@@ -337,7 +337,7 @@ public class AuctionPriceInput {
 
         @Override
         public boolean keyPressed(KeyEvent event) {
-            if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_KP_ENTER) {
+            if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
                 finish();
                 return true;
             }

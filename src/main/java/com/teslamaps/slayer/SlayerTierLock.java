@@ -61,8 +61,8 @@ public final class SlayerTierLock {
         if (!title.equals("Slayer") && !title.contains(m.group(1))) return false;
         if (m.group(0).equals(last)) return false;
         long w = Minecraft.getInstance().getWindow().handle();
-        if (GLFW.glfwGetKey(w, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
-                || GLFW.glfwGetKey(w, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS) return false;
+        if (com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL)
+                || com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL)) return false;
         long now = System.currentTimeMillis();
         Minecraft mc = Minecraft.getInstance();
         if (now - lastMsg > 1000 && mc.player != null) {

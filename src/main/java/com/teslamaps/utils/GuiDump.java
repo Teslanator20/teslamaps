@@ -36,10 +36,10 @@ public class GuiDump {
         if (mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen) return;
 
         boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(), key)
-                == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+                == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS;
         if (down && !keyWasDown) {
             boolean shift = org.lwjgl.glfw.GLFW.glfwGetKey(mc.getWindow().handle(),
-                    org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+                    org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT) == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS;
             if (shift) dumpTooltip();
             else if (com.teslamaps.config.TeslaMapsConfig.get().dumpGuiSingleItem && hovered() != null) itemToChat(hovered());
             else dump(null);

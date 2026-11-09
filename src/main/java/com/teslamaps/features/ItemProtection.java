@@ -25,8 +25,8 @@ public class ItemProtection {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return false;
         long handle = mc.getWindow().handle();
-        return org.lwjgl.glfw.GLFW.glfwGetKey(handle, org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL) == org.lwjgl.glfw.GLFW.GLFW_PRESS
-                || org.lwjgl.glfw.GLFW.glfwGetKey(handle, org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_CONTROL) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        return org.lwjgl.glfw.GLFW.glfwGetKey(handle, org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LCONTROL) == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS
+                || org.lwjgl.glfw.GLFW.glfwGetKey(handle, org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RCONTROL) == org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.PRESS;
     }
 
     private static boolean enabled() {

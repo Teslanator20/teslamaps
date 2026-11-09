@@ -101,20 +101,20 @@ public class BackpackSlot {
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
         TeslaMapsConfig c = cfg();
         if (c.backpackSlotKey != -1 && k == c.backpackSlotKey) {
-            if (action == GLFW.GLFW_PRESS) select(!selected);
+            if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) select(!selected);
             return true;
         }
         if (!selected) return false;
-        if (k == GLFW.GLFW_KEY_LEFT || k == GLFW.GLFW_KEY_RIGHT) {
-            if (action != GLFW.GLFW_RELEASE && !keys.isEmpty()) {
-                c.backpackSlotIndex = Math.floorMod(c.backpackSlotIndex + (k == GLFW.GLFW_KEY_LEFT ? -1 : 1), keys.size());
+        if (k == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT || k == com.mojang.blaze3d.platform.InputConstants.KEY_RIGHT) {
+            if (action != com.mojang.blaze3d.platform.InputConstants.RELEASE && !keys.isEmpty()) {
+                c.backpackSlotIndex = Math.floorMod(c.backpackSlotIndex + (k == com.mojang.blaze3d.platform.InputConstants.KEY_LEFT ? -1 : 1), keys.size());
                 key = null;
                 tick();
             }
             return true;
         }
-        if (k == GLFW.GLFW_KEY_ENTER || k == GLFW.GLFW_KEY_KP_ENTER) {
-            if (action == GLFW.GLFW_PRESS && key != null && mc.getConnection() != null) {
+        if (k == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || k == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
+            if (action == com.mojang.blaze3d.platform.InputConstants.PRESS && key != null && mc.getConnection() != null) {
                 mc.getConnection().sendCommand(command(key));
                 selected = false;
                 TeslaMapsConfig.save();

@@ -203,7 +203,7 @@ public class ItemSearchScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE && field != null && field.isFocused()
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE && field != null && field.isFocused()
                 && !field.getValue().isEmpty()) {
             field.setValue("");
             return true;

@@ -148,7 +148,7 @@ public final class OdgerHelper {
         if (t == null) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui.screen() != null && mc.gui.screen().getTitle().getString().contains("Sack")) return;
-        boolean shift = GLFW.glfwGetKey(mc.getWindow().handle(), GLFW.GLFW_KEY_LEFT_SHIFT) == GLFW.GLFW_PRESS;
+        boolean shift = GLFW.glfwGetKey(mc.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
         long value = (long) FILLET.get(t.key)[t.tier] * (shift ? stack.getCount() : 1);
         double coins = value * PriceManager.getPrice("MAGMA_FISH");
         lines.add(Component.literal("§7Fillet: §8" + String.format(Locale.ROOT, "%,d", value) + " Magmafish §7(§6" + ItemPrice.format(coins) + "§7)"));

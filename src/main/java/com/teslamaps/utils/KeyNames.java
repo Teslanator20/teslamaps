@@ -31,8 +31,8 @@ public class KeyNames {
         if (mc.getWindow() == null) return false;
         long handle = mc.getWindow().handle();
         return isMouse(key)
-                ? GLFW.glfwGetMouseButton(handle, mouseButton(key)) == GLFW.GLFW_PRESS
-                : GLFW.glfwGetKey(handle, key) == GLFW.GLFW_PRESS;
+                ? GLFW.glfwGetMouseButton(handle, mouseButton(key)) == com.mojang.blaze3d.platform.InputConstants.PRESS
+                : com.mojang.blaze3d.platform.InputConstants.isKeyDown(key);
     }
 
     public static String display(int key) {
@@ -48,9 +48,9 @@ public class KeyNames {
 
     private static String mouseName(int button) {
         return switch (button) {
-            case GLFW.GLFW_MOUSE_BUTTON_LEFT -> "Mouse Left";
-            case GLFW.GLFW_MOUSE_BUTTON_RIGHT -> "Mouse Right";
-            case GLFW.GLFW_MOUSE_BUTTON_MIDDLE -> "Mouse Middle";
+            case com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT -> "Mouse Left";
+            case com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT -> "Mouse Right";
+            case com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_MIDDLE -> "Mouse Middle";
             default -> "Mouse " + (button + 1);
         };
     }
@@ -58,18 +58,18 @@ public class KeyNames {
     // InputConstants has no entries for KP_DIVIDE..KP_ADD, so getOrCreate would hand back
     // "key.keyboard.331". Name the whole pad here so it stays consistent.
     private static String numpadName(int key) {
-        if (key >= GLFW.GLFW_KEY_KP_0 && key <= GLFW.GLFW_KEY_KP_9) {
-            return "Num " + (key - GLFW.GLFW_KEY_KP_0);
+        if (key >= com.mojang.blaze3d.platform.InputConstants.KEY_NUMPAD0 && key <= com.mojang.blaze3d.platform.InputConstants.KEY_NUMPAD9) {
+            return "Num " + (key - com.mojang.blaze3d.platform.InputConstants.KEY_NUMPAD0);
         }
         return switch (key) {
-            case GLFW.GLFW_KEY_KP_DECIMAL -> "Num .";
-            case GLFW.GLFW_KEY_KP_DIVIDE -> "Num /";
-            case GLFW.GLFW_KEY_KP_MULTIPLY -> "Num *";
-            case GLFW.GLFW_KEY_KP_SUBTRACT -> "Num -";
-            case GLFW.GLFW_KEY_KP_ADD -> "Num +";
-            case GLFW.GLFW_KEY_KP_ENTER -> "Num Enter";
-            case GLFW.GLFW_KEY_KP_EQUAL -> "Num =";
-            case GLFW.GLFW_KEY_NUM_LOCK -> "Num Lock";
+            case org.lwjgl.sdl.SDLScancode.SDL_SCANCODE_KP_PERIOD -> "Num .";
+            case org.lwjgl.sdl.SDLScancode.SDL_SCANCODE_KP_DIVIDE -> "Num /";
+            case com.mojang.blaze3d.platform.InputConstants.KEY_MULTIPLY -> "Num *";
+            case org.lwjgl.sdl.SDLScancode.SDL_SCANCODE_KP_MINUS -> "Num -";
+            case com.mojang.blaze3d.platform.InputConstants.KEY_ADD -> "Num +";
+            case com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER -> "Num Enter";
+            case com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADEQUALS -> "Num =";
+            case com.mojang.blaze3d.platform.InputConstants.KEY_NUMLOCK -> "Num Lock";
             default -> null;
         };
     }

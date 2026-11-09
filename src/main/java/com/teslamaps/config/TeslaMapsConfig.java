@@ -655,7 +655,7 @@ public class TeslaMapsConfig {
     }
     public int hotkeyChatDelay = 250;            // ms to suppress hotkeys after closing a screen/chat (stops typed keys firing)
     @Global
-    public int configScreenKey = org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT;  // opens /tmap, -1 = unbound
+    public int configScreenKey = org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT;  // opens /tmap, -1 = unbound
     @Global
     public boolean configScreenKeyExclusive = true;  // eat the key so other mods bound to it stay quiet
 
@@ -1632,7 +1632,7 @@ public class TeslaMapsConfig {
     public boolean priceLineCraft = false;          // raw craft cost line (NEU recipes)
     public boolean priceLineEach = false;           // "total coins (each)" in aligned columns
     public boolean priceLineRequireKey = false;     // price lines only while priceLineKey is held
-    public int priceLineKey = org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_ALT;
+    public int priceLineKey = org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LALT;
     public boolean containerValue = false;          // show total container value + top 5 items in a side panel
     public boolean containerValueGroup = false;     // same items in one row
     public boolean containerValueHover = false;     // hover a row: highlight its slots + value breakdown
@@ -5668,7 +5668,7 @@ public class TeslaMapsConfig {
     public boolean customizeNoUuid = false;
     // w05-06-inv
     public boolean itemValueRequireKey = false;
-    public int itemValueKey = org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
+    public int itemValueKey = org.lwjgl.glfw.com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT;
     public boolean itemValueSkipMenus = false;
     public boolean customGlintColors = false;
     public java.util.Map<String, String> customGlintColor = new java.util.HashMap<>();

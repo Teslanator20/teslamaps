@@ -171,26 +171,26 @@ public class SearchOverlayScreen extends Screen {
     @Override
     public boolean keyPressed(KeyEvent event) {
         int key = event.key();
-        if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_RETURN || key == com.mojang.blaze3d.platform.InputConstants.KEY_NUMPADENTER) {
             if (selected >= 0 && selected < suggestions.size()) field.setValue(suggestions.get(selected));
             push();
             return true;
         }
-        if (key == GLFW.GLFW_KEY_ESCAPE) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_ESCAPE) {
             cancel();
             return true;
         }
-        if (key == GLFW.GLFW_KEY_TAB && !suggestions.isEmpty()) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_TAB && !suggestions.isEmpty()) {
             int next = Math.max(selected, 0);
             field.setValue(suggestions.get(next));
             field.moveCursorToEnd(false);
             return true;
         }
-        if (key == GLFW.GLFW_KEY_DOWN && !suggestions.isEmpty()) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN && !suggestions.isEmpty()) {
             selected = Math.min(selected + 1, suggestions.size() - 1);
             return true;
         }
-        if (key == GLFW.GLFW_KEY_UP && !suggestions.isEmpty()) {
+        if (key == com.mojang.blaze3d.platform.InputConstants.KEY_UP && !suggestions.isEmpty()) {
             selected = Math.max(selected - 1, -1);
             return true;
         }
