@@ -63,7 +63,7 @@ public final class WikiLookup {
         String url = "https://wiki.hypixel.net/index.php?search=" + URLEncoder.encode(page, StandardCharsets.UTF_8)
                 + "&title=Special%3ASearch&go=Go";
         try {
-            net.minecraft.util.Util.getPlatform().openUri(url);
+            com.mojang.blaze3d.Blaze3D.openUri(java.net.URI.create(url));
         } catch (Exception e) {
             mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cCould not open the browser: " + e.getMessage()));
         }

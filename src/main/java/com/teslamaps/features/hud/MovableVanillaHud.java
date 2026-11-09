@@ -223,7 +223,7 @@ public final class MovableVanillaHud {
             if (obj != null && obj.getRenderType() != ObjectiveCriteria.RenderType.HEARTS) {
                 ReadOnlyScoreInfo info = sb.getPlayerScoreInfo(ScoreHolder.fromGameProfile(p.getProfile()), obj);
                 if (info != null) {
-                    int w = font.width(ReadOnlyScoreInfo.safeFormatValue(info, obj.numberFormatOrDefault(StyledFormat.PLAYER_LIST_DEFAULT)));
+                    int w = font.width(info.formatValue(obj.numberFormatOrDefault(StyledFormat.PLAYER_LIST_DEFAULT)));
                     if (w > 0) scoreW = Math.max(scoreW, font.width(" ") + w);
                 }
             }
@@ -235,7 +235,7 @@ public final class MovableVanillaHud {
             rows = (count + columns - 1) / columns;
         }
         int screen = sw();
-        boolean heads = mc.isLocalServer() || mc.getConnection().getConnection().isEncrypted();
+        boolean heads = mc.getConnection().onlineMode();
         int slot = Math.min(columns * ((heads ? 9 : 0) + nameW + scoreW + 13), screen - 50) / columns;
         var acc = (com.teslamaps.mixin.PlayerTabOverlayAccessor) overlay;
         int lineW = slot * columns + (columns - 1) * 5;

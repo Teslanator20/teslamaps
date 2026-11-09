@@ -122,7 +122,7 @@ public final class SimWorld {
             var biomes = provider.lookupOrThrow(Registries.BIOME);
             var plains = biomes.getOrThrow(Biomes.PLAINS);
             FlatLevelGeneratorSettings flat = new FlatLevelGeneratorSettings(Optional.of(HolderSet.empty()), plains, List.of());
-            return WorldPresets.createFlatWorldDimensions(provider).replaceOverworldGenerator(provider, new FlatLevelSource(flat));
+            return provider.lookupOrThrow(Registries.WORLD_PRESET).getOrThrow(WorldPresets.FLAT).value().createWorldDimensions().replaceOverworldGenerator(provider, new FlatLevelSource(flat));
         }, new TitleScreen());
     }
 

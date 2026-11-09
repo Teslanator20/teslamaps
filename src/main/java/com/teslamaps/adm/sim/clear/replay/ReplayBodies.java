@@ -124,7 +124,7 @@ public class ReplayBodies {
                 if (!ItemStack.matches(body.getItemBySlot(e.getKey()), e.getValue())) body.setItemSlot(e.getKey(), e.getValue().copy());
             if (m.swing) {
                 m.swing = false;
-                try { body.swing(InteractionHand.MAIN_HAND, false); } catch (Throwable t) {}
+                try { body.swing(InteractionHand.MAIN_HAND, body.getMainHandItem().getAttackAnimation(), false); } catch (Throwable t) {}
             }
         }
     }
@@ -133,7 +133,7 @@ public class ReplayBodies {
         try {
             announce(m);
             AdsBotBody e = new AdsBotBody(Sim.level(), m.uuid);
-            e.setInvulnerable(true);
+            e.setPermanentlyInvulnerable(true);
             e.setNoGravity(true);
             e.snapTo(m.x, m.y, m.z, m.yaw, m.pitch);
             BotRegistry.add(m.uuid);

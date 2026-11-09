@@ -1,6 +1,7 @@
 package com.teslamaps.features.mining;
 
 // Ported from SkyOcean's Scathas.kt / SpawnedWorm.kt
+import com.teslamaps.utils.LegacyFormat;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.SoulweaverHider;
 import com.teslamaps.registry.Feature;
@@ -150,7 +151,7 @@ public final class ScathaAlerts {
         for (int j = i - 1; j > 0; j--) {
             if (raw.charAt(j - 1) != '§') continue;
             ChatFormatting f = ChatFormatting.getByCode(raw.charAt(j));
-            if (f == null || !f.isColor()) continue;
+            if (f == null || !LegacyFormat.isColor(f)) continue;
             return rarityOf(f);
         }
         return null;
@@ -162,7 +163,7 @@ public final class ScathaAlerts {
             TextColor c = style.getColor();
             if (c == null) return Optional.empty();
             for (ChatFormatting f : ChatFormatting.values()) {
-                if (f.isColor() && f.getColor() != null && f.getColor() == c.getValue()) {
+                if (LegacyFormat.isColor(f) && LegacyFormat.getColor(f) != null && LegacyFormat.getColor(f) == c.getValue()) {
                     String name = rarityOf(f);
                     return name == null ? Optional.empty() : Optional.of(name);
                 }

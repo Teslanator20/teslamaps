@@ -269,14 +269,14 @@ public class P1Maxor extends Fight.Phase {
     private EndCrystal spawnCrystal(Vec3 at) {
         EndCrystal c = new EndCrystal(EntityTypes.END_CRYSTAL, Sim.level());
         c.setShowBottom(false);
-        c.setInvulnerable(true);
+        c.setPermanentlyInvulnerable(true);
         c.snapTo(at.x, at.y, at.z, 0f, 0f);
         return Sim.spawn(c);
     }
 
     private ArmorStand label(Vec3 at, String text) {
         ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
-        s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
+        s.setInvisible(true); s.setNoGravity(true); s.setPermanentlyInvulnerable(true); s.setSilent(true);
         rename(s, text);
         s.snapTo(at.x, at.y, at.z, 0f, 0f);
         return Sim.spawn(s);

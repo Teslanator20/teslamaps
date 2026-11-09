@@ -59,7 +59,7 @@ public class TrapArrow extends Arrow {
     protected Collection<EntityHitResult> findHitEntities(Vec3 from, Vec3 to) {
         // 26.1.2's overload has no trailing boolean (26.3 added one)
         return ProjectileUtil.getManyEntityHitResult(level(), this, from, to, getBoundingBox().expandTowards(getDeltaMovement()).inflate(1.0),
-                this::canHitEntity, 0.3f, ClipContext.Block.COLLIDER, false);
+                this::canHitEntity, 0.3f, ClipContext.Block.COLLIDER, false, false);
     }
 
     @Override

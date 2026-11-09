@@ -1,6 +1,7 @@
 package com.teslamaps.features.mining;
 
 // After HypixelSimpleChat's MiningSummary.kt
+import com.teslamaps.utils.LegacyFormat;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.ChatFilter;
 import com.teslamaps.utils.PlayerChat;
@@ -156,8 +157,8 @@ public final class MiningChestSummary {
         message.visit((style, part) -> {
             TextColor color = style.getColor();
             if (color != null) {
-                ChatFormatting f = ChatFormatting.getByName(color.serialize());
-                if (f != null) sb.append('§').append(f.getChar());
+                ChatFormatting f = LegacyFormat.getByName(color.serialize());
+                if (f != null) sb.append('§').append(LegacyFormat.getChar(f));
             }
             sb.append(part);
             return Optional.empty();

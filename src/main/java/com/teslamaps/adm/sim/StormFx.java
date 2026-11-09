@@ -22,7 +22,7 @@ public final class StormFx {
         Sim.sound(SoundEvents.WITHER_AMBIENT, 5f, 1.19f, w != null ? w.pos : null);
         if (w == null) return;
         ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
-        s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
+        s.setInvisible(true); s.setNoGravity(true); s.setPermanentlyInvulnerable(true); s.setSilent(true);
         Station.setMarker(s);
         s.setCustomName(Sim.legacy("§4§l" + text));
         s.setCustomNameVisible(true);
@@ -61,7 +61,8 @@ public final class StormFx {
         int bx = (int) Math.floor(x); int bz = (int) Math.floor(z);
         int y = (int) Math.floor(fromY);
         for (int i = 0; i < 15; i++) {
-            if (Sim.level().getBlockState(new BlockPos(bx, y, bz)).blocksMotion()) return y + 1.0;
+            net.minecraft.world.level.block.state.BlockState st = Sim.level().getBlockState(new BlockPos(bx, y, bz));
+            if (!st.is(net.minecraft.world.level.block.Blocks.COBWEB) && !st.is(net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING) && st.isSolid()) return y + 1.0;
             y--;
         }
         return fromY;

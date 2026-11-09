@@ -124,7 +124,7 @@ public class DeathProbe {
 
     public static void onRemoveEntities(ClientboundRemoveEntitiesPacket packet) {
         if (!active()) return;
-        for (int id : packet.getEntityIds().toIntArray()) {
+        for (int id : packet.entityIds().toIntArray()) {
             String who = name(id);
             if (who != null) TeslaMaps.LOGGER.info("[DeathProbe] remove {}", who);
         }

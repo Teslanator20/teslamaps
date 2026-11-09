@@ -266,7 +266,7 @@ public abstract class WorldPuzzle implements Puzzle {
         ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
         s.setInvisible(invisible);
         s.setNoGravity(true);
-        s.setInvulnerable(true);
+        s.setPermanentlyInvulnerable(true);
         s.setSilent(true);
         if (marker) Station.setMarker(s);
         s.setCustomName(Sim.legacy(name));

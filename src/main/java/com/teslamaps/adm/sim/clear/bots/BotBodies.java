@@ -193,7 +193,7 @@ public class BotBodies {
                 hideDescription(m);
                 entity = m;
             }
-            entity.setInvulnerable(true);
+            entity.setPermanentlyInvulnerable(true);
             entity.setNoGravity(true);
             dress(entity, cls);
             entity.snapTo(x, y, z, yaw, 0f);
@@ -358,7 +358,7 @@ public class BotBodies {
     }
 
     private static void swing(Avatar e) {
-        try { e.swing(InteractionHand.MAIN_HAND); } catch (Throwable t) { /* no world (headless) */ }
+        try { e.swing(InteractionHand.MAIN_HAND, e.getMainHandItem().getAttackAnimation(), false); } catch (Throwable t) { /* no world (headless) */ }
     }
 
     /** One of each item a teammate holds, made once; a body gets a copy. */
@@ -457,7 +457,7 @@ public class BotBodies {
         team.setPlayerPrefix(Sim.legacy(look.prefix));
         team.setPlayerSuffix(Sim.legacy(look.suffix));
         ChatFormatting c = colour(look.nameColour);
-        if (c != null) team.setColor(c);
+        if (c != null && c.ordinal() < 16) team.setColor(java.util.Optional.of(net.minecraft.world.scores.TeamColor.valueOf(c.name())));
         team.setNameTagVisibility(Team.Visibility.ALWAYS);
         team.setCollisionRule(Team.CollisionRule.NEVER);
         team.setAllowFriendlyFire(true);

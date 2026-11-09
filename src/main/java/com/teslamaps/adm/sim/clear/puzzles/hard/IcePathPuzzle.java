@@ -130,7 +130,7 @@ public class IcePathPuzzle implements Puzzle {
             f = new Fish(Sim.level());
             f.setNoAi(true);
             f.setNoGravity(true);
-            f.setInvulnerable(true);
+            f.setPermanentlyInvulnerable(true);
             f.setSilent(true);
             Pair<Double, Double> w0 = Frames.toWorld(pl, m.x(), m.z());
             f.snapTo(w0.first, (double) floorY, w0.second, Frames.yawToWorld(pl, 0f), 0f);

@@ -70,7 +70,7 @@ public final class MobWorld {
             body.snapTo(e.x, e.y, e.z, e.plan.yaw, 0f);
             if (body instanceof LivingEntity le) { le.yHeadRot = e.plan.yaw; le.yBodyRot = e.plan.yaw; }
             body.setSilent(true);
-            body.setInvulnerable(true);
+            body.setPermanentlyInvulnerable(true);
             if (body instanceof Mob m) { m.setPersistenceRequired(); m.setCanPickUpLoot(false); }
             dress(body, e);
             if (healthData && body instanceof LivingEntity le) MobBodies.setHealthData(le, e.record.hp);

@@ -59,7 +59,7 @@ public final class DamageNumbers {
             SimStand s = new SimStand(Sim.level());
             s.snapTo(at[0], at[1], at[2], 0f, 0f);
             s.setInvisible(true);
-            s.setInvulnerable(true);
+            s.setPermanentlyInvulnerable(true);
             s.setSilent(true);
             s.setNoGravity(true);
             Station.setMarker(s);

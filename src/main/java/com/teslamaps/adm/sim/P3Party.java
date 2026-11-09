@@ -74,7 +74,7 @@ public final class P3Party {
         if (server == null) return;
         if (!SimServer.isSim(server)) return;
         int port = server.isPublished() ? server.getPort() : HttpUtil.getAvailablePort();
-        if (!server.isPublished() && !server.publishServer(server.getDefaultGameType(), false, port)) {
+        if (!server.isPublished() && !server.publishServer(net.minecraft.server.MinecraftServer.MultiplayerScope.LAN, false, port)) {
             Ec.msg("§cCouldn't open your sim to a party.");
             return;
         }

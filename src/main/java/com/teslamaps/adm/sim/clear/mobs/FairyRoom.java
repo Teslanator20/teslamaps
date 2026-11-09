@@ -95,12 +95,12 @@ public final class FairyRoom {
         Ec.safely("ads fairy", () -> {
             TransientStand b = new TransientStand(Sim.level());
             b.snapTo(f.x, f.y, f.z, 0f, 0f);
-            b.setInvisible(true); b.setInvulnerable(true); b.setSilent(true); b.setNoGravity(true);
+            b.setInvisible(true); b.setPermanentlyInvulnerable(true); b.setSilent(true); b.setNoGravity(true);
             try { b.getEntityData().set(ArmorStand.DATA_CLIENT_FLAGS, (byte) 3); } catch (Throwable ignored) {}
             b.setItemSlot(EquipmentSlot.HEAD, FloorDrops.head(TEXTURE, null));
             TransientStand t = new TransientStand(Sim.level());
             t.snapTo(f.x, f.y + TAG_ABOVE, f.z, 0f, 0f);
-            t.setInvisible(true); t.setInvulnerable(true); t.setSilent(true); t.setNoGravity(true);
+            t.setInvisible(true); t.setPermanentlyInvulnerable(true); t.setSilent(true); t.setNoGravity(true);
             Station.setLeverFlags(t);
             t.setCustomName(Sim.legacy(tag(f.name))); t.setCustomNameVisible(true);
             f.body = Sim.spawn(b); f.tag = Sim.spawn(t);

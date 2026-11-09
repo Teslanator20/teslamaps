@@ -62,8 +62,8 @@ public final class GhostCapture {
         r.section(p.section, n);
         Vec3 pos = player.position();
         r.frame(n, new GhostRun.Frame(new P(pos.x, pos.y, pos.z), player.getYRot(), player.getXRot(), heldKey(SimItems.idOf(player.getMainHandItem()))));
-        if (player.swinging && !wasSwinging) r.event(n, "swing");
-        wasSwinging = player.swinging;
+        if (player.isSwinging() && !wasSwinging) r.event(n, "swing");
+        wasSwinging = player.isSwinging();
         if (p.section >= 5) {
             if (GoldorPhase.CORE_BOX.contains(pos)) inCoreFor++;
             if (inCoreFor >= KEEP_IN_CORE || n - r.sectionN[5] >= KEEP_MAX) keep();

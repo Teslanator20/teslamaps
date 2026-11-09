@@ -83,7 +83,7 @@ public final class MortNpc {
             GameProfile profile = new GameProfile(UUID.nameUUIDFromBytes("ads:mort".getBytes(StandardCharsets.UTF_8)), "Mort",
                     new PropertyMap(ImmutableMultimap.of("textures", new Property("textures", skin))));
             m.setComponent(DataComponents.PROFILE, ResolvableProfile.createResolved(profile));
-            m.setInvulnerable(true);
+            m.setPermanentlyInvulnerable(true);
             m.setSilent(true);
             m.setNoGravity(true);
             hideDescription(m);
@@ -102,7 +102,7 @@ public final class MortNpc {
         SimStand s = new SimStand(Sim.level());
         s.snapTo(x, y, z, 0f, 0f);
         s.setInvisible(true);
-        s.setInvulnerable(true);
+        s.setPermanentlyInvulnerable(true);
         s.setSilent(true);
         s.setNoGravity(true);
         try { s.getEntityData().set(ArmorStand.DATA_CLIENT_FLAGS, (byte) 2); } catch (Throwable ignored) {}

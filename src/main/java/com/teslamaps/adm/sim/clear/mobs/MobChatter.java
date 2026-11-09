@@ -68,7 +68,7 @@ public class MobChatter {
         TransientStand s = new TransientStand(Sim.level());
         s.snapTo(body.getX(), body.getY() + HEIGHT, body.getZ(), body.getYRot(), 0f);
         s.setInvisible(true);
-        s.setInvulnerable(true);
+        s.setPermanentlyInvulnerable(true);
         s.setSilent(true);
         s.setNoGravity(true);
         try { s.getEntityData().set(ArmorStand.DATA_CLIENT_FLAGS, FLAGS); } catch (Throwable ignored) {}

@@ -49,7 +49,7 @@ public final class UserSounds {
                             .tags("custom sound", "ogg", "wav", "sound file");
                     b.button("  Open Sound Folder", () -> {
                         reload();
-                        net.minecraft.util.Util.getPlatform().openPath(DIR);
+                        com.mojang.blaze3d.Blaze3D.openPath(DIR);
                     });
                 });
     }

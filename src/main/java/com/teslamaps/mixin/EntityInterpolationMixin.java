@@ -3,8 +3,8 @@ package com.teslamaps.mixin;
 import com.teslamaps.config.TeslaMapsConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.InterpolationHandler;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.AbstractInterpolationHandler;
+import net.minecraft.world.entity.PositionPath;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -18,13 +18,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * them glide, at the cost of showing them slightly further in the past — hence
  * off by default, and never applied to whatever we are riding.
  */
-@Mixin(InterpolationHandler.class)
+@Mixin(AbstractInterpolationHandler.class)
 public class EntityInterpolationMixin {
 
-    @Shadow @Final private Entity entity;
+    @Shadow @Final protected Entity entity;
+    @Shadow protected int interpolationSteps;
 
-    @Inject(method = "interpolateTo", at = @At("HEAD"))
-    private void teslamaps$smoothSteps(Vec3 pos, float yRot, float xRot, CallbackInfo ci) {
+    @Inject(method = "interpolateTo(Lnet/minecraft/world/entity/PositionPath;FF)V", at = @At("HEAD"))
+    private void teslamaps$smoothSteps(PositionPath path, float yRot, float xRot, CallbackInfo ci) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.section("Render") || !cfg.smoothEntities) return;
         Minecraft mc = Minecraft.getInstance();
@@ -32,7 +33,6 @@ public class EntityInterpolationMixin {
         if (entity == mc.player || entity == mc.getCameraEntity()) return;
         if (mc.player != null && entity == mc.player.getVehicle()) return;
 
-        ((InterpolationHandler) (Object) this)
-                .setInterpolationLength(Math.max(3, Math.min(12, cfg.smoothEntitySteps)));
+        interpolationSteps = Math.max(3, Math.min(12, cfg.smoothEntitySteps));
     }
 }

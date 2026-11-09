@@ -272,7 +272,7 @@ public final class Bows {
         return a;
     }
 
-    public static boolean immune(Entity e) { return e instanceof LivingEntity && e.invulnerableTime > 10; }
+    public static boolean immune(Entity e) { return e instanceof LivingEntity && e.getInvulnerableTime() > 10; }
 
     private static boolean isBoss(Entity e) { return e instanceof WitherBoss && e.isAlive() && e.entityTags().contains(Sim.TAG); }
 

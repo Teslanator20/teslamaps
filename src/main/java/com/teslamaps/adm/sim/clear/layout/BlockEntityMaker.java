@@ -94,7 +94,7 @@ public class BlockEntityMaker {
                         l[i] = Component.literal(s != null ? s : "");
                     }
                     try {
-                        sign.setText(new SignText(l, l, DyeColor.BLACK, false), true);
+                        sign.setText(new SignText(java.util.List.of(l), java.util.List.of(l), DyeColor.BLACK, false), net.minecraft.world.level.block.entity.SignTextSlot.FRONT);
                     } catch (NullPointerException e) {
                         // a sign on a chunk still being generated has no level yet
                         if (sign.getLevel() != null) throw e;

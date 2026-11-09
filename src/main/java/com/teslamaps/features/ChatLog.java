@@ -142,6 +142,6 @@ public final class ChatLog {
         try {
             Files.createDirectories(dir);
         } catch (Exception ignored) {}
-        net.minecraft.util.Util.getPlatform().openPath(dir);
+        com.mojang.blaze3d.Blaze3D.openPath(dir);
     }
 }

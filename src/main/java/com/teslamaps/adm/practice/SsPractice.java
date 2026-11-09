@@ -499,7 +499,8 @@ public final class SsPractice {
         SignBlockEntity be = new SignBlockEntity(pos, state);
         be.setLevel(p.level);
         p.signs.put(pos, be);
-        be.setText(new SignText().setMessage(1, Component.literal(line1)).setMessage(2, Component.literal(line2)), true);
+        java.util.List<Component> msgs = java.util.List.of(Component.empty(), Component.literal(line1), Component.literal(line2), Component.empty());
+        be.setText(new SignText(msgs, msgs, net.minecraft.world.item.DyeColor.BLACK, false), net.minecraft.world.level.block.entity.SignTextSlot.FRONT);
     }
 
     // ------------------------------------------------------------------ Start on r3 / r4
@@ -587,7 +588,7 @@ public final class SsPractice {
             if (!device.pressable(cell) || due == null || cell != due) return;
         }
         press(cell);
-        if (mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, false);
+        if (mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), false);
     }
 
     private static void press(int cell) {
@@ -770,7 +771,7 @@ public final class SsPractice {
         SubmitNodeCollector out = context.submitNodeCollector();
         ClientLevel level = p.level;
         BlockPos lightPos = cfg().admSsFollow ? v.lightPos() : p.lightPos;
-        int light = net.minecraft.client.renderer.LevelRenderer.getLightCoords(level, lightPos);
+        int light = net.minecraft.util.LightCoordsUtil.getLightCoords(level, lightPos);
         for (Map.Entry<BlockPos, BlockState> e : p.blocks.entrySet()) {
             BlockPos pos = e.getKey();
             if (p.signs.containsKey(pos)) continue;
@@ -781,12 +782,12 @@ public final class SsPractice {
             s.biome = level.getBiome(pos);
             s.cardinalLighting = level.cardinalLighting();
             s.lightEngine = level.getLightEngine();
-            at(pose, v, pos, cam, () -> out.submitMovingBlock(pose, s));
+            at(pose, v, pos, cam, () -> out.submitMovingBlock(pose, s, 0));
         }
         BlockEntityRenderDispatcher signs = Minecraft.getInstance().getBlockEntityRenderDispatcher();
         var camera = context.levelState().cameraRenderState;
         for (Map.Entry<BlockPos, SignBlockEntity> e : p.signs.entrySet()) {
-            BlockEntityRenderState s = signs.tryExtractRenderState(e.getValue(), 0f, null);
+            BlockEntityRenderState s = signs.tryExtractRenderState(e.getValue(), 0f, null, false);
             if (s == null) continue;
             s.lightCoords = light;
             at(pose, v, e.getKey(), cam, () -> signs.submit(s, pose, out, camera));
@@ -866,7 +867,7 @@ public final class SsPractice {
             else for (int i = 0; i < 16; i++) if (p.at(buttonAt(i)).equals(pos)) { press(i); break; }
         });
         Minecraft mc = Minecraft.getInstance();
-        if (button && mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, false);
+        if (button && mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), false);
         ((AdmPracticeMinecraftAccessor) mc).teslamaps$admPracticeRightClickDelay(4);
         return true;
     }
@@ -880,7 +881,7 @@ public final class SsPractice {
         for (int i = 0; i < 16; i++) if (p.at(lampAt(i)).equals(pos) || p.at(buttonAt(i)).equals(pos)) { grid = true; break; }
         if (grid) PracticeUtil.safely("ss practice restart", () -> restart(true));
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, false);
+        if (mc.player != null) mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getAttackAnimation(), false);
         return true;
     }
 

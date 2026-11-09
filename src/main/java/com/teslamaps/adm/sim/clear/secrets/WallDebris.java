@@ -46,7 +46,7 @@ public final class WallDebris {
         Ec.safely("ads wall debris", () -> {
             double px = x + 0.5, pz = z + 0.5, py = y + DY;
             Bat b = new Bat(EntityTypes.BAT, Sim.level());
-            b.setSilent(true); b.setInvulnerable(true); b.setInvisible(true);
+            b.setSilent(true); b.setPermanentlyInvulnerable(true); b.setInvisible(true);
             b.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
             b.setNoAi(true); b.setNoGravity(true);
             b.snapTo(px, py, pz, 0f, 0f);

@@ -91,7 +91,7 @@ public final class RoomDecor {
             Ec.safely("ads room decor", () -> {
                 StillMinecart m = new StillMinecart(Sim.level());
                 m.snapTo(p.x, p.y, p.z, 0f, 0f);
-                m.setInvulnerable(true); m.setSilent(true); m.setNoGravity(true);
+                m.setPermanentlyInvulnerable(true); m.setSilent(true); m.setNoGravity(true);
                 p.e = Sim.spawn(m);
             });
         }

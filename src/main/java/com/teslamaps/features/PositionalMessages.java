@@ -1,6 +1,7 @@
 package com.teslamaps.features;
 
 // Ported from Odin's PositionalMessages.kt + PosMsgCommand.kt
+import com.teslamaps.utils.LegacyFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -120,8 +121,8 @@ public final class PositionalMessages {
 
     private static Integer colorOf(String name) {
         for (ChatFormatting f : ChatFormatting.values()) {
-            if (f.isColor() && f.getColor() != null && f.name().replace("_", "").equalsIgnoreCase(name))
-                return 0xFF000000 | f.getColor();
+            if (LegacyFormat.isColor(f) && LegacyFormat.getColor(f) != null && f.name().replace("_", "").equalsIgnoreCase(name))
+                return 0xFF000000 | LegacyFormat.getColor(f);
         }
         return null;
     }

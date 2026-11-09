@@ -27,7 +27,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Locale;
@@ -96,11 +95,11 @@ public final class FancyAuctionHouse {
             SignBlockEntity sign = ((AbstractSignEditScreenAccessor) screen).getSign();
             if (sign == null) return;
             String[] lines = new String[4];
-            for (int i = 0; i < 4; i++) lines[i] = sign.getFrontText().getMessage(i, false).getString();
+            for (int i = 0; i < 4; i++) lines[i] = sign.getText(net.minecraft.world.level.block.entity.SignTextSlot.FRONT).getMessages(false).get(i).getString();
             String min = minBid;
             mc.execute(() -> {
                 EditBidScreen next = new EditBidScreen(sign, lines, min);
-                mc.screen = next;
+                mc.gui.screen = next;
                 next.init(width, height);
             });
         });
@@ -685,8 +684,8 @@ public final class FancyAuctionHouse {
             sent = true;
             Minecraft mc = Minecraft.getInstance();
             if (mc.getConnection() == null) return;
-            mc.getConnection().send(new ServerboundSignUpdatePacket(sign.getBlockPos(), true,
-                    line0, lines[1], lines[2], lines[3]));
+            mc.getConnection().send(new ServerboundSignUpdatePacket(sign.getBlockPos(),
+                    java.util.List.of(line0, lines[1], lines[2], lines[3]), net.minecraft.world.level.block.entity.SignTextSlot.FRONT));
         }
 
         @Override

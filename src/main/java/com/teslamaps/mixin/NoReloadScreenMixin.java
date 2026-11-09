@@ -37,7 +37,7 @@ public class NoReloadScreenMixin {
             } catch (Throwable t) {
                 onFinish.accept(Optional.of(t));
             }
-            minecraft.setOverlay(null);
+            minecraft.gui.setOverlay(null);
         }
     }
 }

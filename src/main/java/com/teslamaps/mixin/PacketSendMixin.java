@@ -16,12 +16,12 @@ public class PacketSendMixin {
     private void teslamaps$fixDoubleClicks(Packet<?> packet, CallbackInfo ci) {
         if (packet instanceof ServerboundUseItemOnPacket && FixDoubleClicks.shouldCancelUseOn()) ci.cancel();
         else if (packet instanceof net.minecraft.network.protocol.game.ServerboundUseItemPacket use) {
-            com.teslamaps.features.HypeSound.onUseItem(use.getHand());
-            com.teslamaps.features.AbilityRadius.onUseItem(use.getHand());
-            com.teslamaps.features.Etherwarp.onUseSent(null, use.getYRot(), use.getXRot());
+            com.teslamaps.features.HypeSound.onUseItem(use.hand());
+            com.teslamaps.features.AbilityRadius.onUseItem(use.hand());
+            com.teslamaps.features.Etherwarp.onUseSent(null, use.yRot(), use.xRot());
         } else if (packet instanceof ServerboundUseItemOnPacket on) {
             net.minecraft.client.player.LocalPlayer p = net.minecraft.client.Minecraft.getInstance().player;
-            if (p != null) com.teslamaps.features.Etherwarp.onUseSent(on.getHitResult().getBlockPos(), p.getYRot(), p.getXRot());
+            if (p != null) com.teslamaps.features.Etherwarp.onUseSent(on.hitResult().getBlockPos(), p.getYRot(), p.getXRot());
         }
     }
 }

@@ -134,7 +134,7 @@ public class PacketLogger {
                         .append(" dist=").append(Math.round(Math.sqrt(dsq) * 10) / 10.0);
             }
         } else if (p instanceof ClientboundRemoveEntitiesPacket r) {
-            sb.append(" ids=").append(r.getEntityIds());
+            sb.append(" ids=").append(r.entityIds());
         }
         String s;
         try { s = String.valueOf(p); } catch (Throwable t) { s = "?"; }

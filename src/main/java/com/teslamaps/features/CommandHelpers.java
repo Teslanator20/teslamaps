@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 // /warp is + /viewrecipe fix from SkyHanni's WarpIsCommand.kt / ViewRecipeCommand.kt,
 // coop/guild confirm from Skytils' MiscFeatures.kt and NEU's AntiCoopAdd.java
+import com.teslamaps.utils.LegacyFormat;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.teslamaps.config.TeslaMapsConfig;
@@ -179,9 +180,9 @@ public final class CommandHelpers {
         MutableComponent formats = Component.empty();
         for (ChatFormatting f : ChatFormatting.values()) {
             String line = f == ChatFormatting.OBFUSCATED
-                    ? "§7&k §kabc§r §7" + f.getName() + "§r  "
-                    : "§" + f.getChar() + "&" + f.getChar() + " " + f.getName() + "§r  ";
-            if (f.isFormat() || f == ChatFormatting.RESET) formats.append(Component.literal(line));
+                    ? "§7&k §kabc§r §7" + LegacyFormat.getName(f) + "§r  "
+                    : "§" + LegacyFormat.getChar(f) + "&" + LegacyFormat.getChar(f) + " " + LegacyFormat.getName(f) + "§r  ";
+            if (LegacyFormat.isFormat(f) || f == ChatFormatting.RESET) formats.append(Component.literal(line));
             else colors.append(Component.literal(line));
         }
         mc.player.sendSystemMessage(colors);

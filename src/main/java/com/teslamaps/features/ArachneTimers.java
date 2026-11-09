@@ -98,7 +98,7 @@ public final class ArachneTimers {
         if (p.xMaxSpeed() != 1f || p.particle().getType() != ParticleTypes.DUST) return;
         Vector3f col = ((DustParticleOptions) p.particle()).getColor();
         if (col.x > 0.05f || col.y > 0.05f || col.z > 0.05f) return;
-        double dx = p.x() - ALTAR.x(), dy = p.y() - ALTAR.y(), dz = p.z() - ALTAR.z();
+        double dx = p.x() - ALTAR.getX(), dy = p.y() - ALTAR.getY(), dz = p.z() - ALTAR.getZ();
         if (dx * dx + dy * dy + dz * dz > 4.0) return;
         particles++;
     }

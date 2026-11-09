@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 // Ported from SkyHanni's CompactJacobClaim, CompactBingoChat, CompactExperimentRewards,
 // and ShortenCoins
+import com.teslamaps.utils.LegacyFormat;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.PlayerChat;
@@ -310,7 +311,7 @@ public final class ChatCompactsMore {
                 char ch = text.charAt(i);
                 if (ch == '§' && i + 1 < text.length()) {
                     ChatFormatting f = ChatFormatting.getByCode(text.charAt(i + 1));
-                    if (f != null && f.isColor()) col = TextColor.fromLegacyFormat(f);
+                    if (f != null && LegacyFormat.isColor(f)) col = TextColor.fromLegacyFormat(f);
                     else if (f == ChatFormatting.RESET) col = style.getColor();
                     i++;
                 } else if (!Character.isWhitespace(ch)) {
@@ -381,7 +382,7 @@ public final class ChatCompactsMore {
                 char ch = text.charAt(i);
                 if (ch == '§' && i + 1 < n) {
                     ChatFormatting f = ChatFormatting.getByCode(text.charAt(i + 1));
-                    if (f != null && f.isColor()) gold = f == ChatFormatting.GOLD;
+                    if (f != null && LegacyFormat.isColor(f)) gold = f == ChatFormatting.GOLD;
                     else if (f == ChatFormatting.RESET) gold = styleGold;
                     sb.append(ch).append(text.charAt(i + 1));
                     i++;

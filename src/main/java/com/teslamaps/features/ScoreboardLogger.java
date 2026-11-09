@@ -130,7 +130,7 @@ public final class ScoreboardLogger {
     private static void openFolder() {
         try {
             Files.createDirectories(DIR);
-            net.minecraft.util.Util.getPlatform().openFile(DIR.toFile());
+            com.mojang.blaze3d.Blaze3D.openPath(DIR);
         } catch (Exception e) {
             TeslaMaps.LOGGER.warn("Could not open logs folder", e);
         }

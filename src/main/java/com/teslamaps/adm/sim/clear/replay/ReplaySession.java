@@ -95,7 +95,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
-import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.protocol.game.ServerboundPunchPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -1046,7 +1046,8 @@ public class ReplaySession {
                 else pk = new ServerboundMovePlayerPacket.StatusOnly(ground, hcol);
                 // A teleport of ADS's is accepted first, as the recorded client did within the tick.
                 ServerTeleportAccessor acc = (ServerTeleportAccessor) c;
-                if (acc.ec_getAwaitingPosition() != null) c.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(acc.ec_getAwaitingTeleport()));
+                Vec3 ap = acc.ec_getAwaitingPosition();
+                if (ap != null) c.handleAcceptTeleportPacket(new ServerboundAcceptTeleportationPacket(acc.ec_getAwaitingTeleport(), ap.x, ap.y, ap.z, c.player.getYRot(), c.player.getXRot()));
                 c.handleMovePlayer(pk);
                 if (x != null) diff.moved(e.get(0).getAsInt(), x, y, z, host);
             }
@@ -1113,7 +1114,7 @@ public class ReplaySession {
                 }
             }
             case "o.swing" -> {
-                c.handleAnimate(new ServerboundSwingPacket(InteractionHand.MAIN_HAND));
+                c.handlePunch(ServerboundPunchPacket.INSTANCE);
                 // A swing that follows a right click in the same tick is that click's; any other is a left click.
                 boolean fromUse = false;
                 for (JsonArray o : same.subList(0, at)) if (RIGHT_CLICKS.contains(o.get(1).getAsString())) { fromUse = true; break; }

@@ -91,11 +91,11 @@ public class CustomizeScreen extends Screen {
 
         armorTab = new ArmorTab(this);
         itemTab = new ItemTab(this);
-        tabNavigation = TabNavigationBar.builder(tabManager, width)
+        tabNavigation = net.minecraft.client.gui.components.tabs.MenuTabBar.builder(tabManager, width)
                 .addTabs(armorTab, itemTab)
                 .build();
         int top = tabNavigation.getRectangle().bottom();
-        tabNavigation.arrangeElements();
+        tabNavigation.arrangeElements(width);
         tabManager.setTabArea(new ScreenRectangle(0, top, width, height - top - 30));
         tabNavigation.selectTab(item ? 1 : 0, false);
         addRenderableWidget(tabNavigation);
@@ -202,7 +202,7 @@ public class CustomizeScreen extends Screen {
     @Override
     protected void repositionElements() {
         int top = tabNavigation.getRectangle().bottom();
-        tabNavigation.arrangeElements();
+        tabNavigation.arrangeElements(width);
         footerLayout.setPosition((width - footerLayout.getWidth()) / 2, height - footerLayout.getHeight() - 5);
         tabManager.setTabArea(new ScreenRectangle(0, top, width, footerLayout.getY() - top - 2));
     }

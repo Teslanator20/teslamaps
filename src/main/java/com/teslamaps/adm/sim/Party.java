@@ -2379,7 +2379,7 @@ public final class Party {
     public static String partyLine(Bot b, String text) { return "§9Party §8> §b[MVP§c+§b] " + b.name + "§f: " + text; }
 
     private static void swing(Bot b) {
-        if (b.entity != null) b.entity.swing(InteractionHand.MAIN_HAND);
+        if (b.entity != null) b.entity.swing(InteractionHand.MAIN_HAND, b.entity.getMainHandItem().getAttackAnimation(), false);
     }
 
     private static void hold(Bot b, int n) {
@@ -2471,7 +2471,7 @@ public final class Party {
         m.setComponent(DataComponents.PROFILE, ResolvableProfile.createResolved(profile(b)));
         m.setCustomName(Component.literal("§a" + b.name));
         m.setCustomNameVisible(true);
-        m.setInvulnerable(true);
+        m.setPermanentlyInvulnerable(true);
         m.setNoGravity(true);
         dress(m, b.clazz);
         hideDescription(m);

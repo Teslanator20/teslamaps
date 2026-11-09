@@ -41,7 +41,7 @@ public class ConfigBackupScreen extends Screen {
         addRenderableWidget(new TeslaButton(182, by, 90, 20, "Open Folder", () -> {
             try {
                 Files.createDirectories(ConfigBackups.DIR);
-                net.minecraft.util.Util.getPlatform().openFile(ConfigBackups.DIR.toFile());
+                com.mojang.blaze3d.Blaze3D.openPath(ConfigBackups.DIR);
             } catch (Exception ignored) {}
         }));
         addRenderableWidget(new TeslaButton(width - 80, by, 70, 20, "Back", this::onClose));

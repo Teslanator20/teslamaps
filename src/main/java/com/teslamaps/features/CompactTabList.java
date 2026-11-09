@@ -1,6 +1,7 @@
 package com.teslamaps.features;
 
 // Ported from SkyHanni's features/misc/compacttablist (TabListReader, TabListRenderer, AdvancedPlayerList)
+import com.teslamaps.utils.LegacyFormat;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.PlayerTabOverlayAccessor;
 import com.teslamaps.registry.Feature;
@@ -346,8 +347,8 @@ public final class CompactTabList {
         c.visit((style, part) -> {
             TextColor color = style.getColor();
             if (color != null) {
-                ChatFormatting f = ChatFormatting.getByName(color.serialize());
-                if (f != null) sb.append('§').append(f.getChar());
+                ChatFormatting f = LegacyFormat.getByName(color.serialize());
+                if (f != null) sb.append('§').append(LegacyFormat.getChar(f));
             }
             if (style.isBold()) sb.append("§l");
             sb.append(part);

@@ -21,7 +21,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Locale;
 import java.util.Set;
@@ -53,14 +52,14 @@ public class AuctionPriceInput {
             if (sign == null) return;
 
             String[] lines = new String[4];
-            for (int i = 0; i < 4; i++) lines[i] = sign.getFrontText().getMessage(i, false).getString();
+            for (int i = 0; i < 4; i++) lines[i] = sign.getText(net.minecraft.world.level.block.entity.SignTextSlot.FRONT).getMessages(false).get(i).getString();
 
             if (!lines[1].equals("^^^^^^^^^^^^^^^") || !lines[2].equals("Your auction") || !lines[3].equals("starting bid")) return;
 
             // set the screen by hand so the sign gui does not close
             mc.execute(() -> {
                 AuctionInputScreen next = new AuctionInputScreen(sign, lines, stack);
-                mc.screen = next;
+                mc.gui.screen = next;
                 next.init(width, height);
             });
         });
@@ -256,7 +255,7 @@ public class AuctionPriceInput {
 
         @Override
         public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-            boolean isMouseDown = GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) == com.mojang.blaze3d.platform.InputConstants.PRESS;
+            boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
             boolean clicked = isMouseDown && !wasMouseDown;
 
             ctx.fill(0, 0, width, height, 0xC0000000);
@@ -350,7 +349,7 @@ public class AuctionPriceInput {
             Minecraft mc = Minecraft.getInstance();
             if (mc.getConnection() != null) {
                 mc.getConnection().send(new ServerboundSignUpdatePacket(
-                        sign.getBlockPos(), true, line0, originalText[1], originalText[2], originalText[3]));
+                        sign.getBlockPos(), java.util.List.of(line0, originalText[1], originalText[2], originalText[3]), net.minecraft.world.level.block.entity.SignTextSlot.FRONT));
             }
 
             onClose();

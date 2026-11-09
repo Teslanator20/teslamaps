@@ -123,7 +123,7 @@ public final class McStateEffects implements StateEffects {
             if (!RunBlocks.isLoaded(c.x, c.z)) continue;
             double x = c.x + 0.5; double z = c.z + 0.5; double y = c.y + StateRules.DEBRIS_DY;
             Bat b = new Bat(EntityTypes.BAT, Sim.level());
-            b.setSilent(true); b.setInvulnerable(true); b.setInvisible(true);
+            b.setSilent(true); b.setPermanentlyInvulnerable(true); b.setInvisible(true);
             b.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
             b.setNoAi(true); b.setNoGravity(true);
             b.snapTo(x, y, z, 0f, 0f);
@@ -244,7 +244,7 @@ public final class McStateEffects implements StateEffects {
     private static ArmorStand stand(double x, double z, String name, ItemStack head, double at) {
         SimStand s = new SimStand(Sim.level());
         s.snapTo(x, at, z, 0f, 0f);
-        s.setInvisible(true); s.setInvulnerable(true); s.setSilent(true);
+        s.setInvisible(true); s.setPermanentlyInvulnerable(true); s.setSilent(true);
         if (name != null) { s.setCustomName(Sim.legacy(name)); s.setCustomNameVisible(true); }
         if (head != null) s.setItemSlot(EquipmentSlot.HEAD, head);
         return Sim.spawn(s);

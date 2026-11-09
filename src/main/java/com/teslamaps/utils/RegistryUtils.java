@@ -16,7 +16,7 @@ public final class RegistryUtils {
         if (client != null && client.getConnection() != null && client.getConnection().registryAccess() != null) {
             return client.getConnection().registryAccess();
         }
-        if (fallback == null) fallback = VanillaRegistries.createLookup();
+        if (fallback == null) fallback = VanillaRegistries.createWorldLookup();
         return fallback;
     }
 }

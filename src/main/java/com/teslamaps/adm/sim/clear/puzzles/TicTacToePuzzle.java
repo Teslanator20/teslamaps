@@ -103,7 +103,7 @@ public class TicTacToePuzzle extends WorldPuzzle {
         Placement pl = placement();
         Direction facing = PuzzleBlocks.rotation(pl != null ? pl.quarterTurns() : 0).rotate(Direction.EAST);
         ItemFrame frame = new ItemFrame(EntityTypes.ITEM_FRAME, Sim.level(), new BlockPos(w.x, w.y, w.z), facing);
-        frame.setInvulnerable(true);
+        frame.setPermanentlyInvulnerable(true);
         boolean isX = m == TttLogic.Mark.X;
         ensureMaps();
         frame.setItem(mapStack(isX ? TttArt.X_MAP_ID : TttArt.O_MAP_ID), false);

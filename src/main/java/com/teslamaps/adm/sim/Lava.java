@@ -79,7 +79,7 @@ public final class Lava {
 
     private static void bounce(ServerPlayer p, double vy, int sinceLast) {
         p.setDeltaMovement(new Vec3(0.0, vy, 0.0));
-        p.hurtMarked = true;
+        p.syncVelocity = true;
         p.fallDistance = 0.0;
         p.clearFire();
         int now = Fight.serverTick;

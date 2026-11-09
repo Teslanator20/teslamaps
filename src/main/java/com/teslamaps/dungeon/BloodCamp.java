@@ -195,7 +195,7 @@ public class BloodCamp {
 
     public static void onRemoveEntitiesPacket(ClientboundRemoveEntitiesPacket packet) {
         if (currentWatcherEntity == null) return;
-        if (packet.getEntityIds().contains(currentWatcherEntity.getId())) currentWatcherEntity = null;
+        if (packet.entityIds().contains(currentWatcherEntity.getId())) currentWatcherEntity = null;
     }
 
     public static Zombie getWatcherEntity() {
@@ -204,7 +204,7 @@ public class BloodCamp {
 
     public static void onMoveEntityPacket(ClientboundMoveEntityPacket packet) {
         if (!TeslaMapsConfig.get().bloodCampAssist) return;
-        if (packet.getXa() == 0 && packet.getYa() == 0 && packet.getZa() == 0) return;
+        if (!packet.hasPosition() || packet.getPositionDelta() == net.minecraft.network.protocol.game.VecDelta.ZERO) return;
         if (currentWatcherEntity == null) return;
         if (!DungeonManager.isInDungeon() || DungeonManager.isInBossArea()) return;
         Level level = Minecraft.getInstance().level;
@@ -216,8 +216,7 @@ public class BloodCamp {
         String tex = skullTexture(head);
         if (tex == null || !ALLOWED_MOB_SKULLS.contains(tex)) return;
 
-        Vec3 packetVector = new Vec3(entity.getX() + packet.getXa() / 4096.0,
-                entity.getY() + packet.getYa() / 4096.0, entity.getZ() + packet.getZa() / 4096.0);
+        Vec3 packetVector = packet.getPositionDelta().decode(entity.getPositionCodec()).endPosition();
 
         EntityData data = entityDataMap.computeIfAbsent(entity, k -> new EntityData(packetVector, currentTickTime, firstSpawns));
         Vec3 delta = packetVector.subtract(data.lastPosition);

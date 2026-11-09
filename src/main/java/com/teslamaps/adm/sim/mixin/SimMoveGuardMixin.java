@@ -30,7 +30,7 @@ public class SimMoveGuardMixin {
 
     @Inject(method = "handleAcceptTeleportPacket", at = @At("HEAD"), cancellable = true)
     private void teslamaps$dropStaleAccept(ServerboundAcceptTeleportationPacket packet, CallbackInfo ci) {
-        if (teslamaps$simServer() && packet.getId() == this.awaitingTeleport && this.awaitingPositionFromClient == null) ci.cancel();
+        if (teslamaps$simServer() && packet.id() == this.awaitingTeleport && this.awaitingPositionFromClient == null) ci.cancel();
     }
 
     @WrapOperation(method = "handleMovePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z"))

@@ -82,7 +82,7 @@ public final class LivingMetalHelper {
     public static boolean hideParticle(ClientboundLevelParticlesPacket p) {
         BlockPos t = to;
         if (t == null || !cfg().livingMetalHideParticles || !on()) return false;
-        double dx = p.x() - t.x(), dy = p.y() - t.y(), dz = p.z() - t.z();
+        double dx = p.x() - t.getX(), dy = p.y() - t.getY(), dz = p.z() - t.getZ();
         return dx * dx + dy * dy + dz * dz < 9;
     }
 

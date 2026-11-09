@@ -71,7 +71,7 @@ public final class PriceHistory {
 
     private static void open(Minecraft mc, String id, String name) {
         try {
-            net.minecraft.util.Util.getPlatform().openUri(websiteUrl(id));
+            com.mojang.blaze3d.Blaze3D.openUri(java.net.URI.create(websiteUrl(id)));
         } catch (Exception e) {
             if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§6[TeslaMaps] §cCould not open the browser"));
         }

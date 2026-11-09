@@ -240,7 +240,7 @@ public final class Blocks {
         for (int n = 0; n < 35; n++) {
             Bat b = new Bat(EntityTypes.BAT, Sim.level());
             b.setSilent(true);
-            b.setInvulnerable(true);
+            b.setPermanentlyInvulnerable(true);
             b.setInvisible(true);
             b.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
             b.setNoAi(true);

@@ -594,7 +594,7 @@ public class ProfileViewerScreen extends Screen {
         if (inside(skyRect, mx, my) && profiles != null) {
             SkyblockProfile selected = profiles.getSelectedProfile();
             String profileName = selected == null ? "" : "/" + selected.getCuteName();
-            net.minecraft.util.Util.getPlatform().openUri(
+            com.mojang.blaze3d.Blaze3D.openUri(
                     java.net.URI.create("https://sky.shiiyu.moe/stats/" + profiles.getDisplayName() + profileName));
             return true;
         }

@@ -1,5 +1,6 @@
 package com.teslamaps.features;
 
+import com.teslamaps.utils.LegacyFormat;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import net.minecraft.client.Minecraft;
@@ -129,8 +130,8 @@ public class BackpackPreview {
             net.minecraft.world.item.DyeColor dye = net.minecraft.world.item.DyeColor.byName(lower, null);
             if (dye != null) rgb = dye.getTextureDiffuseColor() & 0xFFFFFF;
             else {
-                net.minecraft.ChatFormatting f = net.minecraft.ChatFormatting.getByName(lower);
-                if (f != null && f.getColor() != null) rgb = f.getColor();
+                net.minecraft.ChatFormatting f = LegacyFormat.getByName(lower);
+                if (f != null && LegacyFormat.getColor(f) != null) rgb = LegacyFormat.getColor(f);
             }
         }
         dyeCache.put(st, rgb);

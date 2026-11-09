@@ -1,5 +1,6 @@
 package com.teslamaps.features;
 
+import com.teslamaps.utils.LegacyFormat;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.utils.ItemPrice;
 import com.teslamaps.utils.SkyblockItems;
@@ -356,7 +357,7 @@ public class RareDropEffects {
         if (mc.player == null || stack.isEmpty()) return;
 
         mc.particleEngine.createTrackingEmitter(mc.player, particle, 30);
-        mc.gameRenderer.displayItemActivation(stack);
+        mc.player.displayItemActivation(stack);
 
         text = itemName;
         subText = headline.toUpperCase(Locale.ROOT);
@@ -381,7 +382,7 @@ public class RareDropEffects {
             Matcher code = COLOR_CODE.matcher(colored);
             if (code.find()) {
                 var formatting = net.minecraft.ChatFormatting.getByCode(code.group(1).charAt(0));
-                if (formatting != null && formatting.getColor() != null) return formatting.getColor();
+                if (formatting != null && LegacyFormat.getColor(formatting) != null) return LegacyFormat.getColor(formatting);
             }
         }
         var named = stack.getHoverName().getStyle().getColor();
@@ -398,7 +399,7 @@ public class RareDropEffects {
     private static final long FADE_IN_MS = 250L;
     private static final long FADE_OUT_MS = 500L;
     private static final long TOTAL_MS =
-            net.minecraft.client.renderer.ScreenEffectRenderer.ITEM_ACTIVATION_ANIMATION_LENGTH * 50L;
+            net.minecraft.client.player.ItemActivation.ANIMATION_LENGTH * 50L;
 
     /**
      * Same geometry as a vanilla title: item line at 4x ten pixels above the

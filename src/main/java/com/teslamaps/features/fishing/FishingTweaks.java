@@ -49,7 +49,7 @@ public final class FishingTweaks {
         if (mc.player == null) return false;
         FishingHook own = mc.player.fishing;
         if (own == null) return true;
-        double dx = own.x() - p.x(), dz = own.z() - p.z();
+        double dx = own.getX() - p.x(), dz = own.getZ() - p.z();
         return dx * dx + dz * dz > 36;
     }
 

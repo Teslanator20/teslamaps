@@ -42,14 +42,14 @@ public final class MobBodies {
 
     private static SimStand filler(ServerLevel level) {
         TransientStand it = new TransientStand(level);
-        it.setInvisible(true); it.setSilent(true); it.setInvulnerable(true); Station.setMarker(it);
+        it.setInvisible(true); it.setSilent(true); it.setPermanentlyInvulnerable(true); Station.setMarker(it);
         return it;
     }
 
     public static void dressTag(SimStand stand, net.minecraft.network.chat.Component name) {
         stand.setInvisible(true);
         stand.setSilent(true);
-        stand.setInvulnerable(true);
+        stand.setPermanentlyInvulnerable(true);
         stand.setNoGravity(true);
         Station.setMarker(stand);
         stand.setCustomName(name);

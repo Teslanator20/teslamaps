@@ -618,7 +618,7 @@ public class GoldorPhase extends Fight.Phase {
         private void spawnGiants() {
             for (int i = 0; i < 4; i++) {
                 SimGiant e = new SimGiant(Sim.level());
-                e.setNoAi(true); e.setSilent(true); e.setInvulnerable(true); e.setNoGravity(true); e.setInvisible(true);
+                e.setNoAi(true); e.setSilent(true); e.setPermanentlyInvulnerable(true); e.setNoGravity(true); e.setInvisible(true);
                 e.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
                 e.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
                 Vec3 g = giantPos(i);

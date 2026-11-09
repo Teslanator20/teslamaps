@@ -1,5 +1,6 @@
 package com.teslamaps.profileviewer.data;
 
+import com.teslamaps.utils.LegacyFormat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -30,7 +31,7 @@ public class LegacyText {
                 }
                 style = formatting == ChatFormatting.RESET
                         ? Style.EMPTY.withItalic(false)
-                        : formatting.isColor()
+                        : LegacyFormat.isColor(formatting)
                         ? Style.EMPTY.withItalic(false).withColor(formatting)
                         : style.applyFormat(formatting);
                 continue;

@@ -47,7 +47,7 @@ public final class KeyConflicts {
                 continue;
             }
             int key = switch (k.getType()) {
-                case KEYSYM -> k.getValue();
+                case KEYBOARD -> k.getValue();
                 case MOUSE -> KeyNames.forMouse(k.getValue());
                 default -> -1;
             };

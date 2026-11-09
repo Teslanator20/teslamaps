@@ -464,7 +464,7 @@ public class Devices {
             if (solution.get(i) < 0 && wool == null) continue;
             BlockPos pos = new BlockPos(-2, 120 + i % 5, 75 + i / 5);
             ItemFrame f = new ItemFrame(EntityTypes.ITEM_FRAME, Sim.level(), pos, Direction.EAST);
-            f.setInvulnerable(true);
+            f.setPermanentlyInvulnerable(true);
             if (solution.get(i) >= 0) {
                 f.setItem(new ItemStack(Items.ARROW), false);
                 f.setRotation(solution.get(i));

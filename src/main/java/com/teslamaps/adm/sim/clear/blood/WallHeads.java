@@ -127,7 +127,7 @@ public class WallHeads {
 
     private ArmorStand spawn(HeadSlot s, String key) {
         ArmorStand st = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
-        st.setInvisible(true); st.setSilent(true); st.setNoGravity(true); st.setInvulnerable(true);
+        st.setInvisible(true); st.setSilent(true); st.setNoGravity(true); st.setPermanentlyInvulnerable(true);
         st.setItemSlot(EquipmentSlot.HEAD, HeadItems.stack(key, textures));
         st.snapTo(s.x + 0.5, s.y + BloodGeometry.STAND_ABOVE_CELL, s.z + 0.5, 0f, 0f);
         return Sim.spawn(st);

@@ -2,6 +2,7 @@ package com.teslamaps.features;
 
 // Visual words: SkyHanni's ModifyVisualWords / Odin's VisualWords / SkyOcean's TextReplacements.
 // Full text shadow: SkyOcean's BakedGlyphMixin.
+import com.teslamaps.utils.LegacyFormat;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.teslamaps.config.TeslaMapsConfig;
@@ -211,7 +212,7 @@ public final class TextVisuals {
                 if (f != null) {
                     i++;
                     if (f == ChatFormatting.RESET) style = Style.EMPTY;
-                    else if (f.isColor()) style = Style.EMPTY.withColor(f);
+                    else if (LegacyFormat.isColor(f)) style = Style.EMPTY.withColor(f);
                     else style = style.applyFormat(f);
                     continue;
                 }
@@ -247,7 +248,7 @@ public final class TextVisuals {
             ChatFormatting f = ChatFormatting.getByCode(s.charAt(i + 1));
             if (f == null) continue;
             if (f == ChatFormatting.RESET) { color = "§r"; fmt.setLength(0); }
-            else if (f.isColor()) { color = "§" + s.charAt(i + 1); fmt.setLength(0); }
+            else if (LegacyFormat.isColor(f)) { color = "§" + s.charAt(i + 1); fmt.setLength(0); }
             else fmt.append('§').append(s.charAt(i + 1));
             i++;
         }

@@ -99,8 +99,8 @@ public class SoulweaverHider {
             var e = it.next();
             ArmorStand s = e.getKey();
             if (s.isRemoved() || now - e.getValue() > 2000) { it.remove(); continue; }
-            if (Math.abs(p.x() - s.x()) < 8 && Math.abs(p.y() - (s.y() + 2)) < 8
-                    && Math.abs(p.z() - s.z()) < 8) return true;
+            if (Math.abs(p.x() - s.getX()) < 8 && Math.abs(p.y() - (s.getY() + 2)) < 8
+                    && Math.abs(p.z() - s.getZ()) < 8) return true;
         }
         return false;
     }

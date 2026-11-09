@@ -72,7 +72,7 @@ public abstract class TitleScreenMixin extends Screen {
 
         addRenderableWidget(new TeslaMenuButton(x, bottomY, half, BUTTON_HEIGHT,
                 Component.literal("Options"),
-                () -> this.minecraft.setScreen(new OptionsScreen(this, this.minecraft.options, false))));
+                () -> this.minecraft.gui.setScreen(new OptionsScreen(this, this.minecraft.options))));
 
         addRenderableWidget(new TeslaMenuButton(x + half + SPACING, bottomY, half, BUTTON_HEIGHT,
                 Component.translatable("menu.quit"), this.minecraft::stop));

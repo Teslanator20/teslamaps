@@ -54,3 +54,4 @@ accessible method net/minecraft/client/gui/screens/inventory/InventoryScreen ext
 
 # full text shadow reads the glyph instance
 accessible class net/minecraft/client/gui/font/glyphs/BakedSheetGlyph$GlyphInstance
+accessible field net/minecraft/client/gui/Gui screen Lnet/minecraft/client/gui/screens/Screen;

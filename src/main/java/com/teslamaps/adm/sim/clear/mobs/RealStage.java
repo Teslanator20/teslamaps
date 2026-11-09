@@ -154,8 +154,8 @@ public final class RealStage implements MobStage {
             body.setYRot(yaw);
             if (body instanceof LivingEntity le) { le.yHeadRot = yaw; le.yBodyRot = yaw; }
         }
-        if (body instanceof Mob m) m.swing(InteractionHand.MAIN_HAND);
-        else if (body instanceof LivingEntity le) le.swing(InteractionHand.MAIN_HAND, true);
+        if (body instanceof Mob m) m.swing(InteractionHand.MAIN_HAND, m.getMainHandItem().getAttackAnimation(), false);
+        else if (body instanceof LivingEntity le) le.swing(InteractionHand.MAIN_HAND, le.getMainHandItem().getAttackAnimation(), true);
     }
 
     private static void stop(Entity body) {

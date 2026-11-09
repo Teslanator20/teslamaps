@@ -27,7 +27,7 @@ public class BossWither {
     public BossWither(String name, Vec3 at, int inv, boolean armoured, int tagDelay) {
         this.name = name;
         WitherBoss w = new SimWither(Sim.level());
-        w.setNoAi(true); w.setSilent(true); w.setInvulnerable(true); w.setNoGravity(true);
+        w.setNoAi(true); w.setSilent(true); w.setPermanentlyInvulnerable(true); w.setNoGravity(true);
         w.setInvulnerableTicks(inv);
         w.setHealth(armoured ? 1f : w.getMaxHealth());
         w.snapTo(at.x, at.y, at.z, 0f, 0f);
@@ -46,7 +46,7 @@ public class BossWither {
 
     private ArmorStand marker(String text, double dy) {
         ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
-        s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
+        s.setInvisible(true); s.setNoGravity(true); s.setPermanentlyInvulnerable(true); s.setSilent(true);
         Station.setMarker(s);
         s.setCustomName(Sim.legacy(text));
         s.setCustomNameVisible(true);

@@ -55,7 +55,7 @@ public class Station {
         SimStand s = new SimStand(level);
         s.snapTo(at.x, y, at.z, 0f, 0f);
         s.setInvisible(true);
-        s.setInvulnerable(true);
+        s.setPermanentlyInvulnerable(true);
         s.setSilent(true);
         s.setCustomName(name.isEmpty() ? null : Sim.legacy(name));
         s.setCustomNameVisible(!name.isEmpty());

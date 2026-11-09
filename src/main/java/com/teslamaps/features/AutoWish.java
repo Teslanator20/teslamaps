@@ -58,7 +58,7 @@ public class AutoWish {
         if (mc.player == null) return;
 
         if (scheduledDropTick > 0 && mc.player.tickCount >= scheduledDropTick) {
-            mc.player.drop(dropAll);
+            mc.gameMode.dropItem(mc.player, dropAll);
             TeslaMaps.debug("[AutoWish] Used wish!");
 
             scheduledDropTick = -1;

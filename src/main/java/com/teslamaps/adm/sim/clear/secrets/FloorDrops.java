@@ -93,7 +93,7 @@ public final class FloorDrops {
     private static ArmorStand stand(Drop d, double y, String name) {
         SimStand s = new SimStand(Sim.level());
         s.snapTo(d.x, y, d.z, 0f, 0f);
-        s.setInvisible(true); s.setInvulnerable(true); s.setSilent(true);
+        s.setInvisible(true); s.setPermanentlyInvulnerable(true); s.setSilent(true);
         if (name != null) { s.setCustomName(Sim.legacy(name)); s.setCustomNameVisible(true); }
         return s;
     }

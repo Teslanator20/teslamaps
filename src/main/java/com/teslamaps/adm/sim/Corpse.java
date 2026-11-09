@@ -23,7 +23,7 @@ public final class Corpse {
         Ec.safely("p3sim corpse", () -> {
             Mannequin m = new Mannequin(EntityTypes.MANNEQUIN, Sim.level());
             m.setComponent(DataComponents.PROFILE, ResolvableProfile.createResolved(p.getGameProfile()));
-            m.setInvulnerable(true);
+            m.setPermanentlyInvulnerable(true);
             m.setNoGravity(true);
             m.setSilent(true);
             for (EquipmentSlot slot : List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET))
@@ -42,7 +42,7 @@ public final class Corpse {
         SimStand s = new SimStand(Sim.level());
         s.snapTo(x, y, p.getZ(), 0f, 0f);
         s.setInvisible(invisible);
-        s.setInvulnerable(true);
+        s.setPermanentlyInvulnerable(true);
         s.setSilent(true);
         Station.setMarker(s);
         if (name != null) { s.setCustomName(Sim.legacy(name)); s.setCustomNameVisible(true); }

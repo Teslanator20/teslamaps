@@ -292,7 +292,7 @@ public final class RavengardTooltips {
                 else tx = Math.max(minX, Math.min(maxX, left));
                 int maxY = Math.max(4, sh - h - 4);
                 return new Vector2i(tx, Math.max(4, Math.min(maxY, my)));
-            }, pendingStyle);
+            }, pendingStyle, true);
         } finally {
             nested = false;
         }

@@ -1,6 +1,7 @@
 package com.teslamaps.features.inspector;
 
 // Ported from Bax's EntityInspector / ItemInspector (ImGui replaced by InspectorScreen)
+import com.teslamaps.utils.LegacyFormat;
 import com.mojang.authlib.properties.Property;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.render.ESPRenderer;
@@ -504,8 +505,8 @@ public final class Inspector {
             sb.append("&r");
             TextColor col = style.getColor();
             if (col != null) {
-                ChatFormatting f = ChatFormatting.getByName(col.serialize());
-                if (f != null) sb.append('&').append(f.getChar());
+                ChatFormatting f = LegacyFormat.getByName(col.serialize());
+                if (f != null) sb.append('&').append(LegacyFormat.getChar(f));
                 else sb.append("&#").append(col.serialize().replace("#", ""));
             }
             if (style.isBold()) sb.append("&l");

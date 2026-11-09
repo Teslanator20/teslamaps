@@ -202,10 +202,10 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "handleRemoveEntities", at = @At("HEAD"))
     private void onRemoveEntities(ClientboundRemoveEntitiesPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
-            for (int id : packet.getEntityIds()) com.teslamaps.features.SecretItemPickup.onPacketItem(id, true);
+            for (int id : packet.entityIds()) com.teslamaps.features.SecretItemPickup.onPacketItem(id, true);
         }
         BloodCamp.onRemoveEntitiesPacket(packet);
-        for (int id : packet.getEntityIds()) com.teslamaps.features.SecretClickHighlight.onItemGone(id);
+        for (int id : packet.entityIds()) com.teslamaps.features.SecretClickHighlight.onItemGone(id);
         com.teslamaps.features.DeadMobHider.onRemoveEntities(packet);
         com.teslamaps.debug.DeathProbe.onRemoveEntities(packet);
     }

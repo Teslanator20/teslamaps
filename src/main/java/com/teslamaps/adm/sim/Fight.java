@@ -192,7 +192,7 @@ public final class Fight {
     }
 
     public static void join(ServerPlayer player) {
-        Ec.safely("ads no advancements", () -> player.getAdvancements().stopListening());
+        Ec.safely("ads no advancements", () -> player.getAdvancements().clearTriggers());
         ServerPlayer host = SimServer.player();
         if (host == player) com.teslamaps.adm.sim.run.EngineSpikes.joined(player);
         if (host != null && host != player) {
@@ -263,7 +263,7 @@ public final class Fight {
             if (kb != null) kb.setBaseValue(1.0);
             AttributeInstance step = player.getAttribute(Attributes.STEP_HEIGHT);
             if (step != null) step.setBaseValue(0.6);
-            player.setInvulnerable(true);
+            player.setPermanentlyInvulnerable(true);
             AttributeInstance maxHealth = player.getAttribute(Attributes.MAX_HEALTH);
             if (maxHealth != null) maxHealth.setBaseValue(40.0);
             player.setHealth(40f);

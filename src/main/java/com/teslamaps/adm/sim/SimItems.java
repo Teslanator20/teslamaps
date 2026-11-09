@@ -1382,7 +1382,7 @@ public final class SimItems {
         ClientLevel level = mc.level;
         if (level == null) return;
         if (mc.gui.screen() != null || player.isUsingItem() || !simClient(level) || !"DUNGEONBREAKER".equals(idOf(player.getMainHandItem()))) return;
-        if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK) player.swing(InteractionHand.MAIN_HAND, false);
+        if (mc.hitResult != null && mc.hitResult.getType() == HitResult.Type.BLOCK) player.swing(InteractionHand.MAIN_HAND, player.getMainHandItem().getAttackAnimation(), false);
     }
 
     public static boolean clientHitBlock(BlockPos pos, Direction face) {
@@ -2139,7 +2139,7 @@ public final class SimItems {
         veilAngle.set(0.0);
         for (int i = 0; i < 6; i++) {
             VeilCreeper e = new VeilCreeper(Sim.level());
-            e.setNoAi(true); e.setSilent(true); e.setInvulnerable(true); e.setNoGravity(true); e.setInvisible(true);
+            e.setNoAi(true); e.setSilent(true); e.setPermanentlyInvulnerable(true); e.setNoGravity(true); e.setInvisible(true);
             e.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false));
             e.thunderHit(Sim.level(), new LightningBolt(EntityTypes.LIGHTNING_BOLT, Sim.level()));
             e.clearFire();
@@ -2259,7 +2259,7 @@ public final class SimItems {
             (ub instanceof FaceAttachedHorizontalDirectionalBlock && up.getValue(face) == AttachFace.FLOOR) ||
             (ub instanceof net.minecraft.world.level.block.BaseTorchBlock && !(ub instanceof net.minecraft.world.level.block.WallTorchBlock) && !(ub instanceof net.minecraft.world.level.block.RedstoneWallTorchBlock)) ||
             ub instanceof net.minecraft.world.level.block.BaseFireBlock || ub instanceof SkullBlock || ub instanceof net.minecraft.world.level.block.StandingSignBlock ||
-            ub instanceof net.minecraft.world.level.block.BannerBlock || ub instanceof net.minecraft.world.level.block.BaseRailBlock || ub instanceof net.minecraft.world.level.block.RedStoneWireBlock ||
+            ub instanceof net.minecraft.world.level.block.BannerBlock || ub instanceof net.minecraft.world.level.block.BaseRailBlock || ub instanceof net.minecraft.world.level.block.RedstoneWireBlock ||
             ub instanceof net.minecraft.world.level.block.SnowLayerBlock || ub instanceof net.minecraft.world.level.block.DoorBlock || ub instanceof net.minecraft.world.level.block.TripWireBlock ||
             ub instanceof net.minecraft.world.level.block.VegetationBlock || ub instanceof FlowerPotBlock;
         if (onTop) return true;

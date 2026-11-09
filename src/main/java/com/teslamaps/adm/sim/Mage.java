@@ -172,7 +172,7 @@ public final class Mage {
         GhostSheep e = new GhostSheep(Sim.level());
         e.setNoAi(true);
         e.setNoGravity(true);
-        e.setInvulnerable(true);
+        e.setPermanentlyInvulnerable(true);
         e.setSilent(true);
         e.snapTo(p.getX(), p.getY() + 0.781, p.getZ(), p.getYRot(), 0f);
         e.setYHeadRot(p.getYRot() - 10f);

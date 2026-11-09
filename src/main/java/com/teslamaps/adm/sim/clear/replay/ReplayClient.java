@@ -20,7 +20,7 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
-import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.protocol.game.ServerboundPunchPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
 import net.minecraft.world.InteractionHand;
@@ -106,7 +106,7 @@ public final class ReplayClient {
         if (slot >= 0 && slot <= 8 && p.getInventory().getSelectedSlot() != slot) p.getInventory().setSelectedSlot(slot);
         boolean sprint = (flags & 1) != 0;
         if (p.isSprinting() != sprint) p.setSprinting(sprint);
-        if ((flags & 8) != 0) p.swing(InteractionHand.MAIN_HAND);
+        if ((flags & 8) != 0) p.swing(InteractionHand.MAIN_HAND, p.getMainHandItem().getAttackAnimation(), false);
     }
 
     /** Every frame (instead of the mouse): the look eased from the last tick's to this one's by the frame's place in the tick. */
@@ -137,7 +137,7 @@ public final class ReplayClient {
     public static boolean blocks(Packet<?> pk) {
         return active && (pk instanceof ServerboundMovePlayerPacket || pk instanceof ServerboundPlayerInputPacket || pk instanceof ServerboundPlayerCommandPacket
                 || pk instanceof ServerboundUseItemPacket || pk instanceof ServerboundUseItemOnPacket || pk instanceof ServerboundAttackPacket || pk instanceof ServerboundInteractPacket
-                || pk instanceof ServerboundPlayerActionPacket || pk instanceof ServerboundSwingPacket || pk instanceof ServerboundSetCarriedItemPacket
+                || pk instanceof ServerboundPlayerActionPacket || pk instanceof ServerboundPunchPacket || pk instanceof ServerboundSetCarriedItemPacket
                 || pk instanceof ServerboundContainerClickPacket || pk instanceof ServerboundContainerClosePacket || pk instanceof ServerboundContainerButtonClickPacket
                 // Your own mods' chat: the recorded player's lines are the recording's.
                 || pk instanceof ServerboundChatPacket

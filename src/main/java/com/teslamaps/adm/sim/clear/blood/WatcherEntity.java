@@ -120,7 +120,7 @@ public class WatcherEntity {
 
     private Part part(double dx, double dy, double dz, float health, String role, String tagText) {
         Zombie m = new Zombie(EntityTypes.ZOMBIE, Sim.level());
-        m.setNoAi(true); m.setSilent(true); m.setInvulnerable(true); m.setPersistenceRequired(); m.setNoGravity(true);
+        m.setNoAi(true); m.setSilent(true); m.setPermanentlyInvulnerable(true); m.setPersistenceRequired(); m.setNoGravity(true);
         AttributeInstance maxHp = m.getAttribute(Attributes.MAX_HEALTH);
         if (maxHp != null) maxHp.setBaseValue(health);
         AttributeInstance speed = m.getAttribute(Attributes.MOVEMENT_SPEED);
@@ -131,7 +131,7 @@ public class WatcherEntity {
         m.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION, 0, true, true, false));
         m.setInvisible(true);
         ArmorStand s = new ArmorStand(EntityTypes.ARMOR_STAND, Sim.level());
-        s.setInvisible(true); s.setNoGravity(true); s.setInvulnerable(true); s.setSilent(true);
+        s.setInvisible(true); s.setNoGravity(true); s.setPermanentlyInvulnerable(true); s.setSilent(true);
         Station.setMarker(s);
         s.setCustomName(Sim.legacy(tagText));
         s.setCustomNameVisible(true);
