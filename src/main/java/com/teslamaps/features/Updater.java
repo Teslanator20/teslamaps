@@ -284,7 +284,7 @@ public class Updater {
             chat("§7No changelog for this version.");
             return;
         }
-        mc.schedule(() -> mc.gui.setScreen(new com.teslamaps.gui.screen().UpdateScreen(mc.gui.screen(), true)));
+        mc.schedule(() -> mc.gui.setScreen(new com.teslamaps.screen.UpdateScreen(mc.gui.screen(), true)));
     }
 
     public static void tick() {
@@ -310,7 +310,7 @@ public class Updater {
         Minecraft mc = Minecraft.getInstance();
         if (!promptShown && mc.gui.screen() instanceof TitleScreen) {
             promptShown = true;
-            mc.gui.setScreen(new com.teslamaps.gui.screen().UpdateScreen(mc.gui.screen()));
+            mc.gui.setScreen(new com.teslamaps.screen.UpdateScreen(mc.gui.screen()));
         }
         if (!chatNotified && mc.player != null) {
             chatNotified = true;

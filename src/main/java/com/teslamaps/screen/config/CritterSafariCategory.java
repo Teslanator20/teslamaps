@@ -24,7 +24,7 @@ public final class CritterSafariCategory {
         b.info("Bars per biome, players, stays up as \"ready\" / \"last run\" at the entrance");
         b.info("Position and scale in /tmap gui");
         b.button("Run Screen (/tmap safari gui)",
-                () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.gui.screen().SafariScreen(Minecraft.getInstance().gui.screen())));
+                () -> Minecraft.getInstance().gui.setScreen(new com.teslamaps.screen.SafariScreen(Minecraft.getInstance().gui.screen())));
         b.button("  Import Old Runs From Logs", com.teslamaps.safari.SafariLogImport::start).fresh()
                 .desc("Rebuilds past runs from latest.log and the .log.gz files, fills per-critter data into saved runs")
                 .tags("import", "history", "logs");

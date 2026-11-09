@@ -110,7 +110,7 @@ public final class ESPCategory {
         b.toggle("  Livid Color Title", () -> config.lividColorTitle, v -> config.lividColorTitle = v).fresh();
         b.toggle("  Announce Livid Color (/pc)", () -> config.lividAnnounce, v -> config.lividAnnounce = v).fresh();
         b.button("    Edit Announce Text", () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(
-                new com.teslamaps.gui.screen().LividMessageScreen(net.minecraft.client.Minecraft.getInstance().gui.screen()))).fresh();
+                new com.teslamaps.screen.LividMessageScreen(net.minecraft.client.Minecraft.getInstance().gui.screen()))).fresh();
         b.toggle("  Livid HP Label (3D)", () -> config.lividHpLabel, v -> config.lividHpLabel = v).fresh();
         b.toggle("  Livid HP HUD", () -> config.lividHpHud, v -> config.lividHpHud = v).fresh();
         b.toggle("  Keep Wrong Livids Visible", () -> config.lividShowWrong, v -> config.lividShowWrong = v).legit();
