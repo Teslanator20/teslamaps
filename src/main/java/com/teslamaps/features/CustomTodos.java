@@ -101,7 +101,6 @@ public final class CustomTodos {
             if (s < 0) continue;
             t.readyAt.put(profile(), System.currentTimeMillis() + s * 1000);
             wasReady.put(t, false);
-            ExecutionLog.log("Todo: " + t.label);
             changed = true;
         }
         if (changed) TeslaMapsConfig.save();

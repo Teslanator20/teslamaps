@@ -21,13 +21,6 @@ public class EnderDragonRendererMixin {
         ((DragonTintHolder) state).teslamaps$setOverlay(DragonRecolor.overlayFor(dragon));
     }
 
-    @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
-            at = @At("HEAD"))
-    private void teslamaps$petScale(EnderDragonRenderState state, com.mojang.blaze3d.vertex.PoseStack pose,
-                                    net.minecraft.client.renderer.SubmitNodeCollector collector,
-                                    net.minecraft.client.renderer.state.level.CameraRenderState camera, CallbackInfo ci) {
-        com.teslamaps.features.PetDragon.scale(state, pose);
-    }
 
     @WrapOperation(method = "submit(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/OverlayTexture;pack(FZ)I"))

@@ -74,13 +74,6 @@ public class ChatFilter {
         // with chat tabs on the tab filter hides them, its trackers need them stored
         old("chatFilterSeparators", G_DUNGEON, false, c -> c.chatFilterSeparators
                 && !com.teslamaps.features.chattabs.ChatTabs.enabled(), ChatFilter::isSeparator);
-        old("chatFilterWatcher", G_DUNGEON, true, c -> c.chatFilterWatcher, t -> t.contains("[BOSS] The Watcher:"));
-        old("chatFilterF4Boss", G_DUNGEON, true, c -> c.chatFilterF4Boss, t -> t.contains("[BOSS] Thorn:")
-                || t.toLowerCase().contains("[crowd]"));
-        old("chatFilterOruo", G_SPAM, true, c -> c.chatFilterOruo, t -> t.contains("[STATUE] Oruo the Omniscient:"));
-        old("chatFilterWitherKingHeroes", G_SPAM, true, c -> c.chatFilterWitherKingHeroes, t -> t.contains("[BOSS] Wither King:")
-                && t.contains("I hope you'll become the Heroes I could never be"));
-        old("chatFilterMort", G_SPAM, true, c -> c.chatFilterMort, t -> t.contains("[NPC] Mort:"));
         old("chatFilterProfileInfo", G_SPAM, true, c -> c.chatFilterProfileInfo, t -> t.contains("You are playing on profile:")
                 || t.contains("Profile ID:"));
         old("chatFilterPerkBuffs", G_SPAM, true, c -> c.chatFilterPerkBuffs, t -> {
@@ -108,7 +101,6 @@ public class ChatFilter {
                 p(".*Welcome to the Prototype Lobby.*"),
                 p(".*HYPIXEL.* (?:is hosting a .* tournament!|tournament is live!).*"),
                 p("You are still radiating with Generosity!")));
-        more("chatFilterWelcome", c -> c.chatFilterWelcome, oneOf("Welcome to Hypixel SkyBlock!"));
         more("chatFilterFriendJoin", c -> c.chatFilterFriendJoin, any(p("^(?:Friend|Guild) > \\w{1,16} (?:joined|left)\\.$")));
         more("chatFilterWarpMore", c -> c.chatFilterWarpMore, t -> {
             String s = t.trim();
@@ -144,9 +136,6 @@ public class ChatFilter {
                 "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
                 "Your radio lost signal. There's too many enjoyers on this channel.",
                 "You can't use the wardrobe in combat!"));
-        more("chatFilterBlazetekk", c -> c.chatFilterBlazetekk, oneOf(
-                "Your radio is weak. Find another enjoyer to boost it.", "Your radio signal is strong!",
-                "Your radio lost signal. There's too many enjoyers on this channel."));
         more("chatFilterUselessNotifications", c -> c.chatFilterUselessNotifications, any(
                 p("You tipped \\d+ players? in \\d+(?: different)? games?!"),
                 p("Your previous Plasmaflux Power Orb was removed!"),
@@ -158,12 +147,6 @@ public class ChatFilter {
         more("chatFilterFireSale", c -> c.chatFilterFireSale, t -> {
             String s = t.trim();
             return s.startsWith("♨") || s.contains("FIRE SALE");
-        });
-        more("chatFilterEventLevel", c -> c.chatFilterEventLevel, t -> {
-            String s = t.trim();
-            return s.startsWith("You are now Event Level ")
-                    || (s.startsWith("You earned ") && s.endsWith(" Event Silver!"))
-                    || (s.contains(" LEVEL UP! ") && s.length() < 20);
         });
         more("chatFilterHoppity", c -> c.chatFilterHoppity, t ->
                 (t.startsWith("HOPPITY'S HUNT A ") && t.endsWith(" has appeared!"))
@@ -178,16 +161,8 @@ public class ChatFilter {
                 p("BONUS LOOT! They also received .* from their sacrifice!")));
         more("chatFilterNoPests", c -> c.chatFilterNoPests,
                 oneOf("There are not any Pests on your Garden right now! Keep farming!"));
-        more("chatFilterLegacyItems", c -> c.chatFilterLegacyItems,
-                t -> t.startsWith("You currently have one or more Legacy Items"));
-        more("chatFilterParkour", c -> c.chatFilterParkour, any(
-                p("Started parkour .*!"), p("Finished parkour .* in .*!"),
-                p("Reached checkpoint #.* for parkour .*!"), p("Wrong checkpoint for parkour .*!"),
-                p("You haven't reached all checkpoints for parkour .*!"), p("Cancelled parkour!.*")));
         more("chatFilterTeleportPads", c -> c.chatFilterTeleportPads, any(
                 p("Warped from the .* to the .*!"), p("This Teleport Pad does not have a destination set!")));
-        more("chatFilterChefTed", c -> c.chatFilterChefTed,
-                t -> t.startsWith("[NPC] Feast Chef Ted: Thanks for the donation!"));
         more("chatFilterRewardBundles", c -> c.chatFilterRewardBundles, any(
                 p("You haven't claimed your \\w+ Rewards yet!"), p("Talk to the .+ in the .+!")));
         more("chatFilterWinterGift", c -> c.chatFilterWinterGift, t -> {
@@ -219,13 +194,11 @@ public class ChatFilter {
                 || (t.contains("Wither Essence!") && t.contains("extra essence")));
         old("chatFilterKeys", G_DUNGEON, false, c -> c.chatFilterKeys, t -> t.contains("Key was picked up!")
                 || (t.contains("has obtained") && t.contains("Key")));
-        old("chatFilterReviveStone", G_DUNGEON, false, c -> c.chatFilterReviveStone, t -> t.contains("has obtained") && t.contains("Revive Stone"));
         old("chatFilterDoors", G_DUNGEON, false, c -> c.chatFilterDoors, t -> t.contains(" door!")
                 && (t.contains("opened a") || t.contains("opened the")));
         old("chatFilterWish", G_DUNGEON, false, c -> c.chatFilterWish, t -> t.contains("Wish healed you for"));
         old("chatFilterPickups", G_DUNGEON, false, c -> c.chatFilterPickups, t -> t.contains("was picked up!") || t.contains("has obtained"));
 
-        old("chatFilterBlocksInWay", G_COMBAT, false, c -> c.chatFilterBlocksInWay, t -> t.contains("There are blocks in the way!"));
         old("chatFilterUltReady", G_COMBAT, false, c -> c.chatFilterUltReady, t -> t.contains("is ready to use! Press DROP to activate it!"));
         old("chatFilterAoeDamage", G_COMBAT, false, c -> c.chatFilterAoeDamage, t -> (t.contains("enemies for") || t.contains("enemy for")) && t.contains("damage"));
         old("chatFilterGuildXp", G_COMBAT, false, c -> c.chatFilterGuildXp, t -> t.contains("from playing SkyBlock!"));
@@ -270,7 +243,6 @@ public class ChatFilter {
         // belongs to the screenshot manager, which prints its own line with buttons,
         // so it is not tied to the chat filter master switch
         if (c.screenshotHideVanillaMessage && t.startsWith("Saved screenshot as ")) return SCREENSHOT;
-        if (c.chickenHeadHideChat && ChickenHeadTimer.hideLine(t)) return SCREENSHOT;
         if (c.mythoHideChat && com.teslamaps.features.events.MythologicalTracker.hideLine(t)) return SCREENSHOT;
 
         if (!c.chatFilterEnabled) return null;

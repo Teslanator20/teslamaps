@@ -64,9 +64,7 @@ public class MapRenderer {
         if (mc.player == null || mc.level == null) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.mapEnabled) return;
-        if (com.teslamaps.adm.Adm.overrides(config.admMap)) return;
         if (config.onlyShowInDungeon && !DungeonManager.isInDungeon()) return;
-        if (config.mapOnlyInBoss && !DungeonManager.isInBoss()) return;
         if (config.mapHideInBoss && isInBossArea(mc)) return;
         renderAt(context, config.mapX, config.mapY, config.mapScale, false);
         hudX = lastMapX; hudY = lastMapY; hudW = lastMapW; hudH = lastMapH;
@@ -112,11 +110,6 @@ public class MapRenderer {
 
         if (config.showMapBackground || leapMode) {
             drawBackground(context, baseX, baseY, mapWidth, totalHeight);
-        }
-        if (config.mapBgImage) {
-            int in = Math.round(config.mapBgImageInset * scale);
-            com.teslamaps.render.gui.MapImage.draw(context, config.mapBgImageName, baseX + in, baseY + in,
-                    mapWidth - 2 * in, totalHeight - 2 * in, config.mapBgImageAlpha);
         }
         boolean cached = config.mapTextureCache && !leapMode;
         if (config.mapHypixelFallback && !(cached && config.mapFallbackTyped)) {
@@ -1157,18 +1150,13 @@ public class MapRenderer {
 
     private static boolean typedUndiscovered() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.mapDarkenUndiscovered || c.mapGrayUndiscovered;
+        return c.mapDarkenUndiscovered;
     }
 
-    // FunnyMap renderRooms: darken(1 - percent), then grayscale
+    // FunnyMap renderRooms: darken(1 - percent)
     private static int undiscoveredColor(int color) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (c.mapDarkenUndiscovered) color = darkenColor(color, 1f - c.mapDarkenPercent);
-        if (c.mapGrayUndiscovered) {
-            int gray = Math.round(((color >> 16) & 0xFF) * 0.299f + ((color >> 8) & 0xFF) * 0.587f + (color & 0xFF) * 0.114f);
-            color = (color & 0xFF000000) | (gray << 16) | (gray << 8) | gray;
-        }
-        return color;
+        return darkenColor(color, 1f - c.mapDarkenPercent);
     }
 
     // IllegalMap colorShift

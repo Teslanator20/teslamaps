@@ -160,7 +160,6 @@ public class RoomScanner {
 
                 detectAndSetRotation(room);
 
-                com.teslamaps.dungeon.RareRoomAlert.onRoomDiscovered(room);
 
                 TeslaMaps.LOGGER.debug("[ScanDebug] [{},{}] Created NEW room '{}' core={} rotation={}",
                         gridX, gridZ, roomData.getName(), coreHash, room.getRotation());

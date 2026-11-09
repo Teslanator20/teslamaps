@@ -180,7 +180,7 @@ public class MapConfigScreen extends Screen {
     }
 
     public static MapConfigScreen open(View view) {
-        MapConfigScreen s = TeslaMapsConfig.get().configColumnLayout ? new ColumnConfigScreen() : new MapConfigScreen();
+        MapConfigScreen s = new MapConfigScreen();
         s.view = view;
         return s;
     }
@@ -414,7 +414,6 @@ public class MapConfigScreen extends Screen {
     @Override
     protected void init() {
         buildCategories();
-        GuiSounds.resetHover();
 
         String remembered = rememberedCategory();
         String group = groupOf(remembered);
@@ -594,10 +593,10 @@ public class MapConfigScreen extends Screen {
                 "Show Glow", "Filled ESP (vs Outline)", "Box ESP (Hitbox)",
                 "Starred Mob ESP", "Tracer When Few Left", "Fel ESP", "Sniper ESP", "Shadow Assassin ESP",
                 "Dungeon Bat ESP", "Dungeon Bat Tracers", "Wither Key ESP", "Key Tracers",
-                "Wither ESP", "Wither ESP Filled", "Wither ESP Depth Check", "Boss ESP", "Corpse ESP", "Type Colors",
+                "Wither ESP", "Wither ESP Filled", "Wither ESP Depth Check", "Boss ESP",
                 "Door ESP", "Door Tracers", "Only Show Next Door",
                 "Livid Finder", "Livid Tracer", "Mimic Chest ESP", "Mimic Chest Tracers",
-                "Highlight Teammates", "Invisible Armor Stand ESP",
+                "Highlight Teammates",
                 "Dropped Item ESP", "Item Pickup Readiness",
                 "Miniboss ESP", "Enable Auto GFS", "Auto Wish (Healer Ult)", "Critter ESP",
                 "Critter ESP (Safari)", "Bee Nest ESP", "Exploding Frog ESP", "Hidden Critter Walls",
@@ -1100,7 +1099,6 @@ public class MapConfigScreen extends Screen {
                 boolean secHover = mouseX < SIDEBAR_WIDTH && mouseY >= rowY && mouseY < rowY + SECTION_HEADER_H
                         && mouseY >= sbTop && mouseY < sbBottom;
                 if (secHover) {
-                    GuiSounds.hover("sec:" + sec.getKey());
                     context.fill(5, rowY + 1, SIDEBAR_WIDTH - 5, rowY + SECTION_HEADER_H - 1, GuiStyle.rowHover());
                 }
                 int secColor = secHover ? 0xFFFFFFFF : GuiStyle.textFaint();
@@ -1119,7 +1117,6 @@ public class MapConfigScreen extends Screen {
                 boolean selected = category.equals(selectedCategory) && searchQuery.isEmpty();
                 boolean hovered = mouseX < SIDEBAR_WIDTH && mouseY >= rowY && mouseY < rowY + CATEGORY_ROW_H
                         && mouseY >= sbTop && mouseY < sbBottom;
-                if (hovered) GuiSounds.hover(category);
                 if (rowY + CATEGORY_ROW_H > sbTop && rowY < sbBottom) {
                     if (selected) context.fill(5, rowY, SIDEBAR_WIDTH - 5, rowY + CATEGORY_ROW_H, GuiStyle.rowSelected());
                     else if (hovered) context.fill(5, rowY, SIDEBAR_WIDTH - 5, rowY + CATEGORY_ROW_H, GuiStyle.rowHover());
@@ -1142,19 +1139,16 @@ public class MapConfigScreen extends Screen {
         }
 
         boolean shortcutHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= shortcutBtnY && mouseY < shortcutBtnY + 22;
-        if (shortcutHovered) GuiSounds.hover("btn:shortcut");
         GuiStyle.panel(context, 8, shortcutBtnY, SIDEBAR_WIDTH - 16, 22, shortcutHovered);
         drawBorder(context, 8, shortcutBtnY, SIDEBAR_WIDTH - 16, 22, shortcutHovered ? GuiStyle.accent() : GuiStyle.border());
         context.centeredText(font, "/tmap shortcut", SIDEBAR_WIDTH / 2, shortcutBtnY + 7, GuiStyle.textDim());
 
         boolean msgHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= msgBtnY && mouseY < msgBtnY + 22;
-        if (msgHovered) GuiSounds.hover("btn:hotkeys");
         GuiStyle.panel(context, 8, msgBtnY, SIDEBAR_WIDTH - 16, 22, msgHovered);
         drawBorder(context, 8, msgBtnY, SIDEBAR_WIDTH - 16, 22, msgHovered ? GuiStyle.accent() : GuiStyle.border());
         context.centeredText(font, "/tmap hotkeys", SIDEBAR_WIDTH / 2, msgBtnY + 7, GuiStyle.textDim());
 
         boolean tmapHovered = mouseX >= 8 && mouseX < SIDEBAR_WIDTH - 8 && mouseY >= tmapBtnY && mouseY < tmapBtnY + 22;
-        if (tmapHovered) GuiSounds.hover("btn:gui");
         GuiStyle.panel(context, 8, tmapBtnY, SIDEBAR_WIDTH - 16, 22, tmapHovered);
         drawBorder(context, 8, tmapBtnY, SIDEBAR_WIDTH - 16, 22, tmapHovered ? GuiStyle.accent() : GuiStyle.border());
         context.centeredText(font, "/tmap gui", SIDEBAR_WIDTH / 2, tmapBtnY + 7, GuiStyle.textDim());
@@ -1259,12 +1253,10 @@ public class MapConfigScreen extends Screen {
         context.fill(SIDEBAR_WIDTH, this.height - 40, this.width, this.height, GuiStyle.background());
 
         boolean doneHovered = mouseX >= doneX && mouseX < doneX + 60 && mouseY >= doneY && mouseY < doneY + 22;
-        if (doneHovered) GuiSounds.hover("btn:done");
         GuiStyle.panel(context, doneX, doneY, 60, 22, doneHovered);
         drawBorder(context, doneX, doneY, 60, 22, doneHovered ? GuiStyle.accent() : GuiStyle.border());
         context.centeredText(font, "Done", doneX + 30, doneY + 7, 0xFFFFFFFF);
 
-        GuiSounds.endFrame();
         wasMouseDown = isMouseDown; // Update AFTER processing
 
         super.extractRenderState(context, mouseX, mouseY, delta);
@@ -1304,7 +1296,6 @@ public class MapConfigScreen extends Screen {
         }
         TeslaMapsConfig.save();
         GuiSounds.close();
-        GuiSounds.resetHover();
         if (returnTo != null) { minecraft.setScreen(returnTo); return; }
         super.onClose();
     }
@@ -1493,7 +1484,6 @@ public class MapConfigScreen extends Screen {
                 screen.scrollOffset = Math.min(screen.scrollOffset, screen.maxScroll);
             }
             if (hovered) {
-                GuiSounds.hover(this);
                 TeslaGui.roundedRect(ctx, rowX, y + 1, rowRight - rowX, getHeight() - 3, 5f,
                         TeslaGui.withAlpha(0xFFFFFF, 16));
             }
@@ -1559,7 +1549,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -1641,7 +1630,6 @@ public class MapConfigScreen extends Screen {
             int btnH = 22;
 
             boolean hovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
-            if (hovered) GuiSounds.hover(this);
             if (clicked && hovered) { screen.clickHandled = true; GuiSounds.press(); action.run(); }
 
             GuiStyle.panel(ctx, btnX, btnY, btnW, btnH, hovered);
@@ -1661,12 +1649,9 @@ public class MapConfigScreen extends Screen {
         private int x, width;
         private final String[] labels;
         private final Runnable[] actions;
-        private final Object[] hoverKeys;
 
         public ButtonRowEntry(int x, int w, String[] labels, Runnable[] actions) {
             this.x = x; this.width = w; this.labels = labels; this.actions = actions;
-            this.hoverKeys = new Object[labels.length];
-            for (int i = 0; i < labels.length; i++) hoverKeys[i] = new Object();
         }
 
         @Override public int getHeight() { return 28; }
@@ -1685,7 +1670,6 @@ public class MapConfigScreen extends Screen {
             for (int i = 0; i < labels.length; i++) {
                 int btnX = x + 8 + i * (btnW + gap);
                 boolean hovered = mouseX >= btnX && mouseX < btnX + btnW && mouseY >= btnY && mouseY < btnY + btnH;
-                if (hovered) GuiSounds.hover(hoverKeys[i]);
                 if (clicked && hovered && !screen.clickHandled) {
                     screen.clickHandled = true;
                     GuiSounds.press();
@@ -1708,13 +1692,10 @@ public class MapConfigScreen extends Screen {
 
         private int x, width;
         private final List<String> names;
-        private final Object[] hoverKeys;
 
         public ProfileTilesEntry(int x, int w) {
             this.x = x; this.width = w;
             this.names = new ArrayList<>(com.teslamaps.config.ConfigProfiles.list());
-            this.hoverKeys = new Object[names.size()];
-            for (int i = 0; i < names.size(); i++) hoverKeys[i] = new Object();
         }
 
         private int columns() {
@@ -1753,7 +1734,6 @@ public class MapConfigScreen extends Screen {
                 int delX = tileX + tileW - 15;
                 boolean onDelete = deletable && hovered && mouseX >= delX - 2;
 
-                if (hovered) GuiSounds.hover(hoverKeys[i]);
                 if (clicked && hovered && !screen.clickHandled) {
                     screen.clickHandled = true;
                     if (onDelete) {
@@ -1816,7 +1796,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -1859,7 +1838,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -1951,7 +1929,6 @@ public class MapConfigScreen extends Screen {
             boolean isExpanded = expandedColorEntry == this;
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -2188,7 +2165,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -2349,7 +2325,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -2425,7 +2400,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
 
@@ -2473,7 +2447,6 @@ public class MapConfigScreen extends Screen {
         private String colorText = "";
         private boolean typingColor = false;
         private long clearArmed = 0;
-        private final Object[] actionHover = {new Object(), new Object()};
 
         public SearchListEntry(int x, int w, String label, Supplier<List<String>> options,
                                java.util.function.Predicate<String> selected, Consumer<String> onToggle) {
@@ -2587,7 +2560,6 @@ public class MapConfigScreen extends Screen {
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
             boolean hovered = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + ROW_HEIGHT;
             if (hovered) {
-                GuiSounds.hover(this);
                 ctx.fill(x, y, x + width, y + ROW_HEIGHT, GuiStyle.rowHover());
             }
             List<String> all = rows();
@@ -2696,7 +2668,6 @@ public class MapConfigScreen extends Screen {
             for (int i = 0; i < labels.size(); i++) {
                 int bx = left + i * (bw + gap);
                 boolean bh = mouseX >= bx && mouseX < bx + bw && mouseY >= below && mouseY < below + 18;
-                if (bh) GuiSounds.hover(actionHover[i]);
                 GuiStyle.panel(ctx, bx, below, bw, 18, bh);
                 drawBorder(ctx, bx, below, bw, 18, bh ? GuiStyle.borderHover() : GuiStyle.border());
                 ctx.centeredText(screen.font, labels.get(i), bx + bw / 2, below + 5, GuiStyle.text());

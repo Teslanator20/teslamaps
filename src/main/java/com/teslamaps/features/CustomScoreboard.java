@@ -78,9 +78,6 @@ public final class CustomScoreboard {
                     b.toggle("Show Purse Instead Of Piggy", () -> c.scoreboardPiggyToPurse, v -> { c.scoreboardPiggyToPurse = v; ScoreboardText.clear(); })
                             .desc("Sidebar line \"Piggy:\" reads \"Purse:\" again. Vanilla and custom scoreboard.")
                             .tags("piggy bank", "purse", "sidebar");
-                    b.toggle("Color Month Names", () -> c.scoreboardColorMonths, v -> { c.scoreboardColorMonths = v; ScoreboardText.clear(); })
-                            .desc("SkyBlock date line colored by season: spring pink, summer gold, autumn yellow, winter blue.")
-                            .tags("season", "date", "sidebar");
                 });
         HudElementRegistry.replaceElement(VanillaHudElements.SCOREBOARD, original ->
                 (ctx, delta) -> { if (!on() || com.teslamaps.features.GlobalRender.off()) original.extractRenderState(ctx, delta); });

@@ -52,7 +52,6 @@ public class WaypointRoutesScreen extends Screen {
         dungeonX = saveX + SAVE_W + 8;
         doneX = panelX + PANEL_W - 16 - DONE_W;
 
-        GuiSounds.resetHover();
         rebuild();
         ScreenFit.clamp(this);
     }
@@ -223,14 +222,12 @@ public class WaypointRoutesScreen extends Screen {
         flatButton(ctx, dungeonX, DUNGEON_W, "Reload Dungeon", mouseX, mouseY);
         flatButton(ctx, doneX, DONE_W, "Done", mouseX, mouseY);
 
-        GuiSounds.endFrame();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
     private void drawRow(GuiGraphicsExtractor ctx, String name, int ry, int mouseX, int mouseY, int idx) {
         boolean rowHovered = mouseX >= listX && mouseX < listX + contentW && mouseY >= ry && mouseY < ry + ROW_H;
         if (rowHovered) {
-            GuiSounds.hover("route:" + idx);
             ctx.fill(listX, ry, listX + contentW, ry + ROW_H, GuiStyle.rowHover());
         }
 
@@ -268,7 +265,6 @@ public class WaypointRoutesScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int w, String label, int mouseX, int mouseY) {
         boolean hovered = in(mouseX, mouseY, x, footerY, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("route:" + label);
         GuiStyle.panel(ctx, x, footerY, w, FOOTER_H, hovered);
         drawBorder(ctx, x, footerY, w, FOOTER_H, hovered ? GuiStyle.accent() : GuiStyle.border());
         ctx.centeredText(this.font, label, x + w / 2, footerY + 7, GuiStyle.text());

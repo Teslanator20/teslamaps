@@ -55,7 +55,6 @@ public class EspListScreen extends Screen {
         defaultX = addX + ADD_W + 8;
         doneX = panelX + PANEL_W - 16 - DONE_W;
 
-        GuiSounds.resetHover();
         rebuild();
 
         ScreenFit.clamp(this);
@@ -216,7 +215,6 @@ public class EspListScreen extends Screen {
         drawScrollbar(ctx, b.size());
         drawFooter(ctx, mouseX, mouseY);
 
-        GuiSounds.endFrame();
 
         super.extractRenderState(ctx, mouseX, mouseY, delta);
 
@@ -238,7 +236,6 @@ public class EspListScreen extends Screen {
         String entry = list().get(idx);
         boolean rowHovered = mouseX >= listX && mouseX < listX + contentW && mouseY >= ry && mouseY < ry + ROW_H;
         if (rowHovered) {
-            GuiSounds.hover("esp:" + idx);
             ctx.fill(listX, ry, listX + contentW, ry + ROW_H, GuiStyle.rowHover());
         }
 
@@ -284,7 +281,6 @@ public class EspListScreen extends Screen {
         flatButton(ctx, doneX, DONE_W, "Done", mouseX, mouseY, GuiStyle.text());
 
         boolean hovered = in(mouseX, mouseY, defaultX, footerY, DEFAULT_W, FOOTER_H);
-        if (hovered) GuiSounds.hover("esp:default");
         GuiStyle.panel(ctx, defaultX, footerY, DEFAULT_W, FOOTER_H, hovered);
         drawBorder(ctx, defaultX, footerY, DEFAULT_W, FOOTER_H, hovered ? GuiStyle.accent() : GuiStyle.border());
         ctx.text(this.font, "Default", defaultX + 10, footerY + 7, GuiStyle.textDim());
@@ -295,7 +291,6 @@ public class EspListScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int w, String label, int mouseX, int mouseY, int textColor) {
         boolean hovered = in(mouseX, mouseY, x, footerY, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("esp:" + label);
         GuiStyle.panel(ctx, x, footerY, w, FOOTER_H, hovered);
         drawBorder(ctx, x, footerY, w, FOOTER_H, hovered ? GuiStyle.accent() : GuiStyle.border());
         ctx.centeredText(this.font, label, x + w / 2, footerY + 7, textColor);

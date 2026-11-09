@@ -82,15 +82,11 @@ public final class SecretsWaypointsCategory {
         b.label("Add Waypoint #2");
         b.keybind("Keybind #2 (look at block)", () -> config.waypointAdd2Key, v -> config.waypointAdd2Key = v);
         b.color("Color #2", () -> config.waypointAdd2Color, v -> config.waypointAdd2Color = v);
-        b.toggle("Filled Box #2", () -> config.waypointAdd2Filled, v -> config.waypointAdd2Filled = v);
-        b.toggle("Through Walls #2", () -> config.waypointAdd2ThroughWalls, v -> config.waypointAdd2ThroughWalls = v);
         b.dropdown("Type #2", com.teslamaps.dungeon.DungeonWaypoints.TYPES, () -> config.waypointAdd2Type, v -> config.waypointAdd2Type = v);
 
         b.label("Add Waypoint #3");
         b.keybind("Keybind #3 (look at block)", () -> config.waypointAdd3Key, v -> config.waypointAdd3Key = v);
         b.color("Color #3", () -> config.waypointAdd3Color, v -> config.waypointAdd3Color = v);
-        b.toggle("Filled Box #3", () -> config.waypointAdd3Filled, v -> config.waypointAdd3Filled = v);
-        b.toggle("Through Walls #3", () -> config.waypointAdd3ThroughWalls, v -> config.waypointAdd3ThroughWalls = v);
         b.dropdown("Type #3", com.teslamaps.dungeon.DungeonWaypoints.TYPES, () -> config.waypointAdd3Type, v -> config.waypointAdd3Type = v);
 
         b.label("Remove / Clear Keybinds");

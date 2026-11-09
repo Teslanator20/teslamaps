@@ -42,8 +42,6 @@ public final class TorrhusCanyonCategory {
         b.color("  Color", () -> config.colorCritterDrybark, v -> config.colorCritterDrybark = v);
         b.toggle("Firefox ESP", () -> config.critterFirefox, v -> config.critterFirefox = v);
         b.color("  Color", () -> config.colorCritterFirefox, v -> config.colorCritterFirefox = v);
-        b.toggle("Grizzly Bear ESP", () -> config.critterGrizzly, v -> config.critterGrizzly = v);
-        b.color("  Color", () -> config.colorCritterGrizzly, v -> config.colorCritterGrizzly = v);
         b.toggle("Groundhog ESP", () -> config.critterGroundhog, v -> config.critterGroundhog = v);
         b.color("  Color", () -> config.colorCritterGroundhog, v -> config.colorCritterGroundhog = v);
         b.toggle("Hideonsun ESP", () -> config.critterHideonsun, v -> config.critterHideonsun = v);

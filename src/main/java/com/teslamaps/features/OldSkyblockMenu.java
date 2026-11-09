@@ -66,7 +66,7 @@ public class OldSkyblockMenu {
 
     public static void register() {
         for (Btn b : BTNS) bySlot[b.slot] = b;
-        Feature.of("OldSkyblockMenu").section("Inventory").when(() -> cfg().oldSkyblockMenu || cfg().cfMenuShortcut)
+        Feature.of("OldSkyblockMenu").section("Inventory").when(() -> cfg().oldSkyblockMenu)
                 .tick(OldSkyblockMenu::tick)
                 .config("Inventory", b -> {
                     b.toggle("Old SkyBlock Menu Shortcuts", () -> cfg().oldSkyblockMenu, v -> cfg().oldSkyblockMenu = v)
@@ -93,7 +93,6 @@ public class OldSkyblockMenu {
         builtCookie = cookie;
         for (Btn b : BTNS) {
             if (b.slot >= menu.slots.size()) { shown[b.slot] = null; continue; }
-            if (!cfg().oldSkyblockMenu && b.slot != 16) { shown[b.slot] = null; continue; }
             Slot s = menu.slots.get(b.slot);
             if (s.container instanceof Inventory || !isPane(s.getItem())) { shown[b.slot] = null; continue; }
             if (rebuild || shown[b.slot] == null) shown[b.slot] = build(b, cookie, mp);
@@ -145,9 +144,9 @@ public class OldSkyblockMenu {
 
     /** Stack to draw instead of the slot's own, or null. Runs per slot per frame: array reads only. */
     public static ItemStack replacement(Slot slot) {
-        if (!open || !(cfg().oldSkyblockMenu || cfg().cfMenuShortcut)) return null;
+        if (!open || !cfg().oldSkyblockMenu) return null;
         int i = slot.index;
-        if (i < 0 || i >= 54 || bySlot[i] == null || (!cfg().oldSkyblockMenu && i != 16)) return null;
+        if (i < 0 || i >= 54 || bySlot[i] == null) return null;
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs) || cs.getMenu().containerId != openFor) return null;
         if (slot.container instanceof Inventory) return null;

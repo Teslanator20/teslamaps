@@ -34,7 +34,6 @@ public final class ShardsCategory {
         b.toggle("Only Current Menu", () -> config.shardOnlyCurrent, v -> config.shardOnlyCurrent = v);
         b.info("Only the shards on the open bazaar / attribute page");
         b.toggle("Search Box In Panel", () -> config.shardPanelSearch, v -> config.shardPanelSearch = v);
-        b.toggle("Option Buttons In Panel", () -> config.shardPanelButtons, v -> config.shardPanelButtons = v);
         b.toggle("Track Fusions", () -> config.shardFusionTracking, v -> config.shardFusionTracking = v)
                 .desc("Open Confirm Fusion: the FUSION! line takes the inputs off and adds the output.");
         b.toggle("Fusion Display", () -> config.fusionDisplay, v -> config.fusionDisplay = v).fresh()
@@ -48,7 +47,6 @@ public final class ShardsCategory {
         b.toggle("Tier As Stack Size", () -> config.shardTierStack, v -> config.shardTierStack = v);
         b.toggle("Tier Color Scale", () -> config.shardTierColors, v -> config.shardTierColors = v);
         b.info("0 red, 1-5 yellow, 6-9 green, 10 gold");
-        b.toggle("Hide Maxed Tier", () -> config.shardHideMaxedTier, v -> config.shardHideMaxedTier = v);
         b.toggle("Highlight Maxed / Unfinished", () -> config.shardHighlightProgress, v -> config.shardHighlightProgress = v);
         b.toggle("Highlight Disabled Attributes", () -> config.shardHighlightDisabled, v -> config.shardHighlightDisabled = v);
         b.info("Click a row to look the shard up on the bazaar");

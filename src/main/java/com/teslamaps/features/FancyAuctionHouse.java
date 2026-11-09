@@ -1,7 +1,7 @@
 package com.teslamaps.features;
 
 // Lean port of Skyblocker's skyblock/auction (AuctionBrowserScreen, AuctionViewScreen, EditBidPopup):
-// drawn over the Hypixel chest like FancyPartyFinder, every button clicks the real slot
+// drawn over the Hypixel chest, every button clicks the real slot
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.mixin.AbstractSignEditScreenAccessor;
 import com.teslamaps.registry.Feature;

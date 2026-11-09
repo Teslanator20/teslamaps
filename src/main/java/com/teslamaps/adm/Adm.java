@@ -26,13 +26,11 @@ public final class Adm {
         FeatureRegistry.category("ADM Leap & Recore", SECTION, false);
         FeatureRegistry.category("ADM Terminals & Practice", SECTION, false);
         FeatureRegistry.category("ADM Highlight & BR", SECTION, false);
-        FeatureRegistry.category("ADM Recorder", SECTION, false);
         FeatureRegistry.category("ADM Simulator", SECTION, false);
         com.teslamaps.adm.misc.AdmMisc.register();
         com.teslamaps.adm.map.AdmMap.register();
         com.teslamaps.adm.leap.AdmLeap.register();
         com.teslamaps.adm.practice.AdmPractice.register();
-        com.teslamaps.adm.adr.AdmAdr.register();
         com.teslamaps.adm.sim.AdmSim.register();
     }
 }

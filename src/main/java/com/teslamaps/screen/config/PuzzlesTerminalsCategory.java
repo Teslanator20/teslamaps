@@ -94,29 +94,12 @@ public final class PuzzlesTerminalsCategory {
         b.slider("    Completion Pitch", 0.5f, 2f, () -> config.terminalCompletePitch, v -> config.terminalCompletePitch = v, 2).fresh();
         b.toggle("    Skip Click Sound On Last Click", () -> config.terminalCancelLastClick, v -> config.terminalCancelLastClick = v).fresh();
         b.toggle("  Pling On Gate / Core Open", () -> config.terminalGateSound, v -> config.terminalGateSound = v).fresh();
-        b.toggle("Solver Debug Overlay", () -> config.terminalSolverDebug, v -> config.terminalSolverDebug = v);
         b.label("Terminal Simulator");
         b.slider("Simulated Ping (ms)", 0f, 500f,
                 () -> (float) config.termSimPing, v -> config.termSimPing = Math.round(v), 0);
-        b.toggle("Skip First Click Prot In Termsim", () -> config.termSimDisableFirstClickProt, v -> config.termSimDisableFirstClickProt = v);
         b.button("Open Terminal Simulator",
                 () -> com.teslamaps.features.TerminalSimulator.open());
         b.label("Dungeon Puzzles");
-        b.toggle("Toggle All Puzzles", () -> config.solveBlaze && config.blazeDoneMessage && config.solveThreeWeirdos && config.solveTicTacToe && config.solveCreeperBeams && config.creeperBeamsTracers && config.solveBoulder && config.showAllBoulderClicks && config.solveQuiz && config.quizBeacon && config.solveTPMaze && config.solveWaterBoard && config.waterBoardTracers, v -> {
-            config.solveBlaze = v;
-            config.blazeDoneMessage = v;
-            config.solveThreeWeirdos = v;
-            config.solveTicTacToe = v;
-            config.solveCreeperBeams = v;
-            config.creeperBeamsTracers = v;
-            config.solveBoulder = v;
-            config.showAllBoulderClicks = v;
-            config.solveQuiz = v;
-            config.quizBeacon = v;
-            config.solveTPMaze = v;
-            config.solveWaterBoard = v;
-            config.waterBoardTracers = v;
-        });
         b.toggle("Blaze Solver", () -> config.solveBlaze, v -> config.solveBlaze = v);
         b.toggle("  Modern Blaze Solver", () -> config.modernBlazeSolver, v -> config.modernBlazeSolver = v);
         b.toggle("  Blaze Done Message", () -> config.blazeDoneMessage, v -> config.blazeDoneMessage = v);

@@ -44,7 +44,6 @@ public class EspRuleScreen extends Screen {
         listY = panelY + 46;
         contentW = PANEL_W - 32;
         footerY = panelY + PANEL_H - 30;
-        GuiSounds.resetHover();
         rebuild();
         ScreenFit.clamp(this);
     }
@@ -217,7 +216,6 @@ public class EspRuleScreen extends Screen {
             drawEditor(ctx, mouseX, mouseY);
         }
         flatButton(ctx, panelX + PANEL_W - 16 - 60, footerY, 60, editing == null ? "Done" : "Back", mouseX, mouseY);
-        GuiSounds.endFrame();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
         if (editing != null && typeBox != null && !suggestions.isEmpty()) {
             int sy = typeBox.getY() + 16;
@@ -281,7 +279,6 @@ public class EspRuleScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int y, int w, String label, int mouseX, int mouseY) {
         boolean hovered = in(mouseX, mouseY, x, y, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("esprule:" + label);
         GuiStyle.panel(ctx, x, y, w, FOOTER_H, hovered);
         ctx.centeredText(font, label, x + w / 2, y + 6, GuiStyle.text());
     }

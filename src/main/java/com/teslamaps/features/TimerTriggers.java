@@ -41,7 +41,6 @@ public class TimerTriggers {
             return proc >= 0 && tnow() - proc < cd;
         }
         void tick(boolean enabled, String mode, int marker) {
-            if (com.teslamaps.adm.misc.AdmInvincibility.overrides()) { DungeonTimers.clear(key); return; }
             long dt = proc < 0 ? 0 : tnow() - proc;
             if (proc >= 0 && dt >= cd + READY_LINGER) proc = -1;
             boolean active = proc >= 0 && dt < imm;
@@ -135,10 +134,6 @@ public class TimerTriggers {
         if (m.contains("[BOSS] Maxor: WELL! WELL! WELL! LOOK WHO'S HERE!")) { bossStartTicks = 167; bossStartMax = 167; }
         if (m.contains("[BOSS] Maxor: I'M TOO YOUNG TO DIE AGAIN!")) { bossStartTicks = 120; bossStartMax = 120; }
         if (m.contains("[NPC] Mort: Here, I found this map when I first entered the dungeon.")) runStartMs = now();
-        if (m.contains("You have teleported to ")) {
-            String t = com.teslamaps.utils.StringUtil.strip(m).trim();
-            if (t.startsWith("You have teleported to ") && t.endsWith("!")) ownLeapAt = now();
-        }
     }
 
     // Ported from NoammAddons' F7Titles.kt
@@ -163,66 +158,6 @@ public class TimerTriggers {
             });
         }
         return true;
-    }
-
-    // Ported from Devonian's LeapCounter.kt
-    private record LeapSpot(double x, double y, double z, double r, int need) {}
-    private static final LeapSpot[] LEAP_SPOTS = {
-            new LeapSpot(58.5, 109.0, 131.5, 1.5, 4),
-            new LeapSpot(60.5, 132.0, 139.0, 2.0, 4),
-            new LeapSpot(69.5, 109.0, 122.5, 1.0, 4),
-            new LeapSpot(48.5, 109.0, 122.5, 1.0, 4),
-            new LeapSpot(54.5, 115.0, 50.5, 1.5, 4),
-            new LeapSpot(2.5, 109.0, 104.5, 3.0, 3),
-            new LeapSpot(18.5, 121.5, 92.0, 2.0, 3),
-            new LeapSpot(54.5, 5.0, 76.5, 8.0, 4),
-    };
-    private static final boolean[] leapSpotDone = new boolean[LEAP_SPOTS.length];
-    private static final java.util.Set<String> leapedAt = new java.util.HashSet<>();
-    private static int leapSpot = -1;
-    private static long ownLeapAt = -1;
-
-    private static void tickLeapSpots(Minecraft mc, TeslaMapsConfig c) {
-        if (ownLeapAt > 0 && now() - ownLeapAt < 3000) return;
-        int idx = -1;
-        for (int i = 0; i < LEAP_SPOTS.length; i++) {
-            LeapSpot sp = LEAP_SPOTS[i];
-            if (mc.player.distanceToSqr(sp.x, sp.y, sp.z) <= sp.r * sp.r) idx = i;
-        }
-        if (idx < 0 || leapSpotDone[idx]) {
-            leapedAt.clear();
-            leapSpot = -1;
-            DungeonTimers.clear("leaps");
-            return;
-        }
-        if (idx != leapSpot) { leapedAt.clear(); leapSpot = idx; }
-        LeapSpot sp = LEAP_SPOTS[idx];
-        String self = mc.player.getName().getString();
-        for (var dp : com.teslamaps.player.PlayerTracker.getPlayers()) {
-            if (dp.getName().equals(self) || dp.getUuid() == null) continue;
-            var pl = mc.level.getPlayerByUUID(dp.getUuid());
-            if (pl == null || pl == mc.player) continue;
-            if (pl.distanceToSqr(sp.x, sp.y, sp.z) <= sp.r * sp.r) leapedAt.add(dp.getName());
-        }
-        int n = leapedAt.size();
-        if (n == 0) { DungeonTimers.clear("leaps"); return; }
-        if (n >= sp.need) {
-            leapSpotDone[idx] = true;
-            if (c.leapCounterAlert) {
-                mc.gui.setTimes(0, 20, 5);
-                mc.gui.setTitle(Component.literal("§9" + sp.need + " have leaped"));
-                mc.player.playSound(net.minecraft.sounds.SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
-            }
-        }
-        String col = n >= sp.need ? "§a" : n * 2 >= sp.need ? "§6" : "§c";
-        DungeonTimers.set("leaps", "§bLeaps§f: " + col + n + "§7/" + sp.need);
-    }
-
-    private static void resetLeapSpots() {
-        java.util.Arrays.fill(leapSpotDone, false);
-        leapedAt.clear();
-        leapSpot = -1;
-        ownLeapAt = -1;
     }
 
     private static final java.util.regex.Pattern ENTERED =
@@ -285,7 +220,6 @@ public class TimerTriggers {
     }
 
     private static void procced(Mask mask, String name) {
-        if (com.teslamaps.adm.misc.AdmInvincibility.overrides()) return;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         if (c.invincibilityTitle) {
@@ -321,7 +255,6 @@ public class TimerTriggers {
 
     /** Cooldown drawn over the mask items in a container slot. */
     public static void drawSlot(net.minecraft.client.gui.GuiGraphicsExtractor g, net.minecraft.world.inventory.Slot slot) {
-        if (com.teslamaps.adm.misc.AdmInvincibility.overrides()) { com.teslamaps.adm.misc.AdmInvincibility.drawSlot(g, slot); return; }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.invincibilityItemOverlay || !c.invincibilityTimer || !c.section("Timers")) return;
         if (BONZO.proc < 0 && SPIRIT.proc < 0 && PHOENIX.proc < 0) return;
@@ -349,7 +282,6 @@ public class TimerTriggers {
     public static void tick() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        com.teslamaps.dungeon.DungeonFloor f = com.teslamaps.dungeon.DungeonManager.getCurrentFloor();
         long serverTick = com.teslamaps.utils.ServerTickTimer.now();
         int dt = lastServerTick < 0 ? 1 : (int) Math.max(0, Math.min(40, serverTick - lastServerTick));
         lastServerTick = serverTick;
@@ -361,24 +293,6 @@ public class TimerTriggers {
             purplePadTicks = Math.max(0, purplePadTicks - dt);
             show("purplepad", "§dPurple§f: ", "§d" + fmtTicks(purplePadTicks));
         } else { purplePadTicks = 0; hide("purplepad"); }
-
-        // only in the boss arena (off the room grid) - showed a useless 0/4 for the whole clear before
-        boolean leapArea = c.leapCounter && f != null && f.getLevel() == 7 && mc.player != null && mc.level != null
-                && com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
-        if (leapArea && c.leapCounterSpots) {
-            tickLeapSpots(mc, c);
-        } else if (leapArea) {
-            int n = 0;
-            int total = 0;
-            for (var dp : com.teslamaps.player.PlayerTracker.getPlayers()) {
-                if (dp.getName().equals(mc.player.getName().getString())) continue;
-                total++;
-                var pl = dp.getUuid() != null ? mc.level.getPlayerByUUID(dp.getUuid()) : null;
-                if (pl != null && pl != mc.player && pl.distanceToSqr(mc.player) <= 9.0) n++;
-            }
-            if (total > 0) DungeonTimers.set("leaps", "§bLeaps§f: §a" + n + "§7/" + total);
-            else DungeonTimers.clear("leaps");
-        } else { DungeonTimers.clear("leaps"); }
 
         if (c.simonSaysProgress && com.teslamaps.dungeon.puzzle.SimonSaysSolver.getSequenceSize() > 0) {
             DungeonTimers.set("ss", "§eSS§f: §a" + com.teslamaps.dungeon.puzzle.SimonSaysSolver.getClicked()
@@ -396,7 +310,6 @@ public class TimerTriggers {
             stormPadTicks = -1; lightningTicks = -1; bossStartTicks = -1;
             timeAnchor = -1;
             runStartMs = 0;
-            resetLeapSpots();
             LIGHTNING.stop();
         }
 
@@ -471,10 +384,9 @@ public class TimerTriggers {
     }
 
     private static void show(String key, String prefix, String value) {
-        if (com.teslamaps.adm.misc.AdmTickTimers.overrides(key)) { hide(key); return; }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String text = c.tickTimerNoPrefix ? value : prefix + value;
-        if (c.tickTimersSeparate && BossTickHuds.owns(key)) {
+        if (BossTickHuds.owns(key)) {
             DungeonTimers.clear(key);
             BossTickHuds.set(key, text);
         } else {

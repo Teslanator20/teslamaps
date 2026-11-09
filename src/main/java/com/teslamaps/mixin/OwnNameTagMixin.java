@@ -14,7 +14,6 @@ public class OwnNameTagMixin {
 
     @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;D)Z", at = @At("HEAD"), cancellable = true)
     private void teslamaps$ownNameTag(LivingEntity entity, double distanceSq, CallbackInfoReturnable<Boolean> cir) {
-        if (com.teslamaps.features.NoammTweaks.hideDinnerbone(entity)) { cir.setReturnValue(false); return; }
         if (!TeslaMapsConfig.get().ownNameTag) return;
         Minecraft mc = Minecraft.getInstance();
         // only force-show for your own player, and only in third person (not visible in first person anyway)

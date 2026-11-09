@@ -38,8 +38,6 @@ public class CombatTimers {
     private static BlockPos tacticalPos = null;
     private static String tacticalLine = null;
 
-    private static final ServerTickTimer EXPLOSIVE = new ServerTickTimer();
-
     private static Object lastLevel = null;
     private static HudEditElement shieldHud;
     private static HudEditElement tacticalHud;
@@ -63,12 +61,6 @@ public class CombatTimers {
                 .hud("tacticalhud", CombatTimers::renderTactical);
         Feature.of("TacticalWaypoint").section("Timers").when(() -> cfg().tacticalInsertionTimer && cfg().tacticalWaypoint)
                 .world(CombatTimers::renderWaypoint);
-        Feature.of("ExplosiveShotTimer").section("Timers").when(() -> cfg().explosiveShotTimer)
-                .serverChat(CombatTimers::onChat);
-    }
-
-    private static void onChat(String text) {
-        if (com.teslamaps.utils.StringUtil.stripTrim(text).equals("Used Explosive Shot!")) EXPLOSIVE.start(134);
     }
 
     public static void onUseItem(ItemStack item) {
@@ -150,12 +142,6 @@ public class CombatTimers {
             tacticalPos = null;
             DungeonTimers.clear("tactical");
         }
-
-        if (c.explosiveShotTimer && EXPLOSIVE.active()) {
-            DungeonTimers.set("explosiveShot", "§6Explosive Shot§f: §c" + ServerTickTimer.seconds(EXPLOSIVE.remaining()));
-        } else {
-            DungeonTimers.clear("explosiveShot");
-        }
     }
 
     private static String color(long ttl, long max) {
@@ -199,8 +185,6 @@ public class CombatTimers {
     public static void reset() {
         shieldUse = 0; shieldCooldown = 0; shieldPending = false; shieldLine = null;
         tacticalClick = 0; TACTICAL.stop(); tacticalPos = null; tacticalLine = null;
-        EXPLOSIVE.stop();
-        DungeonTimers.clear("explosiveShot");
         DungeonTimers.clear("witherShield");
         DungeonTimers.clear("tactical");
     }

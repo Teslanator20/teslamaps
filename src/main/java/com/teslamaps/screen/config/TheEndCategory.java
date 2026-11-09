@@ -26,10 +26,7 @@ public final class TheEndCategory {
                 .tags("day", "restart", "reboot", "lobby");
         b.fresh(() -> com.teslamaps.features.theend.DragonFight.config(b));
         b.label("Stage Alerts");
-        b.toggle("Stage 4 Title", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v);
-        b.toggle("Stage 4 Sound", () -> config.endProtectorStage4Sound, v -> config.endProtectorStage4Sound = v);
-        b.toggle("Stage 5 Title", () -> config.endProtectorStage5Title, v -> config.endProtectorStage5Title = v);
-        b.toggle("Stage 5 Sound", () -> config.endProtectorStage5Sound, v -> config.endProtectorStage5Sound = v);
+        b.toggle("Stage 4/5 Title + Sound", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v);
         b.toggle("Stage 4 Duration in Chat", () -> config.endProtectorStage4Duration, v -> config.endProtectorStage4Duration = v);
         b.label("Fight Summary");
         b.toggle("DPS in Chat", () -> config.endProtectorDpsChat, v -> config.endProtectorDpsChat = v);

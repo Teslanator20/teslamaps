@@ -19,18 +19,12 @@ public class BlockUpdateMixin {
             at = @At("HEAD"))
     private void onSetBlockState(BlockPos pos, BlockState newState, int flags, int maxUpdateDepth,
                                   CallbackInfoReturnable<Boolean> cir) {
-        if (com.teslamaps.features.BlockEsp.listening() && ((Level) (Object) this).isClientSide()) {
-            com.teslamaps.features.BlockEsp.onBlockUpdate(pos, newState);
-        }
         if (!DungeonManager.isInDungeon()) {
             if (com.teslamaps.features.mining.TreasureChestHelper.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.mining.TreasureChestHelper.onBlockUpdate(pos, newState);
             }
             if (com.teslamaps.features.foraging.ForagingHighlighter.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.foraging.ForagingHighlighter.onBlockUpdate((Level) (Object) this, pos, newState);
-            }
-            if (com.teslamaps.features.pets.RockMilestone.listening() && ((Level) (Object) this).isClientSide()) {
-                com.teslamaps.features.pets.RockMilestone.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
             }
             if (com.teslamaps.features.BpsDisplay.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.BpsDisplay.onBlockUpdate(pos, ((Level) (Object) this).getBlockState(pos), newState);
@@ -55,12 +49,9 @@ public class BlockUpdateMixin {
             if (com.teslamaps.features.crimson.DojoHelper.listening() && ((Level) (Object) this).isClientSide()) {
                 com.teslamaps.features.crimson.DojoHelper.onBlockUpdate(pos, newState);
             }
-            if ((com.teslamaps.features.rift.LivingMetalHelper.listening() || com.teslamaps.features.rift.LivingCaveDefenseBlocks.listening()
-                    || com.teslamaps.features.rift.LivingCaveSnakes.listening()) && ((Level) (Object) this).isClientSide()) {
+            if (com.teslamaps.features.rift.LivingMetalHelper.listening() && ((Level) (Object) this).isClientSide()) {
                 BlockState old = ((Level) (Object) this).getBlockState(pos);
                 com.teslamaps.features.rift.LivingMetalHelper.onBlockUpdate(pos, old, newState);
-                com.teslamaps.features.rift.LivingCaveDefenseBlocks.onBlockUpdate(pos, old, newState);
-                com.teslamaps.features.rift.LivingCaveSnakes.onBlockUpdate(pos, old, newState);
             }
             return;
         }

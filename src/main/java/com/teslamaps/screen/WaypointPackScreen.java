@@ -56,7 +56,6 @@ public class WaypointPackScreen extends Screen {
             footerX[i] = fx;
             fx += FOOTER_W[i] + 8;
         }
-        GuiSounds.resetHover();
         rebuild();
     }
 
@@ -185,13 +184,11 @@ public class WaypointPackScreen extends Screen {
             drawRow(ctx, list.get(idx), listY + row * ROW_H, mouseX, mouseY, idx);
         }
         for (int i = 0; i < FOOTER.length; i++) flatButton(ctx, footerX[i], FOOTER_W[i], FOOTER[i], mouseX, mouseY);
-        GuiSounds.endFrame();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
     private void drawRow(GuiGraphicsExtractor ctx, String name, int ry, int mouseX, int mouseY, int idx) {
         if (mouseX >= listX && mouseX < listX + contentW && mouseY >= ry && mouseY < ry + ROW_H) {
-            GuiSounds.hover("pack:" + idx);
             ctx.fill(listX, ry, listX + contentW, ry + ROW_H, GuiStyle.rowHover());
         }
         ctx.fill(listX, ry + 2, listX + nameW, ry + ROW_H - 2, GuiStyle.input());
@@ -217,7 +214,6 @@ public class WaypointPackScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int w, String label, int mouseX, int mouseY) {
         boolean hovered = in(mouseX, mouseY, x, footerY, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("pack:" + label);
         GuiStyle.panel(ctx, x, footerY, w, FOOTER_H, hovered);
         WaypointRoutesScreen.drawBorder(ctx, x, footerY, w, FOOTER_H, hovered ? GuiStyle.accent() : GuiStyle.border());
         ctx.centeredText(font, label, x + w / 2, footerY + 7, GuiStyle.text());

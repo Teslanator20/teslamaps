@@ -1,9 +1,7 @@
 package com.teslamaps.registry;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.debug.Perf;
 import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.dungeon.MimicDetector;
 import com.teslamaps.dungeon.puzzle.BoulderSolver;
@@ -18,7 +16,6 @@ import com.teslamaps.dungeon.puzzle.WaterBoardSolver;
 import com.teslamaps.esp.StarredMobESP;
 import com.teslamaps.features.AutoGFS;
 import com.teslamaps.features.AutoWish;
-import com.teslamaps.features.BearSpawnWarning;
 import com.teslamaps.features.KeybindMessage;
 import com.teslamaps.features.LividSolver;
 import com.teslamaps.features.SecretWaypoints;
@@ -33,7 +30,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -55,8 +51,6 @@ final class CoreFeatures {
     }
 
     private static void hud() {
-        HudElementRegistry.addFirst(Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "darkmode_under"), Perf.hud("darkmode_under", (g, d) -> { if (!com.teslamaps.features.GlobalRender.off()) com.teslamaps.features.DarkMode.renderUnderHud(g); }));
-        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(TeslaMaps.MOD_ID, "darkmode_over"), Perf.hud("darkmode_over", (g, d) -> { if (!com.teslamaps.features.GlobalRender.off()) com.teslamaps.features.DarkMode.renderOverHud(g); }));
 
         Feature.of("Map").section("Map").hudForeground("map", MapRenderer::render);
         Feature.of("SkillTracker").section("Skills").hudForeground("skilltracker", com.teslamaps.features.SkillTracker::render);
@@ -76,7 +70,6 @@ final class CoreFeatures {
         Feature.of("CharmedVisitors").section("Garden").hudForeground("charmedvisitors", com.teslamaps.features.CharmedVisitors::render);
         Feature.of("HarvestFeast").section("Garden").hudHiddenInInventory("feastseason", com.teslamaps.features.HarvestFeast::render);
         Feature.of("OverkillCounter").section("Timers").hud("overkill", com.teslamaps.features.OverkillCounter::render);
-        Feature.of("BearSpawnWarning").section("Sounds").hud("bearspawn", BearSpawnWarning::render);
         Feature.of("ThornStunTimer").section(PUZZLES).hud("thornstun", com.teslamaps.features.ThornStunTimer::render);
         Feature.of("SprintingOverlay").section("Render").hud("sprinting", com.teslamaps.features.SprintingOverlay::render);
         Feature.of("SafariTracker").section("Critter Safari").hud("safari", com.teslamaps.safari.SafariTracker::render);
@@ -95,7 +88,6 @@ final class CoreFeatures {
         Feature.of("DungeonTimers").section("Timers").hudForeground("dungeontimers", com.teslamaps.features.DungeonTimers::render);
         Feature.of("WitherDragons").when(() -> cfg().witherDragons).hud("dragontimer", com.teslamaps.dungeon.WitherDragons::renderHud);
         Feature.of("Splits").section("Score & Splits").hud("splits", com.teslamaps.dungeon.Splits::render);
-        Feature.of("RoomSplits").section("Score & Splits").hud("roomsplits", com.teslamaps.dungeon.RoomSplits::render);
         Feature.of("WatcherAddons").section("Score & Splits").hud("watcherhud", com.teslamaps.dungeon.WatcherAddons::render);
         Feature.of("BloodCamp").section("Blood Camp").hud("bloodcamp", com.teslamaps.dungeon.BloodCamp::render);
 
@@ -176,7 +168,6 @@ final class CoreFeatures {
         Feature.of("PrinceWaypoints").section("Map").world(com.teslamaps.dungeon.PrinceWaypoints::render);
 
         Feature.of("BossESP").section("ESP").legit().world(com.teslamaps.esp.BossESP::render);
-        Feature.of("CorpseESP").section("ESP").legit().world(com.teslamaps.esp.CorpseESP::render);
         Feature.of("M4Highlight").section("ESP").legit().world(com.teslamaps.features.M4Highlight::render);
         Feature.of("M4Trajectories").section("ESP").legit().world(com.teslamaps.features.M4Trajectories::render);
         Feature.of("M4Decoy").section("ESP").legit().world(com.teslamaps.features.M4Decoy::render);
@@ -236,14 +227,11 @@ final class CoreFeatures {
         Feature.of("Deployables").when(() -> cfg().section("Skills") || cfg().section("Fishing")).tick(com.teslamaps.features.Deployables::tick);
         Feature.of("UmbrellaWarning").section("Fishing").tick(com.teslamaps.features.UmbrellaWarning::tick);
         Feature.of("HotspotRadar").section("Fishing").tick(com.teslamaps.features.HotspotRadar::tick);
-        Feature.of("HotspotWatcher").section("Fishing").tick(com.teslamaps.features.HotspotWatcher::tick);
         Feature.of("RescueMission").section("Crimson Isle").tick(com.teslamaps.features.RescueMission::tick);
         Feature.of("PickaxeAbility").section("Mining").tick(com.teslamaps.features.mining.PickaxeAbility::tick);
         Feature.of("MineshaftPity").section("Mining").tick(com.teslamaps.features.mining.MineshaftPity::tick);
         Feature.of("HotmScan").section("Mining").tick(com.teslamaps.features.mining.HotmScan::tick);
         Feature.of("TranslucentLava").tick(com.teslamaps.features.TranslucentLava::tick);
-        Feature.of("TranslucentWater").tick(com.teslamaps.features.TranslucentWater::tick);
-        Feature.of("HoneyhiveReminder").section("Foraging").tick(com.teslamaps.features.foraging.HoneyhiveReminder::tick);
         Feature.of("LatherReminder").section("Foraging").tick(com.teslamaps.features.foraging.LatherReminder::tick);
         Feature.of("GreenhousePlanner").section("Garden").tick(com.teslamaps.features.GreenhousePlanner::tick);
         Feature.of("ContestTimers").section("Contest Timers").tick(com.teslamaps.features.ContestTimers::tick);
@@ -261,7 +249,6 @@ final class CoreFeatures {
         Feature.of("ColorPortal").section("ESP").tick(com.teslamaps.features.ColorPortal::tick);
         Feature.of("HoppityEggESP").section("ESP").tick(com.teslamaps.features.HoppityEggESP::tick);
         Feature.of("HeadESP").section("ESP").tick(com.teslamaps.features.HeadESP::tick);
-        Feature.of("BearSpawnWarning").section("Sounds").tick(BearSpawnWarning::tick);
         Feature.of("KeybindMessage").tick(KeybindMessage::tick);
         Feature.of("Zoom").section("Render").tick(com.teslamaps.features.Zoom::tick);
         Feature.of("LegitMode").tick(com.teslamaps.features.LegitMode::tick);
@@ -306,8 +293,6 @@ final class CoreFeatures {
         Feature.of("WitherDragons").when(() -> cfg().witherDragons).tick(com.teslamaps.dungeon.WitherDragons::tick);
         Feature.of("SecretWaypoints").section("Secrets & Waypoints").tick(SecretWaypoints::tick);
         Feature.of("Splits").section("Score & Splits").tick(com.teslamaps.dungeon.Splits::tick);
-        Feature.of("InstaClearAlert").section("Score & Splits").tick(com.teslamaps.dungeon.InstaClearAlert::tick);
-        Feature.of("RoomSplits").section("Score & Splits").tick(com.teslamaps.dungeon.RoomSplits::tick);
         Feature.of("WatcherAddons").section("Score & Splits").tick(com.teslamaps.dungeon.WatcherAddons::tick);
     }
 

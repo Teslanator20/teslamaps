@@ -1,6 +1,6 @@
 package com.teslamaps.features.crimson;
 
-// Ported from SkyHanni's ashfang/AshfangHider.kt + AshfangManager.kt (full-HP name hide)
+// Ported from SkyHanni's ashfang/AshfangHider.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.EntityCache;
@@ -13,13 +13,11 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class AshfangHider {
 
     private static final Pattern SPLASH = Pattern.compile("[✧✯]?\\d+[⚔+✧❤♞☄✷ﬗ✯]*");
-    private static final Pattern HEALTH = Pattern.compile("([\\d.,]+[kMB]?)/([\\d.,]+[kMB]?)❤");
     private static final EquipmentSlot[] SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
 
     private static final Set<Integer> hidden = new HashSet<>();
@@ -33,7 +31,7 @@ public final class AshfangHider {
 
     private static boolean on() {
         TeslaMapsConfig c = cfg();
-        return c.ashfangHider && c.section("Crimson Isle") || c.ashfangHideFullHpNames && c.section("Mob Visuals");
+        return c.ashfangHider && c.section("Crimson Isle");
     }
 
     public static void register() {
@@ -46,12 +44,6 @@ public final class AshfangHider {
                             .tags("ashfang", "particles", "damage splash", "glowstone");
                     b.toggle("  Hide Particles + Glowstone", () -> c.ashfangHideParticles, v -> c.ashfangHideParticles = v);
                     b.toggle("  Hide Damage Splashes", () -> c.ashfangHideSplashes, v -> c.ashfangHideSplashes = v);
-                })
-                .config("Mob Visuals", b -> {
-                    TeslaMapsConfig c = b.config();
-                    b.toggle("Ashfang: Hide Full-HP Blaze Names", () -> c.ashfangHideFullHpNames, v -> c.ashfangHideFullHpNames = v)
-                            .desc("While Ashfang is up, nametags of Followers, Underlings and Acolytes at full health are hidden. Their colours come from Pick Mobs > Crimson Isle")
-                            .tags("ashfang", "follower", "underling", "acolyte", "blaze", "nametag");
                 });
     }
 
@@ -66,10 +58,8 @@ public final class AshfangHider {
         hidden.clear();
         if (!active) return;
         TeslaMapsConfig c = cfg();
-        boolean hider = c.ashfangHider && c.section("Crimson Isle");
-        boolean glow = hider && c.ashfangHideParticles;
-        boolean splash = hider && c.ashfangHideSplashes;
-        boolean names = c.ashfangHideFullHpNames && c.section("Mob Visuals");
+        boolean glow = c.ashfangHideParticles;
+        boolean splash = c.ashfangHideSplashes;
         for (ArmorStand a : EntityCache.armorStands()) {
             if (a.isRemoved()) continue;
             if (glow && wearsGlowstone(a)) {
@@ -80,9 +70,6 @@ public final class AshfangHider {
             String n = StringUtil.strip(a.getCustomName().getString()).trim();
             if (splash && a.tickCount < 300 && SPLASH.matcher(n.replace(",", "")).matches()) {
                 hidden.add(a.getId());
-            } else if (names && (n.contains("Ashfang Follower") || n.contains("Ashfang Underling") || n.contains("Ashfang Acolyte"))) {
-                Matcher m = HEALTH.matcher(n);
-                if (m.find() && m.group(1).equals(m.group(2))) hidden.add(a.getId());
             }
         }
     }

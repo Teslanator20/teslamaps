@@ -1,7 +1,5 @@
 package com.teslamaps.adm.leap.splits;
 
-import com.teslamaps.config.TeslaMapsConfig;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +13,6 @@ public final class SubSplitGrades {
     public enum Clock { TICKS, REAL }
 
     public record Bands(Clock clock, long[] limits, long floor, boolean fromStart, Long lateAfter) {}
-
-    public static final List<String> COLOURS = List.of("§2", "§a", "§e", "§c", "§4", "§0");
-    public static final String BEST = "§6";
-    public static final String FILLER = "§7";
-
-    static boolean byTime() { return TeslaMapsConfig.get().admSplitsColorByTime; }
-    static boolean showBest() { return TeslaMapsConfig.get().admSplitsColorByTime && TeslaMapsConfig.get().admSplitsShowPb; }
 
     private static Bands ticks(long floor, long... l) { return new Bands(Clock.TICKS, l, floor, false, null); }
     private static Bands real(long floor, long... l) { return new Bands(Clock.REAL, l, floor, false, null); }
@@ -108,20 +99,6 @@ public final class SubSplitGrades {
     public static Clock clock(String id) {
         Bands b = BANDS.get(id);
         return b == null ? Clock.TICKS : b.clock;
-    }
-
-    public static String colour(String id, long value, boolean finished, Long best, String floor, String fallback) {
-        if (!byTime()) return fallback;
-        boolean banded = bands(id, floor) != null;
-        Bands b = anyBands(id, floor);
-        if (b == null) return fallback;
-        if (b.lateAfter != null) return finished && value > b.lateAfter ? COLOURS.get(4) : FILLER;
-        long[] limits = b.limits;
-        if (limits == null) return FILLER;
-        if (showBest() && finished && best != null && value <= best && value >= b.floor) return BEST;
-        if (!banded) return fallback;
-        for (int i = 0; i < limits.length; i++) if (value <= limits[i]) return COLOURS.get(i);
-        return COLOURS.get(COLOURS.size() - 1);
     }
 
     public static boolean canBeBest(String id, long value, String floor) {

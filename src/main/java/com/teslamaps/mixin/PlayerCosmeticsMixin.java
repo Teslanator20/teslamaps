@@ -2,7 +2,6 @@ package com.teslamaps.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.features.PlayerCosmetics;
-import com.teslamaps.features.PlayerModels;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.world.entity.Avatar;
@@ -23,7 +22,6 @@ public class PlayerCosmeticsMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V",
             at = @At("TAIL"))
     private void teslamaps$playerModel(Avatar avatar, AvatarRenderState state, float partialTick, CallbackInfo ci) {
-        PlayerModels.extract(avatar, state, partialTick);
         com.teslamaps.features.rift.RiftTimer.nametag(state);
     }
 }

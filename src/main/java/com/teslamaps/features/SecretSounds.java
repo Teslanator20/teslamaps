@@ -32,14 +32,6 @@ public class SecretSounds {
         return WITHER_ESSENCE.equals(id) || REDSTONE_KEY.equals(id);
     }
 
-    /** Plays the lever sound instead of the normal one; true if it did. */
-    public static boolean lever(String type) {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!type.equals("lever") || !c.secretSoundLeverSeparate) return false;
-        LoudSound.play(SoundOptions.resolve(c.secretSoundLeverType), c.secretSoundLeverVolume, c.secretSoundLeverPitch);
-        return true;
-    }
-
     /** Main thread only. True = cancel the vanilla bat sound. */
     public static boolean onSoundPacket(ClientboundSoundPacket packet) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
@@ -51,14 +43,6 @@ public class SecretSounds {
             lastBat = now;
             LoudSound.play(SoundOptions.resolve(c.secretSoundType), c.secretSoundVolume, c.secretSoundPitch);
         }
-        return true;
-    }
-
-    /** True if the custom locked-chest sound replaced the default anvil. */
-    public static boolean onLocked() {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.secretSoundLockedCustom || !c.section("Sounds")) return false;
-        LoudSound.play(SoundOptions.resolve(c.secretSoundLockedType), c.secretSoundLockedVolume, c.secretSoundLockedPitch);
         return true;
     }
 }

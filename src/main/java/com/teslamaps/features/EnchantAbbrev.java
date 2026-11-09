@@ -309,7 +309,7 @@ public class EnchantAbbrev {
 
         int nameColor = TeslaMapsConfig.parseColor(
                 text.ultimate ? cfg.colorEnchantAbbrevUltimate : cfg.colorEnchantAbbrev);
-        String level = cfg.enchantLevelsAsNumbers ? text.numbers : text.roman;
+        String level = cfg.romanNumerals ? text.numbers : text.roman;
 
         float nameScale = Math.min(1f, 17f / font.width(text.name));
         float levelScale = Math.min(0.75f, 10f / font.width(level));

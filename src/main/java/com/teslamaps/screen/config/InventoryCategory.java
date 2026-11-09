@@ -36,16 +36,6 @@ public final class InventoryCategory {
         b.info("Dungeon gear in any menu: below 50% vs perfect 50% base stat boost");
         b.color("  Below 50% Color", () -> config.colorStatBoostLow, v -> config.colorStatBoostLow = v);
         b.color("  50% Color", () -> config.colorStatBoostMax, v -> config.colorStatBoostMax = v);
-        b.toggle("Attribute Overlay (legacy attributes)", () -> config.attributeOverlay, v -> config.attributeOverlay = v).fresh();
-        b.info("Two attribute short names + levels in the slot, yellow = good roll, green = partial").fresh();
-        b.toggle("  Highlight Good Rolls", () -> config.attributeOverlayGoodRolls, v -> config.attributeOverlayGoodRolls = v).fresh();
-        b.toggle("  Only Good Rolls", () -> config.attributeOverlayOnlyGood, v -> config.attributeOverlayOnlyGood = v).fresh();
-        b.slider("  Min Level", 0f, 10f,
-                () -> (float) config.attributeOverlayMinLevel, v -> config.attributeOverlayMinLevel = Math.round(v), 0).fresh();
-        b.toggle("Brewing Stand Overlay", () -> config.brewingStandOverlay, v -> config.brewingStandOverlay = v).fresh();
-        b.info("Ingredient, progress and output names next to the slots").fresh();
-        b.toggle("Color Brewing Stands", () -> config.brewingStandColors, v -> config.brewingStandColors = v).fresh()
-                .desc("Private Island: stands turn red while brewing, green when done. Open each stand once.");
         b.toggle("Magical Power As Stack Size", () -> config.magicalPowerStack, v -> config.magicalPowerStack = v).fresh()
                 .desc("Accessory Bag and auction house: MP of each accessory on its slot");
         b.toggle("  Rarity Color", () -> config.magicalPowerRarityColor, v -> config.magicalPowerRarityColor = v).fresh();
@@ -53,8 +43,6 @@ public final class InventoryCategory {
         b.toggle("Show Selected Pet", () -> config.showSelectedPet, v -> config.showSelectedPet = v);
         b.toggle("Mark Disabled Potion Effects", () -> config.highlightDisabledPotions, v -> config.highlightDisabledPotions = v).fresh()
                 .desc("Toggle Potion Effects menu: disabled effects get a red background.");
-        b.toggle("Move Insert Into Sack Button", () -> config.moveInsertIntoSack, v -> config.moveInsertIntoSack = v).fresh()
-                .desc("Sack menus show the Insert Into Sack chest three slots further left. Clicks still hit the real slot.");
         b.toggle("Bingo Card Tips", () -> config.bingoCardTips, v -> config.bingoCardTips = v).fresh()
                 .desc("Bingo Card goals tinted by difficulty, tooltip shows the difficulty, a guide and who found it.");
         b.toggle("  Skip Finished Goals", () -> config.bingoHideDoneDifficulty, v -> config.bingoHideDoneDifficulty = v).fresh();
@@ -324,9 +312,7 @@ public final class InventoryCategory {
         b.dropdown("  Mark Modified Items", com.teslamaps.features.customize.ModifyIndicator.MODES,
                 () -> config.modifyIndicator, v -> config.modifyIndicator = v).fresh()
                 .desc("Customized items get a small ✎ before or after their name, or a \"Modified by TeslaMaps\" lore line.");
-        b.toggle("Axes In 1.8 Look", () -> config.revertAxes, v -> config.revertAxes = v).fresh()
-                .desc("Ragnarock and Daedalus Axe render as a golden axe, Axe of the Shredded as a diamond axe. Visual only.");
-        b.toggle("  Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v).fresh();
+        b.toggle("Migrate Renamed Item Models", () -> config.migrateItemModels, v -> config.migrateItemModels = v).fresh();
         b.info("On launch: renamed Hypixel models are rewritten, removed ones dropped (NEU repo)").fresh();
         b.label("Rarity Backgrounds");
         b.toggle("Enable Rarity Backgrounds", () -> config.rarityBackgrounds, v -> config.rarityBackgrounds = v);
@@ -340,9 +326,6 @@ public final class InventoryCategory {
                 com.teslamaps.features.RarityBackground.PALETTES, () -> config.rarityBgPalette, v -> config.rarityBgPalette = v).fresh()
                 .desc("Hypixel = chat colors, Modern = softer blue, purple, gold and red");
         b.toggle("  Hide On Hotbar", () -> config.rarityBgHideHotbar, v -> config.rarityBgHideHotbar = v).fresh();
-        b.toggle("Legacy Attribute Background", () -> config.legacyAttributeBg, v -> config.legacyAttributeBg = v).fresh()
-                .desc("Red slot behind items that still carry old Kuudra attributes");
-        b.color("  Legacy Attribute Color", () -> config.colorLegacyAttributeBg, v -> config.colorLegacyAttributeBg = v).fresh();
         b.toggle("Stars As Stack Size", () -> config.starsStackSize, v -> config.starsStackSize = v).fresh()
                 .desc("Star count of dungeon/Kuudra items in the bottom right of the slot, containers and hotbar");
         b.toggle("  Gradient Colors", () -> config.starsStackSizeColors, v -> config.starsStackSizeColors = v).fresh();
@@ -350,30 +333,12 @@ public final class InventoryCategory {
             config.oldMasterStars = v;
             com.teslamaps.features.OldMasterStar.clear();
         }).fresh().desc("§6✪✪✪✪✪§c➌ §7becomes §c✪✪✪§6✪✪§7 in item names, skin stars ✦ included.");
-        b.toggle("Red Master Stars In Name", () -> config.redMasterStars, v -> config.redMasterStars = v).fresh()
-                .desc("Tooltip name shows master stars as red ✪ instead of ➊-➎");
         b.label("Bazaar & Progress");
         b.toggle("Bazaar: Highlight Own Orders", () -> config.bazaarOwnOrders, v -> config.bazaarOwnOrders = v);
         b.toggle("  Only My Orders In Co-op Orders", () -> config.bazaarOnlyMyOrders, v -> config.bazaarOnlyMyOrders = v).fresh()
                 .desc("Co-op Bazaar Orders: orders of other co-op members are hidden and can't be clicked");
         b.toggle("Bazaar: Own Orders In Create-Order Tooltip", () -> config.bazaarOrderTooltip, v -> config.bazaarOrderTooltip = v).fresh()
                 .desc("Create Buy Order / Sell Offer: \"N of them are yours\" under each price level. Open Your Bazaar Orders once so it knows them.");
-        b.toggle("Bazaar: Check Mark On Filled Orders", () -> config.bazaarOrderFilled, v -> config.bazaarOrderFilled = v);
-        b.toggle("Bazaar: Order Status Colors", () -> config.bazaarOrderStatus, v -> config.bazaarOrderStatus = v);
-        b.info("Your Bazaar Orders: filled, outbid/undercut, still top, % partly filled, ⏰ expiry");
-        b.color("  Filled Color", () -> config.colorBazaarOrderFilled, v -> config.colorBazaarOrderFilled = v);
-        b.color("  Outbid Color", () -> config.colorBazaarOrderOutbid, v -> config.colorBazaarOrderOutbid = v);
-        b.color("  Top Order Color", () -> config.colorBazaarOrderCompetitive, v -> config.colorBazaarOrderCompetitive = v);
-        b.toggle("Bazaar: Shorter Order Tooltips", () -> config.bazaarOrderTooltipClean, v -> config.bazaarOrderTooltipClean = v).fresh()
-                .desc("Bazaar order menu: removes lines you don't need from the order tooltips");
-        b.toggle("  Hide \"By:\" Line (Only Own Orders)", () -> config.bazaarHideOrderOwner, v -> config.bazaarHideOrderOwner = v).fresh()
-                .desc("Only while every order in the menu is yours; Hypixel shows it in co-ops");
-        b.toggle("  Hide Trade Partners", () -> config.bazaarHideTradePartners, v -> config.bazaarHideTradePartners = v).fresh()
-                .desc("The Vendors / Customers list of players that filled your order");
-        b.toggle("Bazaar: Estimate Order Fills", () -> config.bazaarFillEstimate, v -> config.bazaarFillEstimate = v).fresh()
-                .desc("Guesses how far your orders are filled from the public order book, without opening the menu. HUD in /tmap gui. Rough: other players cancelling at your price looks like a fill.");
-        b.toggle("  Chat On New Fill", () -> config.bazaarFillEstimateAlert, v -> config.bazaarFillEstimateAlert = v).fresh();
-        b.toggle("  Sound On New Fill", () -> config.bazaarFillEstimateSound, v -> config.bazaarFillEstimateSound = v).fresh();
         b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
         b.toggle("  Bestiary Tier As Number", () -> config.progressHighlightTier, v -> config.progressHighlightTier = v).fresh()

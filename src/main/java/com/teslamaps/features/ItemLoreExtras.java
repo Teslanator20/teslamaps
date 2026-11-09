@@ -1,7 +1,6 @@
 package com.teslamaps.features;
 
-// Ported from SkyHanni's PocketSackInASackDisplay.kt, SkyOcean's MidasPaidBreakdownModifier.kt +
-// ArmadilloBlocksWalkedModifier.kt, NEU's petExtendExp; radioactive bonus after Skytils' ItemFeatures
+// Ported from SkyHanni's PocketSackInASackDisplay.kt, SkyOcean's MidasPaidBreakdownModifier.kt, NEU's petExtendExp
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.teslamaps.config.TeslaMapsConfig;
@@ -9,7 +8,6 @@ import com.teslamaps.features.pets.PetConstants;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.StringUtil;
-import com.teslamaps.utils.TabListUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -32,7 +30,6 @@ public final class ItemLoreExtras {
 
     private static Feature feature;
     private static int ticks;
-    private static int strength = -1;
 
     private static ItemStack petStack;
     private static Component petLine;
@@ -45,8 +42,7 @@ public final class ItemLoreExtras {
         feature = Feature.of("ItemLoreExtras")
                 .when(() -> {
                     TeslaMapsConfig c = cfg();
-                    return c.sackStitchOverlay || c.sackStitchLore || c.midasBidBreakdown || c.petFullXp
-                            || c.prehistoricEggBlocks || c.radioactiveBonus;
+                    return c.sackStitchOverlay || c.sackStitchLore || c.midasBidBreakdown || c.petFullXp;
                 })
                 .tick(ItemLoreExtras::tick)
                 .config("Tooltips & Value", b -> {
@@ -60,10 +56,6 @@ public final class ItemLoreExtras {
                             .desc("Original Bid and Added Coins under \"Price paid:\" on Midas weapons.");
                     b.toggle("Full Pet XP Numbers", () -> c.petFullXp, v -> c.petFullXp = v)
                             .desc("Pet tooltips get an \"EXP: 2,345/10,000\" line instead of only the rounded bar numbers.");
-                    b.toggle("Prehistoric Egg Blocks Walked", () -> c.prehistoricEggBlocks, v -> c.prehistoricEggBlocks = v)
-                            .desc("\"Blocks Walked: n\" on the Prehistoric Egg.");
-                    b.toggle("Tarantula Helmet Radioactive Bonus", () -> c.radioactiveBonus, v -> c.radioactiveBonus = v)
-                            .desc("Crit Damage bonus from your Strength (tab list Stats widget) under the helmet's Crit Damage line.");
                 });
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!stack.isEmpty() && lines.size() > 1 && feature.active()) onTooltip(stack, lines);
@@ -73,21 +65,6 @@ public final class ItemLoreExtras {
     private static void tick() {
         if (++ticks % 20 != 0) return;
         if (Minecraft.getInstance().screen == null && STITCH.size() > 0) STITCH.clear();
-        if (!cfg().radioactiveBonus) return;
-        int found = -1;
-        for (String raw : TabListUtils.getTabListLines()) {
-            String line = StringUtil.stripTrim(raw);
-            if (!line.startsWith("Strength:")) continue;
-            StringBuilder digits = new StringBuilder();
-            for (int i = 9; i < line.length(); i++) {
-                char ch = line.charAt(i);
-                if (Character.isDigit(ch)) digits.append(ch);
-                else if (ch != ',' && !digits.isEmpty()) break;
-            }
-            if (!digits.isEmpty()) found = Integer.parseInt(digits.toString());
-            break;
-        }
-        strength = found;
     }
 
     private static CompoundTag tag(ItemStack stack) {
@@ -106,8 +83,6 @@ public final class ItemLoreExtras {
         if (c.sackStitchLore && id.endsWith("_SACK")) sackLore(stack, lines);
         if (c.midasBidBreakdown && id.contains("MIDAS")) midas(stack, lines);
         if (c.petFullXp && id.equals("PET")) petXp(stack, lines);
-        if (c.prehistoricEggBlocks && id.equals("PREHISTORIC_EGG")) egg(stack, lines);
-        if (c.radioactiveBonus && id.equals("TARANTULA_HELMET")) radioactive(lines);
     }
 
     private static void sackLore(ItemStack stack, List<Component> lines) {
@@ -169,32 +144,6 @@ public final class ItemLoreExtras {
             return Component.literal("§7EXP: §e" + fmt(Math.round(cur)) + "§6/§e" + fmt(Math.round(need)));
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    private static void egg(ItemStack stack, List<Component> lines) {
-        CompoundTag t = tag(stack);
-        int walked = t == null ? 0 : t.getIntOr("blocks_walked", 0);
-        int at = -1;
-        for (int i = 1; i < lines.size(); i++) {
-            if (lines.get(i).getString().isBlank()) { at = i; break; }
-        }
-        Component line = Component.literal("§7Blocks Walked: §a" + fmt(walked));
-        if (at < 0) {
-            lines.add(line);
-        } else {
-            lines.add(at + 1, line);
-            lines.add(at + 2, Component.empty());
-        }
-    }
-
-    private static void radioactive(List<Component> lines) {
-        if (strength < 0) return;
-        int bonus = Math.min(strength, 1000) / 10;
-        for (int i = 0; i < lines.size(); i++) {
-            if (!StringUtil.stripTrim(lines.get(i).getString()).startsWith("Crit Damage:")) continue;
-            lines.add(i + 1, Component.literal("§8Radioactive Bonus: §c+" + bonus + "%"));
-            return;
         }
     }
 

@@ -48,26 +48,6 @@ public class TMapCommand {
             return 1;
         }));
 
-        if (TeslaMapsConfig.get().visitedTracking && dispatcher.getRoot().getChild("visited") == null) {
-            dispatcher.register(ClientCommands.literal("visited")
-                    .executes(context -> {
-                        context.getSource().sendFeedback(Component.literal(com.teslamaps.dungeon.RoomVisits.query("")));
-                        return 1;
-                    })
-                    .then(ClientCommands.argument("room", StringArgumentType.greedyString())
-                            .suggests((c, sb) -> {
-                                String typed = sb.getRemaining().toLowerCase();
-                                for (String r : com.teslamaps.dungeon.RoomVisits.rooms())
-                                    if (r.toLowerCase().startsWith(typed) && !r.equalsIgnoreCase(typed)) sb.suggest(r);
-                                return sb.buildFuture();
-                            })
-                            .executes(context -> {
-                                context.getSource().sendFeedback(Component.literal(com.teslamaps.dungeon.RoomVisits.query(
-                                        StringArgumentType.getString(context, "room"))));
-                                return 1;
-                            })));
-        }
-
         // /pv as its own command, but another mod that already owns it keeps it
         if (dispatcher.getRoot().getChild("pv") == null) {
             dispatcher.register(profileViewer("pv"));
@@ -136,7 +116,6 @@ public class TMapCommand {
                     return 1;
                 })
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())
-                .then(com.teslamaps.features.JoinTips.command())
                 .then(com.teslamaps.features.ChargeBottleNotice.command())
                 .then(ClientCommands.literal("tracker")
                         .then(com.teslamaps.features.tracker.TrackerRows.attach(ClientCommands.argument("id", StringArgumentType.word()))
@@ -151,14 +130,10 @@ public class TMapCommand {
                                         .then(ClientCommands.literal("total")
                                                 .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "total"))))
                                 .then(ClientCommands.literal("view")
-                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))
-                                .then(ClientCommands.literal("history")
-                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "history")))))
+                                        .executes(c -> tracker(c.getSource(), StringArgumentType.getString(c, "id"), "view")))))
                 .then(com.teslamaps.features.SecretWaypoints.command())
                 .then(com.teslamaps.features.HideExCoopMembers.command())
                 .then(com.teslamaps.features.MinionFeatures.command())
-                .then(com.teslamaps.features.IslandAlerts.command())
-                .then(com.teslamaps.features.mining.BlockStrengthGuide.command())
                 .then(com.teslamaps.features.HoppityEventStats.command())
                 .then(com.teslamaps.dungeon.RunLogger.command())
                 .then(com.teslamaps.features.customize.CustomizeKey.attach(ClientCommands.literal("customize")
@@ -320,8 +295,6 @@ public class TMapCommand {
                 .then(com.teslamaps.features.SackApi.command())
                 .then(com.teslamaps.features.Notifications.command())
                 .then(com.teslamaps.features.foraging.TreeGiftCompact.command())
-                .then(com.teslamaps.features.DvdLogo.command())
-                .then(com.teslamaps.features.ItemCycle.command())
                 .then(com.teslamaps.features.ChatRewrites.bridgeCommand())
                 .then(com.teslamaps.features.LogSearch.command())
                 .then(com.teslamaps.database.RoomLearn.newCoreCommand())
@@ -611,11 +584,6 @@ public class TMapCommand {
                                     return 1;
                                 })))
                 .then(com.teslamaps.features.crimson.CrimsonCommands.command())
-                .then(ClientCommands.literal("achievements")
-                        .executes(context -> {
-                            com.teslamaps.features.Achievements.list();
-                            return 1;
-                        }))
                 .then(ClientCommands.literal("safari")
                         .executes(context -> {
                             for (String line : com.teslamaps.safari.SafariHistory.summary(5)) {
@@ -2485,12 +2453,6 @@ public class TMapCommand {
         if (t == null) {
             source.sendFeedback(Component.literal("§b[TeslaMaps] §cNo tracker " + id));
             return 0;
-        }
-        if (action.equals("history")) {
-            var lines = t.historyLines();
-            source.sendFeedback(Component.literal("§b[TeslaMaps] §f" + id + " history" + (lines.isEmpty() ? ": §7none (Tracker History off?)" : ":")));
-            for (String l : lines) source.sendFeedback(Component.literal("  " + l));
-            return 1;
         }
         switch (action) {
             case "total" -> t.resetTotal();

@@ -1,13 +1,12 @@
 package com.teslamaps.features;
 
 // Ported from Devonian's DungeonItemStats.kt/ArmorHexColor.kt, SkyOcean's DungeonQualityLoreModifier.kt,
-// Skyblocker's ColorTooltip.java and SkyHanni's ColorHexInLore.kt
+// Skyblocker's ColorTooltip.java
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.RepoCache;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,14 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-/** Tooltip lines: dungeon item quality/tier, armor dye hex + exotic check, coloured hex codes in dye lore. */
+/** Tooltip lines: dungeon item quality/tier, armor dye hex + exotic check. */
 public final class ItemTooltipExtras {
 
     public static final String[] QUALITY_STYLES = {"42/50", "42%", "84%"};
-    private static final Pattern HEX = Pattern.compile("#[0-9a-fA-F]{6}");
     private static final long WITHER_GLITCHED_AFTER = 1605830400000L;
 
     private static final Set<String> SEYMOUR = Set.of("VELVET_TOP_HAT", "CASHMERE_JACKET", "SATIN_TROUSERS", "OXFORD_SHOES");
@@ -73,8 +69,8 @@ public final class ItemTooltipExtras {
 
     public static void register() {
         Feature feature = Feature.of("ItemTooltipExtras")
-                .when(() -> cfg().dungeonQualityTooltip || cfg().armorHexTooltip || cfg().dyeHexColors
-                        || cfg().tooltipAnvilUses || cfg().tooltipSwordKills || cfg().tooltipRecomb)
+                .when(() -> cfg().dungeonQualityTooltip || cfg().armorHexTooltip
+                        || cfg().tooltipAnvilUses || cfg().tooltipSwordKills)
                 .config("Tooltips & Value", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Item Details");
@@ -87,26 +83,18 @@ public final class ItemTooltipExtras {
                             .desc("Dyed armor shows \"Color: #RRGGBB\" in its own colour.");
                     b.toggle("  Exotic Detection", () -> c.armorExoticTooltip, v -> c.armorExoticTooltip = v)
                             .desc("Compares the colour with the item's original one: Exotic, Crystal, Fairy, OG Fairy, Spook, Glitched.");
-                    b.toggle("Colour Hex Codes In Dye Lore", () -> c.dyeHexColors, v -> c.dyeHexColors = v)
-                            .desc("Every #RRGGBB in dye and armor lore is drawn in that colour.");
                     b.toggle("Anvil Uses", () -> c.tooltipAnvilUses, v -> c.tooltipAnvilUses = v)
                             .desc("\"Anvil Uses: n\" at the bottom, hot potato books not counted.");
                     b.toggle("Sword Kills", () -> c.tooltipSwordKills, v -> c.tooltipSwordKills = v)
                             .desc("Kill counter stored on the item (sword kills / Book of Stats).");
-                    b.toggle("Recomb Line", () -> c.tooltipRecomb, v -> c.tooltipRecomb = v)
-                            .desc("\"RARITY UPGRADED\" on recombobulated items.");
                     b.toggle("Total Stars In Name", () -> c.tooltipItemStars, v -> c.tooltipItemStars = v)
                             .desc("Item name ends in the total star count (\"15✪\"), Kuudra armor tiers included.");
-                    b.toggle("Evolving Item Time", () -> c.tooltipEvolvingTime, v -> c.tooltipEvolvingTime = v)
-                            .desc("Time held and time left (of 300h) on evolving items.");
                     b.toggle("Booster Cookie Bits", () -> c.tooltipCookieBits, v -> c.tooltipCookieBits = v)
                             .desc("Bits gained, available bits before/after and buff days. Open the SkyBlock menu once to read your bits.");
                     b.toggle("Stonks Auction Coins Per Stonk", () -> c.tooltipStonksPrice, v -> c.tooltipStonksPrice = v)
                             .desc("Coins per Stock of Stonks for every rank, the cheapest in green.");
                     b.toggle("Fann Training Cost", () -> c.tooltipFannCost, v -> c.tooltipFannCost = v)
                             .desc("Coins per XP and XP per bit in Fann's training menu.");
-                    b.toggle("Supercraft Shift Hint", () -> c.supercraftReminder, v -> c.supercraftReminder = v)
-                            .desc("\"Shift-Click to maximize the amount!\" on the Supercraft button for stackable results.");
                 });
         RepoCache.onReload("ItemTooltipExtras", () -> lastStack = null);
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
@@ -118,14 +106,13 @@ public final class ItemTooltipExtras {
         TeslaMapsConfig c = cfg();
         int key = (c.dungeonQualityTooltip ? 1 : 0) | (c.dungeonTierTooltip ? 2 : 0) | (c.armorHexTooltip ? 4 : 0)
                 | (c.armorExoticTooltip ? 8 : 0) | (c.dungeonQualityStyle.hashCode() << 4) | (SkyblockItems.loaded() ? 1 << 20 : 0)
-                ^ ((c.tooltipAnvilUses ? 1 : 0) | (c.tooltipSwordKills ? 2 : 0) | (c.tooltipRecomb ? 4 : 0)) << 27;
+                ^ ((c.tooltipAnvilUses ? 1 : 0) | (c.tooltipSwordKills ? 2 : 0)) << 27;
         if (stack != lastStack || key != lastKey) {
             lastStack = stack;
             lastKey = key;
             lastTop = build(stack, c);
             lastBottom = buildBottom(stack, c);
         }
-        if (c.dyeHexColors) recolorHex(stack, lines);
         if (!lastTop.isEmpty()) lines.addAll(1, lastTop);
         if (!lastBottom.isEmpty()) lines.addAll(lastBottom);
     }
@@ -133,7 +120,7 @@ public final class ItemTooltipExtras {
     private static List<Component> lastBottom = List.of();
 
     private static List<Component> buildBottom(ItemStack stack, TeslaMapsConfig c) {
-        if (!c.tooltipAnvilUses && !c.tooltipSwordKills && !c.tooltipRecomb) return List.of();
+        if (!c.tooltipAnvilUses && !c.tooltipSwordKills) return List.of();
         CustomData d = stack.get(DataComponents.CUSTOM_DATA);
         if (d == null) return List.of();
         CompoundTag tag = d.copyTag();
@@ -152,9 +139,6 @@ public final class ItemTooltipExtras {
             }
             if (kills > 0) out.add(Component.literal(label).withStyle(ChatFormatting.GRAY)
                     .append(Component.literal(String.format(java.util.Locale.ROOT, "%,d", kills)).withStyle(ChatFormatting.RED)));
-        }
-        if (c.tooltipRecomb && tag.getInt("rarity_upgrades").orElse(0) > 0) {
-            out.add(Component.literal("RARITY UPGRADED").withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
         }
         return out;
     }
@@ -257,38 +241,5 @@ public final class ItemTooltipExtras {
         }
         String misc = MISC_GLITCHED.get(hex);
         return misc != null && id.startsWith(misc);
-    }
-
-    private static void recolorHex(ItemStack stack, List<Component> lines) {
-        boolean relevant = stack.has(DataComponents.DYED_COLOR);
-        if (!relevant) {
-            String id = com.teslamaps.utils.ItemUtil.skyblockId(stack);
-            relevant = id != null && id.startsWith("DYE_");
-        }
-        if (!relevant) {
-            var screen = Minecraft.getInstance().screen;
-            relevant = screen != null && com.teslamaps.utils.StringUtil.strip(screen.getTitle().getString()).startsWith("Dye");
-        }
-        if (!relevant) return;
-        for (int i = 0; i < lines.size(); i++) {
-            Component line = lines.get(i);
-            if (line.getString().indexOf('#') < 0) continue;
-            MutableComponent out = Component.empty();
-            boolean[] changed = {false};
-            line.visit((style, text) -> {
-                Matcher m = HEX.matcher(text);
-                int pos = 0;
-                while (m.find()) {
-                    if (m.start() > pos) out.append(Component.literal(text.substring(pos, m.start())).withStyle(style));
-                    int rgb = Integer.parseInt(m.group().substring(1), 16);
-                    out.append(Component.literal(m.group()).withStyle(style.withColor(rgb)));
-                    pos = m.end();
-                    changed[0] = true;
-                }
-                if (pos < text.length()) out.append(Component.literal(text.substring(pos)).withStyle(style));
-                return Optional.empty();
-            }, Style.EMPTY);
-            if (changed[0]) lines.set(i, out);
-        }
     }
 }

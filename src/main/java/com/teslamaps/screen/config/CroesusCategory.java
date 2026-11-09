@@ -30,12 +30,6 @@ public final class CroesusCategory {
         b.slider("  Block From Profit (M)", 0.5f, 50f, () -> config.croesusRerollProtectMin,
                 v -> config.croesusRerollProtectMin = v, 1).fresh();
         b.info("  Hold CTRL to bypass the reroll block").fresh();
-        b.toggle("Chest Profit HUD", () -> config.chestProfitHud, v -> config.chestProfitHud = v).fresh()
-                .desc("Movable list of all dungeon chests by profit, in the dungeon after opening them and near Croesus. Move it in /tmap gui.");
-        b.toggle("  Include Essence", () -> config.chestProfitHudEssence, v -> config.chestProfitHudEssence = v).fresh();
-        b.toggle("  Compact (profit only)", () -> config.chestProfitHudCompact, v -> config.chestProfitHudCompact = v).fresh();
-        b.toggle("  Kismet Feathers On Reroll Button", () -> config.croesusKismetCount, v -> config.croesusKismetCount = v).fresh()
-                .desc("Feathers in your inventory plus your Dungeon Sack (the sack count needs 'Index Opened Containers' and the sack opened once)");
         b.toggle("Highlight Unopened (green)", () -> config.croesusHighlightUnopened, v -> config.croesusHighlightUnopened = v);
         b.toggle("  Also in Vesuvius (Kuudra)", () -> config.croesusVesuvius, v -> config.croesusVesuvius = v).fresh()
                 .desc("The run highlights (green unopened, red partly opened) also work in Vesuvius' Kuudra chest menu");

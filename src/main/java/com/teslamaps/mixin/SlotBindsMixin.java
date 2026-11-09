@@ -16,7 +16,6 @@ public class SlotBindsMixin {
     @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
     private void teslamaps$slotBindsClick(Slot slot, int slotId, int button, ContainerInput input, CallbackInfo ci) {
         if (SlotBinds.onSlotClick()) ci.cancel();
-        else if (com.teslamaps.features.ItemCycle.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, input)) ci.cancel();
     }
 
     @Inject(method = "extractTooltip", at = @At("HEAD"))

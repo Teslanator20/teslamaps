@@ -28,8 +28,7 @@ public class EntityRenderDispatcherMixin {
         boolean noLightning = cfg.noLightning && entity instanceof net.minecraft.world.entity.LightningBolt;
         boolean noFalling = cfg.noFallingBlocks && entity instanceof net.minecraft.world.entity.item.FallingBlockEntity;
         boolean noXpOrb = cfg.noXpOrbs && entity instanceof net.minecraft.world.entity.ExperienceOrb;
-        boolean annoying = cfg.hideFireworks && entity instanceof net.minecraft.world.entity.projectile.FireworkRocketEntity
-                || cfg.hideHorses && entity instanceof net.minecraft.world.entity.animal.equine.Horse;
+        boolean annoying = cfg.hideFireworks && entity instanceof net.minecraft.world.entity.projectile.FireworkRocketEntity;
         boolean dyingDragon = cfg.hideDyingDragons
                 && entity instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon
                 && dragon.getHealth() <= 0;
@@ -50,17 +49,13 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.SecretPickupHud.shouldHide(entity)
                 || com.teslamaps.features.MinionFeatures.shouldHide(entity)
                 || com.teslamaps.features.RenderHiders.shouldHide(entity)
-                || com.teslamaps.features.SkeletonHelmet.shouldHide(entity)
                 || com.teslamaps.features.CommonSeaCreatureHider.shouldHide(entity)
                 || com.teslamaps.features.ChumBucketHider.shouldHide(entity)
                 || com.teslamaps.features.ArachneTagHider.shouldHide(entity)
                 || com.teslamaps.features.ArachneTimers.shouldHide(entity)
                 || com.teslamaps.features.DamageSplash.shouldHide(entity)
                 || com.teslamaps.features.DamageIndicator.shouldHide(entity)
-                || com.teslamaps.features.GiftNametagCleaner.shouldHide(entity)
                 || com.teslamaps.features.WitherCloakShields.shouldHide(entity)
-                || com.teslamaps.features.VisualTweaks.shouldHide(entity)
-                || com.teslamaps.features.ZeroHpNametags.shouldHide(entity)
                 || com.teslamaps.features.HideGlitchMobs.shouldHide(entity)
                 || com.teslamaps.slayer.SlayerNametag.shouldHide(entity)
                 || com.teslamaps.features.HideFarEntities.shouldHide(entity)
@@ -70,11 +65,8 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.slayer.SeraphHelper.shouldHide(entity)
                 || com.teslamaps.features.KeeperWaypoints.shouldHide(entity)
                 || com.teslamaps.features.kuudra.KuudraHider.shouldHide(entity)
-                || com.teslamaps.features.rift.HorsezookaHider.shouldHide(entity)
                 || com.teslamaps.features.SummoningMobs.shouldHide(entity)
-                || com.teslamaps.features.rift.CraftRoomHolograms.shouldHide(entity)
                 || com.teslamaps.features.kuudra.KuudraQol.shouldHide(entity)
-                || com.teslamaps.features.events.JerryPresentHider.shouldHide(entity)
                 || com.teslamaps.features.crimson.AshfangHider.shouldHide(entity)) {
             cir.setReturnValue(false);
         }

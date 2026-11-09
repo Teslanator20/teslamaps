@@ -120,7 +120,7 @@ public class ChatMixin {
             if (cfg.section("ESP")) StarredMobESP.onBloodDoorOpened();
         } else if (text.equals("That chest is locked!")) {
             if (cfg.section("Secrets & Waypoints")) com.teslamaps.features.SecretClickHighlight.onChestLocked();
-            if (!(fromServer && com.teslamaps.features.SecretSounds.onLocked()) && cfg.section("ESP")) {
+            if (cfg.section("ESP")) {
                 net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
                 if (mc.player != null) {
                     mc.player.playSound(net.minecraft.sounds.SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
@@ -154,7 +154,6 @@ public class ChatMixin {
 
         if (fromServer && cfg.section("ESP")) LividSolver.onChatMessage(text);
 
-        if (fromServer && cfg.section("ESP")) com.teslamaps.esp.CorpseESP.onChatMessage(text);
 
         if (fromServer && cfg.section("Critter Safari")) {
             com.teslamaps.safari.SafariTracker.onChatMessage(text);
@@ -263,7 +262,6 @@ public class ChatMixin {
         }
 
         if (fromServer && (com.teslamaps.features.PartyListFormat.hide(message, text)
-                || com.teslamaps.features.ThrottleNotifier.hide(text)
                 || com.teslamaps.features.kuudra.KuudraSupply.hide(text)
                 || com.teslamaps.features.choco.ChocoReminder.hideChat(text))) {
             teslamaps$reason = "partyList/throttle";
@@ -330,11 +328,8 @@ public class ChatMixin {
         out = com.teslamaps.features.SackMessages.rewrite(com.teslamaps.features.ChatRewrites.rewrite(out));
         out = com.teslamaps.features.PartyFinderLinks.rewrite(com.teslamaps.features.kuudra.KuudraSupply.rewrite(out));
         out = com.teslamaps.features.garden.HoeLevelDisplay.rewrite(out);
-        out = com.teslamaps.features.mining.GemstonePowderChat.rewrite(com.teslamaps.features.mining.DwarvenPuzzles.rewrite(out));
         out = com.teslamaps.features.mining.ScathaAlerts.rewrite(out);
         out = com.teslamaps.features.fishing.TrophyFishMessages.rewrite(out);
-        // before channel compaction, the parser needs "Party > "
-        out = com.teslamaps.features.PlayerChatFormat.rewrite(out);
         out = com.teslamaps.features.MarkedPlayers.rewrite(out);
         out = com.teslamaps.features.ChatCompact.rewrite(out);
         com.teslamaps.features.ChatLog.shown(out);

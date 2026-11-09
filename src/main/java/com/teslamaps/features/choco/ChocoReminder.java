@@ -53,8 +53,6 @@ public final class ChocoReminder {
                     b.toggle("  Show Outside The Factory", () -> c.cfReminderOutside, v -> c.cfReminderOutside = v);
                     b.toggle("  Hide 'Not Enough Chocolate' Messages", () -> c.cfReminderHideChat, v -> c.cfReminderHideChat = v);
                     b.button("  Clear Goal", ChocoReminder::reset);
-                    b.toggle("Chocolate Factory Menu Shortcut", () -> c.cfMenuShortcut, v -> c.cfMenuShortcut = v)
-                            .desc("A glass slot in the SkyBlock Menu becomes an 'Open Chocolate Factory' button (also part of Old SkyBlock Menu Shortcuts).");
                 });
     }
 

@@ -10,8 +10,6 @@ public class ChromaColors {
 
     public static final TextColor CHROMA = new TextColor(0xFFFFFF, ChromaHook.COLOR_NAME);
     public static final TextColor FADE = new TextColor(0xFFFFFF, ChromaHook.FADE_NAME);
-    // §z: off-white so Style.equals does not merge it with plain white text
-    public static final TextColor CHROMA_CODE = new TextColor(0xFFFFFE, ChromaHook.COLOR_NAME);
 
     private ChromaColors() {}
 }

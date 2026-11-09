@@ -3,19 +3,21 @@ package com.teslamaps.adm.leap;
 // Ported from ADM's practice/Recore.kt
 import com.teslamaps.adm.Adm;
 import com.teslamaps.config.TeslaMapsConfig;
+import com.teslamaps.player.PlayerTracker;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.PlayerFaceExtractor;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerSkin;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,11 +46,16 @@ public final class Recore {
     private static final String[] STYLES = {"Quadrant", "Side", "Top / Bottom", "Edge Glow", "Corner Bracket", "Leap Box"};
     private static final String[] FILLS = {"Solid", "Fade To Crosshair", "Fade To Edge"};
     private static final String[] NAME_POS = {"Area Middle", "By Crosshair"};
+    private static final int BOX_WIDTH = 200, BOX_HEIGHT = 75;
+
+    private record Mate(String name, String clazz) {}
+    private static Mate[] mates = new Mate[4];
 
     private static boolean on() { return cfg().admRecore; }
 
     public static void register() {
         Feature.of("AdmRecore").section(Adm.SECTION).when(Recore::on)
+                .tick(Recore::tick)
                 .serverChat(Recore::onChat)
                 .hud("admrecore", Recore::render)
                 .config("ADM Leap & Recore", b -> {
@@ -59,11 +66,7 @@ public final class Recore {
                             .desc("Says in party chat who was last into the core after S4 and their time (e.g. \"Last in core: Name 1.35s\"), once all five are in. Only when every time is exact and nobody has died.");
                     b.toggle("Core Leap Highlight", () -> cfg().admRecoreCoreLeap, v -> cfg().admRecoreCoreLeap = v)
                             .desc("Once S3 is done, the side of the screen where the first teammate inside the core will be in the leap menu, in gold. Shown behind terminals too, never over them.");
-                    b.toggle("Highlight All Players In Core", () -> cfg().admRecoreAllInCore, v -> cfg().admRecoreAllInCore = v)
-                            .desc("Highlights every teammate who made it to the core before you, each where they'll be in the leap menu, not just the first one.");
                     b.label("Core Leap Look");
-                    b.toggle("Preview", () -> cfg().admRecorePreview, v -> cfg().admRecorePreview = v)
-                            .desc("Shows the highlight now, top right, as if someone were in the core (also over this menu), to try the looks below; with Highlight All Players In Core, bottom left too. Turn it off after.");
                     b.dropdown("Style", STYLES, () -> cfg().admRecoreStyle, v -> cfg().admRecoreStyle = v)
                             .desc("Quadrant: the quarter of the screen with their box. Side: the whole left or right half. Top / Bottom: the whole top or bottom half. Edge Glow: a glow along that quarter's two outer edges. Corner Bracket: an L near the crosshair pointing at it. Leap Box: their leap menu box.");
                     b.color("Color", () -> cfg().admRecoreColor, v -> cfg().admRecoreColor = v).desc("The highlight's colour and opacity.");
@@ -77,26 +80,12 @@ public final class Recore {
                             .desc("Length of the Corner Bracket's arms (px).");
                     b.slider("Bracket Width", 1, 12, () -> (float) cfg().admRecoreBracketWidth, v -> cfg().admRecoreBracketWidth = Math.round(v), 0)
                             .desc("Thickness of the Corner Bracket's arms (px).");
-                    b.toggle("Outline", () -> cfg().admRecoreOutline, v -> cfg().admRecoreOutline = v)
-                            .desc("A line around the highlighted area. Quadrant, Side, Top / Bottom and Leap Box.");
-                    b.slider("Outline Width", 1, 8, () -> (float) cfg().admRecoreOutlineWidth, v -> cfg().admRecoreOutlineWidth = Math.round(v), 0);
-                    b.color("Outline Color", () -> cfg().admRecoreOutlineColor, v -> cfg().admRecoreOutlineColor = v);
-                    b.toggle("Show Name", () -> cfg().admRecoreShowName, v -> cfg().admRecoreShowName = v).desc("Their name on the highlight.");
-                    b.toggle("Show Class", () -> cfg().admRecoreShowClass, v -> cfg().admRecoreShowClass = v).desc("Their class under the name.");
                     b.dropdown("Name Position", NAME_POS, () -> cfg().admRecoreNameAt, v -> cfg().admRecoreNameAt = v)
                             .desc("In the middle of the highlighted area, or just off the crosshair toward it.");
                     b.slider("Name Scale", 0.5f, 4f, () -> cfg().admRecoreNameScale, v -> cfg().admRecoreNameScale = Math.round(v * 4f) / 4f, 2);
                     b.color("Name Color", () -> cfg().admRecoreNameColor, v -> cfg().admRecoreNameColor = v);
-                    b.toggle("Pulse", () -> cfg().admRecorePulse, v -> cfg().admRecorePulse = v).desc("Breathes between the colour's opacity and a fraction of it.");
-                    b.slider("Pulse Speed", 0.25f, 6f, () -> cfg().admRecorePulseSpeed, v -> cfg().admRecorePulseSpeed = Math.round(v * 4f) / 4f, 2).desc("Pulses a second.");
-                    b.slider("Pulse Low", 0, 100, () -> (float) cfg().admRecorePulseLow, v -> cfg().admRecorePulseLow = Math.round(v / 5f) * 5, 0)
-                            .desc("The faintest point of the pulse, in % of the colour's opacity.");
                     b.slider("Fade In", 0, 1000, () -> (float) cfg().admRecoreFadeIn, v -> cfg().admRecoreFadeIn = Math.round(v / 50f) * 50, 0)
                             .desc("Fades in over this long (ms) once someone is in the core.");
-                    b.toggle("Over Screens", () -> cfg().admRecoreOverScreens, v -> cfg().admRecoreOverScreens = v)
-                            .desc("Also shown while a screen is open (terminals, chat, your inventory), in the background behind it: the screen always draws over it. Off: only with no screen open.");
-                    b.toggle("Over Leap Menu", () -> cfg().admRecoreOverLeap, v -> cfg().admRecoreOverLeap = v)
-                            .desc("Keeps showing once the leap menu is open, behind it.");
                     b.toggle("Hide When In Core", () -> cfg().admRecoreHideInCore, v -> cfg().admRecoreHideInCore = v)
                             .desc("Off for the rest of the run once you've been in the core yourself (after S3), even if you step back out.");
                 });
@@ -120,9 +109,6 @@ public final class Recore {
         sectionsOver = section - 1;
         coreWatch = section == 4;
     }
-
-    /** Term Info counted S3 done. */
-    public static void s3Done() { if (Adm.on() && on()) coreWatch = true; }
 
     private static void countSectionEnd(String msg) {
         if (sectionsOver >= 3) return;
@@ -162,7 +148,7 @@ public final class Recore {
         if (mc.level == null) return;
         if (mc.player != null && inCore(mc.player) && !inFlight(mc.player)) selfBeenInCore = true;
         long now = System.currentTimeMillis();
-        for (AdmLeapMenu.Mate m : AdmLeapMenu.teammates()) {
+        for (Mate m : mates) {
             if (m == null) continue;
             Player p = null;
             for (Player x : mc.level.players()) if (!x.isRemoved() && x.getName().getString().equals(m.name())) { p = x; break; }
@@ -172,45 +158,90 @@ public final class Recore {
         }
     }
 
-    private static boolean isLeapScreen(Screen screen) {
-        if (!(screen instanceof AbstractContainerScreen<?> s)) return false;
-        String t = s.getTitle().getString();
-        return t.equals("Spirit Leap") || t.equals("Teleport to Player");
+    private static void tick() {
+        refreshMates();
+        trackCore();
+    }
+
+    private static int priority(String c) {
+        if (c == null) return 99;
+        return switch (c) { case "Berserk" -> 0; case "Tank" -> 1; case "Archer", "Healer", "Mage" -> 2; default -> 99; };
+    }
+
+    private static int defaultQuadrant(String c) {
+        if (c == null) return 0;
+        return switch (c) { case "Berserk" -> 1; case "Healer" -> 2; case "Mage", "Tank" -> 3; default -> 0; };
+    }
+
+    private static int classOrder(String c) {
+        if (c == null) return 99;
+        return switch (c) { case "Archer" -> 0; case "Berserk" -> 1; case "Healer" -> 2; case "Mage" -> 3; case "Tank" -> 4; default -> 98; };
+    }
+
+    /** Teammates where the leap overlay puts them, same sorting. */
+    private static void refreshMates() {
+        Minecraft mc = Minecraft.getInstance();
+        String self = mc.player == null ? null : mc.player.getName().getString();
+        List<Mate> list = new ArrayList<>();
+        for (PlayerTracker.DungeonPlayer dp : PlayerTracker.getPlayers()) {
+            if (dp.getName() == null || dp.getName().equals(self)) continue;
+            list.add(new Mate(dp.getName(), "EMPTY".equals(dp.getDungeonClass()) ? null : dp.getDungeonClass()));
+        }
+        Mate[] out = new Mate[4];
+        String mode = cfg().leapSortMode == null ? "Odin" : cfg().leapSortMode;
+        if (mode.equals("Odin")) {
+            list.sort(Comparator.comparingInt(m -> priority(m.clazz)));
+            List<Mate> second = new ArrayList<>();
+            for (Mate m : list) {
+                int q = defaultQuadrant(m.clazz);
+                if (out[q] == null) out[q] = m; else second.add(m);
+            }
+            for (int i = 0; i < 4 && !second.isEmpty(); i++) if (out[i] == null) out[i] = second.remove(0);
+        } else {
+            switch (mode) {
+                case "Class A-Z" -> list.sort(Comparator.comparingInt((Mate m) -> classOrder(m.clazz)).thenComparing(m -> m.name.toLowerCase()));
+                case "Name A-Z" -> list.sort(Comparator.comparing(m -> m.name.toLowerCase()));
+                case "Custom" -> {
+                    List<String> order = cfg().leapCustomOrder == null ? List.of() : cfg().leapCustomOrder;
+                    list.sort(Comparator.comparingInt(m -> {
+                        int i = order.indexOf(m.name.toLowerCase());
+                        return i < 0 ? Integer.MAX_VALUE : i;
+                    }));
+                }
+                default -> { }
+            }
+            for (int i = 0; i < Math.min(4, list.size()); i++) out[i] = list.get(i);
+        }
+        mates = out;
+    }
+
+    private static PlayerSkin skin(String name) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() != null) {
+            PlayerInfo info = mc.getConnection().getPlayerInfoIgnoreCase(name);
+            if (info != null) return info.getSkin();
+        }
+        return DefaultPlayerSkin.getDefaultSkin();
     }
 
     private record Target(int i, String name, String clazz, PlayerSkin skin, long since) {}
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
-        trackCore();
         Minecraft mc = Minecraft.getInstance();
         TeslaMapsConfig c = cfg();
-        if (!c.admRecoreCoreLeap || mc.options.hideGui) return;
-        Player self = mc.player;
-        if (self == null) return;
-        Screen screen = mc.screen;
-        if (screen != null) {
-            if (!(c.admRecoreOverScreens || c.admRecorePreview)) return;
-            if (!c.admRecoreOverLeap && isLeapScreen(screen)) return;
-        }
+        if (!c.admRecoreCoreLeap || mc.options.hideGui || mc.player == null) return;
+        if (!coreWatch) return;
+        if (c.admRecoreHideInCore && selfBeenInCore) return;
+        List<Map.Entry<String, Long>> inOrder = new ArrayList<>(inCoreSince.entrySet());
+        inOrder.sort(Map.Entry.comparingByValue());
         List<Target> targets = new ArrayList<>();
-        if (c.admRecorePreview) {
-            long since = System.currentTimeMillis() / 3000 * 3000;
-            targets.add(new Target(1, "Teammate", "mage", AdmLeapOrder.skin(self.getName().getString()), since));
-            if (c.admRecoreAllInCore) targets.add(new Target(2, "Teammate", "archer", AdmLeapOrder.skin(self.getName().getString()), since));
-        } else {
-            if (!coreWatch) return;
-            if (c.admRecoreHideInCore && selfBeenInCore) return;
-            List<Map.Entry<String, Long>> inOrder = new ArrayList<>(inCoreSince.entrySet());
-            inOrder.sort(Map.Entry.comparingByValue());
-            if (!c.admRecoreAllInCore && inOrder.size() > 1) inOrder = inOrder.subList(0, 1);
-            AdmLeapMenu.Mate[] mates = AdmLeapMenu.teammates();
-            for (Map.Entry<String, Long> e : inOrder) {
-                for (int i = 0; i < 4; i++) {
-                    AdmLeapMenu.Mate m = mates[i];
-                    if (m == null || !m.name().equals(e.getKey())) continue;
-                    targets.add(new Target(i, m.name(), m.clazz() == null ? "" : m.clazz().toLowerCase(), AdmLeapMenu.skin(m.name()), e.getValue()));
-                    break;
-                }
+        Mate[] ms = mates;
+        for (Map.Entry<String, Long> e : inOrder) {
+            for (int i = 0; i < 4; i++) {
+                Mate m = ms[i];
+                if (m == null || !m.name().equals(e.getKey())) continue;
+                targets.add(new Target(i, m.name(), m.clazz() == null ? "" : m.clazz().toLowerCase(), skin(m.name()), e.getValue()));
+                break;
             }
         }
         Set<Integer> drawn = new HashSet<>();
@@ -232,14 +263,8 @@ public final class Recore {
         long now = System.currentTimeMillis();
         float fade = 1f;
         if (c.admRecoreFadeIn > 0) fade *= Math.max(0f, Math.min(1f, (now - t.since) / (float) c.admRecoreFadeIn));
-        if (c.admRecorePulse) {
-            float p = (float) ((Math.sin(now / 1000.0 * c.admRecorePulseSpeed * 2 * Math.PI) + 1) / 2);
-            float low = c.admRecorePulseLow / 100f;
-            fade *= low + (1 - low) * p;
-        }
         if (fade <= 0f) return;
         int col = faded(TeslaMapsConfig.parseColor(c.admRecoreColor), fade);
-        int outlineCol = faded(TeslaMapsConfig.parseColor(c.admRecoreOutlineColor), fade);
 
         int i = t.i;
         int w = mc.getWindow().getGuiScaledWidth(), h = mc.getWindow().getGuiScaledHeight();
@@ -266,7 +291,6 @@ public final class Recore {
                         case "Fade To Edge" -> fadeRect(g, x0, y0, x1, y1, col, -ax, -ay);
                         default -> g.fill(x0, y0, x1, y1, col);
                     }
-                    if (c.admRecoreOutline) frame(g, x0, y0, x1, y1, c.admRecoreOutlineWidth, outlineCol);
                 }
             }
             case "Corner Bracket" -> {
@@ -277,14 +301,11 @@ public final class Recore {
                 midX = px + sx * 12; midY = py + sy * 12;
             }
             case "Leap Box" -> {
-                int bw = AdmLeapMenu.BOX_WIDTH, bh = AdmLeapMenu.BOX_HEIGHT;
+                int bw = BOX_WIDTH, bh = BOX_HEIGHT;
                 int lx = right ? 0 : -bw, ly = bottom ? 0 : -bh;
-                float scale = c.admLeapScale;
                 g.pose().pushMatrix();
                 g.pose().translate(cx + sx * 24, cy + sy * 24);
-                g.pose().scale(scale, scale);
-                AdmLeapMenu.roundedFill(g, lx, ly, lx + bw, ly + bh, col, 9);
-                if (c.admRecoreOutline) frame(g, lx, ly, lx + bw, ly + bh, c.admRecoreOutlineWidth, outlineCol);
+                roundedFill(g, lx, ly, lx + bw, ly + bh, col, 9);
                 int face = (int) (bh * 0.76);
                 PlayerFaceExtractor.extractRenderState(g, t.skin, lx + 9, ly + 9, face, withAlpha(0xFFFFFF, 64 / 255f * fade));
                 g.text(mc.font, t.name, lx + 15 + face, ly + (int) (bh / 2.5), col, false);
@@ -302,10 +323,9 @@ public final class Recore {
             }
         }
 
-        if (!c.admRecoreShowName) return;
         List<String> lines = new ArrayList<>();
         lines.add(t.name);
-        if (c.admRecoreShowClass && !t.clazz.isEmpty()) lines.add(Character.toUpperCase(t.clazz.charAt(0)) + t.clazz.substring(1));
+        if (!t.clazz.isEmpty()) lines.add(Character.toUpperCase(t.clazz.charAt(0)) + t.clazz.substring(1));
         float s = c.admRecoreNameScale;
         int tw = 0;
         for (String l : lines) tw = Math.max(tw, mc.font.width(l));
@@ -338,10 +358,18 @@ public final class Recore {
         }
     }
 
-    private static void frame(GuiGraphicsExtractor g, int x0, int y0, int x1, int y1, int t, int rgba) {
-        g.fill(x0, y0, x1, y0 + t, rgba);
-        g.fill(x0, y1 - t, x1, y1, rgba);
-        g.fill(x0, y0 + t, x0 + t, y1 - t, rgba);
-        g.fill(x1 - t, y0 + t, x1, y1 - t, rgba);
+    private static void roundedFill(GuiGraphicsExtractor g, int x0, int y0, int x1, int y1, int color, int r) {
+        r = Math.max(0, Math.min(r, Math.min((x1 - x0) / 2, (y1 - y0) / 2)));
+        g.fill(x0 + r, y0, x1 - r, y1, color);
+        for (int k = 0; k < r; k++) {
+            double dy = r - k - 0.5;
+            int inset = (int) Math.round(r - Math.sqrt(Math.max(0, r * r - dy * dy)));
+            g.fill(x0 + inset, y0 + k, x0 + r, y0 + k + 1, color);
+            g.fill(x1 - r, y0 + k, x1 - inset, y0 + k + 1, color);
+            g.fill(x0 + inset, y1 - k - 1, x0 + r, y1 - k, color);
+            g.fill(x1 - r, y1 - k - 1, x1 - inset, y1 - k, color);
+        }
+        g.fill(x0, y0 + r, x0 + r, y1 - r, color);
+        g.fill(x1 - r, y0 + r, x1, y1 - r, color);
     }
 }

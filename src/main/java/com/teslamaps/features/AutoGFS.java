@@ -62,13 +62,6 @@ public class AutoGFS {
             if (pending.get(i).dueTick() <= tickCounter) pending.remove(i).action().run();
         }
 
-        if (TeslaMapsConfig.get().autoGFSTimer) {
-            int intervalTicks = TeslaMapsConfig.get().autoGFSInterval * 20;
-            if (tickCounter % intervalTicks == 0) {
-                refillItems();
-            }
-        }
-
         if (!DungeonManager.isInDungeon()) {
             dungeonStartHandled = false;
         }
@@ -139,10 +132,6 @@ public class AutoGFS {
                 .map(p -> !p.isAlive()).orElse(false);
     }
 
-    private static boolean inKuudra() {
-        return com.teslamaps.utils.SkyblockUtils.getArea().toLowerCase(java.util.Locale.ROOT).contains("kuudra");
-    }
-
     public static final String DRAFT_AUTO = "Auto";
     public static final String DRAFT_CLICK = "Click in Chat";
     public static final String[] DRAFT_MODES = {DRAFT_AUTO, DRAFT_CLICK};
@@ -179,9 +168,6 @@ public class AutoGFS {
         if (mc.player == null || mc.screen != null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (c.autoGFSDungeonOnly && !DungeonManager.isInDungeon() && !(c.autoGFSKuudra && inKuudra())) {
-            return;
-        }
         if (c.autoGFSSkipDead && localDead()) return;
 
         long now = System.currentTimeMillis();

@@ -80,7 +80,6 @@ public class RouteEditScreen extends Screen {
         crossX = panelX + PANEL_W - 16 - CROSS_W;
         crossY = panelY + 14;
 
-        GuiSounds.resetHover();
         ScreenFit.clamp(this);
     }
 
@@ -305,7 +304,6 @@ public class RouteEditScreen extends Screen {
         flatButton(ctx, skyblockerX, COPY_W, "Skyblocker", mouseX, mouseY);
         flatButton(ctx, doneX, DONE_W, "Done", mouseX, mouseY);
 
-        GuiSounds.endFrame();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
@@ -313,7 +311,6 @@ public class RouteEditScreen extends Screen {
         OrderedWaypoints.Wp wp = waypoints.get(idx);
         boolean rowHovered = mouseX >= listX && mouseX < listX + contentW && mouseY >= ry && mouseY < ry + ROW_H;
         if (rowHovered) {
-            GuiSounds.hover("wp:" + idx);
             ctx.fill(listX, ry, listX + contentW, ry + ROW_H, GuiStyle.rowHover());
         }
         if (idx == selected) ctx.fill(listX, ry, listX + 2, ry + ROW_H, GuiStyle.accent());
@@ -360,7 +357,6 @@ public class RouteEditScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int w, String label, int mouseX, int mouseY) {
         boolean hovered = in(mouseX, mouseY, x, footerY, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("wp:" + label);
         GuiStyle.panel(ctx, x, footerY, w, FOOTER_H, hovered);
         WaypointRoutesScreen.drawBorder(ctx, x, footerY, w, FOOTER_H, hovered ? GuiStyle.accent() : GuiStyle.border());
         ctx.centeredText(this.font, label, x + w / 2, footerY + 7, GuiStyle.text());

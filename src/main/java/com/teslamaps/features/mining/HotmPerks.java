@@ -10,64 +10,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 
-/** Heart of the Mountain: perk tint, perk level, tokens, powder costs and the Sky Mall readout. */
+/** Heart of the Mountain: perk tint, perk level, tokens and the Sky Mall readout. */
 public class HotmPerks {
 
     private static final Pattern NOT_UNLOCKED = Pattern.compile("Requires.*|.*Mountain!|Click to unlock!");
-    private static final Pattern LEVEL_LINE = Pattern.compile("Level (\\d+)(?:/(\\d+))?.*");
     private static final Pattern TOKENS = Pattern.compile("Tokens? of the Mountain: (\\d+)");
     private static final Pattern BUFF = Pattern.compile(" ?(?:New buff: |■ )?(.*)");
     private static final int NONE = 0, ENABLED = 1, DISABLED = 2;
-
-    // Ported from SkyHanni's HotmData: cost of level n -> n+1 is floor((n + 1 + offset)^exp)
-    private record Perk(int max, double exp, int offset, int powder) {}
-    private static final int MITHRIL = 0, GEMSTONE = 1, GLACITE = 2;
-    private static final String[] POWDER_NAMES = {"§2Mithril Powder", "§dGemstone Powder", "§bGlacite Powder"};
-    private static final Map<String, Perk> PERKS = Map.ofEntries(
-            Map.entry("Mining Speed", new Perk(50, 3.0, 0, MITHRIL)),
-            Map.entry("Mining Fortune", new Perk(50, 3.05, 0, MITHRIL)),
-            Map.entry("Titanium Insanium", new Perk(50, 3.1, 0, MITHRIL)),
-            Map.entry("Luck of the Cave", new Perk(45, 3.07, 0, MITHRIL)),
-            Map.entry("Efficient Miner", new Perk(100, 2.6, 0, MITHRIL)),
-            Map.entry("Quick Forge", new Perk(20, 3.2, 0, MITHRIL)),
-            Map.entry("Old-School", new Perk(20, 4.0, 0, GEMSTONE)),
-            Map.entry("Professional", new Perk(140, 2.3, 0, GEMSTONE)),
-            Map.entry("Mole", new Perk(200, 2.17883, 0, GEMSTONE)),
-            Map.entry("Gem Lover", new Perk(20, 4.0, 0, GEMSTONE)),
-            Map.entry("Seasoned Mineman", new Perk(100, 2.3, 0, GEMSTONE)),
-            Map.entry("Fortunate Mineman", new Perk(50, 3.2, 0, GEMSTONE)),
-            Map.entry("Blockhead", new Perk(20, 4.0, 0, GEMSTONE)),
-            Map.entry("Keep It Cool", new Perk(50, 3.07, 0, GEMSTONE)),
-            Map.entry("Lonesome Miner", new Perk(45, 3.07, 0, GEMSTONE)),
-            Map.entry("Great Explorer", new Perk(20, 4.0, 0, GEMSTONE)),
-            Map.entry("Powder Buff", new Perk(50, 3.2, 0, GEMSTONE)),
-            Map.entry("Speedy Mineman", new Perk(50, 3.2, 0, GEMSTONE)),
-            Map.entry("Subterranean Fisher", new Perk(40, 3.07, 0, GEMSTONE)),
-            Map.entry("No Stone Unturned", new Perk(50, 3.05, 0, GLACITE)),
-            Map.entry("Strong Arm", new Perk(100, 2.3, 0, GLACITE)),
-            Map.entry("Steady Hand", new Perk(100, 2.6, 0, GLACITE)),
-            Map.entry("Warm Heart", new Perk(50, 3.1, 0, GLACITE)),
-            Map.entry("Surveyor", new Perk(20, 4.0, 0, GLACITE)),
-            Map.entry("Metal Head", new Perk(20, 4.0, 0, GLACITE)),
-            Map.entry("Rags to Riches", new Perk(50, 3.05, 0, GLACITE)),
-            Map.entry("Eager Adventurer", new Perk(100, 2.3, 0, GLACITE)),
-            Map.entry("Crystalline", new Perk(50, 3.3, 0, GLACITE)),
-            Map.entry("Gifts from the Departed", new Perk(100, 2.45, 0, GLACITE)),
-            Map.entry("Mining Master", new Perk(10, 5.0, 6, GLACITE)),
-            Map.entry("Dead Man's Chest", new Perk(50, 3.2, 0, GLACITE)),
-            Map.entry("Vanguard Seeker", new Perk(50, 3.1, 0, GLACITE)));
 
     // what one slot shows, built once per (immutable) lore component
     private record Info(int state, String tip) {}
@@ -84,7 +43,7 @@ public class HotmPerks {
 
     public static void register() {
         feature = Feature.of("HotmPerks").section("Mining")
-                .when(() -> cfg().hotmHighlight || cfg().hotmLevelStack || cfg().hotmTokenStack || cfg().hotmPowderTooltip)
+                .when(() -> cfg().hotmHighlight || cfg().hotmLevelStack || cfg().hotmTokenStack)
                 .config("Mining", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("HotM Menu");
@@ -94,9 +53,6 @@ public class HotmPerks {
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
                     b.toggle("Tokens On Heart Item", () -> c.hotmTokenStack, v -> c.hotmTokenStack = v)
                             .desc("Unused Tokens of the Mountain on the heart item.");
-                    b.toggle("HotM Powder Costs In Tooltip", () -> c.hotmPowderTooltip, v -> c.hotmPowderTooltip = v)
-                            .desc("Powder spent/total, cost of the next 10 levels (shift click) and cost to max.")
-                            .tags("powder", "mithril", "gemstone", "glacite", "hotm");
                     b.toggle("Sky Mall Display", () -> c.hotmSkyMallDisplay, v -> c.hotmSkyMallDisplay = v)
                             .desc("HUD line with today's Sky Mall buff, read from chat and the HotM menu.")
                             .tags("sky mall", "skymall", "hotm");
@@ -114,10 +70,6 @@ public class HotmPerks {
                 .enabled(() -> cfg().hotmSkyMallDisplay)
                 .size(() -> previewSize()[0], () -> previewSize()[1])
                 .preview(HotmPerks::draw);
-        ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (!cfg().hotmPowderTooltip || feature == null || !inMenu() || !feature.active()) return;
-            addCostLines(stack, lines);
-        });
     }
 
     private static final Pattern LEVEL = Pattern.compile("Level (\\d+)(/\\d+)?");
@@ -253,7 +205,7 @@ public class HotmPerks {
 
     private static boolean trackSkyMall() {
         TeslaMapsConfig c = cfg();
-        return c.hotmSkyMallDisplay || c.dwarvenOverlay && c.dwarvenOverlaySkyMall;
+        return c.hotmSkyMallDisplay;
     }
 
     private static long sbDay(long now) {
@@ -306,42 +258,6 @@ public class HotmPerks {
             return "§a10x §6Gold §7& §bDiamond §7Goblin chance";
         if (e.contains("5x Titanium drops")) return "§a5x §9Titanium §7drops";
         return null;
-    }
-
-    private static void addCostLines(ItemStack stack, List<Component> lines) {
-        String name = StringUtil.stripTrim(stack.getHoverName().getString());
-        Perk perk = PERKS.get(name);
-        if (perk == null) return;
-        List<String> lore = ItemUtil.loreLines(stack);
-        if (lore.isEmpty()) return;
-        boolean locked = NOT_UNLOCKED.matcher(lore.get(lore.size() - 1).trim()).matches();
-        int level = 0;
-        Matcher m = LEVEL_LINE.matcher(lore.get(0).trim());
-        if (m.matches()) level = Integer.parseInt(m.group(1));
-        if (locked) level = 0;
-        level = Math.min(level, perk.max());
-
-        String powder = POWDER_NAMES[perk.powder()];
-        long total = cost(perk, 1, perk.max());
-        long spent = level <= 1 ? 0 : cost(perk, 1, level);
-        lines.add(Component.empty());
-        lines.add(Component.literal("§7Powder §f" + String.format("%,d", spent) + "§8/" + String.format("%,d", total)
-                + " §8(§e" + (total == 0 ? 100 : Math.round(spent * 1000.0 / total) / 10.0) + "%§8)"));
-        if (locked || level < 1 || level >= perk.max()) return;
-        int shift = Math.min(10, perk.max() - level);
-        lines.add(Component.literal("§7Cost (§e+" + shift + "§7): §f" + String.format("%,d", cost(perk, level, level + shift))
-                + " " + powder));
-        if (perk.max() - level > 10) {
-            lines.add(Component.literal("§7Cost to max (§e+" + (perk.max() - level) + "§7): §f"
-                    + String.format("%,d", cost(perk, level, perk.max())) + " " + powder));
-        }
-    }
-
-    /** Powder from level {@code from} to level {@code to}. */
-    private static long cost(Perk perk, int from, int to) {
-        long sum = 0;
-        for (int n = from; n < to; n++) sum += (long) Math.floor(Math.pow(n + 1 + perk.offset(), perk.exp()));
-        return sum;
     }
 
     private static void renderSkyMall(GuiGraphicsExtractor ctx, DeltaTracker delta) {

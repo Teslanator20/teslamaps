@@ -14,7 +14,6 @@ public class QolMinecraftMixin {
     @Inject(method = "setScreen", at = @At("TAIL"))
     private void teslamaps$qolScreenSet(Screen screen, CallbackInfo ci) {
         com.teslamaps.features.HarpHelper.onScreenSet(screen);
-        com.teslamaps.features.ContainerTriggers.onScreenSet(screen);
     }
 
     @ModifyExpressionValue(method = "resizeGui",

@@ -26,10 +26,6 @@ public final class GardenCategory {
         b.info("Visitors charmed with the Gift Vinyl Set, click a name to drop it");
         b.button("Clear Charmed List",
                 () -> com.teslamaps.features.CharmedVisitors.clear());
-        b.toggle("Accept Offer Green / Red",
-                () -> config.visitorOfferColor, v -> config.visitorOfferColor = v).fresh()
-                .desc("Green when the visitor can be served right now, red when Hypixel lists missing items. "
-                        + "Hypixel's own check, so items in sacks count.");
         b.toggle("6th Visitor Warning",
                 () -> config.sixthVisitorWarning, v -> config.sixthVisitorWarning = v);
         b.info("Hypixel hides the timer at 5 visitors, so this estimates it");
@@ -153,8 +149,6 @@ public final class GardenCategory {
         b.toggle("  Always Show Pest Chance",
                 () -> config.pestChanceAlways, v -> config.pestChanceAlways = v).fresh()
                 .desc("Bonus Pest Chance line even without the pest chance loadout. Struck through with OFF while Hypixel marks it disabled.");
-        b.toggle("Cooldown Arms Routine",
-                () -> config.pestCooldownArmsRoutine, v -> config.pestCooldownArmsRoutine = v);
         b.slider("Profit Idle After (sec)", 30f, 600f,
                 () -> (float) config.farmIdleSeconds,
                 v -> config.farmIdleSeconds = (int) (float) v, 0);
@@ -184,8 +178,6 @@ public final class GardenCategory {
                 () -> config.pestCooldownTitle, v -> config.pestCooldownTitle = v);
         b.toggle("Cooldown Sound",
                 () -> config.pestCooldownSound, v -> config.pestCooldownSound = v);
-        b.toggle("Pause Countdown In Wardrobe",
-                () -> config.pestCountdownWardrobePause, v -> config.pestCountdownWardrobePause = v).fresh();
         b.soundDropdown("Cooldown Sound Type",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.pestCooldownSoundName, v -> config.pestCooldownSoundName = v);
@@ -201,11 +193,6 @@ public final class GardenCategory {
         b.label("Spray");
         b.toggle("Queue Trip When Spray Runs Out",
                 () -> config.sprayRoutine, v -> config.sprayRoutine = v);
-        b.label("Round Timer");
-        b.toggle("Pest Round Timer",
-                () -> config.pestTimer, v -> config.pestTimer = v);
-        b.button("Reset Pest PB",
-                () -> com.teslamaps.features.PestTimer.resetPersonalBest());
         b.label("Profit");
         b.toggle("Profit Tracker",
                 () -> config.farmProfit, v -> config.farmProfit = v);
@@ -216,12 +203,6 @@ public final class GardenCategory {
                 () -> config.farmPriceMode, v -> config.farmPriceMode = v);
         b.toggle("Subtract Replenish Cost",
                 () -> config.farmProfitReplenish, v -> config.farmProfitReplenish = v);
-        b.toggle("Count Kernels As Coins",
-                () -> config.farmProfitKernels, v -> config.farmProfitKernels = v);
-        b.dropdown("  Kernel Item", com.teslamaps.features.FarmProfit.KERNEL_ITEMS,
-                () -> config.farmKernelItem, v -> config.farmKernelItem = v);
-        b.toggle("  Kernel 5% Discount",
-                () -> config.farmKernelDiscount, v -> config.farmKernelDiscount = v);
         b.toggle("Pest Species In Breakdown",
                 () -> config.farmProfitPestTypes, v -> config.farmProfitPestTypes = v);
         b.toggle("  Pest Tracker Panel",
@@ -314,8 +295,6 @@ public final class GardenCategory {
         b.slider("Warn Seconds Before Expiry", 0f, 300f,
                 () -> (float) config.philipWarnSeconds,
                 v -> config.philipWarnSeconds = (int) (float) v, 0);
-        b.toggle("Expiry Queues Philip Step",
-                () -> config.philipArmsRoutine, v -> config.philipArmsRoutine = v);
         b.soundDropdown("Warning Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.pestBuffSound, v -> config.pestBuffSound = v);

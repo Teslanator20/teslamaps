@@ -1,19 +1,17 @@
 package com.teslamaps.features.kuudra;
 
-// Ported from Shizo's kuudra/phasefour/BackboneTimer.kt, legitcatmod's FeroNotification + RendDamage and WpcMod's RendAnnounce.kt
+// Ported from Shizo's kuudra/phasefour/BackboneTimer.kt, legitcatmod's RendDamage and WpcMod's RendAnnounce.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.ItemPrice;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.ServerTickTimer;
 import com.teslamaps.utils.StringUtil;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
@@ -21,14 +19,14 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.monster.MagmaCube;
 import net.minecraft.world.item.ItemStack;
 
-/** Bonemerang backbone timer, ferocity proc on the starred bone and rend pull damage in P4. */
+/** Bonemerang backbone timer and rend pull damage in P4. */
 public final class KuudraRend {
 
-    private static final int BACKBONE_TICKS = 22, BAR = 20, COOLDOWN = 32, FERO_WINDOW = 35;
+    private static final int BACKBONE_TICKS = 22, BAR = 20, COOLDOWN = 32;
 
     private static Feature feature;
     private static HudEditElement hud;
-    private static long hitAt = -1, cooldownUntil, rendUntil, feroUntil = -1;
+    private static long hitAt = -1, cooldownUntil, rendUntil;
     private static int total = BACKBONE_TICKS, barW;
     private static float lastHp = 25_000f;
     private static String bar = "", percent = "";
@@ -43,7 +41,7 @@ public final class KuudraRend {
                 .size(() -> Minecraft.getInstance().font.width(barText(0.5)[0]) + 8, () -> 30)
                 .preview((g, mc, x, y, s) -> { String[] t = barText(0.5); draw(g, mc, x, y, s, t[0], t[1]); });
         feature = Feature.of("KuudraRend").section("Kuudra")
-                .when(() -> cfg().kuudraBackboneTimer || cfg().kuudraFeroProc || cfg().kuudraRendDamage)
+                .when(() -> cfg().kuudraBackboneTimer || cfg().kuudraRendDamage)
                 .tick(KuudraRend::tick)
                 .hud("kuudrabackbone", KuudraRend::render)
                 .config("Kuudra", b -> {
@@ -55,8 +53,6 @@ public final class KuudraRend {
                     b.slider("  Advance Ticks", 0, 6, () -> (float) c.kuudraBackboneAdvance, v -> c.kuudraBackboneAdvance = Math.round(v), 0)
                             .desc("Ends the bar this many ticks early to cover your reaction time");
                     b.toggle("  Sound", () -> c.kuudraBackboneSound, v -> c.kuudraBackboneSound = v);
-                    b.toggle("Ferocity Proc Message", () -> c.kuudraFeroProc, v -> c.kuudraFeroProc = v)
-                            .desc("'Ferocity procced!' when the Starred Bonemerang's throw is followed by the iron golem attack sound");
                     b.toggle("Rend Pull Damage", () -> c.kuudraRendDamage, v -> c.kuudraRendDamage = v)
                             .desc("In Kuudra's lair (P4): 'Someone pulled for X damage' when Kuudra loses more than 1666 HP at once");
                 });
@@ -68,25 +64,12 @@ public final class KuudraRend {
 
     private static void onUse(ItemStack held) {
         long now = ServerTickTimer.now();
-        if (cfg().kuudraFeroProc && "STARRED_BONE_BOOMERANG".equals(ItemUtil.skyblockId(held))) feroUntil = now + FERO_WINDOW;
         if (!cfg().kuudraBackboneTimer || KuudraContext.phase() == KuudraContext.NONE) return;
         if (!StringUtil.strip(held.getHoverName().getString()).contains("Bonemerang") || now < cooldownUntil) return;
         cooldownUntil = now + COOLDOWN;
         total = Math.max(1, BACKBONE_TICKS - cfg().kuudraBackboneAdvance);
         hitAt = now + total;
         rendUntil = 0;
-    }
-
-    /** SoundEngine.play hook. */
-    public static void onSound(SoundInstance s) {
-        if (feroUntil < 0 || feature == null || !feature.active()) return;
-        if (ServerTickTimer.now() > feroUntil) { feroUntil = -1; return; }
-        try {
-            if (!"minecraft:entity.iron_golem.attack".equals(s.getIdentifier().toString())) return;
-        } catch (Throwable t) { return; }
-        feroUntil = -1;
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§c[TeslaMaps] Ferocity procced!"));
     }
 
     private static void tick() {

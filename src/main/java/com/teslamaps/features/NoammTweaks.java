@@ -6,7 +6,6 @@ import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ItemUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
@@ -40,10 +39,6 @@ public final class NoammTweaks {
                     b.label("Nametag Tweaks");
                     b.toggle("Hide Nametag Background", () -> cfg().nametagNoBackground, v -> cfg().nametagNoBackground = v)
                             .desc("No black box behind nametags.");
-                    b.toggle("Shadowed Nametag", () -> cfg().nametagShadow, v -> cfg().nametagShadow = v)
-                            .desc("Text shadow on nametag labels.");
-                    b.toggle("Hide Dinnerbone Nametag", () -> cfg().hideDinnerboneNametag, v -> cfg().hideDinnerboneNametag = v)
-                            .desc("Hides the nametag of entities named \"Dinnerbone\".");
                 })
                 .config("Combat", b -> {
                     b.label("Arrow Fix");
@@ -85,11 +80,5 @@ public final class NoammTweaks {
         }
         notBowCache.add(id);
         return false;
-    }
-
-    public static boolean hideDinnerbone(Entity entity) {
-        if (!cfg().hideDinnerboneNametag) return false;
-        Component name = entity.getCustomName();
-        return name != null && name.getString().equalsIgnoreCase("Dinnerbone");
     }
 }

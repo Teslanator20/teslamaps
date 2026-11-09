@@ -66,7 +66,7 @@ public final class ForgeSlotHud {
                         () -> (lines.isEmpty() ? SAMPLE.size() : lines.size()) * 10)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, lines.isEmpty() ? SAMPLE : lines,
                         lines.isEmpty() ? width(SAMPLE) : width));
-        Feature.of("ForgeSlotData").section("Mining").when(() -> cfg().forgeSlotHud || cfg().dwarvenOverlay || cfg().forgeReminder)
+        Feature.of("ForgeSlotData").section("Mining").when(() -> cfg().forgeSlotHud || cfg().forgeReminder)
                 .tick(ForgeSlotHud::tick);
         Feature.of("ForgeSlotHud").section("Mining").when(() -> cfg().forgeSlotHud)
                 .hudHiddenInInventory("forgeslothud", ForgeSlotHud::render)

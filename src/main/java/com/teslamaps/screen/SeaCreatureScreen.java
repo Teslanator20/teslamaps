@@ -62,7 +62,6 @@ public class SeaCreatureScreen extends Screen {
         });
         addWidget(search);
 
-        GuiSounds.resetHover();
         rebuildList();
         ScreenFit.clamp(this);
     }
@@ -180,7 +179,6 @@ public class SeaCreatureScreen extends Screen {
         flatButton(ctx, resetX, BTN_W, "Reset", mouseX, mouseY);
         flatButton(ctx, doneX, DONE_W, "Done", mouseX, mouseY);
 
-        GuiSounds.endFrame();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
@@ -193,7 +191,6 @@ public class SeaCreatureScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int w, String label, int mouseX, int mouseY) {
         boolean hovered = in(mouseX, mouseY, x, footerY, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("sc:" + label);
         GuiStyle.panel(ctx, x, footerY, w, FOOTER_H, hovered);
         int border = hovered ? GuiStyle.accent() : GuiStyle.border();
         ctx.fill(x, footerY, x + w, footerY + 1, border);

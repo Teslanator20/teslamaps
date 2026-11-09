@@ -110,8 +110,8 @@ public final class ChocoData {
     static boolean anyEnabled() {
         TeslaMapsConfig c = cfg();
         return c.cfHelper || c.cfStats || c.cfUpgradeWarning || c.cfStrayWarning || c.cfStrayTimer || c.cfStrayTracker
-                || c.cfTimeTowerWarning || c.cfTimeTowerExpired || c.cfBarnWarning || c.cfDupeTime || c.cfShopPrice
-                || c.cfHitman || c.cfKeybinds || c.cfCompactTooltip || c.cfReminder;
+                || c.cfTimeTowerWarning || c.cfTimeTowerExpired || c.cfBarnWarning || c.cfShopPrice
+                || c.cfHitman || c.cfReminder;
     }
 
     public static void register() {

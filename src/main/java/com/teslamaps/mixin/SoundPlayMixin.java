@@ -24,16 +24,10 @@ public class SoundPlayMixin {
             "minecraft:entity.firework_rocket.twinkle",
             "minecraft:entity.firework_rocket.twinkle_far");
 
-    private static final java.util.Set<String> LIGHTNING = java.util.Set.of(
-            "minecraft:entity.lightning_bolt.thunder",
-            "minecraft:entity.lightning_bolt.impact");
-
     @Inject(method = "play", at = @At("HEAD"))
     private void teslamaps$recordSound(SoundInstance instance, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
         com.teslamaps.features.SoundVolumes.record(instance);
-        com.teslamaps.features.ReaperTimer.onSound(instance);
         com.teslamaps.features.tracker.ProfitTracker.onSound(instance);
-        com.teslamaps.features.kuudra.KuudraRend.onSound(instance);
     }
 
     // injected after the SoundInstance is resolved (this.sound non-null), where getPitch/getVolume are safe
@@ -53,11 +47,6 @@ public class SoundPlayMixin {
                 com.teslamaps.features.fishing.Wormholes.onSound(instance.getIdentifier().toString(), instance.getPitch());
             } catch (Throwable ignored) {}
         }
-        if (com.teslamaps.features.rift.DanceRoomHelper.listening()) {
-            try {
-                com.teslamaps.features.rift.DanceRoomHelper.onSound(instance.getIdentifier().toString(), instance.getPitch(), instance.getVolume());
-            } catch (Throwable ignored) {}
-        }
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (c.phantomleafSolver) {
             try {
@@ -70,7 +59,7 @@ public class SoundPlayMixin {
         boolean slayerMutes = com.teslamaps.slayer.SlayerMutes.enabled(c);
         boolean extraMutes = com.teslamaps.features.SoundMutes.active(c);
         boolean partySpam = com.teslamaps.features.MutePartySpam.active(c);
-        if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteLightning && !c.muteErrorSound && !foragingMutes && !slayerMutes && !c.arrowHitSound && !extraMutes
+        if (!c.soundDebug && !partySpam && !hasMutes && !c.muteBonzoStaff && !c.muteErrorSound && !foragingMutes && !slayerMutes && !c.arrowHitSound && !extraMutes
                 && !c.tiaRelayHelper && !c.killerSpringSoundFix && !com.teslamaps.features.ChatCompacts.soundActive(c)
                 && !com.teslamaps.features.PestSpawnSound.enabled(c)
                 && !com.teslamaps.features.mining.MiningSoundMutes.active(c)) return;
@@ -116,7 +105,6 @@ public class SoundPlayMixin {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;
         }
-        if (c.muteLightning && LIGHTNING.contains(id)) { cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED); return; }
         if (extraMutes && com.teslamaps.features.SoundMutes.shouldMute(c, instance, id)) {
             cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
             return;

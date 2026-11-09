@@ -127,7 +127,6 @@ public class EstimatedValue {
     private static int cacheKey() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         int flags = (c.itemValueExactPrice ? 1 : 0) | (c.itemValueIgnoreHelmetSkins ? 2 : 0)
-                | (c.itemValueIgnoreArmorDyes ? 4 : 0) | (c.itemValueIgnoreRunes ? 8 : 0)
                 | (c.itemValueShowBin ? 16 : 0) | (SbRepo.loaded() ? 32 : 0) | (SkyblockItems.loaded() ? 64 : 0);
         int h = flags;
         h = h * 31 + c.itemValueEnchantmentsCap;
@@ -845,7 +844,7 @@ public class EstimatedValue {
     private static double addArmorDye(CompoundTag ea, List<String> list) {
         String id = attrString(ea, "dye_item");
         if (id == null) return 0.0;
-        return addCosmetic(id, list, "Dye", TeslaMapsConfig.get().itemValueIgnoreArmorDyes);
+        return addCosmetic(id, list, "Dye", TeslaMapsConfig.get().itemValueIgnoreHelmetSkins);
     }
 
     private static double addRune(CompoundTag ea, String itemId, List<String> list) {
@@ -856,7 +855,7 @@ public class EstimatedValue {
         String name = runes.keySet().iterator().next();
         int tier = runes.getIntOr(name, 0);
         return addCosmetic(name.toUpperCase(Locale.ROOT) + "_RUNE;" + tier, list, "Rune",
-                TeslaMapsConfig.get().itemValueIgnoreRunes);
+                TeslaMapsConfig.get().itemValueIgnoreHelmetSkins);
     }
 
     private static double addCosmetic(String id, List<String> list, String label, boolean ignorePrice) {

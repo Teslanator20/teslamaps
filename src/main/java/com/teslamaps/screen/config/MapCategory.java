@@ -14,16 +14,8 @@ public final class MapCategory {
         b.label("General");
         b.toggle("Show Map", () -> config.mapEnabled, v -> config.mapEnabled = v);
         b.toggle("Only In Dungeon", () -> config.onlyShowInDungeon, v -> config.onlyShowInDungeon = v);
-        b.toggle("Only In Boss", () -> config.mapOnlyInBoss, v -> config.mapOnlyInBoss = v);
         b.toggle("Hide In Boss", () -> config.mapHideInBoss, v -> config.mapHideInBoss = v);
         b.toggle("Show Background", () -> config.showMapBackground, v -> config.showMapBackground = v);
-        b.toggle("Background Image", () -> config.mapBgImage, v -> config.mapBgImage = v).fresh()
-                .desc("Your own picture behind the map, from config/teslamaps/map_backgrounds");
-        b.dropdown("  Image", com.teslamaps.render.gui.MapImage.names(),
-                () -> config.mapBgImageName, v -> config.mapBgImageName = v).fresh();
-        b.slider("  Image Opacity", 0.0f, 1.0f, () -> config.mapBgImageAlpha, v -> config.mapBgImageAlpha = v, 2).fresh();
-        b.slider("  Image Inset", 0.0f, 10.0f, () -> config.mapBgImageInset, v -> config.mapBgImageInset = v, 0).fresh();
-        b.button("  Open Image Folder", com.teslamaps.render.gui.MapImage::openFolder).fresh();
         b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
         b.toggle("Hypixel Map Fallback", () -> config.mapHypixelFallback, v -> config.mapHypixelFallback = v);
         b.toggle("  Use Room Colors (Typed)", () -> config.mapFallbackTyped, v -> config.mapFallbackTyped = v).fresh();
@@ -132,7 +124,6 @@ public final class MapCategory {
         b.color("Unexplored", () -> config.colorUnexplored, v -> config.colorUnexplored = v);
         b.toggle("Darken Unentered (Type Color)", () -> config.mapDarkenUndiscovered, v -> config.mapDarkenUndiscovered = v);
         b.slider("  Darken Amount", 0.0f, 1.0f, () -> config.mapDarkenPercent, v -> config.mapDarkenPercent = v);
-        b.toggle("Gray Unentered (Type Color)", () -> config.mapGrayUndiscovered, v -> config.mapGrayUndiscovered = v);
         b.color("Normal", () -> config.colorNormal, v -> config.colorNormal = v);
         b.color("Entrance", () -> config.colorEntrance, v -> config.colorEntrance = v);
         b.color("Blood", () -> config.colorBlood, v -> config.colorBlood = v);

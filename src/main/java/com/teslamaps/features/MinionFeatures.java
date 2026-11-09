@@ -1,6 +1,6 @@
 package com.teslamaps.features;
 
-// Ported from SkyHanni's MinionFeatures / MinionXP, SkyblockAddons' minion warnings, Skytils' onlyCollectEnchantedItems
+// Ported from SkyHanni's MinionFeatures / MinionXP, SkyblockAddons' minion warnings
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,7 +31,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.ChestBlock;
@@ -86,7 +85,7 @@ public final class MinionFeatures {
     private static volatile List<Label> labels = List.of();
     private static final Set<Entity> hidden = Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Set<Integer> warned = new HashSet<>();
-    private static long lastFullWarn, lastReachWarn, lastBlockMsg;
+    private static long lastFullWarn, lastReachWarn;
 
     private static ItemStack hopperStack;
     private static String hopperLine;
@@ -104,7 +103,7 @@ public final class MinionFeatures {
 
     private static boolean anyOn() {
         TeslaMapsConfig c = cfg();
-        return c.minionOverlay || c.minionWarnings || c.minionHideLocationWarning || c.minionOnlyEnchanted || c.minionXpTooltip;
+        return c.minionOverlay || c.minionWarnings || c.minionXpTooltip;
     }
 
     public static void register() {
@@ -137,9 +136,6 @@ public final class MinionFeatures {
         b.toggle("  Storage Full", () -> c.minionWarnFull, v -> c.minionWarnFull = v);
         b.toggle("  Can't Reach Mobs", () -> c.minionWarnReach, v -> c.minionWarnReach = v);
         b.soundDropdown("  Sound", SoundOptions.keys(), () -> c.minionWarnSound, v -> c.minionWarnSound = v);
-        b.toggle("Hide 'Location isn't perfect'", () -> c.minionHideLocationWarning, v -> c.minionHideLocationWarning = v);
-        b.toggle("Only Collect Enchanted Items", () -> c.minionOnlyEnchanted, v -> c.minionOnlyEnchanted = v)
-                .desc("Minion menu: blocks clicks on raw items while enchanted items sit in its storage");
         b.toggle("Minion XP in Tooltips", () -> c.minionXpTooltip, v -> c.minionXpTooltip = v)
                 .desc("Minion and minion storage menus: skill XP for collecting each item, total on Collect All (Moar Skillz included)");
     }
@@ -330,8 +326,6 @@ public final class MinionFeatures {
             BlockPos p = pos(k);
             if (p != null) spots.add(p);
         }
-        List<ArmorStand> signs = new ArrayList<>();
-        List<ArmorStand> perfect = new ArrayList<>();
         for (ArmorStand as : EntityCache.namedArmorStands()) {
             Component cn = as.getCustomName();
             if (cn == null) continue;
@@ -341,18 +335,11 @@ public final class MinionFeatures {
                 if (c.minionWarnFull && n.contains("My storage is full!")) warn(as, true, now);
                 else if (c.minionWarnReach && n.contains("I can't reach any")) warn(as, false, now);
             }
-            if (c.minionHideLocationWarning) {
-                if (n.contains("This location isn't perfect!")) { hidden.add(as); perfect.add(as); }
-                else if (n.equals("/!\\")) signs.add(as);
-            }
             if (!spots.isEmpty() && raw.contains("❤") && as.isAlive()) {
                 for (BlockPos p : spots) {
                     if (as.distanceToSqr(p.getX() + 0.5, p.getY(), p.getZ() + 0.5) < 25) { hidden.add(as); break; }
                 }
             }
-        }
-        for (ArmorStand s : signs) {
-            for (ArmorStand p : perfect) if (s.distanceToSqr(p) < 2.25) { hidden.add(s); break; }
         }
     }
 
@@ -550,30 +537,5 @@ public final class MinionFeatures {
             TeslaMaps.LOGGER.error("Failed to load minion_xp.json", e);
         }
         return xpTable = out;
-    }
-
-    // --- only collect enchanted ---
-
-    public static boolean blockClick(AbstractContainerScreen<?> cs, Slot slot, ContainerInput type) {
-        TeslaMapsConfig c = cfg();
-        if (!c.minionOnlyEnchanted || !minionOpen || slot == null || feature == null || !feature.active()) return false;
-        if (slot.container instanceof Inventory || !inStorage(slot.index) || type == ContainerInput.QUICK_CRAFT) return false;
-        String id = ItemUtil.skyblockId(slot.getItem());
-        if (id == null || id.isEmpty() || id.startsWith("ENCHANTED_")) return false;
-        boolean enchanted = false;
-        for (Slot s : cs.getMenu().slots) {
-            if (s.container instanceof Inventory || !inStorage(s.index)) continue;
-            String o = ItemUtil.skyblockId(s.getItem());
-            if (o != null && o.startsWith("ENCHANTED_")) { enchanted = true; break; }
-        }
-        if (!enchanted) return false;
-        long now = System.currentTimeMillis();
-        Minecraft mc = Minecraft.getInstance();
-        if (now - lastBlockMsg > 5000 && mc.player != null) {
-            lastBlockMsg = now;
-            mc.player.sendSystemMessage(Component.literal(
-                    "§b[TeslaMaps] §7Blocked collecting a raw item §8(Inventory > Only Collect Enchanted Items)"));
-        }
-        return true;
     }
 }

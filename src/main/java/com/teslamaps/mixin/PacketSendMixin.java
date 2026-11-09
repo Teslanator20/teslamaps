@@ -14,8 +14,6 @@ public class PacketSendMixin {
 
     @Inject(method = "send", at = @At("HEAD"), cancellable = true)
     private void teslamaps$fixDoubleClicks(Packet<?> packet, CallbackInfo ci) {
-        if (packet instanceof net.minecraft.network.protocol.game.ServerboundChatCommandPacket cmd
-                && com.teslamaps.features.events.HoppityCallWarning.blockCommand(cmd.command())) { ci.cancel(); return; }
         if (packet instanceof ServerboundUseItemOnPacket && FixDoubleClicks.shouldCancelUseOn()) ci.cancel();
         else if (packet instanceof net.minecraft.network.protocol.game.ServerboundUseItemPacket use) {
             com.teslamaps.features.HypeSound.onUseItem(use.getHand());

@@ -76,7 +76,7 @@ public final class Timers {
     private static int crushes;
     private static Integer purpleStepAt;
     private static Integer necronDpsAt;
-    // section times (ADM takes them from TermInfo)
+    // section times
     private static boolean inP3;
     private static int sectionStart, completed, total = 7;
     private static boolean gateBlown;

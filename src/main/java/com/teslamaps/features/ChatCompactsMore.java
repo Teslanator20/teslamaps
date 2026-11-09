@@ -1,11 +1,10 @@
 package com.teslamaps.features;
 
 // Ported from SkyHanni's CompactJacobClaim, CompactBingoChat, CompactExperimentRewards,
-// ShortenCoins, DarkAuctionItemDisplay and ArachneChatMessageHider
+// and ShortenCoins
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.PlayerChat;
-import com.teslamaps.utils.ScoreboardUtils;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.ChatFormatting;
@@ -34,7 +33,6 @@ public final class ChatCompactsMore {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     private static boolean emitting;
-    private static Object lastLevel;
     private static String pendingText;
     private static Component pendingOut;
 
@@ -53,10 +51,6 @@ public final class ChatCompactsMore {
                             .desc("Experimentation Table: the claim and all +reward lines as one line with hover");
                     b.toggle("Shorten Coin Amounts", () -> c.shortenChatCoins, v -> c.shortenChatCoins = v)
                             .desc("Gold coin numbers in SkyBlock chat: 5,100,000 -> 5.1M");
-                    b.toggle("Dark Auction Item In Bid Line", () -> c.darkAuctionItemName, v -> c.darkAuctionItemName = v)
-                            .desc("Appends the item to Sirius' highest bidder / no bids line");
-                    b.toggle("Hide Arachne Messages", () -> c.hideArachneMessages, v -> c.hideArachneMessages = v)
-                            .desc("Spider's Den: other players' Arachne callings, spawns and ARACHNE DOWN outside the Sanctuary, Venom Shot lines everywhere");
                 });
     }
 
@@ -66,18 +60,10 @@ public final class ChatCompactsMore {
         pendingOut = null;
         if (emitting) return false;
         TeslaMapsConfig c = cfg();
-        if (!(c.compactJacobClaim || c.compactLevelUps || c.compactExperimentRewards || c.shortenChatCoins
-                || c.darkAuctionItemName || c.hideArachneMessages)) return false;
+        if (!(c.compactJacobClaim || c.compactLevelUps || c.compactExperimentRewards || c.shortenChatCoins)) return false;
         PlayerChat.Msg pm = PlayerChat.current();
         boolean npc = pm != null && pm.channel() == PlayerChat.Channel.NPC;
         if (pm != null && !npc) return false;
-
-        Object level = Minecraft.getInstance().level;
-        if (level != lastLevel) {
-            lastLevel = level;
-            daItem = null;
-            arachneHide = false;
-        }
 
         String trimmed = t.trim();
         if (!npc) {
@@ -85,13 +71,8 @@ public final class ChatCompactsMore {
             if (c.compactLevelUps && levelUp(message, t, trimmed)) return true;
             if (c.compactExperimentRewards && experiment(message, t, trimmed)) return true;
         }
-        if (c.hideArachneMessages && arachne(message, trimmed)) return true;
 
         Component out = message;
-        if (c.darkAuctionItemName) {
-            Component da = darkAuction(message, trimmed);
-            if (da != null) out = da;
-        }
         if (c.shortenChatCoins && hasDigitGroup(t) && SkyblockUtils.isInSkyblock()) {
             Component sc = shortenCoins(out);
             if (sc != null) out = sc;
@@ -444,62 +425,6 @@ public final class ChatCompactsMore {
         } catch (NumberFormatException e) {
             return -1;
         }
-    }
-
-    // ---- CHAT-028 dark auction ----
-
-    private static final Pattern DA_NEXT = Pattern.compile("\\[NPC] Sirius: (?:First|Next) up we have an? ([^,]+), the starting bid is [\\d,]+ Coins!");
-    private static final Pattern DA_BID = Pattern.compile("\\[NPC] Sirius: (?:The highest bidder was \\w+ with a bid of [\\d,]+ Coins!|No one made any bids!.*)");
-    private static String daItem;
-
-    private static Component darkAuction(Component message, String t) {
-        if (!t.startsWith("[NPC] Sirius: ")) return null;
-        Matcher m = DA_NEXT.matcher(t);
-        if (m.matches()) {
-            daItem = m.group(1);
-            return null;
-        }
-        if (daItem == null || !DA_BID.matcher(t).matches()) return null;
-        Component out = message.copy().append(Component.literal(" (" + daItem + ")").withStyle(ChatFormatting.GRAY));
-        daItem = null;
-        return out;
-    }
-
-    // ---- CHAT-029 arachne ----
-
-    private static final Pattern AR_VENOM = Pattern.compile("Arachne(?:'s (?:Keeper|Brood))? used Venom Shot on you hitting you for [\\d.,]+ damage and infecting you with venom\\.");
-    private static final Pattern AR_CALLING = Pattern.compile("☄ .* placed an Arachne's Calling! Something is awakening!.*");
-    private static final Pattern AR_CRYSTAL = Pattern.compile("☄ .* placed an Arachne Crystal! Something is awakening!");
-    private static final Pattern AR_SPAWN = Pattern.compile("\\[BOSS] Arachne: (?:The Era of Spiders begins now\\.|Ahhhh\\.\\.\\.A Calling\\.\\.\\.)");
-    private static boolean arachneHide;
-    private static long arachneHideSince;
-
-    private static boolean arachne(Component message, String t) {
-        if (!SkyblockUtils.isInArea("Spider's Den")) return false;
-        if (t.startsWith("Arachne") && AR_VENOM.matcher(t).matches()) return true;
-        if (subArea().equals("Arachne's Sanctuary")) return false;
-        if (t.startsWith("☄") && (AR_CALLING.matcher(t).matches() || AR_CRYSTAL.matcher(t).matches())) return true;
-        if (t.startsWith("[BOSS] Arachne") && AR_SPAWN.matcher(t).matches()) return true;
-        long now = System.currentTimeMillis();
-        if (arachneHide && now - arachneHideSince > 5000) arachneHide = false;
-        if (isBorder(t) && TextColor.fromLegacyFormat(ChatFormatting.GREEN).equals(firstColor(message))) {
-            arachneHide = !arachneHide;
-            arachneHideSince = now;
-            return true;
-        }
-        if (t.equals("ARACHNE DOWN!")) {
-            arachneHide = true;
-            arachneHideSince = now;
-        }
-        return arachneHide;
-    }
-
-    private static String subArea() {
-        for (String line : ScoreboardUtils.getScoreboardLines()) {
-            String s = ScoreboardUtils.cleanLine(line);
-            if (s.startsWith("⏣") || s.startsWith("ф")) return s.substring(1).trim();
-        }
-        return "";
     }
 
     private static int parseInt(String s) {

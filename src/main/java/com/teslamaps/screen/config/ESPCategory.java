@@ -132,7 +132,6 @@ public final class ESPCategory {
         b.toggle("  Only As Healer", () -> config.teammateHealthOnlyHealer, v -> config.teammateHealthOnlyHealer = v).fresh();
         b.toggle("Ghost Detection From Chat", () -> config.dungeonGhostDetection, v -> config.dungeonGhostDetection = v).fresh()
                 .desc("Marks a teammate dead the moment \"became a ghost\" shows in chat and keeps their class on map and leap menu.");
-        b.toggle("Invisible Armor Stand ESP", () -> config.invisibleArmorStandESP, v -> config.invisibleArmorStandESP = v);
         b.toggle("Hoppity Egg ESP", () -> config.hoppityEggESP, v -> config.hoppityEggESP = v);
         b.toggle("  Hoppity Egg Tracers", () -> config.hoppityEggTracers, v -> config.hoppityEggTracers = v);
         b.toggle("  Exact Meals & Respawn Timer", () -> config.hoppityEggMealTimer, v -> config.hoppityEggMealTimer = v).fresh()
@@ -142,8 +141,6 @@ public final class ESPCategory {
         b.label("Head ESP");
         b.info("/tmap head add <name> while looking at a head");
         b.info("/tmap head list | remove <name> | probe [radius]");
-        b.toggle("Golden Dragon Egg ESP", () -> config.headGoldenDragonEgg, v -> config.headGoldenDragonEgg = v);
-        b.color("  Egg Color", () -> config.headGoldenDragonColor, v -> config.headGoldenDragonColor = v);
         b.toggle("Head ESP (custom list)", () -> config.headESP, v -> config.headESP = v);
         b.toggle("  Show Name", () -> config.headESPName, v -> config.headESPName = v);
         b.toggle("  Head Tracers", () -> config.headESPTracers, v -> config.headESPTracers = v);

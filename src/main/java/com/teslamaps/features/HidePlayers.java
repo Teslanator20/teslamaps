@@ -17,20 +17,16 @@ public class HidePlayers {
     }
 
     public static boolean shouldHide(Entity entity) {
-        TeslaMapsConfig config = TeslaMapsConfig.get();
-        if (config.ghostPlayers && config.ghostPlayersOpacity <= 0f && isGhost(entity)) return true;
         if (!matches(entity)) return false;
+        TeslaMapsConfig config = TeslaMapsConfig.get();
         return !config.hidePlayersTransparent || config.hidePlayersOpacity <= 0f;
     }
 
     /** 255 = drawn normally. From LivingEntityAlphaMixin, every rendered living entity. */
     public static int alpha(Entity entity) {
         if (!(entity instanceof Player)) return 255;
-        int hoppity = HoppityHelpers.playerAlpha(entity);
-        if (hoppity < 255) return hoppity;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (config.hidePlayersTransparent && matches(entity)) return pct(config.hidePlayersOpacity);
-        if (config.ghostPlayers && isGhost(entity)) return pct(config.ghostPlayersOpacity);
         return 255;
     }
 
@@ -38,18 +34,10 @@ public class HidePlayers {
         return Math.round(Math.max(0f, Math.min(100f, p)) * 2.55f);
     }
 
-    // Bax GhostPlayerMixin: real players only (uuid v4 + tab entry), never yourself
-    private static boolean isGhost(Entity entity) {
-        if (!(entity instanceof Player) || entity.getUUID().version() != 4) return false;
-        Minecraft mc = Minecraft.getInstance();
-        if (entity == mc.player || mc.getConnection() == null) return false;
-        return mc.getConnection().getPlayerInfo(entity.getUUID()) != null;
-    }
 
     private static boolean matches(Entity entity) {
         TeslaMapsConfig config = TeslaMapsConfig.get();
-        boolean arachne = ArachneQol.hidePlayers() || com.teslamaps.features.rift.RiftGuntherRace.hidePlayers()
-                || com.teslamaps.features.rift.DanceRoomHelper.hidePlayers() || ParkourGuides.hidePlayers();
+        boolean arachne = ArachneQol.hidePlayers() || ParkourGuides.hidePlayers();
         if (!config.hidePlayers && !config.hidePlayersAfterLeap && !arachne) return false;
         if (!(entity instanceof Player)) return false;
         if (entity.getUUID().version() != 4) return false; // skip NPCs / fake players

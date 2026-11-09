@@ -39,7 +39,6 @@ public final class TextVisuals {
 
     public static volatile boolean on;
     public static volatile boolean fullShadow;
-    public static volatile boolean noShadow;
     private static volatile Word[] words = new Word[0];
     private static volatile boolean ignoreCase;
     private static volatile String firstChars = "";
@@ -58,9 +57,6 @@ public final class TextVisuals {
                     b.label("Text");
                     b.toggle("Full Text Shadow", () -> c.fullTextShadow, v -> c.fullTextShadow = v)
                             .desc("Draws the text shadow all around each letter (outline look) instead of only down-right.");
-                    b.toggle("No Text Shadow", () -> c.noTextShadow, v -> c.noTextShadow = v)
-                            .desc("Removes the 1 px shadow under all text: vanilla HUD, menus, chat and every TeslaMaps panel.")
-                            .tags("shadow", "flat", "font");
                     b.toggle("Visual Words", () -> c.visualWords, v -> c.visualWords = v)
                             .desc("Replaces words or phrases in every text you see (chat, tooltips, scoreboard, name tags). Only on your screen.");
                     b.toggle("  Ignore Case", () -> c.visualWordsIgnoreCase, v -> c.visualWordsIgnoreCase = v);
@@ -175,7 +171,6 @@ public final class TextVisuals {
     private static void refresh() {
         TeslaMapsConfig c = cfg();
         fullShadow = c.fullTextShadow;
-        noShadow = c.noTextShadow;
         String self = Minecraft.getInstance().getUser().getName();
         boolean nickOn = c.nickHider && !nick().isEmpty() && self != null && !self.isEmpty();
         int h = c.visualWords ? 31 * c.visualWordList.size() + (c.visualWordsIgnoreCase ? 1 : 0) : 0;

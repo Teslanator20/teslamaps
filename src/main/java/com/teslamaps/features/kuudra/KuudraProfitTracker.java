@@ -32,7 +32,7 @@ public final class KuudraProfitTracker {
     private static HudEditElement hud;
 
     private static long pendingValue, pendingCost;
-    private static boolean pendingPaid, pendingInfernal;
+    private static boolean pendingPaid;
     private static long pendingAt;
     private static boolean resetDown, viewDown;
     private static long runTimeSum;
@@ -115,11 +115,9 @@ public final class KuudraProfitTracker {
             if (slot.container instanceof Inventory) continue;
             ItemLore lore = slot.getItem().get(DataComponents.LORE);
             if (lore == null) continue;
-            boolean contents = false, infernal = false;
+            boolean contents = false;
             for (Component l : lore.lines()) {
-                String s = StringUtil.stripTrim(l.getString());
-                if (s.equals("Contents")) contents = true;
-                else if (s.equals("Infernal Kuudra Key")) infernal = true;
+                if (StringUtil.stripTrim(l.getString()).equals("Contents")) contents = true;
             }
             if (!contents) continue;
             CroesusProfit.ChestValue v = CroesusProfit.evaluate(lore);
@@ -127,7 +125,6 @@ public final class KuudraProfitTracker {
             pendingValue = Math.round(value);
             pendingCost = Math.round(v.cost());
             pendingPaid = paid;
-            pendingInfernal = infernal;
             pendingAt = System.currentTimeMillis();
             return;
         }
@@ -140,9 +137,6 @@ public final class KuudraProfitTracker {
             if (pendingAt != 0 && System.currentTimeMillis() - pendingAt < 15_000) {
                 tracker.add(LOOT, pendingValue);
                 tracker.add(COST, pendingCost);
-                KuudraRunTrackers.onChestOpened(paid && pendingInfernal);
-            } else {
-                KuudraRunTrackers.onChestOpened(false);
             }
             tracker.add(paid ? PAID : FREE, 1);
             pendingAt = 0;

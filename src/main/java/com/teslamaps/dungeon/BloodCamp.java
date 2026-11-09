@@ -5,12 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.PingMeter;
-import com.teslamaps.mixin.BossHealthOverlayAccessor;
 import com.teslamaps.render.ESPRenderer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.LerpingBossEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
@@ -86,7 +84,7 @@ public class BloodCamp {
     private static final class RenderEData {
         Vec3 currVector, endVector, speedVectors;
         long endVecUpdated;
-        Vec3 lastEndVector, lastPingPoint, lastEndPoint;
+        Vec3 lastEndVector;
         boolean soundPlayed;
         RenderEData(Vec3 cv, Vec3 ev, long eu, Vec3 sv) { this.currVector = cv; this.endVector = ev; this.endVecUpdated = eu; this.speedVectors = sv; }
     }
@@ -104,7 +102,6 @@ public class BloodCamp {
         if (hasFinal && tickCounter >= finalTick) {
             hasFinal = false;
             nextMoveEstimateTick = -1L; // move happened -> stop the countdown
-            if (c.bloodCampKillTitle) title("§cKill Mobs");
             if (c.bloodCampMoveAlert) { title("§4§lKILL BLOOD"); playAlert(c.bloodCampMoveSound, c.bloodCampMoveVolume); }
         }
     }
@@ -257,7 +254,6 @@ public class BloodCamp {
         int spawnColor = TeslaMapsConfig.parseColor(c.colorBloodSpawn);
         int posColor = TeslaMapsConfig.parseColor(c.colorBloodPosition);
         int finalColor = TeslaMapsConfig.parseColor(c.colorBloodFinal);
-        boolean skip = !c.bloodAssistInterpolation;
 
         Iterator<Map.Entry<ArmorStand, RenderEData>> it = renderDataMap.entrySet().iterator();
         while (it.hasNext()) {
@@ -268,19 +264,15 @@ public class BloodCamp {
             EntityData data = entityDataMap.get(entity);
             if (data == null) continue;
 
-            Vec3 endPoint = calcEndVector(rd.endVector, rd.lastEndVector, Math.min(currentTickTime - rd.endVecUpdated, 100) / 100f, false);
+            Vec3 endPoint = calcEndVector(rd.endVector, rd.lastEndVector, Math.min(currentTickTime - rd.endVecUpdated, 100) / 100f);
             long timeTook = currentTickTime - data.started;
             float time = getTime(data.firstSpawns, timeTook);
             float mobOffset = c.bloodAssistPingOffset ? PingMeter.getLastPingMs() : c.bloodAssistManualOffset;
             Vec3 pingPoint = new Vec3(entity.getX() + rd.speedVectors.x * mobOffset,
                     entity.getY() + rd.speedVectors.y * mobOffset, entity.getZ() + rd.speedVectors.z * mobOffset);
 
-            rd.lastEndPoint = endPoint;
-            rd.lastPingPoint = pingPoint;
-            Vec3 pingDraw = calcEndVector(pingPoint, rd.lastPingPoint, 1f, skip);
-            Vec3 endDraw = calcEndVector(endPoint, rd.lastEndPoint, 1f, skip);
-            AABB pingAABB = new AABB(0, 0, 0, bs, bs, bs).move(boxOffset.add(pingDraw));
-            AABB endAABB = new AABB(0, 0, 0, bs, bs, bs).move(boxOffset.add(endDraw));
+            AABB pingAABB = new AABB(0, 0, 0, bs, bs, bs).move(boxOffset.add(pingPoint));
+            AABB endAABB = new AABB(0, 0, 0, bs, bs, bs).move(boxOffset.add(endPoint));
 
             if (mobOffset < time) {
                 ESPRenderer.drawBoxOutline(matrices, pingAABB, posColor, 2.0f, cameraPos, true);
@@ -312,8 +304,8 @@ public class BloodCamp {
         return (firstSpawn ? 2000 : 0) + c.bloodAssistTick * 50f - timeTook + c.bloodAssistOffset;
     }
 
-    private static Vec3 calcEndVector(Vec3 curr, Vec3 last, float mult, boolean skip) {
-        if (last == null || skip) return curr;
+    private static Vec3 calcEndVector(Vec3 curr, Vec3 last, float mult) {
+        if (last == null) return curr;
         return new Vec3(last.x + (curr.x - last.x) * mult, last.y + (curr.y - last.y) * mult, last.z + (curr.z - last.z) * mult);
     }
 
@@ -340,10 +332,6 @@ public class BloodCamp {
             float rem = (nextMoveEstimateTick - tickCounter) * 0.05f;
             if (rem <= 120f) lines.add(String.format("§eReturn to Blood: §f~%.1fs", rem));
         }
-        if (config.bloodCampHpBar) {
-            String hp = getWatcherHpText();
-            if (hp != null) lines.add(hp);
-        }
         if (lines.isEmpty()) return;
 
         var pose = context.pose();
@@ -356,24 +344,6 @@ public class BloodCamp {
             y += 10;
         }
         pose.popMatrix();
-    }
-
-    private static String getWatcherHpText() {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.gui == null) return null;
-        var events = ((BossHealthOverlayAccessor) mc.gui.getBossOverlay()).teslamaps$getEvents();
-        if (events == null || events.isEmpty()) return null;
-        for (LerpingBossEvent ev : events.values()) {
-            if (ev.getName() == null
-                    || !ev.getName().getString().replaceAll("(?i)§[0-9A-FK-OR]", "").contains("The Watcher")) continue;
-            float progress = ev.getProgress();
-            if (progress < 0.05f) return null;
-            int floor = DungeonManager.getCurrentFloor() != null ? DungeonManager.getCurrentFloor().getLevel() : 0;
-            int max = 12 + floor;
-            int cur = Math.round(max * progress);
-            return "§cThe Watcher: §f" + cur + "§7/§f" + max;
-        }
-        return null;
     }
 
     private static final String[] DECIMAL_FORMATS = {"%.0f", "%.1f", "%.2f", "%.3f"};

@@ -39,11 +39,7 @@ public final class F7M7Category {
         b.toggle("  Crystal Spawn Timer", () -> config.maxorCrystalSpawnTimer, v -> config.maxorCrystalSpawnTimer = v).fresh();
         b.toggle("  Crystal Place Time in Chat (PB)", () -> config.maxorCrystalPlaceTimer, v -> config.maxorCrystalPlaceTimer = v).fresh();
         b.toggle("  Unplaced Crystal Alert", () -> config.maxorCrystalAlert, v -> config.maxorCrystalAlert = v).fresh();
-        b.toggle("Separate Tick Timer HUDs (/tmap gui)", () -> config.tickTimersSeparate, v -> config.tickTimersSeparate = v);
         b.label("Other");
-        b.toggle("Leap Counter", () -> config.leapCounter, v -> config.leapCounter = v);
-        b.toggle("  Leap Spots (EE2/EE3/Core/P5)", () -> config.leapCounterSpots, v -> config.leapCounterSpots = v);
-        b.toggle("  All Leaped Alert", () -> config.leapCounterAlert, v -> config.leapCounterAlert = v);
         b.toggle("Storm Pillars as Glass (P2)", () -> config.fuckDiorite, v -> config.fuckDiorite = v).fresh()
                 .desc("Client-side: the diorite of the 4 Storm pillars becomes glass.").tags("fuck diorite", "diorite");
         b.dropdown("  Glass Color Mode", com.teslamaps.features.FuckDiorite.MODES,
@@ -92,9 +88,6 @@ public final class F7M7Category {
         b.toggle("Lights Device Levers", () -> config.lightsDeviceHighlight, v -> config.lightsDeviceHighlight = v).fresh()
                 .desc("Marks every unpowered lever of the lights device.");
         b.color("  Lever Color", () -> config.lightsDeviceColor, v -> config.lightsDeviceColor = v).fresh();
-        b.toggle("Gate Highlight", () -> config.p3GateHighlight, v -> config.p3GateHighlight = v).fresh()
-                .desc("Box around your section's gate while it still stands.");
-        b.fresh(() -> b.espStyle("  Gate", () -> config.p3GateEsp));
         b.toggle("Spring Boots Ready Alert", () -> config.springBootsReady, v -> config.springBootsReady = v).fresh()
                 .desc("Boss only: title + beep after 5 charge sounds while sneaking in Spring Boots.");
         b.toggle("F7 Titles (crystals, stuns, deaths)", () -> config.f7Titles, v -> config.f7Titles = v).fresh();
@@ -118,11 +111,8 @@ public final class F7M7Category {
                 new String[]{"Milliseconds", "Seconds", "Ticks"},
                 () -> switch (config.witherDragonTimerStyle) { case 1 -> "Seconds"; case 2 -> "Ticks"; default -> "Milliseconds"; },
                 v -> config.witherDragonTimerStyle = switch (v) { case "Seconds" -> 1; case "Ticks" -> 2; default -> 0; });
-        b.toggle("Timer Symbol", () -> config.witherDragonTimerSymbol, v -> config.witherDragonTimerSymbol = v);
         b.toggle("Dragon Timer HUD", () -> config.witherDragonHud, v -> config.witherDragonHud = v);
         b.toggle("  Big Center Countdown", () -> config.witherDragonCenterTimer, v -> config.witherDragonCenterTimer = v).fresh();
-        b.toggle("Dragon Spawn Messages", () -> config.witherDragonMsg, v -> config.witherDragonMsg = v);
-        b.toggle("Dragon Health (spawn phase)", () -> config.witherDragonHealth, v -> config.witherDragonHealth = v);
         b.toggle("Send Dragon Confirmation", () -> config.witherDragonConfirm, v -> config.witherDragonConfirm = v);
         b.toggle("Send Dragon Time Alive", () -> config.witherDragonSendTime, v -> config.witherDragonSendTime = v);
         b.toggle("Send Ice Sprayed", () -> config.witherDragonSendSpray, v -> config.witherDragonSendSpray = v);

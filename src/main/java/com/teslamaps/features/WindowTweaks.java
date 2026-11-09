@@ -1,32 +1,18 @@
 package com.teslamaps.features;
 
-// Ported from FloydAddons' FloydRender.kt (borderless + title) and FloydTaskbarIcon.kt
-import com.mojang.blaze3d.platform.NativeImage;
+// Ported from FloydAddons' FloydRender.kt (borderless)
 import com.mojang.blaze3d.platform.Window;
-import com.teslamaps.TeslaMaps;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.system.MemoryUtil;
-
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public final class WindowTweaks {
 
-    public static final Path ICON = FabricLoader.getInstance().getConfigDir().resolve("teslamaps").resolve("window_icon.png");
-
-    private static String appliedTitle;
     private static boolean applied;
     private static Boolean lastFullscreen;
     private static boolean suppressNextWindowed;
-    private static boolean iconApplied;
 
     private static int savedX, savedY, savedW = 854, savedH = 480;
     private static boolean hasSaved, savedMaximized;
@@ -42,36 +28,12 @@ public final class WindowTweaks {
                     b.label("Window");
                     b.toggle("Borderless Window", () -> c.borderlessWindow, v -> c.borderlessWindow = v)
                             .desc("Borderless fullscreen on the monitor the window is on; off restores the old size");
-                    b.toggle("Custom Window Title", () -> c.customWindowTitle, v -> c.customWindowTitle = v);
-                    b.button("  Edit Title", () -> Minecraft.getInstance().setScreen(new com.teslamaps.screen.TextFieldsScreen(
-                            Minecraft.getInstance().screen, "Window Title", "Empty = vanilla title",
-                            java.util.List.of(new com.teslamaps.screen.TextFieldsScreen.Field("Title",
-                                    () -> c.windowTitle == null ? "" : c.windowTitle, v -> c.windowTitle = v)))));
-                    b.toggle("Custom Taskbar Icon", () -> c.customWindowIcon, v -> c.customWindowIcon = v)
-                            .desc("Loads config/teslamaps/window_icon.png (square PNG). Restart to get the default back.");
                 });
-    }
-
-    /** Minecraft.createTitle, null = vanilla title. */
-    public static String title() {
-        TeslaMapsConfig c = cfg();
-        if (!c.customWindowTitle || c.windowTitle == null || c.windowTitle.isBlank()) return null;
-        return c.windowTitle.trim();
     }
 
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getWindow() == null) return;
-        String t = title();
-        String key = t == null ? "" : t;
-        if (!key.equals(appliedTitle)) {
-            appliedTitle = key;
-            mc.updateTitle();
-        }
-        if (cfg().customWindowIcon && !iconApplied) {
-            iconApplied = true;
-            applyIcon(mc.getWindow());
-        }
         reconcileFullscreen(mc.getWindow());
         ensureBorderless(mc.getWindow());
     }
@@ -199,31 +161,5 @@ public final class WindowTweaks {
         GLFW.glfwGetWindowSize(h, ww, wh);
         GLFW.glfwGetMonitorPos(m, mx, my);
         return wx[0] == mx[0] && wy[0] == my[0] && ww[0] == mode.width() && wh[0] == mode.height();
-    }
-
-    private static void applyIcon(Window window) {
-        if (!Files.isRegularFile(ICON)) {
-            TeslaMaps.LOGGER.info("No window icon at {}", ICON);
-            return;
-        }
-        ByteBuffer pixels = null;
-        GLFWImage.Buffer images = null;
-        try (InputStream in = Files.newInputStream(ICON); NativeImage img = NativeImage.read(in)) {
-            int[] abgr = img.getPixelsABGR();
-            pixels = MemoryUtil.memAlloc(abgr.length * 4);
-            for (int p : abgr) {
-                pixels.put((byte) p).put((byte) (p >> 8)).put((byte) (p >> 16)).put((byte) (p >> 24));
-            }
-            pixels.flip();
-            images = GLFWImage.malloc(1);
-            images.position(0).width(img.getWidth()).height(img.getHeight()).pixels(pixels);
-            images.position(0);
-            GLFW.glfwSetWindowIcon(window.handle(), images);
-        } catch (Exception e) {
-            TeslaMaps.LOGGER.warn("Window icon failed: {}", e.toString());
-        } finally {
-            if (images != null) images.free();
-            if (pixels != null) MemoryUtil.memFree(pixels);
-        }
     }
 }

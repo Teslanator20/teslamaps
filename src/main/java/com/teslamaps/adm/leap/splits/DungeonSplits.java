@@ -41,7 +41,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,7 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/** Sub Splits: blood rush, Storm and Goldor sub-split HUDs, plus the run tracking behind the ADM splits look. */
+/** Sub Splits: blood rush, Storm and Goldor sub-split HUDs. */
 public final class DungeonSplits {
 
     private DungeonSplits() {}
@@ -65,8 +64,6 @@ public final class DungeonSplits {
     private static final StormCrushView crushView = new StormCrushView();
     private static final GoldorCore core = new GoldorCore();
 
-    private static final int RECENT = 20;
-    private static final int RECENT_MIN = 5;
     private static final int LINE_HEIGHT = 10;
 
     private static int serverTicks;
@@ -105,8 +102,6 @@ public final class DungeonSplits {
 
     private static final Set<String> bestsChecked = new HashSet<>();
     private static boolean realRun = true;
-    private static final ArrayDeque<Long> lagSamples = new ArrayDeque<>();
-    private static boolean lagShown;
 
     private static HudEditElement bloodHud, stormHud, goldorHud;
 
@@ -157,20 +152,12 @@ public final class DungeonSplits {
                             .desc("The blood rush sub splits, room by room; Storm's: his steps with the lightning, every pad read and how late each crush came; and Goldor's: each leap into the core after S4 and Goldor starting to move. HUDs in /tmap gui.");
                     b.dropdown("Blood Rush Detail", new String[]{"Compact", "Detailed", "Debug"}, () -> cfg().admBrDetail, v -> cfg().admBrDetail = v)
                             .desc("How much the Blood Rush sub-split HUD shows. Debug adds every extra moment known about it.");
-                    b.toggle("Blood Rush Total Row", () -> cfg().admBrTotalRow, v -> cfg().admBrTotalRow = v)
-                            .desc("The averages row at the bottom of the compact blood rush splits.");
-                    b.toggle("Blood Rush Hide In Boss", () -> cfg().admBrHideInBoss, v -> cfg().admBrHideInBoss = v)
-                            .desc("Hides the blood rush sub splits once you are in the boss.");
                     b.dropdown("Storm Detail", new String[]{"Compact", "Detailed"}, () -> cfg().admStormDetail, v -> cfg().admStormDetail = v)
                             .desc("Compact: the steps on one line. Detailed: a line per step, with what happened in it under each.");
                     b.toggle("Show Crush Info", () -> cfg().admStormCrushInfo, v -> cfg().admStormCrushInfo = v).cheat()
                             .desc("Storm's crush hitbox (through walls): from his lightning on, at every 20-tick crush check with him within 5 blocks of a pillar, where the check had him - green if inside that pillar's crush zone, red if not, and by how much - and each check in the Storm sub split.");
                     b.slider("Hitbox Seconds", 1, 10, () -> (float) cfg().admStormHitboxSeconds, v -> cfg().admStormHitboxSeconds = Math.round(v), 0)
                             .desc("How long each check's hitbox stays up.");
-                    b.toggle("Hitbox Margins", () -> cfg().admStormHitboxMargins, v -> cfg().admStormHitboxMargins = v)
-                            .desc("Over each hitbox, how far in or out of the zone sideways, and how far his head was above or below the pillar's bottom.");
-                    b.toggle("Pillar Outline", () -> cfg().admStormPillarOutline, v -> cfg().admStormPillarOutline = v)
-                            .desc("The square the hitbox has to fit inside, at the height of the pillar's bottom, with each hitbox.");
                     b.color("Inside Color", () -> cfg().admStormInsideColor, v -> cfg().admStormInsideColor = v)
                             .desc("Hitbox colour when the check had him inside the zone.");
                     b.color("Outside Color", () -> cfg().admStormOutsideColor, v -> cfg().admStormOutsideColor = v)
@@ -183,7 +170,6 @@ public final class DungeonSplits {
     private static void resetRun() {
         bestsChecked.clear();
         realRun = true;
-        synchronized (lagSamples) { lagShown = false; lagSamples.clear(); }
         tracker.reset(); subs.reset(); blood.reset(); moments.reset();
         core.reset(); coreGoldor = null; coreGoldorAt = null;
         storm.reset(); crushView.reset();
@@ -232,7 +218,6 @@ public final class DungeonSplits {
     private static void onServerTick() {
         serverTicks++;
         subs.onServerTick();
-        sampleLag();
         storm.onServerTick(serverTicks);
         Integer t = storm.phase(serverTicks);
         if (crushInfo() && storm.checking() && t != null && StormCrush.isCheck(t)) {
@@ -570,21 +555,18 @@ public final class DungeonSplits {
     // ------------------------------------------------------------------ HUDs
 
     private static List<String> bloodLines() {
-        if (cfg().admBrHideInBoss && DungeonManager.isInBossArea()) return List.of();
         BloodRunDetail.Level level = switch (cfg().admBrDetail == null ? "" : cfg().admBrDetail) {
             case "Detailed" -> BloodRunDetail.Level.DETAILED;
             case "Debug" -> BloodRunDetail.Level.DEBUG;
             default -> BloodRunDetail.Level.COMPACT;
         };
-        return blood.lines(level, now(), cfg().admBrTotalRow);
+        return blood.lines(level, now(), true);
     }
 
     private static List<String> stormLines() {
         Split split = tracker.split(SplitTracker.STORM);
         if (split == null) return List.of();
         Stamp now = now();
-        String floor = floor();
-        Map<String, Long> bests = bests(floor);
         List<Split> steps = subs.forSplit(SplitTracker.STORM);
         List<String> ids = subs.idsForSplit(SplitTracker.STORM);
         List<String[]> graded = new ArrayList<>();
@@ -594,9 +576,7 @@ public final class DungeonSplits {
             long ms = stop.realMs() - st.start().realMs();
             long ticks = stop.tick() - st.start().tick();
             String id = i < ids.size() ? ids.get(i) : "";
-            long value = SubSplitGrades.value(id, ms, ticks, stop.tick() - split.start().tick());
-            String own = st.label().substring(0, Math.min(2, st.label().length())).replace('&', '§');
-            String grade = SubSplitGrades.colour(id, value, st.stop() != null, validBest(id, bests.get(id), floor), floor, own);
+            String grade = st.label().substring(0, Math.min(2, st.label().length())).replace('&', '§');
             boolean real = SubSplitGrades.clock(id) == SubSplitGrades.Clock.REAL;
             graded.add(new String[]{String.valueOf(i), grade + Split.seconds(real ? ms : ticks * 50), Split.seconds(real ? ticks * 50 : ms)});
         }
@@ -644,7 +624,7 @@ public final class DungeonSplits {
     private static void renderWorld(PoseStack pose, Vec3 cam) {
         if (!crushInfo()) return;
         TeslaMapsConfig c = cfg();
-        crushView.render(pose, cam, c.admStormHitboxSeconds, c.admStormHitboxMargins, c.admStormPillarOutline,
+        crushView.render(pose, cam, c.admStormHitboxSeconds, true, true,
                 TeslaMapsConfig.parseColor(c.admStormInsideColor), TeslaMapsConfig.parseColor(c.admStormOutsideColor));
     }
 
@@ -712,20 +692,7 @@ public final class DungeonSplits {
         }
     }
 
-    // ------------------------------------------------------------------ pace, lag, bests
-
-    public static SplitPace.Clocks pace() {
-        if (!"F7".equals(floor())) return null;
-        List<Split> splits = tracker.splits();
-        if (splits.isEmpty()) return null;
-        return SplitPace.pace(splits, label -> {
-            List<Split> s = subs.forSplit(label);
-            List<String> ids = subs.idsForSplit(label);
-            List<SplitPace.Sub> out = new ArrayList<>();
-            for (int i = 0; i < Math.min(s.size(), ids.size()); i++) out.add(new SplitPace.Sub(ids.get(i), s.get(i)));
-            return out;
-        }, now(), label -> AdmSplitsHud.paceTarget(label, false));
-    }
+    // ------------------------------------------------------------------ bests
 
     private static boolean keepsTimes() { return realRun; }
 
@@ -749,35 +716,10 @@ public final class DungeonSplits {
             long ms = stop.realMs() - split.start().realMs();
             long ticks = stop.tick() - split.start().tick();
             recordBest(floor, id, SubSplitGrades.value(id, ms, ticks), true);
-            recordRecent(floor, id, new SplitPace.Clocks(ms, ticks));
         }
     }
 
-    public static Long lag() {
-        synchronized (lagSamples) {
-            if (!lagShown || lagSamples.isEmpty()) return null;
-            long min = Long.MAX_VALUE;
-            for (long l : lagSamples) min = Math.min(min, l);
-            return min;
-        }
-    }
-
-    private static void sampleLag() {
-        List<Split> splits = tracker.splits();
-        if (splits.isEmpty()) return;
-        long ms = SplitPace.lag(splits, now());
-        synchronized (lagSamples) {
-            lagSamples.addLast(ms);
-            while (lagSamples.size() > 20) lagSamples.removeFirst();
-            long min = Long.MAX_VALUE;
-            for (long l : lagSamples) min = Math.min(min, l);
-            if (min >= 50) lagShown = true;
-        }
-    }
-
-    public static Long bestOf(String floor, String id) { return validBest(id, bests(floor).get(id), floor); }
-
-    public static void recordBest(String floor, String id, long value, boolean finished) {
+    private static void recordBest(String floor, String id, long value, boolean finished) {
         if (!finished || !keepsTimes() || !SubSplitGrades.canBeBest(id, value, floor)) return;
         Map<String, Long> bests = bests(floor);
         Long cur = validBest(id, bests.get(id), floor);
@@ -789,91 +731,6 @@ public final class DungeonSplits {
 
     private static Long validBest(String id, Long best, String floor) {
         return best != null && SubSplitGrades.canBeBest(id, best, floor) ? best : null;
-    }
-
-    private static String recentText(String floor) {
-        if ("F7".equals(floor)) return cfg().admRecentF7 == null ? "" : cfg().admRecentF7;
-        if ("M7".equals(floor)) return cfg().admRecentM7 == null ? "" : cfg().admRecentM7;
-        return "";
-    }
-
-    private static final Map<String, Object[]> recentParsed = new HashMap<>();
-
-    private static Map<String, List<SplitPace.Clocks>> recentView(String floor) {
-        String text = recentText(floor);
-        Object[] cached = recentParsed.get(floor);
-        if (cached != null && cached[0].equals(text)) {
-            @SuppressWarnings("unchecked") Map<String, List<SplitPace.Clocks>> m = (Map<String, List<SplitPace.Clocks>>) cached[1];
-            return m;
-        }
-        Map<String, List<SplitPace.Clocks>> m = recent(floor);
-        recentParsed.put(floor, new Object[]{text, m});
-        typicalCache.clear();
-        return m;
-    }
-
-    private static Map<String, List<SplitPace.Clocks>> recent(String floor) {
-        Map<String, List<SplitPace.Clocks>> out = new HashMap<>();
-        for (String e : recentText(floor).split(",")) {
-            String[] kv = e.split("=");
-            if (kv.length != 2) continue;
-            List<SplitPace.Clocks> list = new ArrayList<>();
-            for (String c : kv[1].split("\\|")) {
-                String[] p = c.split(":");
-                if (p.length != 2) continue;
-                try { list.add(new SplitPace.Clocks(Long.parseLong(p[0]), Long.parseLong(p[1]))); } catch (NumberFormatException ignored) { }
-            }
-            out.put(kv[0].trim(), list);
-        }
-        return out;
-    }
-
-    private static void recordRecent(String floor, String id, SplitPace.Clocks c) {
-        Map<String, List<SplitPace.Clocks>> all = recent(floor);
-        List<SplitPace.Clocks> list = all.computeIfAbsent(id, k -> new ArrayList<>());
-        list.add(c);
-        while (list.size() > RECENT) list.remove(0);
-        List<String> keys = new ArrayList<>(all.keySet());
-        keys.sort(null);
-        StringBuilder sb = new StringBuilder();
-        for (String k : keys) {
-            if (sb.length() > 0) sb.append(',');
-            sb.append(k).append('=');
-            List<SplitPace.Clocks> v = all.get(k);
-            for (int i = 0; i < v.size(); i++) {
-                if (i > 0) sb.append('|');
-                sb.append(v.get(i).ms()).append(':').append(v.get(i).ticks());
-            }
-        }
-        if ("F7".equals(floor)) cfg().admRecentF7 = sb.toString();
-        else if ("M7".equals(floor)) cfg().admRecentM7 = sb.toString();
-        else return;
-        TeslaMapsConfig.save();
-    }
-
-    private static final Map<String, SplitPace.Clocks> typicalCache = new HashMap<>();
-
-    public static SplitPace.Clocks typical(String floor, String label) {
-        String id = SplitPace.SPLIT_IDS.get(label);
-        if (id == null) return null;
-        Map<String, List<SplitPace.Clocks>> view = recentView(floor);
-        String key = floor + ":" + id;
-        if (typicalCache.containsKey(key)) return typicalCache.get(key);
-        List<SplitPace.Clocks> list = view.get(id);
-        SplitPace.Clocks out = null;
-        if (list != null && list.size() >= RECENT_MIN) {
-            long[] ms = new long[list.size()], tk = new long[list.size()];
-            for (int i = 0; i < list.size(); i++) { ms[i] = list.get(i).ms(); tk[i] = list.get(i).ticks(); }
-            out = new SplitPace.Clocks(median(ms), median(tk));
-        }
-        typicalCache.put(key, out);
-        return out;
-    }
-
-    private static long median(long[] v) {
-        long[] s = v.clone();
-        java.util.Arrays.sort(s);
-        return s.length % 2 == 1 ? s[s.length / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
     }
 
     private static Map<String, Long> bests(String floor) {

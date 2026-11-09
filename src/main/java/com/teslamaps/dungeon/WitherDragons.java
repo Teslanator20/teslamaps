@@ -73,10 +73,6 @@ public class WitherDragons {
             aliveCount++;
             spawnedTime = currentTick;
             isSprayed = false;
-
-            TeslaMapsConfig config = TeslaMapsConfig.get();
-            if (config.witherDragonMsg && config.witherDragons)
-                msg("§" + colorCode + dispName + " §fdragon spawned §8(§7" + timesSpawned + "§8)");
         }
 
         public void setDead(boolean realTime) {
@@ -237,15 +233,6 @@ public class WitherDragons {
         if (!active()) return;
         TeslaMapsConfig config = TeslaMapsConfig.get();
         Minecraft mc = Minecraft.getInstance();
-        float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(true);
-
-        if (config.witherDragonHealth) {
-            for (DragonCheck.HealthEntry entry : DragonCheck.dragonHealthMap.values().toArray(new DragonCheck.HealthEntry[0])) {
-                if (entry.health() <= 0) continue;
-                ESPRenderer.drawText(matrices, colorHealth(entry.health()),
-                        entry.dragon().getPosition(partial), 5f, cameraPos, false);
-            }
-        }
 
         for (Dragon dragon : Dragon.values()) {
             if (config.witherDragonTimer && dragon.timeToSpawn > 0) {
@@ -295,26 +282,11 @@ public class WitherDragons {
 
     private static String getDragonTimer(int spawnTime) {
         String color = spawnTime <= 20 ? "§c" : spawnTime <= 60 ? "§e" : "§a";
-        boolean symbol = TeslaMapsConfig.get().witherDragonTimerSymbol;
         return color + switch (TeslaMapsConfig.get().witherDragonTimerStyle) {
-            case 0 -> (spawnTime * 50) + (symbol ? "ms" : "");
-            case 1 -> String.format("%.1f", spawnTime / 20f) + (symbol ? "s" : "");
-            default -> spawnTime + (symbol ? "t" : "");
+            case 0 -> (spawnTime * 50) + "ms";
+            case 1 -> String.format("%.1f", spawnTime / 20f) + "s";
+            default -> spawnTime + "t";
         };
-    }
-
-    private static String colorHealth(float health) {
-        if (health >= 750_000_000) return "§a" + formatHealth(health);
-        if (health >= 500_000_000) return "§e" + formatHealth(health);
-        if (health >= 250_000_000) return "§6" + formatHealth(health);
-        return "§c" + formatHealth(health);
-    }
-
-    private static String formatHealth(float health) {
-        if (health >= 1_000_000_000) return String.format("%.1f", health / 1_000_000_000) + "b";
-        if (health >= 1_000_000) return String.format("%.1f", health / 1_000_000) + "m";
-        if (health >= 1_000) return String.format("%.1f", health / 1_000) + "k";
-        return String.valueOf((int) health);
     }
 
     /** Odin's PersonalBest.time — prints the time and tracks the best per dragon. */

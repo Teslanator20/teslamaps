@@ -40,16 +40,6 @@ public final class SoundsCategory {
         b.toggle("Secret Item Pickup Sound", () -> config.secretItemPickupSound, v -> config.secretItemPickupSound = v);
         b.toggle("Secret Bat Kill Sound (replaces bat)", () -> config.secretSoundBatKill, v -> config.secretSoundBatKill = v).fresh();
         b.toggle("Only Real Secrets (skull id, no buttons)", () -> config.secretSoundRealOnly, v -> config.secretSoundRealOnly = v).fresh();
-        b.toggle("Separate Lever Sound", () -> config.secretSoundLeverSeparate, v -> config.secretSoundLeverSeparate = v).fresh();
-        b.soundDropdown("  Lever Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.secretSoundLeverType, v -> config.secretSoundLeverType = v).fresh();
-        b.slider("  Lever Volume", 0f, 4f, () -> config.secretSoundLeverVolume, v -> config.secretSoundLeverVolume = v, 2).fresh();
-        b.slider("  Lever Pitch", 0.5f, 2f, () -> config.secretSoundLeverPitch, v -> config.secretSoundLeverPitch = v, 2).fresh();
-        b.toggle("Custom Locked Chest Sound", () -> config.secretSoundLockedCustom, v -> config.secretSoundLockedCustom = v).fresh();
-        b.soundDropdown("  Locked Sound", com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.secretSoundLockedType, v -> config.secretSoundLockedType = v).fresh();
-        b.slider("  Locked Volume", 0f, 4f, () -> config.secretSoundLockedVolume, v -> config.secretSoundLockedVolume = v, 2).fresh();
-        b.slider("  Locked Pitch", 0.5f, 2f, () -> config.secretSoundLockedPitch, v -> config.secretSoundLockedPitch = v, 2).fresh();
         b.toggle("Secret Chime (Rising Pitch)", () -> config.secretChime, v -> config.secretChime = v);
         b.soundDropdown("  Chime Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
@@ -62,12 +52,6 @@ public final class SoundsCategory {
                 .desc("Drops Hypixel's own chest secret sound (exact volume/pitch match)");
         b.toggle("  Mute Hypixel Lever Sound", () -> config.secretMuteLever, v -> config.secretMuteLever = v).fresh()
                 .desc("Drops Hypixel's own lever secret sound (exact volume/pitch match)");
-        b.label("Bear Spawn Warning");
-        b.toggle("Enable Alert", () -> config.bearSpawnWarning, v -> config.bearSpawnWarning = v);
-        b.toggle("  Warden Sound", () -> config.bearSpawnWardenSound, v -> config.bearSpawnWardenSound = v);
-        b.toggle("  Wither Sound", () -> config.bearSpawnWitherSound, v -> config.bearSpawnWitherSound = v);
-        b.slider("  Alert Volume", 0f, 20f,
-                () -> config.bearSpawnVolume, v -> config.bearSpawnVolume = v, 1);
         b.label("Etherwarp");
         b.toggle("Custom Etherwarp Sound", () -> config.etherwarpCustomSound, v -> config.etherwarpCustomSound = v);
         b.toggle("  Zero-Ping Etherwarp Sound", () -> config.etherwarpZeroPing, v -> config.etherwarpZeroPing = v).fresh()
@@ -100,11 +84,8 @@ public final class SoundsCategory {
         b.keybind("  Track Sounds Key", () -> config.trackSoundsKey, v -> config.trackSoundsKey = v);
         b.keybind("  Track Particles Key", () -> config.trackParticlesKey, v -> config.trackParticlesKey = v);
         b.label("Sound Hiders");
-        b.toggle("No Explosion Sound", () -> config.noExplosionSound, v -> config.noExplosionSound = v);
-        b.toggle("No Creeper Hurt Sound", () -> config.noCreeperHurtSound, v -> config.noCreeperHurtSound = v);
         b.toggle("Mute Bonzo Staff", () -> config.muteBonzoStaff, v -> config.muteBonzoStaff = v);
         b.toggle("  Bonzo: Precise (keep real fireworks)", () -> config.muteBonzoStaffPrecise, v -> config.muteBonzoStaffPrecise = v);
-        b.toggle("Mute Lightning", () -> config.muteLightning, v -> config.muteLightning = v);
         b.toggle("Mute Rat Pet", () -> config.muteRatPet, v -> config.muteRatPet = v).fresh()
                 .desc("Bat squeak and chicken steps near you, only when no real bat/chicken is there");
         b.toggle("  Squeak Only", () -> config.muteRatPetSqueakOnly, v -> config.muteRatPetSqueakOnly = v).fresh();

@@ -29,7 +29,6 @@ public final class GardenHooks {
     }
 
     public static boolean blockSlotClick(AbstractContainerScreen<?> cs, Slot slot, int button, ContainerInput type) {
-        if (MutationsWebsite.click(slot)) return true;
         if (GardenSafety.blockPresetDelete(cs, slot, button, type)) return true;
         if (VisitorRewardGuard.blockClick(slot)) return true;
         Visitors.onAnswer(slot, type);

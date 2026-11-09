@@ -1,6 +1,6 @@
 package com.teslamaps.features;
 
-// Ported from SkyHanni's ZorroCapeContestProtection.kt, LogBookStats.kt, GardenVisitorSupercraft.kt, VisitorListener.kt
+// Ported from SkyHanni's ZorroCapeContestProtection.kt, GardenVisitorSupercraft.kt, VisitorListener.kt
 import com.teslamaps.features.croesus.CraftCost;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
@@ -8,9 +8,7 @@ import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
-import com.teslamaps.utils.TabListUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -29,30 +27,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Garden menus: Zorro's Cape claim guard, Visitor's Logbook totals, visitor Supercraft button and accept key. */
+/** Garden menus: Zorro's Cape claim guard, visitor Supercraft button and accept key. */
 public final class GardenMenuHelpers {
 
     private static final Pattern CONTESTS = Pattern.compile("^(?:\\(\\d+/\\d+\\) )?Your Contests$");
-    private static final Pattern LOGBOOK = Pattern.compile("^(?:\\(\\d+/\\d+\\) )?Visitor's Logbook$");
-    private static final Pattern VISITED = Pattern.compile("Times Visited: ([0-9,.]+)");
-    private static final Pattern ACCEPTED = Pattern.compile("Offers Accepted: ([0-9,.]+)");
     private static final Pattern AMOUNT = Pattern.compile("^(.+?)(?: x([\\d,]+))?$");
-    private static final Pattern VISITOR_COUNT = Pattern.compile("Visitors: \\((\\d+)\\)");
 
     private static final int INFO_SLOT = 13, ACCEPT_SLOT = 29, SUPERCRAFT_SLOT = 31, BULK_SLOT = 50;
 
     private static Feature feature;
     private static Object lastScreen;
-    private static long openedAt;
-    private static boolean inContests, inLogbook, inVisitor;
+    private static boolean inContests, inVisitor;
     private static int visitorContainer = -1;
     private static boolean visitorChecked;
     private static String superCraftId;
     private static ItemStack superCraftItem;
     private static long lastClick;
-    private static int ticks;
-    private static final Map<String, long[]> logged = new HashMap<>();
-    private static final EcoPanel logPanel = new EcoPanel(EcoPanel.Side.LEFT);
 
     private GardenMenuHelpers() {}
 
@@ -60,8 +50,7 @@ public final class GardenMenuHelpers {
 
     public static void register() {
         feature = Feature.of("GardenMenuHelpers").section("Garden")
-                .when(() -> cfg().zorroCapeProtection || cfg().visitorLogbookStats
-                        || cfg().visitorSupercraft || cfg().visitorAcceptHotkey)
+                .when(() -> cfg().zorroCapeProtection || cfg().visitorSupercraft || cfg().visitorAcceptHotkey)
                 .tick(GardenMenuHelpers::tick)
                 .config("Garden", b -> {
                     TeslaMapsConfig c = b.config();
@@ -69,9 +58,6 @@ public final class GardenMenuHelpers {
                     b.toggle("Zorro's Cape Contest Protection", () -> c.zorroCapeProtection, v -> c.zorroCapeProtection = v)
                             .desc("Blocks claiming Jacob's Contest rewards (single or Bulk Claim) while Zorro's Cape is not equipped. Reads your cloak from /equipment, open it once.")
                             .tags("jacob", "contest", "medals", "zorro", "cloak");
-                    b.toggle("Visitor's Logbook Stats", () -> c.visitorLogbookStats, v -> c.visitorLogbookStats = v)
-                            .desc("Beside the Visitor's Logbook: total times visited, accepted and denied. Flip through every page for the full count.")
-                            .tags("logbook", "visitor", "denied");
                     b.toggle("Visitor Supercraft Button", () -> c.visitorSupercraft, v -> c.visitorSupercraft = v)
                             .desc("When your sacks hold the ingredients for an item the visitor wants, slot 31 becomes a Supercraft button that opens /viewrecipe. Uses the sack amounts TeslaMaps knows.")
                             .tags("visitor", "supercraft", "sacks", "recipe");
@@ -81,7 +67,6 @@ public final class GardenMenuHelpers {
                             .cheat();
                     b.keybind("  Accept Key", () -> c.visitorAcceptKey, v -> c.visitorAcceptKey = v);
                 });
-        com.teslamaps.utils.SbProfile.onChange(logged::clear);
     }
 
     private static boolean on() {
@@ -97,7 +82,6 @@ public final class GardenMenuHelpers {
         if (cs != lastScreen) {
             close();
             lastScreen = cs;
-            openedAt = System.currentTimeMillis();
         }
         String title = StringUtil.stripTrim(cs.getTitle().getString());
         List<Slot> slots = cs.getMenu().slots;
@@ -105,11 +89,6 @@ public final class GardenMenuHelpers {
         if (cfg().zorroCapeProtection && !inContests && CONTESTS.matcher(title).matches() && slots.size() > BULK_SLOT) {
             List<String> lore = ItemUtil.loreLines(slots.get(BULK_SLOT).getItem());
             if (!lore.isEmpty() && StringUtil.stripTrim(lore.get(0)).startsWith("Claim multiple farming contest")) inContests = true;
-        }
-
-        if (cfg().visitorLogbookStats && LOGBOOK.matcher(title).matches()) {
-            inLogbook = true;
-            if (System.currentTimeMillis() - openedAt > 500 && ticks++ % 10 == 0) readLogbook(cs, slots);
         }
 
         if ((cfg().visitorSupercraft || cfg().visitorAcceptHotkey) && SkyblockUtils.isInGarden() && slots.size() > SUPERCRAFT_SLOT) {
@@ -129,12 +108,10 @@ public final class GardenMenuHelpers {
     private static void close() {
         lastScreen = null;
         inContests = false;
-        inLogbook = false;
         inVisitor = false;
         visitorChecked = false;
         visitorContainer = -1;
         superCraftId = null;
-        logPanel.clear();
     }
 
     private static boolean isVisitorInfo(ItemStack stack) {
@@ -142,59 +119,6 @@ public final class GardenMenuHelpers {
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore == null || lore.lines().size() != 4) return false;
         return StringUtil.strip(lore.lines().get(3).getString()).startsWith("Offers Accepted: ");
-    }
-
-    // ---------------------------------------------------------------- logbook
-
-    private static void readLogbook(AbstractContainerScreen<?> cs, List<Slot> slots) {
-        for (Slot s : slots) {
-            if (s.container instanceof Inventory) continue;
-            ItemStack st = s.getItem();
-            if (st.isEmpty()) continue;
-            String name = st.getHoverName().getString();
-            if (name.isEmpty()) continue;
-            long visited = -1, accepted = 0;
-            for (String l : ItemUtil.loreLines(st)) {
-                String t = StringUtil.stripTrim(l);
-                Matcher m = VISITED.matcher(t);
-                if (m.find()) { visited = num(m.group(1)); continue; }
-                m = ACCEPTED.matcher(t);
-                if (m.find()) accepted = num(m.group(1));
-            }
-            if (visited >= 0) logged.put(name, new long[]{visited, accepted});
-        }
-        long visited = 0, accepted = 0;
-        for (long[] v : logged.values()) {
-            visited += v[0];
-            accepted += v[1];
-        }
-        long denied = Math.max(0, visited - accepted - visitingNow());
-        logPanel.set(List.of(
-                EcoPanel.Row.of("§6Times Visited: §b" + String.format("%,d", visited)),
-                EcoPanel.Row.of("§6Times Accepted: §a" + String.format("%,d", accepted)),
-                EcoPanel.Row.of("§6Times Denied: §c" + String.format("%,d", denied))));
-    }
-
-    private static long num(String s) {
-        try {
-            return (long) Double.parseDouble(s.replace(",", ""));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
-    private static int visitingNow() {
-        for (String raw : TabListUtils.getTabListLines()) {
-            Matcher m = VISITOR_COUNT.matcher(StringUtil.strip(raw));
-            if (m.find()) return Integer.parseInt(m.group(1));
-        }
-        return 0;
-    }
-
-    public static void render(GuiGraphicsExtractor g, int mx, int my) {
-        if (!inLogbook || !on() || !cfg().visitorLogbookStats || logPanel.empty()) return;
-        if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> cs) || cs != lastScreen) return;
-        logPanel.render(g, cs, 0, mx, my);
     }
 
     // ---------------------------------------------------------------- supercraft

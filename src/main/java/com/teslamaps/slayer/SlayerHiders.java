@@ -1,16 +1,14 @@
 package com.teslamaps.slayer;
 
-// Ported from SkyHanni's EndermanSlayerHideParticles.kt, HideMobNames.kt and BlockNotSpawnable.kt;
+// Ported from SkyHanni's EndermanSlayerHideParticles.kt and HideMobNames.kt;
 // pacified blazes after Skytils' SlayerFeatures
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.EntityCache;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
@@ -19,7 +17,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.monster.EnderMan;
-import net.minecraft.world.inventory.Slot;
 
 import java.util.HashMap;
 import java.util.List;
@@ -64,9 +61,6 @@ public final class SlayerHiders {
                     b.toggle("Hide Pacified Blazes", () -> c.slayerHidePacifiedBlazes, v -> c.slayerHidePacifiedBlazes = v)
                             .desc("With Smoldering Polarization during your Inferno Demonlord fight, blazes more than 3 blocks away (not the boss) are not rendered.")
                             .tags("slayer", "inferno", "blaze", "hide");
-                    b.toggle("Block Not Spawnable Slayers", () -> c.slayerBlockNotSpawnable, v -> c.slayerBlockNotSpawnable = v)
-                            .desc("In the Slayer menu, clicks on bosses marked \"Only inside The Rift!\" or \"Doesn't exist here!\" are blocked.")
-                            .tags("slayer", "menu", "click");
                     SlayerSpawnHiders.config(b);
                 });
     }
@@ -140,14 +134,4 @@ public final class SlayerHiders {
         return false;
     }
 
-    /** From HandledScreenClickMixin. */
-    public static boolean blockClick(AbstractContainerScreen<?> screen, Slot slot) {
-        TeslaMapsConfig c = cfg();
-        if (!c.slayerBlockNotSpawnable || slot == null || !slot.hasItem() || !c.section("Combat")) return false;
-        if (!StringUtil.stripTrim(screen.getTitle().getString()).equals("Slayer")) return false;
-        for (String line : ItemUtil.loreLines(slot.getItem())) {
-            if (line.contains("Only inside The Rift!") || line.contains("Doesn't exist here!")) return true;
-        }
-        return false;
-    }
 }

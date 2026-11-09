@@ -16,7 +16,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 
 import java.util.List;
@@ -50,7 +49,6 @@ public final class TooltipMenuExtras {
             Map.entry("ambassador", 2.0), Map.entry("statesperson", 2.04), Map.entry("senator", 2.08),
             Map.entry("dignitary", 2.12), Map.entry("councilor", 2.16), Map.entry("minister", 2.2),
             Map.entry("premier", 2.24), Map.entry("chancellor", 2.28), Map.entry("supreme", 2.32));
-    private static final long EVOLVE_SECONDS = 300L * 3600;
 
     private static int timer;
     private static volatile String fannCoinsLine = null, fannBitsLine = null;
@@ -61,8 +59,8 @@ public final class TooltipMenuExtras {
 
     private static boolean any() {
         TeslaMapsConfig c = cfg();
-        return c.tooltipItemStars || c.tooltipEvolvingTime || c.tooltipCookieBits || c.tooltipStonksPrice
-                || c.tooltipFannCost || c.supercraftReminder;
+        return c.tooltipItemStars || c.tooltipCookieBits || c.tooltipStonksPrice
+                || c.tooltipFannCost;
     }
 
     public static void register() {
@@ -190,14 +188,12 @@ public final class TooltipMenuExtras {
             }
             if (lastName != null) lines.set(0, lastName);
         }
-        if (c.tooltipEvolvingTime) evolving(stack, lines);
         if (c.tooltipCookieBits) cookie(stack, lines);
         Minecraft mc = Minecraft.getInstance();
         if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
         String title = StringUtil.strip(cs.getTitle().getString()).trim();
         if (c.tooltipStonksPrice && title.equals("Stonks Auction")) stonks(stack, lines);
         if (c.tooltipFannCost && title.startsWith("Training Slot")) fann(lines);
-        if (c.supercraftReminder && title.endsWith(" Recipe")) supercraft(cs, stack, lines);
     }
 
     private static Component starName(ItemStack stack, Component name) {
@@ -216,45 +212,6 @@ public final class TooltipMenuExtras {
         Matcher m = STARS.matcher(ChatText.formatted(name));
         if (!m.matches()) return null;
         return Component.literal(m.group(1) + " §c" + stars + "✪");
-    }
-
-    private static CustomData evoData;
-    private static Component evoHeld, evoLeft;
-
-    private static void evolving(ItemStack stack, List<Component> lines) {
-        CustomData d = stack.get(DataComponents.CUSTOM_DATA);
-        if (d == null) return;
-        if (d != evoData) {
-            evoData = d;
-            evoHeld = evoLeft = null;
-            CompoundTag tag = d.copyTag();
-            String key = switch (tag.getString("id").orElse("")) {
-                case "NEW_BOTTLE_OF_JYRRE" -> "bottle_of_jyrre_seconds";
-                case "DISCRITE" -> "rift_discrite_seconds";
-                default -> "seconds_held";
-            };
-            var held = tag.getInt(key);
-            if (held.isPresent()) {
-                long s = held.get();
-                evoHeld = Component.literal("§7Time Held: §b" + duration(s));
-                evoLeft = Component.literal("§7Time Left: §b" + duration(Math.max(0, EVOLVE_SECONDS - s)));
-            }
-        }
-        if (evoHeld == null) return;
-        int at = Math.min(10, lines.size());
-        lines.add(at, evoLeft);
-        lines.add(at, evoHeld);
-    }
-
-    private static String duration(long s) {
-        long d = s / 86400, h = s % 86400 / 3600, m = s % 3600 / 60, sec = s % 60;
-        StringBuilder sb = new StringBuilder();
-        int units = 0;
-        if (d > 0) { sb.append(d).append("d "); units++; }
-        if (h > 0) { sb.append(h).append("h "); units++; }
-        if (m > 0 && units < 3) { sb.append(m).append("m "); units++; }
-        if ((sec > 0 || sb.isEmpty()) && units < 3) sb.append(sec).append("s");
-        return sb.toString().trim();
     }
 
     private static void cookie(ItemStack stack, List<Component> lines) {
@@ -323,19 +280,6 @@ public final class TooltipMenuExtras {
             if (FANN_COINS.matcher(l).matches()) lines.add(++i, Component.literal(coins));
             else if (FANN_BITS.matcher(l).matches()) lines.add(++i, Component.literal(bits));
         }
-    }
-
-    private static void supercraft(AbstractContainerScreen<?> cs, ItemStack stack, List<Component> lines) {
-        Slot focused = ((com.teslamaps.mixin.HandledScreenAccessor) cs).getFocusedSlot();
-        if (focused == null || focused.index != 32 || !stack.is(Items.GOLDEN_PICKAXE)) return;
-        var slots = cs.getMenu().slots;
-        if (slots.size() <= 25) return;
-        String uuid = ItemUtil.itemUuid(slots.get(25).getItem());
-        if (uuid != null && !uuid.isEmpty()) return;
-        if (lines.size() < 2) return;
-        int index = lines.size() - 1;
-        if (StringUtil.stripTrim(lines.get(lines.size() - 2).getString()).equals("Recipe not unlocked!")) index--;
-        lines.add(index, Component.literal("Shift-Click to maximize the amount!").withStyle(ChatFormatting.GOLD));
     }
 
     // ---------------------------------------------------------------- numbers

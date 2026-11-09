@@ -1,8 +1,7 @@
 package com.teslamaps.adm.map;
 
-// Ported from ADM's mappred/OdinMapPrediction.kt: Room Prediction on the ADM map (F7/M7)
+// Ported from ADM's mappred/OdinMapPrediction.kt: Room Prediction (F7/M7), drawn in map space
 import com.teslamaps.TeslaMaps;
-import com.teslamaps.adm.Adm;
 import com.teslamaps.adm.map.AdmMapScan.Door;
 import com.teslamaps.adm.map.AdmMapScan.Room;
 import com.teslamaps.adm.map.pred.MapPredictor;
@@ -34,12 +33,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 
 public final class MapPrediction {
     private static final int W = 6, SAMPLES = 2000, BATCH = 100, TILE = 20, ROOM = 16;
     private static final int ALWAYS_DEAD_END = 95;
     private static final float EXACT = 0.999f;
     private static final int BIG_GREY = 0xFF555555;
+    private static final Identifier QUESTION = Identifier.fromNamespaceAndPath("teslamaps", "adm/odinmap/question.png");
     private static final int[] SPECIALS = {Cls.PUZZLE, Cls.TRAP, Cls.YELLOW, Cls.BLOOD, Cls.FAIRY, Cls.RARE};
 
     private static volatile Prediction shown;
@@ -54,7 +56,6 @@ public final class MapPrediction {
     });
     private static final Map<Integer, Byte> pathDoors = new HashMap<>();
     private static Object lastLevel;
-    private static boolean lcm;
 
     private MapPrediction() {}
 
@@ -64,8 +65,15 @@ public final class MapPrediction {
         return cfg().admRoomPrediction && !LegitMode.blocksCheats();
     }
 
-    private static boolean mapOn() {
-        return Adm.overrides(cfg().admMap);
+    private static int col(String hex) { return TeslaMapsConfig.parseColor(hex); }
+
+    private static int darker(int c, float f) {
+        return (c & 0xFF000000) | ((int) (((c >> 16) & 255) * f) << 16) | ((int) (((c >> 8) & 255) * f) << 8) | (int) ((c & 255) * f);
+    }
+
+    private static void icon(GuiGraphicsExtractor g, int x, int z, Identifier id) {
+        int size = ROOM - 4;
+        g.blit(RenderPipelines.GUI_TEXTURED, id, x + 2, z + 2, 0f, 0f, size, size, size, size);
     }
 
     public static void tick() {
@@ -144,7 +152,7 @@ public final class MapPrediction {
     }
 
     private static void update() {
-        if (!on() || !mapOn() || !supported()) return;
+        if (!on() || !supported()) return;
         MapView v = view();
         if (v == null) return;
         String key = v.key();
@@ -169,7 +177,7 @@ public final class MapPrediction {
     }
 
     private static boolean replacesOdin() {
-        return on() && mapOn() && supported() && shown != null;
+        return on() && supported() && shown != null;
     }
 
     private static Set<Integer> bloodTiles(boolean[] known) {
@@ -193,19 +201,19 @@ public final class MapPrediction {
 
     private static void bloodRoom(GuiGraphicsExtractor g, int t) {
         int x = (t % W) * TILE, y = (t / W) * TILE;
-        g.fill(x, y, x + ROOM, y + ROOM, lcm ? LcmStyle.darker(LcmStyle.BLOOD) : AdmMapRender.col(cfg().admMapBloodRoom));
+        g.fill(x, y, x + ROOM, y + ROOM, col(cfg().admMapBloodRoom));
     }
 
     private static boolean drawWithoutPrediction(GuiGraphicsExtractor g) {
-        if (!on() || !mapOn() || !supported()) return false;
+        if (!on() || !supported()) return false;
         boolean[] known = knownTiles();
         Set<Integer> blood = bloodTiles(known);
         if (blood.isEmpty()) return false;
         for (int t : AdmMapScan.pathHints) {
             if (t < 0 || t >= W * W || known[t] || blood.contains(t)) continue;
             int x = (t % W) * TILE, y = (t / W) * TILE;
-            g.fill(x, y, x + ROOM, y + ROOM, lcm ? LcmStyle.UNOPENED : AdmMapRender.col(cfg().admMapUnknownRoom));
-            if (!lcm) AdmMapRender.icon(g, x, y, AdmMapRender.QUESTION);
+            g.fill(x, y, x + ROOM, y + ROOM, col(cfg().admMapUnknownRoom));
+            icon(g, x, y, QUESTION);
         }
         for (int t : blood) bloodRoom(g, t);
         return true;
@@ -213,7 +221,7 @@ public final class MapPrediction {
 
     private static int colorOf(int c) {
         TeslaMapsConfig k = cfg();
-        return AdmMapRender.col(switch (c) {
+        return col(switch (c) {
             case Cls.PUZZLE -> k.admMapPuzzleRoom;
             case Cls.TRAP -> k.admMapTrapRoom;
             case Cls.YELLOW -> k.admMapChampionRoom;
@@ -224,20 +232,8 @@ public final class MapPrediction {
         });
     }
 
-    private static int lcmColor(int c) {
-        return switch (c) {
-            case Cls.PUZZLE -> LcmStyle.PUZZLE;
-            case Cls.TRAP -> LcmStyle.TRAP;
-            case Cls.YELLOW -> LcmStyle.CHAMPION;
-            case Cls.BLOOD -> LcmStyle.BLOOD;
-            case Cls.FAIRY -> LcmStyle.FAIRY;
-            case Cls.RARE -> LcmStyle.RARE;
-            default -> LcmStyle.UNOPENED;
-        };
-    }
-
     private static int dim(int c) {
-        return lcm ? LcmStyle.darker(lcmColor(c)) : AdmMapRender.darker(colorOf(c), 0.5f);
+        return darker(colorOf(c), 0.5f);
     }
 
     private static int withAlpha(int c, float a) {
@@ -245,8 +241,7 @@ public final class MapPrediction {
     }
 
     /** Draws the prediction in map space (20 per tile); false when there is none to draw. */
-    public static boolean render(GuiGraphicsExtractor g, boolean lcmLook) {
-        lcm = lcmLook;
+    public static boolean render(GuiGraphicsExtractor g) {
         try {
             return draw(g);
         } catch (RuntimeException e) {
@@ -326,7 +321,7 @@ public final class MapPrediction {
                 fillTiles(g, new int[]{t}, BIG_GREY);
                 overlay(g, x, y, split, one, split != null);
             } else if (split != null) {
-                g.fill(x, y, x + ROOM, y + ROOM, lcm ? LcmStyle.UNOPENED : AdmMapRender.col(c.admMapUnknownRoom));
+                g.fill(x, y, x + ROOM, y + ROOM, col(c.admMapUnknownRoom));
                 float at = x;
                 for (int cl : shownCls) {
                     float wdt = probs[cl] * ROOM;
@@ -338,7 +333,7 @@ public final class MapPrediction {
                 int cl = shownCls.get(0);
                 float a = Math.min(0.35f + 0.65f * probs[cl], 1f);
                 int inset = 5;
-                int color = lcm ? withAlpha(LcmStyle.darker(lcmColor(cl)), a) : withAlpha(AdmMapRender.darker(colorOf(cl), 0.6f), a);
+                int color = withAlpha(darker(colorOf(cl), 0.6f), a);
                 g.fill(x + inset, y + inset, x + ROOM - inset, y + ROOM - inset, color);
             }
         }
@@ -352,21 +347,12 @@ public final class MapPrediction {
 
     private static void door(GuiGraphicsExtractor g, PredictedDoor d) {
         TeslaMapsConfig c = cfg();
-        if (lcm) {
-            int color;
-            if (d.blood() >= 0.5f * d.chance()) color = LcmStyle.darker(LcmStyle.BLOOD);
-            else if (d.fairy() >= 0.5f * d.chance()) color = LcmStyle.darker(LcmStyle.FAIRY);
-            else if (d.wither() >= 0.5f * d.chance()) color = LcmStyle.WITHER;
-            else color = LcmStyle.UNOPENED;
-            LcmStyle.doorAt(g, d.a() % W, d.a() / W, d.b() == d.a() + 1, color);
-            return;
-        }
         String hex;
         if (d.blood() >= 0.5f * d.chance()) hex = c.admMapBloodDoor;
         else if (d.fairy() >= 0.5f * d.chance()) hex = c.admMapFairyDoor;
         else if (d.wither() >= 0.5f * d.chance()) hex = c.admMapWitherDoor;
         else hex = c.admMapNormalDoor;
-        int color = AdmMapRender.col(hex);
+        int color = col(hex);
         int x = (d.a() % W) * TILE, y = (d.a() / W) * TILE;
         int half = (ROOM - 8) / 2;
         if (d.b() == d.a() + 1) g.fill(x + ROOM, y + half, x + TILE, y + half + 8, color);
@@ -379,8 +365,7 @@ public final class MapPrediction {
         int pool = best.name().pool();
         int type = pool == MapStats.POOL_PUZZLE ? Cls.PUZZLE : pool == MapStats.POOL_TRAP ? Cls.TRAP : pool == MapStats.POOL_YELLOW ? Cls.YELLOW
                 : pool == MapStats.POOL_BLOOD ? Cls.BLOOD : pool == MapStats.POOL_FAIRY ? Cls.FAIRY : -1;
-        int color = lcm ? ((type < 0 ? LcmStyle.NORMAL : lcmColor(type)) & 0xFFFFFF) | (0xBF << 24)
-                : withAlpha(type < 0 ? AdmMapRender.col(cfg().admMapNormalRoom) : colorOf(type), 0.75f);
+        int color = withAlpha(type < 0 ? col(cfg().admMapNormalRoom) : colorOf(type), 0.75f);
         fillTiles(g, tiles, color);
         float cx = 0, cz = 0;
         for (int t : tiles) { cx += (t % W) * TILE + ROOM / 2f; cz += (t / W) * TILE + ROOM / 2f; }
@@ -393,7 +378,7 @@ public final class MapPrediction {
             else if (secrets != n.name().secrets()) same = false;
         }
         if (!same) secrets = null;
-        String name = best.chance() >= EXACT ? best.name().name() : lcm ? "" : "?";
+        String name = best.chance() >= EXACT ? best.name().name() : "?";
         String text = (name + (secrets != null && secrets > 0 ? " 0/" + secrets : "")).trim();
         List<String> lines = new ArrayList<>();
         for (String s : text.split(" ")) if (!s.isEmpty()) lines.add(s);
@@ -429,33 +414,27 @@ public final class MapPrediction {
         List<Integer> sorted = new ArrayList<>(types);
         sorted.sort((a, b) -> Float.compare(probs[b], probs[a]));
         Set<Integer> keep = new HashSet<>(sorted.subList(0, Math.min(3, sorted.size())));
-        if (lcm) {
-            List<Integer> cs = new ArrayList<>();
-            for (int t : new int[]{Cls.PUZZLE, Cls.TRAP, Cls.YELLOW, Cls.RARE}) if (keep.contains(t)) cs.add(dim(t));
-            LcmStyle.guessTile(g, x, y, cs.stream().mapToInt(Integer::intValue).toArray());
-            return;
-        }
         List<Integer> colors = new ArrayList<>();
         for (int t : types) if (keep.contains(t)) colors.add(colorOf(t));
         if (colors.size() == 1) g.fill(x, y, x + ROOM, y + ROOM, colors.get(0));
         else if (colors.size() == 2) {
             int half = ROOM / 2;
-            g.fill(x, y, x + half, y + ROOM, AdmMapRender.darker(colors.get(0), 0.5f));
-            g.fill(x + half, y, x + ROOM, y + ROOM, AdmMapRender.darker(colors.get(1), 0.5f));
+            g.fill(x, y, x + half, y + ROOM, darker(colors.get(0), 0.5f));
+            g.fill(x + half, y, x + ROOM, y + ROOM, darker(colors.get(1), 0.5f));
         } else if (colors.size() >= 3) {
             int third = ROOM / 3;
-            g.fill(x, y, x + third, y + ROOM, AdmMapRender.darker(colors.get(0), 0.5f));
-            g.fill(x + third, y, x + third * 2, y + ROOM, AdmMapRender.darker(colors.get(1), 0.5f));
-            g.fill(x + third * 2, y, x + ROOM, y + ROOM, AdmMapRender.darker(colors.get(2), 0.5f));
+            g.fill(x, y, x + third, y + ROOM, darker(colors.get(0), 0.5f));
+            g.fill(x + third, y, x + third * 2, y + ROOM, darker(colors.get(1), 0.5f));
+            g.fill(x + third * 2, y, x + ROOM, y + ROOM, darker(colors.get(2), 0.5f));
         }
     }
 
     private static void overlay(GuiGraphicsExtractor g, int x, int y, Split split, Float chance, boolean question) {
         boolean label = split != null && cfg().admPredSplitContents;
         if (label) splitLabel(g, x, y, split);
-        else if (question && !lcm) AdmMapRender.icon(g, x, y, AdmMapRender.QUESTION);
-        if (chance != null && (lcm || cfg().admPredShowChances))
-            small(g, Math.round(chance * 100) + "%", x + ROOM / 2, label || !lcm ? y + 13 : y + 8, -1);
+        else if (question) icon(g, x, y, QUESTION);
+        if (chance != null && cfg().admPredShowChances)
+            small(g, Math.round(chance * 100) + "%", x + ROOM / 2, y + 13, -1);
     }
 
     private static void splitLabel(GuiGraphicsExtractor g, int x, int y, Split s) {

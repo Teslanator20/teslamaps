@@ -7,9 +7,6 @@ import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 public class AutoRequeue {
     private static final java.util.regex.Pattern EXTRA_STATS = java.util.regex.Pattern.compile("^\\s*> EXTRA STATS <\\s*$");
 
@@ -17,10 +14,6 @@ public class AutoRequeue {
     private static boolean downtimeHold = false; // set by !dt -> pause auto-requeue for the run
     private static boolean blockNextRequeue = false; // a member left before run end -> skip the upcoming requeue
     private static long lastPartyRMs = 0L; // cooldown so multiple "r" messages don't requeue repeatedly
-    // Devonian's AutoRequeueDungeons: dt list + party size at run start
-    private static final Set<String> needsDowntime = new LinkedHashSet<>();
-    private static boolean runEnded = false;
-    private static int startSize = 0;
     private static long kuudraStart = 0L, lastKuudraEnd = 0L;
     private static String dotDt = null; // IQ-style ".dt [reason]" from the party
     private static Object kuudraLevel = null; // left the instance before the requeue -> drop it
@@ -35,9 +28,6 @@ public class AutoRequeue {
 
         if (msg.equals("Starting in 1 second.")) {
             blockNextRequeue = false;
-            runEnded = false;
-            needsDowntime.clear();
-            startSize = PartyTracker.size();
             return;
         }
 
@@ -59,9 +49,6 @@ public class AutoRequeue {
             if (t.equals(com.teslamaps.features.kuudra.KuudraRunInfo.START)) {
                 kuudraStart = System.currentTimeMillis();
                 blockNextRequeue = false;
-                runEnded = false;
-                needsDowntime.clear();
-                startSize = PartyTracker.size();
                 return;
             }
             if (t.equals("KUUDRA DOWN!") || t.startsWith("[NPC] Elle: Good job everyone. A hard fought battle come to an end.")) {
@@ -75,14 +62,8 @@ public class AutoRequeue {
 
         if (c.autoRequeue && msg.contains("> EXTRA STATS <")) {
             if (!EXTRA_STATS.matcher(msg).matches() || !StringUtil.isServerMessage(msg)) return;
-            runEnded = true;
             if (blockNextRequeue) { blockNextRequeue = false; feedback("a member left this run"); return; } // a member left this run -> don't requeue
-            if (c.requeueDowntimeList) {
-                if (!needsDowntime.isEmpty()) {
-                    com.teslamaps.features.Announce.party(String.join(", ", needsDowntime) + " needs downtime");
-                    return;
-                }
-            } else if (downtimeHold) {
+            if (downtimeHold) {
                 feedback("someone asked for downtime");
                 if (dotDt != null) { dotDt = null; downtimeHold = false; }
                 return; // ChatCommands announces the reminders + clears the hold
@@ -95,7 +76,7 @@ public class AutoRequeue {
         if (pm == null || pm.channel() != PlayerChat.Channel.PARTY) return;
         String content = pm.message().trim().toLowerCase();
 
-        if (c.requeueKuudra && !c.requeueDowntimeList && (content.equals(".dt") || content.startsWith(".dt "))) {
+        if (c.requeueKuudra && (content.equals(".dt") || content.startsWith(".dt "))) {
             String reason = pm.message().trim().length() > 4 ? pm.message().trim().substring(4).trim() : "";
             dotDt = pm.author() + (reason.isEmpty() ? "" : ": " + (reason.length() > 60 ? reason.substring(0, 60) : reason));
             setDowntimeHold(true);
@@ -103,29 +84,7 @@ public class AutoRequeue {
             return;
         }
 
-        if (c.requeueDowntimeList) {
-            if (content.equals("dt") || content.startsWith("!dt") || content.equals("!downtime")) {
-                if (needsDowntime.add(pm.author())) local("§b" + pm.author() + " §7needs downtime");
-                if (requeueAt != 0L) requeueAt = 0L;
-                return;
-            }
-            if (content.equals("!undt") || content.equals("!undowntime")) {
-                needsDowntime.remove(pm.author());
-                return;
-            }
-        }
-
         if (content.equals("r") || content.equals("!r") || content.equals("re") || content.equals("requeue")) {
-            boolean wasDown = c.requeueDowntimeList && needsDowntime.remove(pm.author());
-            if (wasDown) local("§a" + pm.author() + " is ready");
-            if (c.requeueDowntimeList && !needsDowntime.isEmpty()) {
-                feedback(String.join(", ", needsDowntime) + " still needs downtime");
-                return;
-            }
-            if (wasDown && c.autoRequeue && runEnded) {
-                requeueAt = System.currentTimeMillis() + 500L;
-                return;
-            }
             if (c.requeueOnPartyR && !content.equals("!r")) {
                 long now = System.currentTimeMillis();
                 if (now - lastPartyRMs < 10_000L) return; // 10s cooldown vs repeated "r" spam
@@ -137,16 +96,10 @@ public class AutoRequeue {
     }
 
     private static void onKuudraEnd(TeslaMapsConfig c, long now) {
-        runEnded = true;
         long runMs = kuudraStart > 0 ? now - kuudraStart : 0;
         kuudraStart = 0L;
         if (blockNextRequeue) { blockNextRequeue = false; feedback("a member left this run"); return; }
-        if (c.requeueDowntimeList && !needsDowntime.isEmpty()) {
-            cancelTitle(String.join(", ", needsDowntime));
-            com.teslamaps.features.Announce.party(String.join(", ", needsDowntime) + " needs downtime");
-            return;
-        }
-        if (!c.requeueDowntimeList && downtimeHold) {
+        if (downtimeHold) {
             String who = com.teslamaps.features.ChatCommands.downtimeSummary();
             cancelTitle(who.isEmpty() ? dotDt : who);
             if (dotDt != null) { dotDt = null; downtimeHold = false; }
@@ -182,10 +135,6 @@ public class AutoRequeue {
         requeueAt = 0L;
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!PartyTracker.mayLead()) { feedback("you are not the party leader"); return; }
-        if (c.requeueCheckParty && startSize > 0 && PartyTracker.size() > 0 && startSize != PartyTracker.size()) {
-            feedback("party size changed (" + startSize + " -> " + PartyTracker.size() + ")");
-            return;
-        }
         if (c.requeueMinParty > 1 && Math.max(1, PartyTracker.size()) < c.requeueMinParty) {
             feedback("not enough players in party (" + Math.max(1, PartyTracker.size()) + "/" + c.requeueMinParty + ")");
             return;
@@ -195,7 +144,7 @@ public class AutoRequeue {
     }
 
     private static void feedback(String why) {
-        if (TeslaMapsConfig.get().requeueFeedback) local("§7Not requeueing: §f" + why);
+        local("§7Not requeueing: §f" + why);
     }
 
     private static void local(String text) {

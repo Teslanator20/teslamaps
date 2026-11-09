@@ -39,9 +39,6 @@ public final class CameraTweaks {
                             .desc("Ignores the server's pose updates for yourself, so sneaking does not flicker");
                     b.toggle("Riding Input Fix", () -> cfg().ridingInputFix, v -> cfg().ridingInputFix = v)
                             .desc("Fixes the mouse delay while riding (MC-206540)");
-                    b.toggle("Custom FOV", () -> cfg().customFov, v -> cfg().customFov = v)
-                            .desc("Replaces the vanilla FOV, 1 to 179");
-                    b.slider("  FOV", 1f, 179f, () -> (float) cfg().customFovValue, v -> cfg().customFovValue = v.intValue());
                     b.toggle("Camera Distance (F5)", () -> cfg().customCameraDistance, v -> cfg().customCameraDistance = v)
                             .desc("Third person camera distance, vanilla is 4 blocks");
                     b.slider("  Distance", 3f, 12f, () -> cfg().cameraDistance, v -> cfg().cameraDistance = v, 1);
@@ -98,12 +95,6 @@ public final class CameraTweaks {
         passenger.yRotO += g - f;
         passenger.setYRot(passenger.getYRot() + g - f);
         passenger.setYHeadRot(passenger.getYRot());
-    }
-
-    public static float fov(float fov) {
-        if (!cfg().customFov) return fov;
-        int base = Minecraft.getInstance().options.fov().get();
-        return base <= 0 ? fov : fov * (Mth.clamp(cfg().customFovValue, 1, 179) / (float) base);
     }
 
     public static float cameraDistance(float distance) {

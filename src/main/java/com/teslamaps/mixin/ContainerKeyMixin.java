@@ -24,23 +24,17 @@ public class ContainerKeyMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (com.teslamaps.features.HoppityHelpers.blockClose(cs, event)) { cir.setReturnValue(true); return; }
 
-        if (com.teslamaps.features.RadialMenus.key(cs, event) || com.teslamaps.features.bazaar.PurchaseGuard.onKey(event.key())) {
+        if (com.teslamaps.features.bazaar.PurchaseGuard.onKey(event.key())) {
             cir.setReturnValue(true);
             return;
         }
 
-        if (com.teslamaps.features.choco.ChocoStrays.blockKey(event) || com.teslamaps.features.choco.ChocoExtras.onKey(cs, event.key())) {
+        if (com.teslamaps.features.choco.ChocoStrays.blockKey(event)) {
             cir.setReturnValue(true);
             return;
         }
 
-        if (com.teslamaps.features.ClickFixes.onSnakeKey(cs, event)) {
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (com.teslamaps.features.FancyPartyFinder.keyPressed(cs, event.key())
-                || com.teslamaps.features.FancyAuctionHouse.keyPressed(cs, event.key())) {
+        if (com.teslamaps.features.FancyAuctionHouse.keyPressed(cs, event.key())) {
             cir.setReturnValue(true);
             return;
         }

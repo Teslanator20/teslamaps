@@ -1,7 +1,5 @@
 package com.teslamaps.mixin;
 
-import com.teslamaps.features.ZealotColor;
-import com.teslamaps.render.ModelTintHolder;
 import net.minecraft.client.renderer.entity.EndermanRenderer;
 import net.minecraft.client.renderer.entity.state.EndermanRenderState;
 import net.minecraft.world.entity.monster.EnderMan;
@@ -15,8 +13,6 @@ public class EndermanTintMixin {
     @Inject(method = "extractRenderState(Lnet/minecraft/world/entity/monster/EnderMan;Lnet/minecraft/client/renderer/entity/state/EndermanRenderState;F)V",
             at = @At("TAIL"))
     private void teslamaps$zealotTint(EnderMan enderman, EndermanRenderState state, float pt, CallbackInfo ci) {
-        int stage = com.teslamaps.features.theend.EndermanQol.tint(enderman);
-        ((ModelTintHolder) state).teslamaps$setTint(stage != 0 ? stage : ZealotColor.tint(enderman));
         if (com.teslamaps.features.theend.EndermanQol.hideHurtTint()) state.hasRedOverlay = false;
     }
 }

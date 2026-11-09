@@ -62,8 +62,7 @@ public final class Commissions {
 
     private static boolean wanted() {
         TeslaMapsConfig c = cfg();
-        return c.commissionHud || c.commissionWaypoints || c.commissionMobHighlight
-                || c.dwarvenOverlay && c.dwarvenOverlayCommissions;
+        return c.commissionHud || c.commissionWaypoints || c.commissionMobHighlight;
     }
 
     public static void register() {

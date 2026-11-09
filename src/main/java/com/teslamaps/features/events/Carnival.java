@@ -31,7 +31,7 @@ public final class Carnival {
 
     private static boolean anyOn() {
         TeslaMapsConfig c = cfg();
-        return c.carnivalZombieShootout || c.carnivalCatchAFish || c.carnivalShopHelper || c.carnivalGoals
+        return c.carnivalZombieShootout || c.carnivalCatchAFish || c.carnivalGoals
                 || c.carnivalTicketReminder || c.carnivalQuickStart || c.carnivalFruitDigging;
     }
 

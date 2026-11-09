@@ -134,12 +134,6 @@ public class GetFromSacks {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         String text = StringUtil.strip(raw).trim();
 
-        if (c.gfsPiggyBank && (text.equals("You died and your piggy bank cracked!")
-                || (text.startsWith("You died, lost ") && text.endsWith(" coins and your piggy bank broke!")))) {
-            grabLink("Enchanted Pork", 8);
-            return;
-        }
-
         if (c.gfsSuperCraft) {
             Matcher m = SUPERCRAFTED.matcher(text);
             if (m.matches()) {

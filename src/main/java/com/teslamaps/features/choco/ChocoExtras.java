@@ -1,32 +1,24 @@
 package com.teslamaps.features.choco;
 
-// After SkyHanni's CFTimeTowerManager, Skyblocker's TimeTowerReminder, CFBarnManager, CFShopPrice, hitman/HitmanSlots, CFBlockOpen, CFKeybinds, CFTooltipCompact
+// After SkyHanni's CFTimeTowerManager, Skyblocker's TimeTowerReminder, CFBarnManager, CFShopPrice, hitman/HitmanSlots
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.PriceManager;
-import com.teslamaps.features.hud.EffectTimers;
 import com.teslamaps.features.hud.TextHud;
-import com.teslamaps.features.pets.PetTracker;
 import com.teslamaps.mixin.HandledScreenAccessor;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockUtils;
 import com.teslamaps.utils.StringUtil;
-import com.teslamaps.utils.TickScheduler;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
-import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemLore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +31,10 @@ public final class ChocoExtras {
     static final long TT_CHARGE_MS = 8 * 3_600_000L;
 
     private static final Pattern TOWER = Pattern.compile("^TIME TOWER! Your Chocolate Factory production has increased by \\+[\\d.]+x for (\\d+)h!$");
-    private static final Pattern CHOC_NAME = Pattern.compile("^[\\d,]+ Chocolate$");
-    private static final Pattern DUPE = Pattern.compile("^DUPLICATE RABBIT! \\+([\\d,]+) Chocolate");
     private static final Pattern CRUSHED = Pattern.compile("^BARN FULL! .+ got crushed! \\+([\\d,]+) Chocolate");
     private static final Pattern COST = Pattern.compile("Cost ([\\d,]+) Chocolate");
     private static final Pattern COIN_COST = Pattern.compile("Cost ([\\d,]+) Coins");
     private static final Pattern SPENT = Pattern.compile("^Chocolate Spent: ([\\d,]+)");
-    private static final Pattern OPEN_CMD = Pattern.compile("(?i)^(?:cf|(?:chocolate)?factory)(?: .*)?$");
     private static final List<String> SHOP_SAMPLE = List.of("§e§lCoins per million chocolate", "§eChocolate spent: §61,234,567",
             "§aSupreme Chocolate Bar §6§l120k", "§5Rabbit Egg §6§l45k");
 
@@ -55,7 +44,7 @@ public final class ChocoExtras {
     private static boolean inShop, inHitman;
     private static String hitmanLine = "";
     private static boolean ttNewCharge, barnWarned;
-    private static long lastTtFullWarn, lastKey, lastChocClick, lastCmdBlock, lastMixinHint;
+    private static long lastTtFullWarn;
 
     private ChocoExtras() {}
 
@@ -71,8 +60,7 @@ public final class ChocoExtras {
         Feature.of("ChocoExtras").section(ChocoData.CATEGORY)
                 .when(() -> {
                     TeslaMapsConfig c = cfg();
-                    return c.cfTimeTowerWarning || c.cfTimeTowerExpired || c.cfBarnWarning || c.cfDupeTime || c.cfShopPrice
-                            || c.cfHitman || c.cfBlockOpen || c.cfKeybinds || c.cfCompactTooltip;
+                    return c.cfTimeTowerWarning || c.cfTimeTowerExpired || c.cfBarnWarning || c.cfShopPrice || c.cfHitman;
                 })
                 .tick(ChocoExtras::tick)
                 .serverChat(ChocoExtras::onChat)
@@ -86,35 +74,11 @@ public final class ChocoExtras {
                     b.toggle("Barn Full Warning", () -> c.cfBarnWarning, v -> c.cfBarnWarning = v)
                             .desc("Warns when the barn is (almost) full so new rabbits don't get crushed. Barn slot red in the factory.");
                     b.slider("  Warn At Free Slots", 0, 20, () -> (float) c.cfBarnThreshold, v -> c.cfBarnThreshold = Math.round(v));
-                    b.toggle("Duplicate Rabbit Production Time", () -> c.cfDupeTime, v -> c.cfDupeTime = v)
-                            .desc("After a duplicate rabbit: how much production time its chocolate equals.");
                     b.toggle("Chocolate Shop Price", () -> c.cfShopPrice, v -> c.cfShopPrice = v)
                             .desc("Panel in the Chocolate Shop with coins per million chocolate for each item. Position in /tmap gui");
                     b.toggle("Rabbit Hitman Info", () -> c.cfHitman, v -> c.cfHitman = v)
                             .desc("Eggs / slots on the Hitman slot in the factory, and bought / remaining slots with their coin cost in the Hitman menu.");
-                    b.toggle("Block Opening The Factory", () -> c.cfBlockOpen, v -> c.cfBlockOpen = v)
-                            .desc("Stops /cf and the factory items while a requirement below is missing.");
-                    b.toggle("  Without Mythic Rabbit Pet", () -> c.cfBlockNoRabbit, v -> c.cfBlockNoRabbit = v);
-                    b.toggle("  Without Booster Cookie", () -> c.cfBlockNoCookie, v -> c.cfBlockNoCookie = v);
-                    b.toggle("  Without Hot Chocolate Mixin", () -> c.cfBlockNoMixin, v -> c.cfBlockNoMixin = v)
-                            .desc("Needs Effect Timers; open /effects once so the mixin time is known. Unknown = only a chat hint, no block.");
-                    b.toggle("Rabbit Keybinds", () -> c.cfKeybinds, v -> c.cfKeybinds = v)
-                            .desc("Keys that click the 7 rabbit employees in the factory.");
-                    b.keybind("  Rabbit 1", () -> c.cfKey1, v -> c.cfKey1 = v);
-                    b.keybind("  Rabbit 2", () -> c.cfKey2, v -> c.cfKey2 = v);
-                    b.keybind("  Rabbit 3", () -> c.cfKey3, v -> c.cfKey3 = v);
-                    b.keybind("  Rabbit 4", () -> c.cfKey4, v -> c.cfKey4 = v);
-                    b.keybind("  Rabbit 5", () -> c.cfKey5, v -> c.cfKey5 = v);
-                    b.keybind("  Rabbit 6", () -> c.cfKey6, v -> c.cfKey6 = v);
-                    b.keybind("  Rabbit 7", () -> c.cfKey7, v -> c.cfKey7 = v);
-                    b.toggle("Compact Chocolate Tooltip", () -> c.cfCompactTooltip, v -> c.cfCompactTooltip = v)
-                            .desc("The big chocolate item shrinks its tooltip to name + amount for a second after you click it.");
-                    b.toggle("  Always Compact", () -> c.cfCompactTooltipAlways, v -> c.cfCompactTooltipAlways = v);
                 });
-        ItemTooltipCallback.EVENT.register((stack, ctx, flag, tip) -> {
-            if (cfg().cfCompactTooltip && ChocoData.inFactory() && cfg().section(ChocoData.CATEGORY)) compact(stack, tip);
-        });
-        ClientSendMessageEvents.ALLOW_COMMAND.register(ChocoExtras::allowCommand);
     }
 
     private static void tick() {
@@ -203,16 +167,9 @@ public final class ChocoExtras {
             if (c.cfBarnWarning) { barnWarned = false; checkBarn(); }
             return;
         }
-        Matcher m;
-        if (c.cfBarnWarning && (m = CRUSHED.matcher(t)).find()) {
+        if (c.cfBarnWarning && CRUSHED.matcher(t).find()) {
             barnWarned = false;
             checkBarn();
-            return;
-        }
-        if (c.cfDupeTime && (m = DUPE.matcher(t)).find() && s.cps > 0) {
-            double amount = ChocoData.num(m.group(1));
-            String time = ChocoData.format((long) (amount / s.cps * 1000));
-            TickScheduler.schedule(1, () -> ChocoData.chat("§7(§a+§b" + time + " §aof production§7)"));
         }
     }
 
@@ -298,104 +255,13 @@ public final class ChocoExtras {
         }
     }
 
-    // block open
-
-    private static boolean allowCommand(String command) {
-        if (!cfg().cfBlockOpen || !cfg().section(ChocoData.CATEGORY) || !SkyblockUtils.isInSkyblock()) return true;
-        if (!OPEN_CMD.matcher(command.trim()).matches()) return true;
-        long now = System.currentTimeMillis();
-        if (now - lastCmdBlock < 5000) return true;
-        String why = missing();
-        if (why == null) return true;
-        lastCmdBlock = now;
-        ChocoData.chat("§cBlocked opening the Chocolate Factory " + why + "§c! §7Send it again within 5 s to open anyway.");
-        return false;
-    }
-
-    private static String missing() {
-        TeslaMapsConfig c = cfg();
-        if (c.cfBlockNoRabbit) {
-            String pet = PetTracker.displayName();
-            if (pet == null || !StringUtil.strip(pet).contains("Rabbit") || !"MYTHIC".equals(PetTracker.rarity())) return "§7without a §dMythic Rabbit Pet";
-        }
-        if (c.cfBlockNoCookie && !cookieActive()) return "§7without a §dBooster Cookie";
-        if (c.cfBlockNoMixin) {
-            long exp = EffectTimers.expiresAt("Hot Chocolate Mixin I"), now = System.currentTimeMillis();
-            if (c.effectTimers && exp > 0 && exp < now) return "§7without a §6Hot Chocolate Mixin";
-            if ((!c.effectTimers || exp <= 0) && now - lastMixinHint > 5 * 60_000L) {
-                lastMixinHint = now;
-                ChocoData.chat("§eHot Chocolate Mixin unknown §7(turn on Effect Timers, open /effects once)§e, not blocking.");
-            }
-        }
-        return null;
-    }
-
-    private static boolean cookieActive() {
-        String f = StringUtil.strip(com.teslamaps.dungeon.DungeonInfoHud.footer());
-        int i = f.indexOf("Cookie Buff");
-        if (i < 0) return true;
-        return !f.substring(i + 11).trim().startsWith("Not active");
-    }
-
     /** From HandledScreenClickMixin.slotClicked; true cancels. */
     public static boolean onSlotClick(AbstractContainerScreen<?> cs, Slot slot, int button, ContainerInput type) {
         if (slot == null || slot.container instanceof Inventory || !cfg().section(ChocoData.CATEGORY)) return false;
-        if (!cfg().cfBlockOpen && !ChocoData.anyEnabled()) return false;
+        if (!ChocoData.anyEnabled()) return false;
         if (ChocoStrays.blockClick(slot)) return true;
         ChocoReminder.onSlotClick(slot, button);
-        ItemStack st = slot.getItem();
-        if (st.isEmpty()) return false;
-        String name = StringUtil.stripTrim(st.getHoverName().getString());
-        if (ChocoData.inFactory() && name.endsWith(" Chocolate") && CHOC_NAME.matcher(name).matches()) lastChocClick = System.currentTimeMillis();
-        if (cfg().cfBlockOpen && SkyblockUtils.isInSkyblock() && (name.equals("Chocolate Factory") || name.equals("Open Chocolate Factory"))
-                && !StringUtil.stripTrim(cs.getTitle().getString()).contains("Enchanted Clock")) {
-            String why = missing();
-            if (why != null) {
-                ChocoData.chat("§cBlocked opening the Chocolate Factory " + why + "§c!");
-                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.VILLAGER_NO, 1f, 1f));
-                return true;
-            }
-        }
         return false;
-    }
-
-    // keybinds
-
-    /** From ContainerKeyMixin. */
-    public static boolean onKey(AbstractContainerScreen<?> cs, int key) {
-        TeslaMapsConfig c = cfg();
-        if (!c.cfKeybinds || !ChocoData.inFactory() || !c.section(ChocoData.CATEGORY) || key <= 0) return false;
-        int[] keys = {c.cfKey1, c.cfKey2, c.cfKey3, c.cfKey4, c.cfKey5, c.cfKey6, c.cfKey7};
-        List<Integer> rabbits = ChocoData.rabbitSlots;
-        for (int i = 0; i < keys.length; i++) {
-            if (keys[i] != key) continue;
-            if (i >= rabbits.size()) return true;
-            long now = System.currentTimeMillis();
-            if (now - lastKey < 200) return true;
-            lastKey = now;
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.gameMode != null && mc.player != null)
-                mc.gameMode.handleContainerInput(cs.getMenu().containerId, rabbits.get(i), 2, ContainerInput.CLONE, mc.player);
-            return true;
-        }
-        return false;
-    }
-
-    // compact tooltip
-
-    private static void compact(ItemStack stack, List<Component> tip) {
-        if (tip.isEmpty()) return;
-        ItemLore lore = ItemUtil.lore(stack);
-        if (lore == null) return;
-        List<Component> lines = lore.lines();
-        boolean isChoc = false;
-        for (Component l : lines) if (l.getString().contains("Click to uncover the meaning of life!")) { isChoc = true; break; }
-        if (!isChoc) return;
-        if (!cfg().cfCompactTooltipAlways && System.currentTimeMillis() - lastChocClick > 1000) return;
-        Component name = tip.get(0);
-        tip.clear();
-        tip.add(name);
-        if (lines.size() > 5) tip.add(lines.get(5));
     }
 
     static String fmt(double v) {

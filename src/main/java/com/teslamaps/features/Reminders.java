@@ -228,7 +228,6 @@ public class Reminders {
     private static void fire(TeslaMapsConfig c, List<Reminder> fired) {
         Minecraft mc = Minecraft.getInstance();
         for (Reminder r : fired) {
-            ExecutionLog.log("Reminder: " + r.text);
             MutableComponent line = Component.literal("§e[Reminder] ");
             if (!c.remindersAutoDelete) {
                 line.append(button("§a✔", "§7Click to dismiss", new ClickEvent.RunCommand("/tmap remind remove " + r.id)))

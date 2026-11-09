@@ -1,21 +1,18 @@
 package com.teslamaps.features;
 
 // Own name: HypixelSimpleChat's highlightSelf. Badges: SkyOcean's ProfileInChat + Skysoft's PlayerBadges.
-// Piggy link: SkyOcean's PiggyBankRepairHelper. Join/leave: Zen's FriendJoinMessage/GuildJoinMessage.
-// Explosive shot: NoammAddons' ChatFeatures. Bridge: DulkirMod's Bridge.
+// Join/leave: Zen's FriendJoinMessage/GuildJoinMessage. Bridge: DulkirMod's Bridge.
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.PlayerChat;
 import com.teslamaps.utils.StringUtil;
-import com.teslamaps.utils.TickScheduler;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
@@ -39,10 +36,6 @@ public final class ChatRewrites {
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
-    private static final Pattern PIGGY = Pattern.compile(
-            "^You died(?: and your piggy bank cracked!|, lost [\\d.,]* coins and your piggy bank broke!)$");
-    private static final Pattern EXPLOSIVE = Pattern.compile(
-            "^Your Explosive Shot hit (\\d+) (?:enemy|enemies) for ([\\d,.]+) damage\\.$");
     private static final Pattern JOIN_LEAVE = Pattern.compile("^(Friend|Guild) > ([A-Za-z0-9_]{1,16}) (joined|left)\\.$");
     private static final Pattern BRIDGE = Pattern.compile(
             "^(?:Guild|Officer) > (?:\\[[^\\]]{1,20}] )?([A-Za-z0-9_]{1,16})(?: \\[[^\\]]{1,20}])?: (.{1,40}?)(?: » | > |: )(.*)$",
@@ -61,11 +54,7 @@ public final class ChatRewrites {
 
     public static void register() {
         Feature.of("ProfileBadges").section("Chat").when(() -> cfg().chatProfileBadges)
-                .tick(ChatRewrites::tickBadges);
-        Feature.of("PiggyRepairLink").section("Chat").when(() -> cfg().piggyRepairLink)
-                .serverChat(ChatRewrites::onPiggy);
-        Feature.of("ExplosiveShotPerEnemy").section("Chat").when(() -> cfg().explosiveShotPerEnemy)
-                .serverChat(ChatRewrites::onExplosive)
+                .tick(ChatRewrites::tickBadges)
                 .config("Chat", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Chat Extras");
@@ -73,10 +62,6 @@ public final class ChatRewrites {
                             .desc("Adds the ♲ Ironman / Ⓑ Bingo / ☀ Stranded symbol (and Crimson faction) from the tab list behind the sender's name");
                     b.toggle("Compact Friend/Guild Join & Leave", () -> c.compactJoinLeave, v -> c.compactJoinLeave = v)
                             .desc("\"Friend > Name joined.\" becomes \"F >> Name\", left = \"F << Name\"; same with G for the guild");
-                    b.toggle("Piggy Bank Repair Link", () -> c.piggyRepairLink, v -> c.piggyRepairLink = v)
-                            .desc("When your piggy bank cracks or breaks, a clickable line runs /gfs ENCHANTED_PORK 8");
-                    b.toggle("Explosive Shot Damage Per Enemy", () -> c.explosiveShotPerEnemy, v -> c.explosiveShotPerEnemy = v)
-                            .desc("Adds a line with the damage per enemy after \"Your Explosive Shot hit N enemies\"");
                     b.toggle("Guild Bridge Formatting", () -> c.bridgeFormat, v -> c.bridgeFormat = v)
                             .desc("Guild lines of your bridge bot (\"Guild > Bot: Name » text\") become \"Bridge > Name: text\". Set the bot with /tmap bridgebot <name>");
                     b.info("  Bridge bot: /tmap bridgebot <name>");
@@ -84,38 +69,6 @@ public final class ChatRewrites {
                     b.toggle("Log Search (/tmap logsearch)", () -> c.logSearch, v -> c.logSearch = v)
                             .desc("Searches the chat of every log file, zipped ones too. Text or /regex/");
                 });
-    }
-
-    // ---- server chat triggers ----
-
-    private static void onPiggy(String text) {
-        if (!PIGGY.matcher(StringUtil.stripTrim(text)).matches()) return;
-        TickScheduler.schedule(1, () -> {
-            var player = Minecraft.getInstance().player;
-            if (player == null) return;
-            player.sendSystemMessage(Component.literal("§b[TeslaMaps] §eClick here to get 8 Enchanted Pork from your sacks.")
-                    .withStyle(s -> s.withClickEvent(new ClickEvent.RunCommand("/gfs ENCHANTED_PORK 8"))
-                            .withHoverEvent(new HoverEvent.ShowText(Component.literal("§7/gfs ENCHANTED_PORK 8")))));
-        });
-    }
-
-    private static void onExplosive(String text) {
-        Matcher m = EXPLOSIVE.matcher(StringUtil.stripTrim(text));
-        if (!m.matches()) return;
-        int hits;
-        double total;
-        try {
-            hits = Integer.parseInt(m.group(1));
-            total = Double.parseDouble(m.group(2).replace(",", ""));
-        } catch (NumberFormatException e) {
-            return;
-        }
-        long per = (long) (hits > 0 ? total / hits : total);
-        String msg = "§b[TeslaMaps] §aExplosive shot did §e" + String.format(Locale.ROOT, "%,d", per) + "§a damage per enemy.";
-        TickScheduler.schedule(1, () -> {
-            var player = Minecraft.getInstance().player;
-            if (player != null) player.sendSystemMessage(Component.literal(msg));
-        });
     }
 
     // ---- tab list badges ----

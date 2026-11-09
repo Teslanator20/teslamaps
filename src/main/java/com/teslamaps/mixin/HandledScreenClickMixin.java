@@ -33,10 +33,6 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.features.rift.UbikQuickClose.onSlotClick((AbstractContainerScreen<?>) (Object) this, type)) {
-            ci.cancel();
-            return;
-        }
         if (com.teslamaps.features.DnaAnalyzerSolver.onSlotClick((AbstractContainerScreen<?>) (Object) this, slotId, type)) {
             ci.cancel();
             return;
@@ -62,10 +58,6 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.features.RenderHiders.middleClickMenu(slot, button, type)) {
-            ci.cancel();
-            return;
-        }
         if (com.teslamaps.features.PetShiftClick.handle(
                 (AbstractContainerScreen<?>) (Object) this, slot, slotId, button, type)) {
             ci.cancel();
@@ -77,17 +69,11 @@ public class HandledScreenClickMixin {
             ci.cancel();
             return;
         }
-        if (com.teslamaps.features.MinionFeatures.blockClick((AbstractContainerScreen<?>) (Object) this, slot, type)
-                || com.teslamaps.features.ClickFixes.blockHuntrap((AbstractContainerScreen<?>) (Object) this, slot)
-                || com.teslamaps.slayer.SlayerHiders.blockClick((AbstractContainerScreen<?>) (Object) this, slot)) {
+        if (com.teslamaps.features.ClickFixes.blockHuntrap((AbstractContainerScreen<?>) (Object) this, slot)) {
             ci.cancel();
             return;
         }
         if (com.teslamaps.features.foraging.ForagingBeacon.blockClick(slot)) {
-            ci.cancel();
-            return;
-        }
-        if (com.teslamaps.features.GardenPlotMenu.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) {
             ci.cancel();
             return;
         }
@@ -168,10 +154,8 @@ public class HandledScreenClickMixin {
 
         if (com.teslamaps.features.CustomWardrobe.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyWarpMenu.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.FancyPartyFinder.click((AbstractContainerScreen<?>) (Object) this, click)
                 || com.teslamaps.features.FancyAuctionHouse.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.mining.CommissionPanel.click((AbstractContainerScreen<?>) (Object) this, click)
-                || com.teslamaps.features.RadialMenus.click((AbstractContainerScreen<?>) (Object) this, click)) {
+                || com.teslamaps.features.mining.CommissionPanel.click((AbstractContainerScreen<?>) (Object) this, click)) {
             cir.setReturnValue(true);
             return;
         }
@@ -241,12 +225,6 @@ public class HandledScreenClickMixin {
                 || com.teslamaps.features.GetFromSacks.onKey(asBind,
                         ((HandledScreenAccessor) (Object) this).getFocusedSlot())) {
             teslamaps$ate("SlotBinds/SlotLock/GetFromSacks", button);
-            cir.setReturnValue(true);
-            return;
-        }
-
-        if (com.teslamaps.features.MiscQol.onClick(((HandledScreenAccessor) (Object) this).getFocusedSlot(), button)) {
-            teslamaps$ate("CopyPlaytime", button);
             cir.setReturnValue(true);
             return;
         }

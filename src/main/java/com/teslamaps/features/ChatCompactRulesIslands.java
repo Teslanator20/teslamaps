@@ -1,8 +1,7 @@
 package com.teslamaps.features;
 
-// Ported from HypixelSimpleChat's rules/islands/Dungeons.kt, Foraging.kt, rules/lobby/*, rules/system/* and CompactRules.kt
+// Ported from HypixelSimpleChat's rules/islands/Foraging.kt, rules/lobby/*, rules/system/* and CompactRules.kt
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.dungeon.DungeonManager;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ChatText;
 import com.teslamaps.utils.PlayerChat;
@@ -24,10 +23,6 @@ public final class ChatCompactRulesIslands {
 
     private static final List<R> RULES = new ArrayList<>();
 
-    private static void dungeon(String hint, String regex, BiFunction<Matcher, String, String> out) {
-        RULES.add(new R(c -> c.chatCompactDungeon && DungeonManager.isInDungeon(), hint, Pattern.compile(regex), out));
-    }
-
     private static void lobby(String hint, String regex, BiFunction<Matcher, String, String> out) {
         RULES.add(new R(c -> c.chatCompactLobby, hint, Pattern.compile(regex), out));
     }
@@ -37,24 +32,6 @@ public final class ChatCompactRulesIslands {
     }
 
     static {
-        dungeon("Key was picked up", "^A (\\w+) Key was picked up!?$", (m, l) -> "§a+ " + keyColor(m.group(1)) + m.group(1) + " Key");
-        dungeon("has obtained", "^(.+) has obtained (Wither|Blood) Key!$",
-                (m, l) -> "§a+ " + keyColor(m.group(2)) + m.group(2) + " Key §7(" + span(l, m.group(1)) + "§7)");
-        dungeon("has obtained", "^(.+) has obtained (Superboom TNT(?: x\\d)?|Revive Stone|Premium Flesh|Beating Heart)!$",
-                (m, l) -> "§a+ " + color(l, m.group(2), "§9") + m.group(2) + " §7(" + span(l, m.group(1)) + "§7)");
-        dungeon("has obtained Blessing", "^(.+) has obtained Blessing of (.+)!$",
-                (m, l) -> "§d+ Blessing of " + m.group(2) + " §7(" + span(l, m.group(1)) + "§7)");
-        dungeon("Blessing of", "^A Blessing of (.+) was picked up!$", (m, l) -> "§d+ Blessing of " + m.group(1));
-        dungeon("DUNGEON BUFF!", "^DUNGEON BUFF! (.+)$", (m, l) -> "§dBuff §7· §f" + m.group(1));
-        dungeon("ranted you", "^(?:Also )?[Gg]ranted you .+$", (m, l) -> "");
-        dungeon("ranted you", "^[Gg]rants you .+$", (m, l) -> "");
-        dungeon("door!", "^(.+) opened (?:a|an|the) (?:(\\w+) )?door!$",
-                (m, l) -> "§7Door §8· " + span(l, m.group(1)) + (m.group(2) == null ? "" : " §8(" + color(l, m.group(2), "§7") + m.group(2) + "§8)"));
-        dungeon("DOOR has been opened", "^The (.+) DOOR has been opened!$", (m, l) -> "§7Door §8· §c" + m.group(1));
-        dungeon("PUZZLE SOLVED!", "^PUZZLE SOLVED! (.+)$", (m, l) -> "§aPuzzle ✔ §7" + m.group(1));
-        dungeon("stats are doubled", "^Your (Healer|Mage|Berserk|Archer|Tank) stats are doubled because you are the only player using this class!$",
-                (m, l) -> "§6" + m.group(1) + " stats doubled §7(solo)");
-
         lobby("joined the lobby!", "^(?:>+ )?(.+?) joined the lobby!.*$", (m, l) -> span(l, m.group(1)) + " §8joined");
         lobby("Activated your booster", "^Activated your booster\\..*?([0-9.]+)x coins",
                 (m, l) -> "§eBooster §f" + m.group(1) + "x§e coins" + hours(m.group()));
@@ -110,8 +87,6 @@ public final class ChatCompactRulesIslands {
                 .config("Chat", b -> {
                     TeslaMapsConfig c = TeslaMapsConfig.get();
                     b.label("Compact Lines");
-                    b.toggle("Compact Dungeon Lines", () -> c.chatCompactDungeon, v -> c.chatCompactDungeon = v)
-                            .desc("\"+ Wither Key (name)\", \"Door · name\", \"Puzzle ✔ ...\", Superboom/Revive pickups, solo class. Full line on hover. Wins over the Hide filters for these lines.");
                     b.toggle("Compact Lobby & System Lines", () -> c.chatCompactLobby, v -> c.chatCompactLobby = v)
                             .desc("\"X joined\", boosters, tips, bank interest, Mystery Box, achievements, \"→ mini12\", Watchdog, profile lines");
                     b.toggle("Compact Foraging / Hunting / Safari", () -> c.chatCompactForaging, v -> c.chatCompactForaging = v)
@@ -122,7 +97,7 @@ public final class ChatCompactRulesIslands {
     /** Short form of a server line, or null. {@code t} is the stripped text. */
     public static String shortForm(Component message, String t) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.chatCompactDungeon && !c.chatCompactLobby && !c.chatCompactForaging) return null;
+        if (!c.chatCompactLobby && !c.chatCompactForaging) return null;
         PlayerChat.Msg pm = PlayerChat.current();
         if (pm != null && pm.channel() != PlayerChat.Channel.NPC) return null;
         String s = t.trim();
@@ -134,10 +109,6 @@ public final class ChatCompactRulesIslands {
             return r.out.apply(m, ChatText.formatted(message));
         }
         return null;
-    }
-
-    private static String keyColor(String key) {
-        return key.equals("Blood") ? "§c" : "§8";
     }
 
     /** {@code text} out of the legacy line with its colour codes and the colour in front of it. */

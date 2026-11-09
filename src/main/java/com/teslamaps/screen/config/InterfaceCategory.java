@@ -97,12 +97,6 @@ public final class InterfaceCategory {
         b.dropdown("    Blur Kernel", new String[]{"Gaussian", "Box"},
                 () -> config.hudCustomBlurKernel, v -> config.hudCustomBlurKernel = v).fresh().tags("panel", "blur");
         panelStyles(b, config);
-        b.label("Layout").fresh();
-        b.toggle("Column Layout", () -> config.configColumnLayout, v -> config.configColumnLayout = v).fresh()
-                .desc("Opens settings as movable columns, one per category: drag a header, scroll while dragging to scale, right-click to fold. Takes effect the next time the settings open.")
-                .tags("clickgui", "columns", "odin", "layout");
-        b.toggle("  Fling Columns", () -> config.configColumnFling, v -> config.configColumnFling = v).fresh()
-                .desc("A column let go mid-drag keeps sliding and bounces off the screen edges.");
         b.label("HUD Positions");
         b.toggle("Keep HUDs On Screen", () -> config.hudClampToScreen, v -> config.hudClampToScreen = v)
                 .desc("A panel that would end up off screen (smaller GUI scale, terminal scale, window resize) is drawn at the edge. The saved position stays.")
@@ -145,7 +139,6 @@ public final class InterfaceCategory {
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);
-        b.toggle("Hover Ticks", () -> config.guiHoverSounds, v -> config.guiHoverSounds = v);
         b.slider("Volume", 0f, 2f,
                 () -> config.guiSoundVolume, v -> config.guiSoundVolume = v, 2);
         b.label("Config Hotkey");

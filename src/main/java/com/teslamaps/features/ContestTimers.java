@@ -24,13 +24,11 @@ public final class ContestTimers {
     static final long DA_OFFSET_MS = 55 * MINUTE_MS;
 
     private static final long ALERT_5MIN_MS = 5 * MINUTE_MS;
-    private static final long ALERT_90SEC_MS = 90_000L;
     private static final long DISCORD_RING_MS = 2 * MINUTE_MS;
 
     private static long lastForaging = Long.MIN_VALUE;
     private static long lastFarming = Long.MIN_VALUE;
     private static long alerted5 = Long.MIN_VALUE;
-    private static long alerted90 = Long.MIN_VALUE;
     private static long discord5 = Long.MIN_VALUE;
     private static long discordRing = Long.MIN_VALUE;
 
@@ -65,18 +63,11 @@ public final class ContestTimers {
         }
 
         if (c.contestDiscordAlert && !hasTicket()) tickDiscord(now, contest);
-        if (!c.contestAlert5Min && !c.contestAlert90Sec) return;
+        if (!c.contestAlert5Min) return;
         if (hasTicket()) return;
 
         long left = remaining(now, START_OFFSET_MS, FORAGING_PERIOD_MS);
-        if (c.contestAlert90Sec && left <= ALERT_90SEC_MS) {
-            if (alerted90 != contest) {
-                alerted90 = contest;
-                alert(c, left);
-            }
-            return;
-        }
-        if (c.contestAlert5Min && left <= ALERT_5MIN_MS && alerted5 != contest) {
+        if (left <= ALERT_5MIN_MS && alerted5 != contest) {
             alerted5 = contest;
             alert(c, left);
         }
@@ -160,7 +151,7 @@ public final class ContestTimers {
     private static void tickScore() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if ((!c.contestTicketAnnounce && !c.contestHideAtTicket
-                && !c.contestAlert5Min && !c.contestAlert90Sec && !c.contestDiscordAlert)
+                && !c.contestAlert5Min && !c.contestDiscordAlert)
                 || !SkyblockUtils.isInSkyblock()) {
             ticketAnnounced = false;
             currentScore = -1;

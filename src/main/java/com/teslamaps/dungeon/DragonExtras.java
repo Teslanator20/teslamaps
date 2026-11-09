@@ -63,11 +63,10 @@ public final class DragonExtras {
             return;
         }
         String color = d.timeToSpawn <= 20 ? "§c" : d.timeToSpawn <= 60 ? "§e" : "§a";
-        boolean symbol = cfg().witherDragonTimerSymbol;
         String t = switch (cfg().witherDragonTimerStyle) {
-            case 0 -> (d.timeToSpawn * 50) + (symbol ? "ms" : "");
-            case 1 -> String.format(java.util.Locale.ROOT, "%.1f", d.timeToSpawn / 20f) + (symbol ? "s" : "");
-            default -> d.timeToSpawn + (symbol ? "t" : "");
+            case 0 -> (d.timeToSpawn * 50) + "ms";
+            case 1 -> String.format(java.util.Locale.ROOT, "%.1f", d.timeToSpawn / 20f) + "s";
+            default -> d.timeToSpawn + "t";
         };
         centerText = "§" + d.colorCode + d.dispName.charAt(0) + ": " + color + t;
     }

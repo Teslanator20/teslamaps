@@ -1,6 +1,5 @@
 package com.teslamaps.mixin;
 
-import com.teslamaps.features.Cosmetics;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -15,8 +14,7 @@ public class EntityRendererNameMixin {
     @Inject(method = "getNameTag", at = @At("RETURN"), cancellable = true)
     private void teslamaps$coloredName(Entity entity, CallbackInfoReturnable<Component> cir) {
         Component tag = cir.getReturnValue();
-        Component out = Cosmetics.recolor(entity, tag);
-        out = com.teslamaps.features.DamageSplash.compact(entity, out);
+        Component out = com.teslamaps.features.DamageSplash.compact(entity, tag);
         if (out != tag) cir.setReturnValue(out);
     }
 }

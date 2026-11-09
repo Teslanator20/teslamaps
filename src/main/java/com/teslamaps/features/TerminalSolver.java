@@ -9,14 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -101,7 +95,6 @@ public class TerminalSolver {
     public static boolean shouldFirstClickProtWithTicks() { return TeslaMapsConfig.get().terminalLagProtection; }
     public static int firstClickProtTicks() { return TeslaMapsConfig.get().terminalLagProtectionTicks; }
     private static boolean cancelMelodySolver() { return TeslaMapsConfig.get().terminalCancelMelodySolver; }
-    private static boolean debug() { return TeslaMapsConfig.get().terminalSolverDebug; }
 
     public static int backgroundColor() { return color(TeslaMapsConfig.get().terminalBackgroundColor); }
     public static int panesColor() { return color(TeslaMapsConfig.get().terminalPanesColor); }
@@ -184,9 +177,7 @@ public class TerminalSolver {
 
     /** Terminals never show item tooltips. */
     public static boolean onDrawTooltip(GuiGraphicsExtractor ctx) {
-        boolean cancel = enabled() && TerminalUtils.getCurrentTerm() != null;
-        renderDebug(ctx);
-        return cancel;
+        return enabled() && TerminalUtils.getCurrentTerm() != null;
     }
 
     public static void onTerminalOpen() {
@@ -223,8 +214,8 @@ public class TerminalSolver {
         }
 
         if (TeslaMapsConfig.get().terminalTimes) {
-            TerminalUtils.modMessage(com.teslamaps.adm.practice.AdmTerms.format("§a" + handler.type.termName + (isSim ? " §7(termsim)" : "")
-                    + " §7solved in §6" + String.format("%.2f", time) + "s§7! " + suffix));
+            TerminalUtils.modMessage("§a" + handler.type.termName + (isSim ? " §7(termsim)" : "")
+                    + " §7solved in §6" + String.format("%.2f", time) + "s§7! " + suffix);
         }
     }
 
@@ -232,54 +223,5 @@ public class TerminalSolver {
         TeslaMapsConfig.get().terminalPbs.clear();
         TeslaMapsConfig.save();
         TerminalUtils.modMessage("§6Terminal PBs §fhave been reset.");
-    }
-
-    // ---- debug ---------------------------------------------------------------
-
-    public static void renderDebug(GuiGraphicsExtractor ctx) {
-        if (!debug()) return;
-        TerminalHandler term = TerminalUtils.getCurrentTerm();
-        if (term == null) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> screen)) return;
-        AbstractContainerMenu menu = screen.getMenu();
-
-        List<String> clicked = new ArrayList<>();
-        for (int[] click : term.clickedSlots) clicked.add("(" + click[0] + ", " + click[1] + ")");
-
-        List<String> debugInfo = List.of(
-                "§7Type: §f" + term.type.name(),
-                "§7Window Name: §f" + screen.getTitle().getString(),
-                "§7Container ID: §f" + menu.containerId,
-                "§7Time Open: §f" + (System.currentTimeMillis() - term.timeOpened) + "ms",
-                "§7Ticks Open: §f" + term.ticksOpened,
-                "§7Solution: §f" + term.solution,
-                "§7Clicked Slots: §f" + clicked);
-
-        ctx.pose().pushMatrix();
-        float sf = (float) mc.getWindow().getGuiScale();
-        ctx.pose().scale(1f / sf, 1f / sf);
-        ctx.pose().scale(3f, 3f);
-
-        List<ItemStack> items = menu.getItems().subList(0, term.type.windowSize);
-        List<String> names = new ArrayList<>();
-        for (ItemStack stack : items) {
-            if (!stack.isEmpty() && stack.getItem() != Items.BLACK_STAINED_GLASS_PANE) {
-                names.add(stack.getHoverName().getString());
-            }
-        }
-        ctx.textWithWordWrap(mc.font, Component.literal(names.toString()), 400, 0, 300, 0xFFFFFFFF);
-
-        for (int i = 0; i < debugInfo.size(); i++) {
-            ctx.textWithWordWrap(mc.font, Component.literal(debugInfo.get(i)), 5, 20 + (i * 10), 300, 0xFFFFFFFF);
-        }
-
-        for (int i = 0; i < items.size(); i++) {
-            int x = 5 + (i % 9) * 18;
-            int y = 250 + (i / 9) * 18;
-            ctx.item(items.get(i), x, y);
-            ctx.itemDecorations(mc.font, items.get(i), x, y);
-        }
-        ctx.pose().popMatrix();
     }
 }

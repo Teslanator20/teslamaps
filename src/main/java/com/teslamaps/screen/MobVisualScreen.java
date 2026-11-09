@@ -74,7 +74,6 @@ public class MobVisualScreen extends Screen {
         });
         addWidget(search);
 
-        GuiSounds.resetHover();
         rebuildList();
         ScreenFit.clamp(this);
     }
@@ -177,7 +176,6 @@ public class MobVisualScreen extends Screen {
         drawScrollbar(ctx);
         drawFooter(ctx, mouseX, mouseY);
 
-        GuiSounds.endFrame();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
     }
 
@@ -189,7 +187,6 @@ public class MobVisualScreen extends Screen {
             MobArea a = areas[i];
             int ry = sideY + i * ROW_H;
             boolean hovered = in(mouseX, mouseY, sideX, ry, SIDE_W, ROW_H);
-            if (hovered) GuiSounds.hover("mob:area:" + a.name());
             if (a == area && !searching) ctx.fill(sideX, ry, sideX + SIDE_W, ry + ROW_H, GuiStyle.rowHover());
             else if (hovered) ctx.fill(sideX, ry, sideX + SIDE_W, ry + ROW_H, GuiStyle.rowHover());
 
@@ -219,7 +216,6 @@ public class MobVisualScreen extends Screen {
             int ry = listY + row * ROW_H;
             boolean hovered = in(mouseX, mouseY, listX, ry, listW, ROW_H);
             if (hovered) {
-                GuiSounds.hover("mob:" + mob.name());
                 ctx.fill(listX, ry, listX + listW, ry + ROW_H, GuiStyle.rowHover());
             }
 
@@ -251,7 +247,6 @@ public class MobVisualScreen extends Screen {
 
     private void flatButton(GuiGraphicsExtractor ctx, int x, int w, String label, int mouseX, int mouseY) {
         boolean hovered = in(mouseX, mouseY, x, footerY, w, FOOTER_H);
-        if (hovered) GuiSounds.hover("mob:" + label);
         GuiStyle.panel(ctx, x, footerY, w, FOOTER_H, hovered);
         int border = hovered ? GuiStyle.accent() : GuiStyle.border();
         ctx.fill(x, footerY, x + w, footerY + 1, border);

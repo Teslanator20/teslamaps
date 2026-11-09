@@ -16,16 +16,10 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.inventory.Slot;
 
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-// Ported from ADM's TermsimExtras.kt, OdinTermTimes.kt, LeapTermsimProtMixin, NumbersHandlerMixin,
+// Ported from ADM's TermsimExtras.kt, LeapTermsimProtMixin, NumbersHandlerMixin,
 // TerminalNumberMixin and Random Stuff's Hide Numbers' Numbers.
 public final class AdmTerms {
     private AdmTerms() {}
-
-    private static final Pattern DECIMAL = Pattern.compile("\\d+\\.\\d+");
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
@@ -36,8 +30,6 @@ public final class AdmTerms {
                     b.info("/termsim inf: a numbers terminal that never ends and has no numbers. Escape to stop; chat gets your pace. No first-click protection there.");
                     b.toggle("Hover Terms", () -> cfg().admHoverTerms, v -> cfg().admHoverTerms = v)
                             .desc("Hovering the slot to click clicks it (numbers: the next number). Termsim only.");
-                    b.toggle("Two Decimals", () -> cfg().admTwoDecimals, v -> cfg().admTwoDecimals = v)
-                            .desc("Terminal times in chat as 5.12s, not 5.123s (the PBs are still kept exact).");
                     b.toggle("Hide Numbers' Numbers", () -> cfg().admHideTermNumbers, v -> cfg().admHideTermNumbers = v)
                             .desc("In the numbers terminal (\"Click in order!\"), hides the numbers 1-10 so only the solver's order colours are left to go on. Applies to /termsim as well.");
                 });
@@ -93,15 +85,5 @@ public final class AdmTerms {
         if (!Adm.on() || !cfg().admHideTermNumbers) return false;
         TerminalHandler term = TerminalUtils.getCurrentTerm();
         return term != null && term.type == TerminalTypes.NUMBERS && slot.index < term.type.windowSize;
-    }
-
-    /** Two Decimals: every decimal in a terminal time line at 2 places. */
-    public static String format(String message) {
-        if (!Adm.on() || !cfg().admTwoDecimals || message == null) return message;
-        Matcher m = DECIMAL.matcher(message);
-        StringBuilder sb = new StringBuilder();
-        while (m.find()) m.appendReplacement(sb, String.format(Locale.ROOT, "%.2f", Double.parseDouble(m.group())));
-        m.appendTail(sb);
-        return sb.toString();
     }
 }

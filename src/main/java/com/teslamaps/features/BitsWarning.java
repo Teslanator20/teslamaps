@@ -19,7 +19,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,7 +43,7 @@ public final class BitsWarning {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("BitsWarning").when(() -> cfg().noBitsWarning || cfg().bitsGainMessage)
+        Feature.of("BitsWarning").when(() -> cfg().noBitsWarning)
                 .tick(BitsWarning::tick)
                 .serverChat(BitsWarning::onChat)
                 .config("HUD Widgets", b -> {
@@ -53,9 +52,6 @@ public final class BitsWarning {
                     b.toggle("No Bits Warning", () -> c.noBitsWarning, v -> c.noBitsWarning = v)
                             .desc("Title and a clickable /bz booster cookie line when you earn bits but have none left to claim. Open the SkyBlock Menu once so the mod knows your Bits Available");
                     b.toggle("  Warning Sound", () -> c.noBitsWarningSound, v -> c.noBitsWarningSound = v);
-                    b.toggle("Bits Gain Message", () -> c.bitsGainMessage, v -> c.bitsGainMessage = v)
-                            .desc("Chat line \"You have gained N Bits.\" when the scoreboard bits go up");
-                    b.slider("  Message Threshold", 0, 1000, () -> (float) c.bitsGainThreshold, v -> c.bitsGainThreshold = Math.round(v));
                 });
     }
 
@@ -180,10 +176,6 @@ public final class BitsWarning {
             Notifications.show("§bNo Bits Available!\n§7Your Booster Cookie bits are used up.", 20);
             ScreenFlash.alert(c.screenFlashBits);
             if (c.noBitsWarningSound) plings = 10;
-        }
-        if (c.bitsGainMessage && diff >= c.bitsGainThreshold && mc.player != null) {
-            mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §7You have gained §b"
-                    + String.format(Locale.ROOT, "%,d", diff) + " §7Bits."));
         }
     }
 }

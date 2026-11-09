@@ -15,7 +15,6 @@ public class SlotBackgrounds {
     public static void draw(GuiGraphicsExtractor context, Slot slot) {
         com.teslamaps.features.BackpackPreview.drawSlotTint(context, slot);
         RarityBackground.draw(context, slot.x, slot.y, com.teslamaps.features.AnimatedDyeFix.displayStack(slot));
-        com.teslamaps.features.LegacyAttributeBackground.draw(context, slot.x, slot.y, slot.getItem());
         com.teslamaps.features.MuseumDonations.drawSlot(context, slot.x, slot.y, slot.getItem());
         com.teslamaps.features.AnvilHelper.drawHighlight(context, slot);
         HotF.drawHighlight(context, slot);
@@ -33,9 +32,7 @@ public class SlotBackgrounds {
         com.teslamaps.features.GardenPlotMenu.drawHighlight(context, slot);
         com.teslamaps.features.mining.FossilExcavatorSolver.drawHighlight(context, slot);
         com.teslamaps.features.foraging.ForagingBeacon.drawHighlight(context, slot);
-        com.teslamaps.features.kuudra.KuudraQol.drawSlot(context, slot);
         com.teslamaps.features.crimson.ReputationHelper.drawSlot(context, slot);
-        com.teslamaps.features.rift.KloonHacking.drawSlot(context, slot);
         com.teslamaps.features.pets.PetMenus.drawFavorite(context, slot);
     }
 }

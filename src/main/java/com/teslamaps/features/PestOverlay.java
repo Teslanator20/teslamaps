@@ -80,7 +80,7 @@ public class PestOverlay {
      * seeing the number fall tells you whether to start walking back.
      */
     private static void countdown(TeslaMapsConfig config, boolean ready, int seconds) {
-        if (ready || seconds < 0 || seconds > config.pestCooldownWarnAt || (config.pestCountdownWardrobePause && inWardrobe())) {
+        if (ready || seconds < 0 || seconds > config.pestCooldownWarnAt) {
             lastCountdown = -1;
             return;
         }
@@ -105,11 +105,6 @@ public class PestOverlay {
             float pitch = 1.0f + (span - seconds) / (float) span * 0.6f;
             LoudSound.play(sound, config.pestCooldownVolume, pitch);
         }
-    }
-
-    private static boolean inWardrobe() {
-        var screen = Minecraft.getInstance().screen;
-        return screen != null && screen.getTitle().getString().contains("Wardrobe");
     }
 
     private static long lastNag = 0L;
@@ -222,7 +217,7 @@ public class PestOverlay {
         // so it no longer depends on another mod announcing it in chat.
         if (ready && !wasReady) {
             lastCountdown = -1;
-            if (config.pestCooldownArmsRoutine) PestRoutine.onCooldownReady();
+            PestRoutine.onCooldownReady();
         }
         if (!ready) wasReady = false;
         else wasReady = true;
@@ -250,7 +245,7 @@ public class PestOverlay {
             // Ran out: warn and queue the refill for the next key press.
             philipWarned = false;
             PestRoutine.warnPhilip("§cPest Fortune expired", "§e/call philip");
-            if (config.philipArmsRoutine) PestRoutine.onPhilipExpired();
+            PestRoutine.onPhilipExpired();
         }
 
         if (active && left > config.philipWarnSeconds) philipWarned = false;

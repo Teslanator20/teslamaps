@@ -98,7 +98,7 @@ public final class GardenMilestoneData {
     public static boolean wanted() {
         TeslaMapsConfig c = cfg();
         return (c.section("Garden") && (c.bestCropTime || c.cropStartLocation || c.gardenLevelHud || c.cropFeverTracker
-                || c.cropMilestoneHud || c.mooshroomPerkHud || c.cropSpeedMeter || c.cropCalcCommands))
+                || c.cropMilestoneHud || c.mooshroomPerkHud || c.cropCalcCommands))
                 || (c.section("Skills") && c.skillOverflow && c.cropMilestoneOverflow);
     }
 
@@ -389,7 +389,6 @@ public final class GardenMilestoneData {
         }
         if (!any) return;
         save();
-        if (cfg().cropSpeedMeter && cfg().section("Garden")) CropSpeedMeter.onMilestones();
     }
 
     /** Hypixel's alternative crop names mapped onto the milestone names. */

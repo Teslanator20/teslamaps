@@ -293,28 +293,13 @@ public final class P3Sim {
         SimServer.register();
         P3Plan.load();
         Practice.load();
-        com.teslamaps.adm.adr.AdrSimHooks.adsWorld = () -> SimServer.server != null && Minecraft.getInstance().hasSingleplayerServer();
-        com.teslamaps.adm.adr.AdrSimHooks.adsInRun = ClientRun::inRun;
-        com.teslamaps.adm.adr.AdrSimHooks.p3SimWorld = P3Sim::inSim;
-        com.teslamaps.adm.adr.AdrSimHooks.lastLaunch = () -> {
-            var l = com.teslamaps.adm.sim.run.RunLauncher.lastLaunch;
-            return l == null ? null : new Object[]{l.first, l.second};
-        };
-        SimHooks.onMasksReset = com.teslamaps.adm.misc.AdmInvincibility::resetTimers;
-        SimHooks.onTickTimersStop = com.teslamaps.adm.misc.AdmTickTimers::stopAll;
         SimHooks.onTermStart = n -> {
             com.teslamaps.adm.misc.Timers.clearSectionTime();
-            com.teslamaps.adm.leap.TermInfo.simStart(n);
+            com.teslamaps.adm.leap.Recore.simStart(n);
         };
-        SimHooks.onTermClearTime = () -> {
-            com.teslamaps.adm.misc.Timers.clearSectionTime();
-            com.teslamaps.adm.leap.TermInfo.simClearTime();
-        };
+        SimHooks.onTermClearTime = com.teslamaps.adm.misc.Timers::clearSectionTime;
         SimHooks.onTermSectionTime = n -> {
-            if (inSim() && !Practice.active()) {
-                com.teslamaps.adm.misc.Timers.showSectionTime(n);
-                com.teslamaps.adm.leap.TermInfo.simSectionTime(n);
-            }
+            if (inSim() && !Practice.active()) com.teslamaps.adm.misc.Timers.showSectionTime(n);
         };
         SimHooks.onSplitsStart = com.teslamaps.adm.leap.splits.DungeonSplits::simStart;
         SimHooks.onSplitsStop = com.teslamaps.adm.leap.splits.DungeonSplits::simStop;

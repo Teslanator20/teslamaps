@@ -44,11 +44,6 @@ public final class RenderCategory {
                 com.teslamaps.render.gui.HudStyle.NAMES,
                 () -> com.teslamaps.render.gui.HudStyle.current(), v -> config.hudStyle = v);
         b.toggle("Sprint Indicator (HUD)", () -> config.sprintingOverlay, v -> config.sprintingOverlay = v);
-        b.label("Dark Mode");
-        b.toggle("Dark Mode", () -> config.darkMode, v -> config.darkMode = v);
-        b.slider("  Opacity", 1f, 100f,
-                () -> (float) config.darkModeOpacity, v -> config.darkModeOpacity = v.intValue());
-        b.toggle("  Tint HUD", () -> config.darkModeTintHud, v -> config.darkModeTintHud = v);
         b.label("Loading Screens");
         b.toggle("Disable World Loading Screen", () -> config.disableWorldLoadingScreen, v -> config.disableWorldLoadingScreen = v);
         b.toggle("  Seamless Server Switch", () -> config.seamlessServerSwitch, v -> config.seamlessServerSwitch = v).fresh()

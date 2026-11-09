@@ -51,12 +51,12 @@ public final class BossTickHuds {
     public static void register() {
         for (Slot s : SLOTS) {
             HudEditElement el = HudEditElement.of(s.prefix, s.label).ctx(HudCtx.DUNGEON).section("Timers")
-                    .enabled(() -> cfg().tickTimersSeparate && s.on.getAsBoolean())
+                    .enabled(s.on)
                     .size(() -> Minecraft.getInstance().font.width(s.sample), () -> 9)
                     .scaleRange(0.5f, 5.0f)
                     .preview((g, m, x, y, sc) -> DungeonTimers.drawRows(g, m, x, y, sc,
                             List.of(new DungeonTimers.Row(s.sample, null))));
-            Feature.of("BossTickHud." + s.key).section("Timers").when(() -> cfg().tickTimersSeparate)
+            Feature.of("BossTickHud." + s.key).section("Timers")
                     .hud("bosstick_" + s.key, (g, d) -> render(g, s.key, el));
         }
     }

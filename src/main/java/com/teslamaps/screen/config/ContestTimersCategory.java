@@ -53,8 +53,6 @@ public final class ContestTimersCategory {
                 () -> config.contestCropWarnFlash, v -> config.contestCropWarnFlash = v).fresh();
         b.toggle("Alert if < 5 Minutes left",
                 () -> config.contestAlert5Min, v -> config.contestAlert5Min = v);
-        b.toggle("Alert if < 1,5 Minutes left",
-                () -> config.contestAlert90Sec, v -> config.contestAlert90Sec = v);
         b.toggle("Chat Message",
                 () -> config.contestAlertChat, v -> config.contestAlertChat = v);
         b.toggle("Show Title",

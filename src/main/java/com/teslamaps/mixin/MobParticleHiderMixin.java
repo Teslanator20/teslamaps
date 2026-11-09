@@ -16,6 +16,6 @@ public class MobParticleHiderMixin {
     private boolean teslamaps$mobParticles(Level level, ParticleOptions o, double x, double y, double z, double vx, double vy, double vz) {
         Object self = this;
         return self instanceof Blaze ? !ParticleHider.hideBlaze()
-                : !ParticleHider.hideEnderman() && !(level.isClientSide() && com.teslamaps.features.EndermanTeleportHider.active());
+                : !ParticleHider.hideEnderman();
     }
 }

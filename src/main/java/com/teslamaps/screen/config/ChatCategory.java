@@ -10,7 +10,7 @@ public final class ChatCategory {
 
     private ChatCategory() {}
 
-    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterWelcome", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterEventLevel", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterLegacyItems", "chatFilterParkour", "chatFilterTeleportPads", "chatFilterChefTed", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
+    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterTeleportPads", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
 
     private static void groupAction(ConfigBuilder b, TeslaMapsConfig config, String group, String label) {
         b.dropdown(label, com.teslamaps.features.ChatFilter.GROUP_ACTIONS,
@@ -70,11 +70,6 @@ public final class ChatCategory {
         b.toggle("  Public: Hide Emblem", () -> config.chatCompactHideEmblem, v -> config.chatCompactHideEmblem = v).fresh();
         b.toggle("Remove Discord Link Warning", () -> config.chatStripDiscordWarning, v -> config.chatStripDiscordWarning = v).fresh()
                 .desc("Cuts Hypixel's \"Please be mindful of Discord links\" sentence off messages, drops it when it is the whole line");
-        b.toggle("Animal Sound Responses", () -> config.chatSoundResponses, v -> config.chatSoundResponses = v).fresh()
-                .desc("Plays the animal sound when someone writes meow, woof, moo, oink, ... in chat");
-        b.searchList("  Sounds", com.teslamaps.features.ChatSoundResponse::names,
-                n -> !config.chatSoundResponsesOff.contains(n),
-                n -> { if (!config.chatSoundResponsesOff.remove(n)) config.chatSoundResponsesOff.add(n); }).fresh();
         b.toggle("Right-Click Copy Chat", () -> config.chatCopyEnabled, v -> config.chatCopyEnabled = v);
         b.toggle("Chat Timestamps", () -> config.chatTimestamps, v -> config.chatTimestamps = v).fresh()
                 .desc("[HH:mm] in front of every new chat line. Copy, tabs and stacking ignore it");
@@ -109,8 +104,6 @@ public final class ChatCategory {
         b.toggle("Gradient [TeslaMaps] Prefix", () -> config.chromaPrefix, v -> config.chromaPrefix = v);
         b.toggle("  Clickable Prefix", () -> config.clickablePrefix, v -> config.clickablePrefix = v).fresh()
                 .desc("Clicking the [TeslaMaps] tag of a mod message opens this config screen").tags("prefix", "click");
-        b.toggle("Full Chat Chroma", () -> config.fullChatChroma, v -> config.fullChatChroma = v).fresh()
-                .desc("All visible chat text cycles through chroma");
         b.color("Prefix Gradient Color A", () -> config.prefixFadeColorA, v -> config.prefixFadeColorA = v);
         b.color("Prefix Gradient Color B", () -> config.prefixFadeColorB, v -> config.prefixFadeColorB = v);
         b.dropdown("  Prefix Text", com.teslamaps.features.ChromaPrefix.STYLES,
@@ -168,19 +161,15 @@ public final class ChatCategory {
         b.slider("    Summary Above (finds)", 1f, 30f, () -> (float) config.hoppityCompactHitmanThreshold,
                 v -> config.hoppityCompactHitmanThreshold = Math.round(v)).fresh();
         b.button("Toggle All Filters", () -> {
-            int enabled = 0, total = 26;
+            int enabled = 0, total = 20;
             if (config.chatFilterEmpty) enabled++;
             if (config.chatFilterBonePlating) enabled++;
-            if (config.chatFilterWatcher) enabled++;
-            if (config.chatFilterF4Boss) enabled++;
             if (config.chatFilterBlessings) enabled++;
             if (config.chatFilterEssence) enabled++;
             if (config.chatFilterKeys) enabled++;
-            if (config.chatFilterReviveStone) enabled++;
             if (config.chatFilterDoors) enabled++;
             if (config.chatFilterWish) enabled++;
             if (config.chatFilterPickups) enabled++;
-            if (config.chatFilterBlocksInWay) enabled++;
             if (config.chatFilterUltReady) enabled++;
             if (config.chatFilterAoeDamage) enabled++;
             if (config.chatFilterGuildXp) enabled++;
@@ -189,21 +178,19 @@ public final class ChatCategory {
             if (config.chatFilterServerMsgs) enabled++;
             if (config.chatFilterProfileInfo) enabled++;
             if (config.chatFilterPerkBuffs) enabled++;
-            if (config.chatFilterOruo) enabled++;
             if (config.chatFilterSacks) enabled++;
             if (config.chatFilterGfs) enabled++;
             if (config.chatFilterWatchdog) enabled++;
-            if (config.chatFilterMort) enabled++;
             if (config.chatFilterMilestone) enabled++;
             boolean nv = enabled <= total / 2; // mostly off -> turn all on, else all off
             if (nv) config.chatFilterEnabled = true; // make sure the master switch is on when enabling all
-            config.chatFilterWatcher = nv; config.chatFilterF4Boss = nv; config.chatFilterBlessings = nv;
-            config.chatFilterEssence = nv; config.chatFilterKeys = nv; config.chatFilterReviveStone = nv; config.chatFilterDoors = nv;
-            config.chatFilterWish = nv; config.chatFilterPickups = nv; config.chatFilterBlocksInWay = nv;
+            config.chatFilterBlessings = nv;
+            config.chatFilterEssence = nv; config.chatFilterKeys = nv; config.chatFilterDoors = nv;
+            config.chatFilterWish = nv; config.chatFilterPickups = nv;
             config.chatFilterUltReady = nv; config.chatFilterAoeDamage = nv; config.chatFilterGuildXp = nv;
             config.chatFilterKillCombo = nv; config.chatFilterStash = nv; config.chatFilterServerMsgs = nv;
-            config.chatFilterProfileInfo = nv; config.chatFilterPerkBuffs = nv; config.chatFilterOruo = nv;
-            config.chatFilterSacks = nv; config.chatFilterGfs = nv; config.chatFilterWatchdog = nv; config.chatFilterMort = nv; config.chatFilterEmpty = nv; config.chatFilterBonePlating = nv;
+            config.chatFilterProfileInfo = nv; config.chatFilterPerkBuffs = nv;
+            config.chatFilterSacks = nv; config.chatFilterGfs = nv; config.chatFilterWatchdog = nv; config.chatFilterEmpty = nv; config.chatFilterBonePlating = nv;
             config.chatFilterMilestone = nv;
             TeslaMapsConfig.save();
         });
@@ -212,18 +199,14 @@ public final class ChatCategory {
         b.toggle("Hide Separator Lines (-----)", () -> config.chatFilterSeparators, v -> config.chatFilterSeparators = v).fresh()
                 .desc("Hides the divider lines Hypixel puts around party, friend and guild messages.")
                 .tags("divider", "separator", "line");
-        b.toggle("Hide Watcher Messages", () -> config.chatFilterWatcher, v -> config.chatFilterWatcher = v);
-        b.toggle("Hide F4/M4 Boss (Thorn)", () -> config.chatFilterF4Boss, v -> config.chatFilterF4Boss = v);
         b.toggle("Hide Blessings", () -> config.chatFilterBlessings, v -> config.chatFilterBlessings = v);
         b.toggle("Hide Essence Messages", () -> config.chatFilterEssence, v -> config.chatFilterEssence = v);
         b.toggle("Hide Key Pickups", () -> config.chatFilterKeys, v -> config.chatFilterKeys = v);
-        b.toggle("Hide Revive Stone Obtained", () -> config.chatFilterReviveStone, v -> config.chatFilterReviveStone = v);
         b.toggle("Hide Door Opens", () -> config.chatFilterDoors, v -> config.chatFilterDoors = v);
         b.toggle("Hide Wish Heal Messages", () -> config.chatFilterWish, v -> config.chatFilterWish = v);
         b.toggle("Hide All \"picked up\"", () -> config.chatFilterPickups, v -> config.chatFilterPickups = v);
         b.label("Combat / Misc");
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_COMBAT, "  Combat Filter Action");
-        b.toggle("Hide \"Blocks in the way\"", () -> config.chatFilterBlocksInWay, v -> config.chatFilterBlocksInWay = v);
         b.toggle("Hide Ult Ready (DROP to activate)", () -> config.chatFilterUltReady, v -> config.chatFilterUltReady = v);
         b.toggle("Hide AOE Damage Messages", () -> config.chatFilterAoeDamage, v -> config.chatFilterAoeDamage = v);
         b.toggle("Hide Guild XP (GEXP)", () -> config.chatFilterGuildXp, v -> config.chatFilterGuildXp = v);
@@ -250,12 +233,9 @@ public final class ChatCategory {
         b.toggle("  One Line Instead (☀ Sky Mall · buff)", () -> config.chatFilterPerkBuffsCompact, v -> config.chatFilterPerkBuffsCompact = v).fresh()
                 .desc("Sky Mall, Lottery and Beekeeper: the buff of the day as one short line instead of hiding it");
         b.toggle("Hide Bone Plating", () -> config.chatFilterBonePlating, v -> config.chatFilterBonePlating = v);
-        b.toggle("Hide Oruo Messages", () -> config.chatFilterOruo, v -> config.chatFilterOruo = v);
-        b.toggle("Hide Wither King Heroes Line", () -> config.chatFilterWitherKingHeroes, v -> config.chatFilterWitherKingHeroes = v);
         b.toggle("Hide Sacks", () -> config.chatFilterSacks, v -> config.chatFilterSacks = v);
         b.toggle("Hide GFS (Sacks to inventory)", () -> config.chatFilterGfs, v -> config.chatFilterGfs = v);
         b.toggle("Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v);
-        b.toggle("Hide Mort Messages", () -> config.chatFilterMort, v -> config.chatFilterMort = v);
         b.toggle("Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v);
         b.dropdown("Autopet Messages", com.teslamaps.features.ChatFilter.AUTOPET_MODES,
                 () -> config.chatAutopetMode, v -> config.chatAutopetMode = v).fresh()
@@ -293,7 +273,6 @@ public final class ChatCategory {
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_MORE, "  More Filter Action");
         b.toggle("Hide All [BOSS] Lines", () -> config.chatFilterBossAll, v -> config.chatFilterBossAll = v);
         b.toggle("Hide Lobby Messages", () -> config.chatFilterLobby, v -> config.chatFilterLobby = v);
-        b.toggle("Hide Welcome Message", () -> config.chatFilterWelcome, v -> config.chatFilterWelcome = v);
         b.toggle("Hide Friend/Guild Join & Leave", () -> config.chatFilterFriendJoin, v -> config.chatFilterFriendJoin = v);
         b.toggle("Hide More Warp/Visit Messages", () -> config.chatFilterWarpMore, v -> config.chatFilterWarpMore = v);
         b.toggle("Hide Bazaar/AH Progress Lines", () -> config.chatFilterBzAhMinis, v -> config.chatFilterBzAhMinis = v);
@@ -301,19 +280,13 @@ public final class ChatCategory {
         b.toggle("Hide Hellion Shield Lines", () -> config.chatFilterHellion, v -> config.chatFilterHellion = v).fresh()
                 .desc("\"Your hit was reduced by Hellion Shield!\" and \"Strike using the X attunement on your dagger!\" (Inferno Demonlord)");
         b.toggle("Hide Useless Warnings", () -> config.chatFilterUselessWarnings, v -> config.chatFilterUselessWarnings = v);
-        b.toggle("Hide Blazetekk Radio Messages", () -> config.chatFilterBlazetekk, v -> config.chatFilterBlazetekk = v).fresh()
-                .desc("The three \"Your radio ...\" lines (also part of Useless Warnings)");
         b.toggle("Hide Useless Notifications", () -> config.chatFilterUselessNotifications, v -> config.chatFilterUselessNotifications = v);
         b.toggle("Hide Fire Sales", () -> config.chatFilterFireSale, v -> config.chatFilterFireSale = v);
-        b.toggle("Hide Event Level-Ups", () -> config.chatFilterEventLevel, v -> config.chatFilterEventLevel = v);
         b.toggle("Hide Hoppity Egg Spawns", () -> config.chatFilterHoppity, v -> config.chatFilterHoppity = v);
         b.toggle("Hide Chocolate Factory Upgrades", () -> config.chatFilterChocolateFactory, v -> config.chatFilterChocolateFactory = v);
         b.toggle("Hide Others' Sacrifices", () -> config.chatFilterSacrifice, v -> config.chatFilterSacrifice = v);
         b.toggle("Hide \"No Pests\" Line", () -> config.chatFilterNoPests, v -> config.chatFilterNoPests = v);
-        b.toggle("Hide Legacy Items Warning", () -> config.chatFilterLegacyItems, v -> config.chatFilterLegacyItems = v);
-        b.toggle("Hide Parkour Messages", () -> config.chatFilterParkour, v -> config.chatFilterParkour = v);
         b.toggle("Hide Teleport Pad Messages", () -> config.chatFilterTeleportPads, v -> config.chatFilterTeleportPads = v);
-        b.toggle("Hide Chef Ted Donations", () -> config.chatFilterChefTed, v -> config.chatFilterChefTed = v);
         b.toggle("Hide Reward Reminders", () -> config.chatFilterRewardBundles, v -> config.chatFilterRewardBundles = v);
         b.toggle("Hide Gift Rewards", () -> config.chatFilterWinterGift, v -> config.chatFilterWinterGift = v);
         b.toggle("Hide Anita Fortune (outside Garden)", () -> config.chatFilterAnita, v -> config.chatFilterAnita = v);

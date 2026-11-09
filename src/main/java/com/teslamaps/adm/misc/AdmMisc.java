@@ -19,11 +19,8 @@ public final class AdmMisc {
         I4Complete.register();
         com.teslamaps.adm.misc.pf.HubNametags.register();
         AgroSphere.register();
-        HealthMana.register();
         Timers.register();
         LcmMeleeWarning.register();
-        AdmInvincibility.register();
-        AdmTickTimers.register();
     }
 
     static TeslaMapsConfig cfg() {

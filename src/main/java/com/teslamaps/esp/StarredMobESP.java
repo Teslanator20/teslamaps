@@ -62,9 +62,6 @@ public class StarredMobESP {
 
     private static final List<Vec3> dungeonBatPositions = new ArrayList<>();
 
-    private static final List<AABB> invisibleArmorStandBoxes = new ArrayList<>();
-    private static final int INVISIBLE_ARMOR_STAND_COLOR = 0xFF00FFFF; // Cyan
-
     private static boolean witherKeyPickedUp = false;
     private static boolean bloodKeyPickedUp = false;
 
@@ -280,7 +277,6 @@ public class StarredMobESP {
         bloodDoorBoxes.clear();
         fairyDoorBoxes.clear();
         dungeonBatPositions.clear();
-        invisibleArmorStandBoxes.clear();
 
         if (inDungeon && TeslaMapsConfig.get().witherKeyESP) {
             for (Entity entity : com.teslamaps.utils.EntityCache.all()) {
@@ -362,19 +358,6 @@ public class StarredMobESP {
                 if (customEntryFor(entity) != null) customHighlights.add(eh);
             }
         }
-
-
-        if (inDungeon && TeslaMapsConfig.get().invisibleArmorStandESP) {
-            for (Entity entity : com.teslamaps.utils.EntityCache.armorStands()) {
-                if (entity instanceof ArmorStand && entity.isInvisible()) {
-                    ArmorStand armorStand = (ArmorStand) entity;
-                    if (!armorStand.isVehicle()) {
-                        invisibleArmorStandBoxes.add(armorStand.getBoundingBox());
-                    }
-                }
-            }
-        }
-
     }
 
     private static long lastFelDebugTime = 0;
@@ -652,7 +635,7 @@ public class StarredMobESP {
 
         if (entity.isInvisible()) return false;
 
-        if (!inDungeon || !TeslaMapsConfig.get().starredMobESP || com.teslamaps.adm.practice.BladeHighlight.replacesOurs()) {
+        if (!inDungeon || !TeslaMapsConfig.get().starredMobESP) {
             return false;
         }
 
@@ -1251,13 +1234,6 @@ public class StarredMobESP {
                 }
             }
         }
-
-        if (TeslaMapsConfig.get().invisibleArmorStandESP) {
-            for (AABB armorStandBox : invisibleArmorStandBoxes) {
-                ESPRenderer.drawBoxOutline(matrices, armorStandBox, INVISIBLE_ARMOR_STAND_COLOR, 2.0f, cameraPos);
-            }
-        }
-
     }
 
     public static void renderWitherKeyIndicators(net.minecraft.client.gui.GuiGraphicsExtractor context, net.minecraft.client.DeltaTracker tickCounter) {

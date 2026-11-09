@@ -113,7 +113,6 @@ public final class PlayerStats {
                     Minecraft mc = Minecraft.getInstance();
                     String s = value.get();
                     if (mc.options.hideGui || s.isEmpty() || !inSkyblock) return;
-                    if (com.teslamaps.adm.misc.HealthMana.hidesText(prefix)) return;
                     drawText(g, mc, e.x(), e.y(), e.scale(), s);
                 });
     }

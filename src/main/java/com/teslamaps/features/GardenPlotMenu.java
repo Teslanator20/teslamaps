@@ -1,6 +1,6 @@
 package com.teslamaps.features;
 
-// After SkyHanni's GardenPlotMenuHighlighting.kt, GardenNextPlotPrice.kt and GardenPlotIcon.kt
+// After SkyHanni's GardenPlotMenuHighlighting.kt and GardenNextPlotPrice.kt
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.PriceManager;
 import com.teslamaps.registry.Feature;
@@ -11,11 +11,9 @@ import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -42,7 +40,6 @@ public final class GardenPlotMenu {
     private static final int[] status = new int[GardenPlots.PLOT_COUNT];
     private static final String[] counts = new String[GardenPlots.PLOT_COUNT];
     private static final Map<String, Long> sprayEnd = new HashMap<>();
-    private static ItemStack picked;
 
     private GardenPlotMenu() {}
 
@@ -50,7 +47,7 @@ public final class GardenPlotMenu {
 
     public static void register() {
         feature = Feature.of("GardenPlotMenu").section("Garden")
-                .when(() -> cfg().gardenPlotMenuHighlight || cfg().gardenPlotMenuPrice || cfg().gardenPlotMenuIcons)
+                .when(() -> cfg().gardenPlotMenuHighlight || cfg().gardenPlotMenuPrice)
                 .tick(GardenPlotMenu::tick)
                 .serverChat(GardenPlotMenu::onChat)
                 .config("Garden", b -> {
@@ -60,10 +57,6 @@ public final class GardenPlotMenu {
                             .tags("plot", "desk", "spray", "pest", "locked");
                     b.toggle("Next Plot Price", () -> cfg().gardenPlotMenuPrice, v -> cfg().gardenPlotMenuPrice = v)
                             .desc("Coin value of the unlock cost in the tooltip of a locked plot.");
-                    b.toggle("Custom Plot Icons", () -> cfg().gardenPlotMenuIcons, v -> cfg().gardenPlotMenuIcons = v)
-                            .desc("Shift + right click an item in your inventory, then Shift + right click a plot to use it as icon. "
-                                    + "Shift + right click a plot with nothing picked resets it. The plot grid shows the same icons.")
-                            .tags("plot", "icon");
                 });
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
             if (!inMenu || !cfg().gardenPlotMenuPrice || feature == null || !feature.active()) return;
@@ -77,7 +70,6 @@ public final class GardenPlotMenu {
             lastScreen = mc.screen;
             inMenu = mc.screen instanceof ContainerScreen cs && SkyblockUtils.isInGarden()
                     && StringUtil.stripTrim(cs.getTitle().getString()).equals("Configure Plots");
-            picked = null;
             ticks = 0;
         }
         if (ticks++ % 20 == 0 && SkyblockUtils.isInGarden()) syncSpray();
@@ -170,33 +162,6 @@ public final class GardenPlotMenu {
         g.text(font, counts[i], slot.x + 17 - font.width(counts[i]), slot.y + 9, 0xFFFFFFFF, true);
     }
 
-    /** Icon to draw, from ToolkitIconMixin. */
-    public static ItemStack icon(Slot slot, ItemStack stack) {
-        if (!inMenu || !cfg().gardenPlotMenuIcons || stack.isEmpty() || !live()) return stack;
-        int i = plotIndex(slot);
-        if (i < 0) return stack;
-        ItemStack custom = GardenPlots.customIcon(i);
-        return custom == null ? stack : custom;
-    }
-
-    /** Shift + right click picks / assigns an icon; true = click swallowed. */
-    public static boolean onSlotClick(AbstractContainerScreen<?> screen, Slot slot, int button, ContainerInput type) {
-        if (!inMenu || !cfg().gardenPlotMenuIcons || slot == null || screen != lastScreen || !live()) return false;
-        if (button != 1 || type != ContainerInput.QUICK_MOVE) return false;
-        if (slot.container instanceof Inventory) {
-            if (!slot.hasItem()) return true;
-            picked = slot.getItem().copyWithCount(1);
-            say("§7Picked §f" + picked.getHoverName().getString() + "§7, Shift + right click a plot");
-            return true;
-        }
-        int i = plotIndex(slot);
-        if (i < 0) return false;
-        GardenPlots.setCustomStack(i, picked);
-        say(picked == null ? "§7Plot icon reset" : "§7Plot icon set");
-        picked = null;
-        return true;
-    }
-
     private static void addPrice(ItemStack stack, List<Component> lines) {
         if (!StringUtil.stripTrim(stack.getHoverName().getString()).startsWith("Plot")) return;
         for (int i = 1; i < lines.size() - 1; i++) {
@@ -240,10 +205,5 @@ public final class GardenPlotMenu {
             case "SALTY_SPRAYONATOR" -> 60;
             default -> 30;
         };
-    }
-
-    private static void say(String s) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null) mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] " + s));
     }
 }

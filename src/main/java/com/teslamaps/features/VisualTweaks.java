@@ -1,10 +1,9 @@
 package com.teslamaps.features;
 
-// Skyblocker ItemInHandRendererMixin, NoammAddons Tweaks.kt, SkyHanni HideArmor.kt,
-// Devonian LowerNametags.kt, Skytils hideJerryRune / low health vignette
+// Skyblocker ItemInHandRendererMixin, NoammAddons Tweaks.kt,
+// Devonian LowerNametags.kt, Skytils low health vignette
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.SkyblockUtils;
 import it.unimi.dsi.fastutil.ints.Int2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -16,15 +15,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.world.entity.Avatar;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 public final class VisualTweaks {
 
@@ -173,36 +168,5 @@ public final class VisualTweaks {
             NAMETAG_OFFSET.put(id, real ? Math.min(1.8 - mob.getBbHeight(), 0.0) : 0.0);
         }
         if (NAMETAG_OFFSET.size() > 4096) NAMETAG_OFFSET.clear();
-    }
-
-    // --- VIS-070
-
-    /** From PlayerArmorHideMixin. */
-    public static void stripPlayerArmor(Avatar entity, AvatarRenderState s) {
-        TeslaMapsConfig c = cfg();
-        if (!c.hidePlayerArmor) return;
-        boolean self = entity == Minecraft.getInstance().player;
-        switch (c.hidePlayerArmorMode) {
-            case "Self" -> { if (!self) return; }
-            case "All" -> { }
-            default -> { if (self) return; }
-        }
-        s.headEquipment = ItemStack.EMPTY;
-        s.headItem.clear();
-        s.wornHeadType = null;
-        s.wornHeadProfile = null;
-        if (c.hidePlayerArmorHelmetOnly) return;
-        s.chestEquipment = ItemStack.EMPTY;
-        s.legsEquipment = ItemStack.EMPTY;
-        s.feetEquipment = ItemStack.EMPTY;
-    }
-
-    // --- VIS-071
-
-    /** From EntityRenderDispatcherMixin. The rune's eggs carry no SkyBlock id, real drops do. */
-    public static boolean shouldHide(Entity e) {
-        if (!(e instanceof ItemEntity item) || !cfg().hideJerryRune) return false;
-        ItemStack stack = item.getItem();
-        return stack.is(Items.VILLAGER_SPAWN_EGG) && ItemUtil.skyblockId(stack).isEmpty() && SkyblockUtils.isInSkyblock();
     }
 }

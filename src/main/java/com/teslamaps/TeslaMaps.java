@@ -68,7 +68,6 @@ public class TeslaMaps implements ClientModInitializer {
         com.teslamaps.render.gui.ChromaPipelines.init();
         com.teslamaps.render.gui.AnimFades.init();
         com.teslamaps.features.TranslucentLava.registerFluidModel();
-        com.teslamaps.features.TranslucentWater.registerFluidModel();
 
         RoomDatabase.getInstance().load();
 
@@ -89,8 +88,6 @@ public class TeslaMaps implements ClientModInitializer {
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(TMapCommand::expandShortcut);
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.ALLOW_COMMAND.register(
                 com.teslamaps.features.GetFromSacks::allowCommand);
-        net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.COMMAND.register(
-                com.teslamaps.features.PestTimer::onCommandSent);
 
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register(
                 (stack, ctx, flag, lines) -> {

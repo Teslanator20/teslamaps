@@ -25,12 +25,9 @@ public final class HideCategory {
         b.toggle("  See-Through Instead Of Hidden", () -> config.hidePlayersTransparent, v -> config.hidePlayersTransparent = v).fresh()
                 .desc("Players that would be hidden are drawn see-through instead. 0% hides them fully.");
         b.slider("    Opacity %", 0f, 100f, () -> config.hidePlayersOpacity, v -> config.hidePlayersOpacity = v, 0).fresh();
-        b.toggle("Ghost Players", () -> config.ghostPlayers, v -> config.ghostPlayers = v).fresh()
-                .desc("Every other real player is drawn see-through, armor and held items included.");
-        b.slider("  Ghost Opacity %", 0f, 100f, () -> config.ghostPlayersOpacity, v -> config.ghostPlayersOpacity = v, 0).fresh();
         b.label("Hide Dungeon Objects");
         b.button("Toggle All Dungeon Objects", () -> {
-            int on = 0, total = 12;
+            int on = 0, total = 11;
             if (config.hideDeadMobs) on++;
             if (config.hideSoulweaverSkull) on++;
             if (config.hideSkeletonSkull) on++;
@@ -39,14 +36,13 @@ public final class HideCategory {
             if (config.hideBlessing) on++;
             if (config.hideReviveStone) on++;
             if (config.hidePremiumFlesh) on++;
-            if (config.hideJournalEntry) on++;
             if (config.hideHealerOrbs) on++;
             if (config.hideHealerFairy) on++;
             if (config.hideCheapCoins) on++;
             boolean nv = on <= total / 2;
             config.hideDeadMobs = nv; config.hideSoulweaverSkull = nv; config.hideSkeletonSkull = nv;
             config.hideThrownBones = nv; config.hideSuperboomTnt = nv; config.hideBlessing = nv;
-            config.hideReviveStone = nv; config.hidePremiumFlesh = nv; config.hideJournalEntry = nv;
+            config.hideReviveStone = nv; config.hidePremiumFlesh = nv;
             config.hideHealerOrbs = nv; config.hideHealerFairy = nv; config.hideCheapCoins = nv;
             TeslaMapsConfig.save();
         });
@@ -65,7 +61,6 @@ public final class HideCategory {
         b.toggle("Hide Blessings", () -> config.hideBlessing, v -> config.hideBlessing = v);
         b.toggle("Hide Revive Stone", () -> config.hideReviveStone, v -> config.hideReviveStone = v);
         b.toggle("Hide Premium Flesh", () -> config.hidePremiumFlesh, v -> config.hidePremiumFlesh = v);
-        b.toggle("Hide Journal Entry", () -> config.hideJournalEntry, v -> config.hideJournalEntry = v);
         b.toggle("Hide Healer Orbs", () -> config.hideHealerOrbs, v -> config.hideHealerOrbs = v);
         b.toggle("  Also Hide Orb Particles", () -> config.hideHealerOrbParticles, v -> config.hideHealerOrbParticles = v).fresh()
                 .desc("Drops the dust trail within 8 blocks of a hidden orb.");
@@ -77,7 +72,7 @@ public final class HideCategory {
                 .desc("Invisible powered creepers from Wither Cloak are not drawn. They still block clicks.");
         b.label("Screen & World Hiders");
         b.button("Toggle All Screen & World Hiders", () -> {
-            int enabled = 0, total = 22;
+            int enabled = 0, total = 21;
             if (config.noFire) enabled++;
             if (config.noWaterOverlay) enabled++;
             if (config.noVignette) enabled++;
@@ -97,7 +92,6 @@ public final class HideCategory {
             if (config.noXpOrbs) enabled++;
             if (config.hideClouds) enabled++;
             if (config.noEnchantGlint) enabled++;
-            if (config.noViewBobbing) enabled++;
             if (config.hideArmorBar) enabled++;
             if (config.hideHungerBar) enabled++;
             boolean newValue = enabled <= total / 2;
@@ -120,7 +114,6 @@ public final class HideCategory {
             config.noXpOrbs = newValue;
             config.hideClouds = newValue;
             config.noEnchantGlint = newValue;
-            config.noViewBobbing = newValue;
             config.hideArmorBar = newValue;
             config.hideHungerBar = newValue;
             TeslaMapsConfig.save();
@@ -160,11 +153,8 @@ public final class HideCategory {
         b.toggle("  Fire Block Particles", () -> config.particleHideFireBlock, v -> config.particleHideFireBlock = v).fresh();
         b.toggle("  All Smoke", () -> config.particleHideSmoke, v -> config.particleHideSmoke = v).fresh();
         b.toggle("Hide XP Orbs", () -> config.noXpOrbs, v -> config.noXpOrbs = v);
-        b.toggle("Hide Jerry Rune Eggs", () -> config.hideJerryRune, v -> config.hideJerryRune = v).fresh()
-                .desc("SkyBlock: hides the villager spawn eggs the Jerry rune scatters on the ground.");
         b.toggle("Hide Firework Rockets", () -> config.hideFireworks, v -> config.hideFireworks = v).fresh()
                 .desc("Bonzo Staff rockets and every other firework rocket. The spark trail only goes away with Block At Packet Level.");
-        b.toggle("Hide Horses", () -> config.hideHorses, v -> config.hideHorses = v).fresh();
         b.toggle("Block At Packet Level", () -> config.packetHiders, v -> config.packetHiders = v);
         b.info("Lightning/Falling Blocks/XP Orbs are then never created");
         b.info("Saves ticking them, not just drawing them");
@@ -186,17 +176,10 @@ public final class HideCategory {
         b.toggle("Hide Death Animation", () -> config.noDeathAnimation, v -> config.noDeathAnimation = v);
         b.toggle("Hide Death Particles", () -> config.hideDeathParticles, v -> config.hideDeathParticles = v).fresh()
                 .desc("No smoke puff when a mob dies.");
-        b.toggle("Hide Mage Beams", () -> config.hideMageBeams, v -> config.hideMageBeams = v).fresh()
-                .desc("Drops the firework particles of mage beams in dungeons.");
         b.toggle("Hide Witherborn Withers", () -> config.hideWitherbornWithers, v -> config.hideWitherbornWithers = v).fresh()
                 .desc("Hides the withers spawned by the Wither armor set bonus. Dungeon boss withers stay.");
         b.toggle("Hide Armor On Armor Stands", () -> config.hideArmorStandArmor, v -> config.hideArmorStandArmor = v).fresh()
                 .desc("Armor worn by armor stands (displays, shops) is not drawn. Heads stay.");
-        b.toggle("Hide Player Armor", () -> config.hidePlayerArmor, v -> config.hidePlayerArmor = v).fresh()
-                .desc("Armor and helmet heads of players are not drawn.");
-        b.dropdown("  Players", new String[]{"Others", "Self", "All"},
-                () -> config.hidePlayerArmorMode, v -> config.hidePlayerArmorMode = v).fresh();
-        b.toggle("  Only Helmet", () -> config.hidePlayerArmorHelmetOnly, v -> config.hidePlayerArmorHelmetOnly = v).fresh();
         b.label("Screen Overlays");
         b.toggle("Hide Fire Overlay", () -> config.noFire, v -> config.noFire = v);
         b.toggle("  Hide Fire On All Entities", () -> config.hideEntityFire, v -> config.hideEntityFire = v).fresh()
@@ -284,6 +267,5 @@ public final class HideCategory {
         b.slider("  Hurt Tilt Strength", 0f, 2f,
                 () -> config.hurtCamStrength, v -> config.hurtCamStrength = v, 2).fresh()
                 .desc("0 = no tilt, 1 = vanilla, 2 = double.");
-        b.toggle("No View Bobbing", () -> config.noViewBobbing, v -> config.noViewBobbing = v);
     }
 }

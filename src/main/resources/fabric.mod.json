@@ -13,7 +13,7 @@
         "modmenu": ["com.teslamaps.compat.ModMenuIntegration"]
     },
     "mixins": ["teslamaps.mixins.json", "teslamaps-adm-misc.mixins.json", "teslamaps-adm-map.mixins.json",
-        "teslamaps-adm-leap.mixins.json", "teslamaps-adm-practice.mixins.json", "teslamaps-adm-adr.mixins.json",
+        "teslamaps-adm-leap.mixins.json", "teslamaps-adm-practice.mixins.json",
         "teslamaps-adm-sim.mixins.json"],
     "accessWidener": "teslamaps.accesswidener",
     "depends": {

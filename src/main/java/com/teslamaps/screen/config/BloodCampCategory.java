@@ -15,8 +15,6 @@ public final class BloodCampCategory {
         b.toggle("Move Timer HUD", () -> config.bloodCampMoveTimer, v -> config.bloodCampMoveTimer = v);
         b.toggle("Move Message", () -> config.bloodCampMoveMessage, v -> config.bloodCampMoveMessage = v);
         b.toggle("Party Move Message", () -> config.bloodCampPartyMessage, v -> config.bloodCampPartyMessage = v);
-        b.toggle("\"Kill Mobs\" Title", () -> config.bloodCampKillTitle, v -> config.bloodCampKillTitle = v);
-        b.toggle("Watcher HP Bar", () -> config.bloodCampHpBar, v -> config.bloodCampHpBar = v);
         b.label("Self Alert (title + sound)");
         b.toggle("\"KILL BLOOD\" on Watcher move", () -> config.bloodCampMoveAlert, v -> config.bloodCampMoveAlert = v);
         b.soundDropdown("  Alert Sound",
@@ -46,17 +44,12 @@ public final class BloodCampCategory {
         b.toggle("Ping Offset", () -> config.bloodAssistPingOffset, v -> config.bloodAssistPingOffset = v);
         b.slider("Manual Offset (ms)", 0f, 300f,
                 () -> config.bloodAssistManualOffset, v -> config.bloodAssistManualOffset = v);
-        b.toggle("Interpolation", () -> config.bloodAssistInterpolation, v -> config.bloodAssistInterpolation = v);
         b.slider("Tick Offset", -100f, 100f,
                 () -> (float) config.bloodAssistOffset, v -> config.bloodAssistOffset = Math.round(v));
         b.slider("Spawn Tick", 35f, 41f,
                 () -> (float) config.bloodAssistTick, v -> config.bloodAssistTick = Math.round(v));
         b.label("Watcher");
         b.toggle("Watcher Kill Alert (blood done)", () -> config.watcherKillAlert, v -> config.watcherKillAlert = v);
-        b.toggle("Watcher Speed Grade", () -> config.watcherSpeedGrade, v -> config.watcherSpeedGrade = v);
-        b.classFilter("  Watcher Grade: Only as Class", config.watcherGradeClasses);
-        b.toggle("  Send Grade to Party", () -> config.watcherSpeedAnnounce, v -> config.watcherSpeedAnnounce = v).fresh()
-                .desc("Posts Fast/Normal/Slow and the time in party chat.");
         b.toggle("Watcher Stats HUD", () -> config.watcherHud, v -> config.watcherHud = v);
         b.slider("  Watcher HUD Scale", 0.5f, 2.0f,
                 () -> config.watcherHudScale, v -> config.watcherHudScale = v, 1);

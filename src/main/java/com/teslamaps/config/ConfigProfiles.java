@@ -236,11 +236,11 @@ public class ConfigProfiles {
             // hiders (no player hiding)
             "hideDeadMobs", "hideSoulweaverSkull", "hideSkeletonSkull", "hideThrownBones",
             "hideSuperboomTnt", "hideBlessing", "hideReviveStone", "hidePremiumFlesh",
-            "hideJournalEntry", "hideHealerOrbs", "hideHealerFairy", "hideCheapCoins",
+            "hideHealerOrbs", "hideHealerFairy", "hideCheapCoins",
             "hideClouds", "noFog", "noNetherFog", "noLightning", "noFallingBlocks", "noBlockBreaking", "noXpOrbs",
             "packetHiders", "noExplosions", "noArrows", "noStuckArrows", "noDeathAnimation",
             "noFire", "noWaterOverlay", "noVignette", "noBlind", "noNausea", "noEnchantGlint",
-            "hideInventoryEffects", "noEffects", "noHurtCam", "noViewBobbing",
+            "hideInventoryEffects", "noEffects", "noHurtCam",
             // puzzles (terminals stay off)
             "solveBlaze", "blazeDoneMessage", "modernBlazeSolver", "solveThreeWeirdos", "solveTicTacToe",
             "solveCreeperBeams", "creeperBeamsTracers", "creeperBeamsDing",
@@ -257,9 +257,9 @@ public class ConfigProfiles {
             // chat filter (spam only; watcher/thorn/stash/revive/oruo stay visible)
             "chatFilterEnabled", "chatFilterEmpty", "chatFilterBlessings", "chatFilterEssence",
             "chatFilterKeys", "chatFilterDoors", "chatFilterWish", "chatFilterUltReady",
-            "chatFilterAoeDamage", "chatFilterKillCombo", "chatFilterBlocksInWay", "chatFilterBonePlating",
+            "chatFilterAoeDamage", "chatFilterKillCombo", "chatFilterBonePlating",
             "chatFilterPickups", "chatFilterGuildXp", "chatFilterSacks", "chatFilterGfs",
-            "chatFilterMilestone", "chatFilterPerkBuffs", "chatFilterWatchdog", "chatFilterMort",
+            "chatFilterMilestone", "chatFilterPerkBuffs", "chatFilterWatchdog",
             "chatFilterProfileInfo", "chatFilterServerMsgs",
             // qol
             "infiniteChat", "chatStacking", "commandSuggestions", "commandSuggestionsPlayers",

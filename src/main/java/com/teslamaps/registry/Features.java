@@ -32,7 +32,6 @@ final class Features {
         com.teslamaps.features.WardrobeKeys.register();
         com.teslamaps.features.SkillLevelStack.register();
         // wave 1b economy
-        com.teslamaps.features.BazaarOwnOrders.register();
         com.teslamaps.features.ContainerValue.register();
         // wave 1b hud
         com.teslamaps.features.CombatTimers.register();
@@ -119,12 +118,10 @@ final class Features {
         // w03-03-dun
         com.teslamaps.features.DungeonCleanEnd.register();
         com.teslamaps.features.BreakerCharges.register();
-        com.teslamaps.features.CopyFails.register();
         com.teslamaps.features.IcedMobs.register();
         com.teslamaps.features.PartyFinderHelper.register();
         com.teslamaps.dungeon.RunLogger.register();
         // w03-06-dun
-        com.teslamaps.features.croesus.ChestProfitHud.register();
         com.teslamaps.features.TeammateHealth.register();
         com.teslamaps.features.WarpCooldownBlock.register();
         com.teslamaps.player.PlayerTracker.register();
@@ -138,8 +135,6 @@ final class Features {
         com.teslamaps.dungeon.Splits.register();
         com.teslamaps.features.KeyHud.register();
         com.teslamaps.features.SecretPickupHud.register();
-        com.teslamaps.features.DungeonGambling.register();
-        com.teslamaps.features.TotemAnimation.register();
         com.teslamaps.features.EasySuperboom.register();
         // w03-07-dun
         com.teslamaps.dungeon.ScoreHud.register();
@@ -151,15 +146,12 @@ final class Features {
         com.teslamaps.dungeon.ServerLagTimer.register();
         com.teslamaps.features.DungeonLevelSlotText.register();
         com.teslamaps.features.SwapSound.register();
-        com.teslamaps.features.TreasureTalismanAlert.register();
         com.teslamaps.features.AutoGFS.register();
         // w03-01-boss
         com.teslamaps.features.FuckDiorite.register();
         com.teslamaps.features.DragonStackAimer.register();
         // w03-02-dun
         com.teslamaps.features.croesus.CroesusChestCounter.register();
-        com.teslamaps.features.DungeonDeathCounter.register();
-        com.teslamaps.dungeon.RoomVisits.register();
         com.teslamaps.features.RareGroundDrops.register();
         // w03-04-dun
         com.teslamaps.features.croesus.LootLogger.register();
@@ -169,22 +161,17 @@ final class Features {
         com.teslamaps.dungeon.TeamStats.register();
         com.teslamaps.features.ShadowAssassinAlert.register();
         // w04-03-inv
-        com.teslamaps.features.MoveInsertIntoSack.register();
         com.teslamaps.features.ArrowPoison.register();
-        com.teslamaps.features.RevertAxes.register();
         com.teslamaps.features.BingoCardTips.register();
         com.teslamaps.features.ItemTooltipExtras.register();
         // w04-00-dun
-        com.teslamaps.features.DiamanteAlert.register();
         // w04-04-inv
         com.teslamaps.features.TooltipTweaks.register();
         com.teslamaps.features.EquipmentDisplay.register();
         com.teslamaps.features.ExperimentHelper.register();
         // w04-06-inv
         com.teslamaps.features.EnchantTooltipTweaks.register();
-        com.teslamaps.features.ForgeRecipeViewer.register();
         com.teslamaps.features.EnchantTablePanel.register();
-        com.teslamaps.features.FancyCraftingTable.register();
         // w04-05-inv
         com.teslamaps.features.Experimentation.register();
         com.teslamaps.features.FullInventoryWarning.register();
@@ -214,9 +201,7 @@ final class Features {
         com.teslamaps.features.CustomWardrobe.register();
         com.teslamaps.features.TooltipExtras.register();
         com.teslamaps.features.BackpackSlot.register();
-        com.teslamaps.features.AttributeOverlay.register();
         com.teslamaps.features.customize.ItemModelMigration.register();
-        com.teslamaps.features.BrewingStandOverlay.register();
         // w04-07-inv
         com.teslamaps.features.StarUpgradeCost.register();
         com.teslamaps.features.MagicalPowerStack.register();
@@ -226,12 +211,10 @@ final class Features {
         // w05-04-inv
         com.teslamaps.features.TooltipBorder.register();
         com.teslamaps.features.HotxPerkCurrency.register();
-        com.teslamaps.features.ToolkitCropIcons.register();
         // w05-09-inv
         com.teslamaps.features.InstaLoadoutSwap.register();
         // w05-01-inv
         com.teslamaps.features.RavengardTooltips.register();
-        com.teslamaps.features.WizardPortalLore.register();
         com.teslamaps.features.StackingEnchantHud.register();
         com.teslamaps.features.ConsumableProtection.register();
         com.teslamaps.features.ItemStars.register();
@@ -260,25 +243,18 @@ final class Features {
         com.teslamaps.features.ItemNumbers.register();
         com.teslamaps.features.mining.HotmPerks.register();
         com.teslamaps.features.GemstoneBuffs.register();
-        com.teslamaps.features.ItemCycle.register();
         // w06-00-qol
         com.teslamaps.features.CommandHelpers.register();
         com.teslamaps.features.StopMovingOnDeath.register();
         com.teslamaps.features.AlwaysShowItemName.register();
         // w06-02-qol
         com.teslamaps.features.MiscQol.register();
-        com.teslamaps.features.Achievements.register();
         // w06-09-qol
         com.teslamaps.features.SpiderRelics.register();
-        com.teslamaps.features.RavengardLootBags.register();
         com.teslamaps.features.TeleportPads.register();
-        com.teslamaps.features.SkyblockTimeReminder.register();
-        com.teslamaps.features.SeeThroughWindow.register();
-        com.teslamaps.features.SpyMode.register();
         // w06-04-qol
         com.teslamaps.features.Reminders.register();
         com.teslamaps.features.DamageAlert.register();
-        com.teslamaps.features.ContainerTriggers.register();
         com.teslamaps.features.HarpHelper.register();
         // w06-03-qol
         com.teslamaps.features.qol.FairySouls.register();
@@ -291,7 +267,6 @@ final class Features {
         com.teslamaps.features.MinionFeatures.register();
         com.teslamaps.features.ClickFixes.register();
         com.teslamaps.features.MobSpawnAlert.register();
-        com.teslamaps.features.IslandAlerts.register();
         // w06-08-qol
         com.teslamaps.features.PreviousLobby.register();
         com.teslamaps.features.QuickCraftConfirm.register();
@@ -301,22 +276,18 @@ final class Features {
         // w06-01-qol
         com.teslamaps.features.BuildersWandPreview.register();
         com.teslamaps.features.WindowTweaks.register();
-        com.teslamaps.features.BrewingStandColors.register();
         com.teslamaps.features.BingoCard.register();
         com.teslamaps.features.ArrowHitSound.register();
         // w06-05-qol
         com.teslamaps.features.FancyWarpMenu.register();
         com.teslamaps.features.DevWorldTools.register();
-        com.teslamaps.features.DeathSound.register();
         com.teslamaps.features.CameraTweaks.register();
         com.teslamaps.features.InfernoMinion.register();
         // w06-07-qol
         com.teslamaps.features.CallLinks.register();
-        com.teslamaps.features.SkyblockClock.register();
         com.teslamaps.features.navigation.IslandNavigation.register();
         com.teslamaps.features.MonoAudio.register();
         com.teslamaps.features.QolTweaks.register();
-        com.teslamaps.features.RenderHiders.register();
         com.teslamaps.features.ServerRestartWarning.register();
         // w07-03-qol
         com.teslamaps.debug.PacketLogger.register();
@@ -331,13 +302,8 @@ final class Features {
         // w07-07-hud
         com.teslamaps.features.tracker.CustomTrackers.register();
         com.teslamaps.features.hud.BeaconPower.register();
-        com.teslamaps.features.hud.CustomTextBox.register();
-        com.teslamaps.features.hud.MovementSpeed.register();
         com.teslamaps.features.hud.CrownOfAvarice.register();
         // w07-08-hud
-        com.teslamaps.features.ExecutionLog.register();
-        com.teslamaps.features.ChickenHeadTimer.register();
-        com.teslamaps.features.CakeTracker.register();
         com.teslamaps.features.theend.DraconicSacrificeTracker.register();
         com.teslamaps.features.ItemPickupLog.register();
         com.teslamaps.features.CustomTodos.register();
@@ -351,8 +317,6 @@ final class Features {
         // w07-09-hud
         com.teslamaps.features.SbItemCooldowns.register();
         com.teslamaps.features.InventoryHud.register();
-        com.teslamaps.features.theend.EyesPlacedHud.register();
-        com.teslamaps.features.theend.EndStatsHud.register();
         com.teslamaps.features.FatalTempo.register();
         // w07-02-qol
         com.teslamaps.features.DebugCopy.register();
@@ -360,14 +324,11 @@ final class Features {
         com.teslamaps.features.AbiphoneHelper.register();
         com.teslamaps.features.waypoints.WaypointGroups.register();
         // w08-00-hud
-        com.teslamaps.features.hud.TabStatsHud.register();
         com.teslamaps.features.tracker.TrackerRows.register();
         com.teslamaps.features.ExperimentStats.register();
         com.teslamaps.features.hud.LobbyPlayers.register();
         com.teslamaps.features.hud.MaxwellHud.register();
         // w08-01-hud
-        com.teslamaps.features.hud.FancyTabHud.register();
-        com.teslamaps.features.hud.LimboTracker.register();
         com.teslamaps.features.tracker.ProfitTracker.register();
         com.teslamaps.features.hud.PlayerStats.register();
         com.teslamaps.features.hud.QuiverHud.register();
@@ -380,8 +341,6 @@ final class Features {
         com.teslamaps.features.waypoints.RouteKeys.register();
         com.teslamaps.features.AbilityMenuFix.register();
         // w07-00-qol
-        com.teslamaps.features.qol.MusicOverlay.register();
-        com.teslamaps.features.qol.Level7Guide.register();
         com.teslamaps.features.WarpTransferWait.register();
         com.teslamaps.features.qol.TiaRelayHelper.register();
         com.teslamaps.features.qol.QueueEstimate.register();
@@ -390,15 +349,9 @@ final class Features {
         com.teslamaps.features.AbilityCooldowns.register();
         com.teslamaps.features.TabWidgetHint.register();
         // w08-03-hud
-        com.teslamaps.features.hud.PlayersInRange.register();
-        com.teslamaps.features.ReaperTimer.register();
-        com.teslamaps.features.SkeletonHelmet.register();
-        com.teslamaps.features.JyrreTimer.register();
         // w08-05-hud
-        com.teslamaps.features.tracker.Tracker.register();
         com.teslamaps.features.hud.MovableVanillaHud.register();
         com.teslamaps.features.hud.VanillaManaBar.register();
-        com.teslamaps.features.hud.SmallHuds.register();
         // w08-04-hud
         com.teslamaps.features.hud.ProfileInfo.register();
         com.teslamaps.features.hud.TitleStack.register();
@@ -407,7 +360,6 @@ final class Features {
         // w08-08-vis
         com.teslamaps.features.ArrowVisuals.register();
         com.teslamaps.features.CustomCrosshair.register();
-        com.teslamaps.features.OldItemTextures.register();
         com.teslamaps.features.BetterContainers.register();
         // w08-02-hud
         com.teslamaps.features.ScreenFlash.register();
@@ -423,15 +375,12 @@ final class Features {
         com.teslamaps.features.ArachneTagHider.register();
         com.teslamaps.features.ColorParticleFix.register();
         com.teslamaps.features.WitherCloakShields.register();
-        com.teslamaps.features.LookTargeting.register();
         // w10-00-vis
-        com.teslamaps.features.BlockEsp.register();
         com.teslamaps.features.ChestEsp.register();
         // w10-09-chat
         com.teslamaps.features.DungeonChatFilter.register();
         com.teslamaps.features.ChatCompactRulesIslands.register();
         com.teslamaps.features.ChatQueue.register();
-        com.teslamaps.features.TerminatorCooldownMute.register();
         // w10-03-chat
         com.teslamaps.features.ChatCompacts.register();
         // w10-05-chat
@@ -439,7 +388,6 @@ final class Features {
         com.teslamaps.features.HoppityCompactChat.register();
         // w10-04-chat
         com.teslamaps.features.ChatAlerts.register();
-        com.teslamaps.features.ChatSoundResponse.register();
         // w10-07-chat
         com.teslamaps.features.SackMessages.register();
         com.teslamaps.features.SkyblockXpChat.register();
@@ -463,9 +411,7 @@ final class Features {
         com.teslamaps.features.FollowingLine.register();
         com.teslamaps.features.VisualFixes.register();
         // w10-08-chat
-        com.teslamaps.features.PlayerChatFormat.register();
         com.teslamaps.features.SmoothChat.register();
-        com.teslamaps.features.ReportAutoConfirm.register();
         com.teslamaps.command.ExtraSuggestions.register();
         // w09-04-vis
         com.teslamaps.features.VisualTweaks.register();
@@ -473,29 +419,18 @@ final class Features {
         // w09-01-vis
         com.teslamaps.features.AbilityRadius.register();
         com.teslamaps.features.DroppedItemScaling.register();
-        com.teslamaps.features.EndChestTint.register();
         com.teslamaps.features.HurtTint.register();
-        com.teslamaps.features.DvdLogo.register();
         // w09-00-vis
         com.teslamaps.features.BigItems.register();
-        com.teslamaps.features.cosmetic.CustomSkin.register();
-        com.teslamaps.features.cosmetic.ConeHat.register();
-        com.teslamaps.features.cosmetic.CustomHubMap.register();
-        com.teslamaps.features.EndermanTeleportHider.register();
         com.teslamaps.features.EntityHighlight.register();
         // w09-07-vis
-        com.teslamaps.features.ZeroHpNametags.register();
         // w09-06-vis
         com.teslamaps.features.TransparentArmor.register();
-        com.teslamaps.features.ZealotColor.register();
         com.teslamaps.features.TextVisuals.register();
         // w09-03-vis
         com.teslamaps.features.ChangeCrouch.register();
         com.teslamaps.features.HideGlitchMobs.register();
-        com.teslamaps.features.TooltipLineSmoother.register();
-        com.teslamaps.features.HeadDisplaySize.register();
         com.teslamaps.safari.HideonwallPerches.register();
-        com.teslamaps.features.LowerEndermanNametags.register();
         // w09-09-vis
         com.teslamaps.features.IslandClouds.register();
         com.teslamaps.features.IHateDoors.register();
@@ -505,15 +440,11 @@ final class Features {
         // w09-05-vis
         com.teslamaps.features.MobIcons.register();
         com.teslamaps.features.capes.Cosmetics.register();
-        com.teslamaps.features.Cosmetics.register();
         com.teslamaps.features.PlayerCosmetics.register();
-        com.teslamaps.features.PlayerModels.register();
-        com.teslamaps.features.PetDragon.register();
         com.teslamaps.features.TripwireRecolor.register();
         // w12-01-gui
         com.teslamaps.features.HideSillyButtons.register();
         // w12-05-perf
-        com.teslamaps.features.KeepTerrainLoaded.register();
         com.teslamaps.features.ErrorManager.register();
         com.teslamaps.features.inspector.Inspector.register();
         // w12-00-gui
@@ -536,7 +467,6 @@ final class Features {
         // w11-04-par
         com.teslamaps.features.PartyCheck.register();
         com.teslamaps.features.MarkedPlayers.register();
-        com.teslamaps.features.SocialScreenFilter.register();
         com.teslamaps.features.ModChat.register();
         // w11-08-gui
         com.teslamaps.config.ConfigBackups.register();
@@ -550,13 +480,9 @@ final class Features {
         com.teslamaps.features.ConfigAccess.register();
         com.teslamaps.utils.UserSounds.register();
         FeatureConditions.register();
-        com.teslamaps.features.CustomFont.register();
         com.teslamaps.features.hud.TabWidgetsMenuHelper.register();
         // w11-09-gui
-        com.teslamaps.features.RadialMenus.register();
         com.teslamaps.features.HudLayouts.register();
-        com.teslamaps.features.KeybindSync.register();
-        com.teslamaps.features.JoinTips.register();
         // w11-01-par
         com.teslamaps.features.KuudraPartyFinder.register();
         com.teslamaps.features.AcceptLastInvite.register();
@@ -570,17 +496,14 @@ final class Features {
         // w11-02-par
         com.teslamaps.features.PartyInvites.register();
         com.teslamaps.features.capes.TeslaUserLabels.register();
-        com.teslamaps.features.FancyPartyFinder.register();
         // w11-03-par
         com.teslamaps.features.Reparty.register();
         com.teslamaps.features.PartyListFormat.register();
         com.teslamaps.features.PartyMembersHud.register();
         com.teslamaps.features.PartyJoinAlerts.register();
-        com.teslamaps.features.ThrottleNotifier.register();
         // w11-05-par
         com.teslamaps.features.PartyShortcuts.register();
         com.teslamaps.features.HighlightTeammates.register();
-        com.teslamaps.features.DianaPartyFinder.register();
         com.teslamaps.features.PositionalMessages.register();
         // w11-00-chat
         // w12-08-eco
@@ -592,15 +515,11 @@ final class Features {
         com.teslamaps.features.AuctionSortWarning.register();
         com.teslamaps.features.theend.DragonProfitTracker.register();
         // w12-09-eco
-        com.teslamaps.features.BazaarFillEstimate.register();
         com.teslamaps.features.PriceLookup.register();
         com.teslamaps.features.SackValueHud.register();
         com.teslamaps.features.WardrobeValue.register();
         // w14-08-min
-        com.teslamaps.features.mining.CorleoneTitle.register();
-        com.teslamaps.features.mining.CorpseKeyAnnounce.register();
         com.teslamaps.features.mining.CrystalHollowsOverlay.register();
-        com.teslamaps.features.mining.BlockStrengthGuide.register();
         com.teslamaps.features.mining.BlockBreakPrediction.register();
         com.teslamaps.features.mining.HollowsAreaWalls.register();
         // w14-05-gar
@@ -619,7 +538,6 @@ final class Features {
         com.teslamaps.features.garden.CropMilestoneHud.register();
         com.teslamaps.features.garden.FarmingFortuneHud.register();
         com.teslamaps.features.garden.CropFever.register();
-        com.teslamaps.features.garden.VisitorOffer.register();
         // w14-01-gar
         com.teslamaps.features.visitors.Visitors.register();
         com.teslamaps.features.visitors.VisitorShoppingList.register();
@@ -627,9 +545,7 @@ final class Features {
         com.teslamaps.features.visitors.VisitorRewardGuard.register();
         com.teslamaps.features.visitors.VisitorArrival.register();
         com.teslamaps.features.visitors.VisitorStatusHighlight.register();
-        com.teslamaps.features.gardenqol.MutationsWebsite.register();
         com.teslamaps.features.gardenqol.GardenSafety.register();
-        com.teslamaps.features.gardenqol.BarnSolvers.register();
         // w14-07-min
         com.teslamaps.features.mining.Commissions.register();
         com.teslamaps.features.mining.CommissionWaypoints.register();
@@ -658,7 +574,6 @@ final class Features {
         com.teslamaps.features.FarmingStatsHud.register();
         com.teslamaps.features.GardenUptime.register();
         com.teslamaps.features.FarmKeys.register();
-        com.teslamaps.features.CarrolynHelper.register();
         // w13-01-eco
         com.teslamaps.features.foraging.StarlynCouponProfit.register();
         com.teslamaps.features.SupercraftHelper.register();
@@ -677,9 +592,7 @@ final class Features {
         // w13-08-gar
         com.teslamaps.features.CropStats.register();
         com.teslamaps.features.AtmosphericFilter.register();
-        com.teslamaps.features.CropSpeedMeter.register();
         com.teslamaps.features.CropCalcCommands.register();
-        com.teslamaps.features.FortuneGuide.register();
         com.teslamaps.features.FarmToolOverlays.register();
         com.teslamaps.features.JacobContestFF.register();
         // w13-09-gar
@@ -700,11 +613,9 @@ final class Features {
         com.teslamaps.features.PestSpawnSound.register();
         com.teslamaps.features.PestBaitPanel.register();
         com.teslamaps.features.NoCropRotation.register();
-        com.teslamaps.features.PbFortuneGain.register();
         // w13-00-eco
         com.teslamaps.features.NpcDayLimit.register();
         com.teslamaps.features.PricePaid.register();
-        com.teslamaps.features.hud.FireSaleWidget.register();
         com.teslamaps.features.PesthunterProfit.register();
         com.teslamaps.features.FancyAuctionHouse.register();
         // w14-06-gar
@@ -728,10 +639,7 @@ final class Features {
         com.teslamaps.features.mining.GemstoneMoneyPerHour.register();
         com.teslamaps.features.mining.GlaciteColdOverlay.register();
         // w15-06-min
-        com.teslamaps.features.mining.CarpetHighlight.register();
         com.teslamaps.features.mining.HotmPlanner.register();
-        com.teslamaps.features.mining.SuperprotectronHighlight.register();
-        com.teslamaps.features.mining.VanguardGambling.register();
         com.teslamaps.features.mining.HollowsWaypoints.register();
         com.teslamaps.features.BpsDisplay.register();
         // w15-03-min
@@ -739,30 +647,23 @@ final class Features {
         com.teslamaps.features.mining.DwarvenMinimap.register();
         com.teslamaps.features.mining.PowderHud.register();
         com.teslamaps.features.mining.PowderGrindTracker.register();
-        com.teslamaps.features.mining.GemstonePowderChat.register();
-        com.teslamaps.features.mining.HollowsItemInfo.register();
         com.teslamaps.features.mining.DwarvenPuzzles.register();
         // w15-07-min
         com.teslamaps.features.mining.MineshaftWaypoints.register();
-        com.teslamaps.features.mining.PigeonSwapper.register();
         com.teslamaps.features.mining.GhostVisuals.register();
         // w15-04-min
         com.teslamaps.features.mining.MineshaftAnnounce.register();
         com.teslamaps.features.mining.MiningNotifications.register();
         com.teslamaps.features.mining.MiningEvents.register();
         com.teslamaps.features.mining.CorpseTracker.register();
-        com.teslamaps.features.mining.PowderMiningFilter.register();
         // w15-02-min
-        com.teslamaps.features.mining.KingTalismanHelper.register();
         com.teslamaps.features.mining.HotmPowderGoal.register();
         com.teslamaps.features.mining.GoldenGoblinHighlight.register();
         com.teslamaps.features.theend.EnderNodeTracker.register();
         com.teslamaps.features.mining.MinesRecolor.register();
         com.teslamaps.features.mining.FossilExcavatorHelper.register();
         // w15-00-min
-        com.teslamaps.features.mining.DonExpressoReminder.register();
         com.teslamaps.features.mining.ForgeSlotHud.register();
-        com.teslamaps.features.mining.DwarvenOverlay.register();
         com.teslamaps.features.mining.MetalDetectorSolver.register();
         com.teslamaps.features.mining.DrillFuelDisplay.register();
         com.teslamaps.features.mining.FossilExcavatorSolver.register();
@@ -786,9 +687,7 @@ final class Features {
         com.teslamaps.features.mining.DarkMonolith.register();
         com.teslamaps.features.mining.NucleusChatFilter.register();
         com.teslamaps.features.mining.HollowsPass.register();
-        com.teslamaps.features.mining.HollowsDeathWaypoint.register();
         com.teslamaps.features.mining.CommissionBlockColor.register();
-        com.teslamaps.features.mining.DeepCavernsGuide.register();
         com.teslamaps.features.mining.NucleusOverlay.register();
         // w16-03-sla
         com.teslamaps.slayer.SlayerTierLock.register();
@@ -820,7 +719,6 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraBuild.register();
         com.teslamaps.features.kuudra.KuudraFresh.register();
         com.teslamaps.features.kuudra.KuudraSupply.register();
-        com.teslamaps.features.kuudra.KuudraElle.register();
         com.teslamaps.features.kuudra.KuudraDanger.register();
         com.teslamaps.features.kuudra.KuudraIchor.register();
         com.teslamaps.features.kuudra.KuudraMisc.register();
@@ -852,7 +750,6 @@ final class Features {
         com.teslamaps.features.foraging.StarlynCompact.register();
         // w17-04-for
         com.teslamaps.safari.SafariCenterNames.register();
-        com.teslamaps.features.foraging.ParkRainTimer.register();
         com.teslamaps.features.mobvisuals.MobVisualExtras.register();
         com.teslamaps.features.foraging.HotfWhisperGoal.register();
         com.teslamaps.features.hunting.HuntingBoxSlots.register();
@@ -869,11 +766,9 @@ final class Features {
         com.teslamaps.features.fishing.GoldenFishTimer.register();
         // w17-03-for
         com.teslamaps.features.TrevorTrapper.register();
-        com.teslamaps.features.foraging.TreeFelledNotification.register();
         com.teslamaps.features.foraging.TreeProgressHud.register();
         com.teslamaps.features.foraging.SweepOverlay.register();
         com.teslamaps.features.foraging.ShulkerFinder.register();
-        com.teslamaps.features.foraging.MoongladeBeacon.register();
         // w17-05-for
         com.teslamaps.features.foraging.SweepDetailsHud.register();
         com.teslamaps.features.mobvisuals.LotumHelper.register();
@@ -886,7 +781,6 @@ final class Features {
         com.teslamaps.features.foraging.TemplePuzzles.register();
         com.teslamaps.features.hunting.FusionHelper.register();
         com.teslamaps.features.theend.EnderNodeFinder.register();
-        com.teslamaps.features.foraging.ForagingTutorial.register();
         // w17-08-fis
         com.teslamaps.features.FishingChat.register();
         com.teslamaps.features.FishedItemNames.register();
@@ -907,14 +801,11 @@ final class Features {
         com.teslamaps.features.kuudra.KuudraArrowPoison.register();
         com.teslamaps.features.kuudra.KuudraRend.register();
         com.teslamaps.features.kuudra.KuudraQol.register();
-        com.teslamaps.features.kuudra.KuudraRunTrackers.register();
         // w16-09-kuu
         com.teslamaps.features.kuudra.KuudraRunInfo.register();
         // w18 events: order = row order in the Events category
         FeatureRegistry.category("Events", "Skyblock", true);
         // calendar
-        com.teslamaps.features.events.CalendarEventDates.register();
-        com.teslamaps.features.CalendarExtras.register();
         com.teslamaps.features.events.UpcomingEvents.register();
         // diana
         com.teslamaps.features.diana.DianaBurrows.register();
@@ -923,7 +814,6 @@ final class Features {
         com.teslamaps.features.events.RareDianaMobs.register();
         com.teslamaps.features.events.MythologicalTracker.register();
         com.teslamaps.features.events.GriffinPetWarning.register();
-        com.teslamaps.features.DianaLobbyAlert.register();
         com.teslamaps.features.SphinxHelper.register();
         com.teslamaps.features.diana.NoGrassRaycast.register();
         // chocolate factory + hoppity
@@ -935,7 +825,6 @@ final class Features {
         com.teslamaps.features.HoppityCollectionStats.register();
         com.teslamaps.features.HoppityEventStats.register();
         com.teslamaps.features.HoppityUnclaimedEggs.register();
-        com.teslamaps.features.choco.HoppityNextEgg.register();
         com.teslamaps.features.HoppityHelpers.register();
         com.teslamaps.features.HoppityEggLocator.register();
         com.teslamaps.features.HoppityEggESP.registerHooks();
@@ -943,35 +832,20 @@ final class Features {
         // carnival
         com.teslamaps.features.events.Carnival.register();
         com.teslamaps.features.events.CarnivalShootout.register();
-        com.teslamaps.features.events.CarnivalShopHelper.register();
         com.teslamaps.features.events.CarnivalGoals.register();
         com.teslamaps.features.events.FruitDigging.register();
-        com.teslamaps.features.CarnivalDojoGlow.register();
         // century
-        com.teslamaps.features.events.CenturyHighlights.register();
-        com.teslamaps.features.events.CakeCounterStats.register();
-        com.teslamaps.features.FruitBowlHelper.register();
         // spooky
-        com.teslamaps.features.SpookyChestAlert.register();
-        com.teslamaps.features.SpookyCandyDisplay.register();
         com.teslamaps.features.events.GreatSpook.register();
         // winter / jerry
         com.teslamaps.features.UniqueGifting.register();
-        com.teslamaps.features.events.JerryPresentHider.register();
         com.teslamaps.features.events.GiftProfitTracker.register();
-        com.teslamaps.features.GiftNametagCleaner.register();
         com.teslamaps.features.events.FrozenTreasureHighlighter.register();
         com.teslamaps.features.events.FrozenTreasureTracker.register();
-        com.teslamaps.features.WinterReminders.register();
         com.teslamaps.features.events.HiddenJerry.register();
         com.teslamaps.features.events.JerryHighlight.register();
         // year events
-        com.teslamaps.features.events.BeachBall.register();
-        com.teslamaps.features.events.FishyTreatProfit.register();
-        com.teslamaps.features.events.ShinyOrbs.register();
-        com.teslamaps.features.events.StewHelper.register();
         // other w18
-        com.teslamaps.features.LobbyEventWaypoints.register();
         com.teslamaps.features.fishing.SharkCounter.register();
         com.teslamaps.features.GaiaConstructHits.register();
         // w18-00-fis
@@ -980,7 +854,6 @@ final class Features {
         com.teslamaps.features.fishing.Wormholes.register();
         com.teslamaps.features.fishing.OdgerHelper.register();
         com.teslamaps.features.fishing.SulphurSkitterBox.register();
-        com.teslamaps.features.fishing.TrophyDiamondEffect.register();
         // w18-01-fis
         com.teslamaps.features.fishing.NearbySeaCreatures.register();
         // w19 crimson isle
@@ -1007,42 +880,27 @@ final class Features {
         com.teslamaps.features.rift.EnigmaSouls.register();
         com.teslamaps.features.rift.CruxTalismanDisplay.register();
         com.teslamaps.features.rift.PunchcardHighlight.register();
-        com.teslamaps.features.rift.HorsezookaHider.register();
-        com.teslamaps.features.rift.CoherentRodRadius.register();
         FeatureRegistry.label("Rift", "West Village");
         com.teslamaps.features.rift.VerminTracker.register();
         com.teslamaps.features.rift.VerminHighlighter.register();
-        com.teslamaps.features.rift.KloonHacking.register();
-        com.teslamaps.features.rift.RiftGuntherRace.register();
         FeatureRegistry.label("Rift", "Wyld Woods");
-        com.teslamaps.features.rift.RiftCreatureHighlight.register();
-        com.teslamaps.features.rift.RiftLarvaSilk.register();
         com.teslamaps.features.rift.RiftShyCrux.register();
         FeatureRegistry.label("Rift", "Dreadfarm");
-        com.teslamaps.features.rift.WoodenButtonsHelper.register();
         com.teslamaps.features.rift.WiltedBerberisHelper.register();
         com.teslamaps.features.rift.VoltCrux.register();
-        com.teslamaps.features.rift.RiftAgaricusCap.register();
         FeatureRegistry.label("Rift", "Mirrorverse");
-        com.teslamaps.features.rift.CraftRoomHolograms.register();
-        com.teslamaps.features.rift.DanceRoomHelper.register();
         FeatureRegistry.label("Rift", "Stillgore Château");
         com.teslamaps.features.rift.BloodEffigies.register();
-        com.teslamaps.features.rift.RiftSplatterHearts.register();
         FeatureRegistry.label("Rift", "Living Cave");
         com.teslamaps.features.rift.LivingMetalHelper.register();
         com.teslamaps.features.rift.LivingMetalSuitProgress.register();
-        com.teslamaps.features.rift.LivingCaveDefenseBlocks.register();
-        com.teslamaps.features.rift.LivingCaveSnakes.register();
         FeatureRegistry.label("Rift", "Colosseum");
         com.teslamaps.features.rift.BacteHelper.register();
         FeatureRegistry.label("Rift", "Mountaintop");
         com.teslamaps.features.rift.TimiteHelper.register();
         com.teslamaps.features.rift.TimiteTracker.register();
         com.teslamaps.features.rift.SunGeckoHelper.register();
-        com.teslamaps.features.rift.EnigmaRoseDrop.register();
         com.teslamaps.features.rift.UbikCubeReminder.register();
-        com.teslamaps.features.rift.UbikQuickClose.register();
         // w20-03-com
         com.teslamaps.features.BestiaryMenuData.register();
         com.teslamaps.features.mobvisuals.MobHighlights.register();
@@ -1052,11 +910,8 @@ final class Features {
         // w20-05-pet
         com.teslamaps.features.pets.PetItemGuard.register();
         com.teslamaps.features.pets.PetSlotIcons.register();
-        com.teslamaps.features.pets.GeorgeHelper.register();
         com.teslamaps.features.pets.ExpShareSlots.register();
         com.teslamaps.features.pets.PetNametags.register();
-        com.teslamaps.features.pets.VisiblePetPosition.register();
-        com.teslamaps.features.pets.RockMilestone.register();
         // w20-00-com
         com.teslamaps.features.DamageIndicator.register();
         com.teslamaps.features.theend.DragonFight.register();
@@ -1066,8 +921,6 @@ final class Features {
         com.teslamaps.features.mobvisuals.MobHealthHud.register();
         com.teslamaps.features.DeployableReminder.register();
         // w20-02-com
-        com.teslamaps.features.DamageTracker.register();
-        com.teslamaps.features.HealingPoolMarker.register();
         com.teslamaps.features.RagnarockAlerts.register();
         com.teslamaps.features.theend.ZealotHelper.register();
         com.teslamaps.features.SummoningMobs.register();
@@ -1086,15 +939,12 @@ final class Features {
         com.teslamaps.features.FireFreezeVisual.register();
         com.teslamaps.features.ImplosionDisplay.register();
         // w20-06-cheat
-        com.teslamaps.features.hunting.AutoReelLasso.register();
         com.teslamaps.features.AutoSprint.register();
         // review-w20
         com.teslamaps.features.DeadMobHider.register();
         com.teslamaps.features.secretsync.SecretSync.register();
         com.teslamaps.adm.Adm.register();
         com.teslamaps.features.PlayersLeaped.register();
-        com.teslamaps.features.F7TickTimers.register();
-        com.teslamaps.dungeon.BlessingDisplay.register();
         com.teslamaps.features.NoammTweaks.register();
     }
 }

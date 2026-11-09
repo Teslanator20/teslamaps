@@ -157,8 +157,7 @@ public class EnchantColors {
     private static int stamp(TeslaMapsConfig c) {
         int h = System.identityHashCode(c);
         h = 31 * h + (c.enchantColors ? 1 : 0);
-        h = 31 * h + (c.enchantLevelsAsNumbers ? 1 : 0);
-        h = 31 * h + (c.enchantBoldMax ? 1 : 0);
+        h = 31 * h + (c.romanNumerals ? 1 : 0);
         h = 31 * h + (c.enchantChromaMax ? 1 : 0);
         h = 31 * h + (c.enchantChromaBold ? 1 : 0);
         h = 31 * h + (c.enchantHideDescriptions ? 1 : 0);
@@ -275,7 +274,7 @@ public class EnchantColors {
             int colorEnd = m.end("level");
             for (int i = m.start(); i < colorEnd; i++)
                 out[i] = rule != null ? rule.apply(flat.styles[i]) : styleFor(flat.styles[i], data, level, c);
-            if (c.enchantLevelsAsNumbers && level > 0) {
+            if (c.romanNumerals && level > 0) {
                 if (repl == null) repl = new HashMap<>();
                 repl.put(m.start("level"), new Replacement(colorEnd, String.valueOf(level)));
             }
@@ -488,7 +487,7 @@ public class EnchantColors {
         else if (level == data.goodLevel()) hex = c.enchantColorNormal;
         else hex = c.enchantColorBad;
         return base.withColor(TextColor.fromRgb(TeslaMapsConfig.parseColor(hex) & 0xFFFFFF))
-                .withBold(level >= data.maxLevel() && c.enchantBoldMax);
+                .withBold(level >= data.maxLevel());
     }
 
     private static int parseLevel(String s) {

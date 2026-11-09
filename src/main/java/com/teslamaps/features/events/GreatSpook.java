@@ -36,7 +36,6 @@ public final class GreatSpook {
             "Today is a good day to kill Spooky monsters.",
     };
     private static final List<String> SAMPLE_TIMER = List.of("§5Next fear in: §b4m 12s", "§5Fear: §d45");
-    private static final List<String> SAMPLE_LEFT = List.of("§5Great Spook time left: §b3d 4h");
 
     private static volatile long start, end;
     private static volatile boolean loading;
@@ -46,9 +45,9 @@ public final class GreatSpook {
     private static boolean wasCounting;
     private static int speech;
     private static int ticks;
-    private static List<String> timerLines = List.of(), leftLines = List.of();
-    private static int timerW, leftW;
-    private static HudEditElement timerHud, leftHud;
+    private static List<String> timerLines = List.of();
+    private static int timerW;
+    private static HudEditElement timerHud;
 
     private GreatSpook() {}
 
@@ -60,15 +59,11 @@ public final class GreatSpook {
                 .size(() -> timerLines.isEmpty() ? TextHud.width(SAMPLE_TIMER) : timerW,
                         () -> TextHud.height(timerLines.isEmpty() ? SAMPLE_TIMER.size() : timerLines.size()))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, SAMPLE_TIMER, TextHud.width(SAMPLE_TIMER)));
-        leftHud = HudEditElement.of("greatSpookTimeLeft", "Great Spook Time Left").section("Events")
-                .enabled(() -> cfg().greatSpookTimeLeft)
-                .size(() -> leftLines.isEmpty() ? TextHud.width(SAMPLE_LEFT) : leftW, () -> TextHud.height(1))
-                .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, SAMPLE_LEFT, TextHud.width(SAMPLE_LEFT)));
         Feature.of("GreatSpookSolver").section("Events")
                 .when(() -> cfg().primalFearMathSolver || cfg().primalFearSpeakingSolver)
                 .serverChat(GreatSpook::onSolverChat);
         Feature.of("GreatSpook").section("Events")
-                .when(() -> cfg().primalFearTimer || cfg().primalFearPling || cfg().greatSpookTimeLeft)
+                .when(() -> cfg().primalFearTimer || cfg().primalFearPling)
                 .tick(GreatSpook::tick)
                 .serverChat(GreatSpook::onChat)
                 .hudHiddenInInventory("greatspook", GreatSpook::render)
@@ -88,9 +83,6 @@ public final class GreatSpook {
                     b.toggle("  Show Fear Stat", () -> c.primalFearShowFear, v -> c.primalFearShowFear = v);
                     b.toggle("Primal Fear Ready Sound", () -> c.primalFearPling, v -> c.primalFearPling = v)
                             .desc("Pling when the Primal Fear cooldown runs out, also with the HUD off.");
-                    b.toggle("Great Spook Time Left", () -> c.greatSpookTimeLeft, v -> c.greatSpookTimeLeft = v)
-                            .desc("HUD with the real time left until The Great Spook ends (dates from the SkyHanni repo).")
-                            .tags("spook", "event", "timer");
                 });
     }
 
@@ -165,7 +157,6 @@ public final class GreatSpook {
         TeslaMapsConfig c = cfg();
         if (!active()) {
             timerLines = List.of();
-            leftLines = List.of();
             return;
         }
         fear = -1;
@@ -182,21 +173,16 @@ public final class GreatSpook {
             if (c.primalFearPling) LoudSound.play(SoundEvents.NOTE_BLOCK_PLING.value(), 1f, 1f);
         }
         if (c.primalFearTimer) {
-            String first = left > 0 ? "§5Next fear in: §b" + time(left, false) : "§5§lPrimal Fear Ready!";
+            String first = left > 0 ? "§5Next fear in: §b" + time(left) : "§5§lPrimal Fear Ready!";
             timerLines = c.primalFearShowFear
                     ? List.of(first, fear >= 0 ? "§5Fear: §d" + fear : "§cFear stat not in tab list")
                     : List.of(first);
             timerW = TextHud.width(timerLines);
         }
-        if (c.greatSpookTimeLeft) {
-            leftLines = List.of("§5Great Spook time left: §b" + time(end - now, true));
-            leftW = TextHud.width(leftLines);
-        }
     }
 
-    private static String time(long ms, boolean days) {
+    private static String time(long ms) {
         long s = Math.max(0, ms / 1000);
-        if (days && s >= 86400) return (s / 86400) + "d " + (s / 3600 % 24) + "h";
         if (s >= 3600) return (s / 3600) + "h " + (s / 60 % 60) + "m";
         if (s >= 60) return (s / 60) + "m " + (s % 60) + "s";
         return s + "s";
@@ -208,7 +194,5 @@ public final class GreatSpook {
         TeslaMapsConfig c = cfg();
         if (c.primalFearTimer && !timerLines.isEmpty() && timerHud != null)
             TextHud.draw(g, mc, timerHud.x(), timerHud.y(), timerHud.scale(), timerLines, timerW);
-        if (c.greatSpookTimeLeft && !leftLines.isEmpty() && leftHud != null)
-            TextHud.draw(g, mc, leftHud.x(), leftHud.y(), leftHud.scale(), leftLines, leftW);
     }
 }

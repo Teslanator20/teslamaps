@@ -32,17 +32,8 @@ public final class ForagingCategory {
                 .desc("Phantoms and other mobs falling from the tree");
         b.toggle("Title For Mobs From The Tree", () -> config.foragingTreeMobTitle, v -> config.foragingTreeMobTitle = v).fresh()
                 .desc("A <mob> fell from the Tree! as a red title, works with or without the compact line");
-        b.toggle("Hide Sweep Details",
-                () -> config.foragingHideSweepDetails, v -> config.foragingHideSweepDetails = v);
-        b.info("Toughness / Logs / penalty lines");
-        b.toggle("Compact Sweep Details",
-                () -> config.foragingCompactSweep, v -> config.foragingCompactSweep = v)
-                .desc("One line: sweep, logs, penalties. Hover for the breakdown and pro tip, click for /treegifts.");
         b.toggle("Sweep Details HUD", () -> config.sweepDetailsHud, v -> config.sweepDetailsHud = v).fresh()
                 .desc("Tree, toughness, sweep, logs and throw / wrong style penalty on the HUD for 5s instead of chat. Position in /tmap gui");
-        b.toggle("Hide Lottery Buffs",
-                () -> config.foragingHideLottery, v -> config.foragingHideLottery = v);
-        b.info("Lottery and Beekeeper messages off the foraging islands");
         b.toggle("Beeheemoth Spawn Title", () -> config.beeheemothTitle, v -> config.beeheemothTitle = v).fresh()
                 .desc("BEEHEEMOTH! title with the sub-area it spawned in");
         b.toggle("Macaw Birdfeeder Title", () -> config.macawTitle, v -> config.macawTitle = v).fresh()
@@ -96,10 +87,6 @@ public final class ForagingCategory {
         b.color("  Floor Drop Color", () -> config.floorDropsColor, v -> config.floorDropsColor = v);
 
         b.label("Honeyhives");
-        b.toggle("Refill Reminder",
-                () -> config.honeyhiveReminder, v -> config.honeyhiveReminder = v);
-        b.toggle("  Remind Outside Torrhus Canyon",
-                () -> config.honeyhiveRemindOutside, v -> config.honeyhiveRemindOutside = v);
         b.toggle("Queen Bee Title",
                 () -> config.honeyhiveQueenBeeTitle, v -> config.honeyhiveQueenBeeTitle = v);
         b.toggle("Honeyhive Helper", () -> config.honeyhiveHelper, v -> config.honeyhiveHelper = v)
@@ -111,8 +98,7 @@ public final class ForagingCategory {
         b.toggle("  Ready Waypoints", () -> config.honeyhiveReadyWaypoints, v -> config.honeyhiveReadyWaypoints = v);
         b.toggle("  Ready Sound", () -> config.honeyhiveReadySound, v -> config.honeyhiveReadySound = v);
         b.toggle("  Offer Navigation", () -> config.honeyhiveNavOffer, v -> config.honeyhiveNavOffer = v).fresh()
-                .desc("After looting a hive (and on the refill reminder) a chat line paths you to every other ready hive. "
-                        + "Needs Island Navigation. Outside the canyon the reminder warps you there on click.");
+                .desc("After looting a hive a chat line paths you to every other ready hive. Needs Island Navigation.");
         b.label("Heart of the Forest");
         b.toggle("Highlight Perks",
                 () -> config.hotfHighlight, v -> config.hotfHighlight = v);

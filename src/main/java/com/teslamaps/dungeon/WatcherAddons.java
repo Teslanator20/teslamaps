@@ -1,20 +1,17 @@
 package com.teslamaps.dungeon;
 
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.utils.LoudSound;
 import com.teslamaps.utils.ServerTickTimer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.phys.Vec3;
 
-// Grades the Watcher (blood camp) on time-to-dialogue (sound + title), times its first move, and prints a
-// breakdown when it's defeated. Optional live HUD shows Dialogue / Move / Camp while the fight is active.
+// Times the Watcher (blood camp) dialogue and first move. Optional live HUD shows Dialogue / Move / Camp.
 public class WatcherAddons {
 
     private static final String DIALOGUE = "[BOSS] The Watcher: Let's see how you can handle this.";
@@ -29,14 +26,9 @@ public class WatcherAddons {
     private static Zombie ownWatcher = null;
     private static int scanCooldown = 0;
 
-    private static boolean gradeEnabled() {
-        TeslaMapsConfig c = TeslaMapsConfig.get();
-        return c.watcherSpeedGrade && c.watcherGradeClasses.allowsLocal();
-    }
-
     public static void onChatMessage(String raw) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!gradeEnabled() && !c.watcherHud && !c.watcherChatSplits) return;
+        if (!c.watcherHud && !c.watcherChatSplits) return;
         if (!DungeonManager.isInDungeon()) return;
         String msg = raw.replaceAll("(?i)§[0-9A-FK-OR]", "");
 
@@ -50,11 +42,9 @@ public class WatcherAddons {
             dialogueMs = System.currentTimeMillis() - startMs;
             dialogueTicks = ServerTickTimer.now() - startTick;
             graded = true;
-            if (gradeEnabled()) grade(dialogueMs);
         } else if (msg.equals(PASS)) {
             if (startMs == 0L) return;
             long full = System.currentTimeMillis() - startMs, fullT = ServerTickTimer.now() - startTick;
-            if (gradeEnabled()) breakdown(full, dialogueMs, moveMs);
             if (c.watcherChatSplits) splits(full, fullT);
             reset();
         }
@@ -71,10 +61,6 @@ public class WatcherAddons {
         } else if (w.position().distanceTo(dialoguePos) > 1.0) {
             moveMs = System.currentTimeMillis() - startMs;
             moveTicks = ServerTickTimer.now() - startTick;
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player != null && gradeEnabled()) {
-                mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] Watcher moved at §d§l" + fmt(moveMs) + "§b!"));
-            }
         }
     }
 
@@ -93,46 +79,6 @@ public class WatcherAddons {
                 return ownWatcher = z;
         }
         return null;
-    }
-
-    private static void grade(long ms) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        double s = ms / 1000.0;
-
-        String title;
-        net.minecraft.sounds.SoundEvent sound;
-        if (s < 22.0) {
-            title = "§4§lFAST WATCHER";
-            sound = SoundEvents.WOLF_GROWL_BABY.value();
-        } else if (s < 25.0) {
-            title = "§cWatcher Ready";
-            sound = SoundEvents.CAT_PURR_BABY.value();
-        } else {
-            title = "§8Slow Watcher zz";
-            sound = SoundEvents.WITHER_AMBIENT;
-        }
-
-        mc.player.sendSystemMessage(Component.literal(
-                "§b[TeslaMaps] Watcher took §d§l" + fmt(ms) + "§r§b to reach dialogue!"));
-        mc.gui.setTimes(0, 40, 5);
-        mc.gui.setTitle(Component.literal(title));
-        mc.gui.setSubtitle(Component.literal(String.format("§bTook §d%.1fs§b!", s)));
-        LoudSound.play(sound, TeslaMapsConfig.get().watcherGradeVolume, 1.0f);
-        if (TeslaMapsConfig.get().watcherSpeedAnnounce) {
-            String grade = s < 22.0 ? "Fast" : s < 25.0 ? "Normal" : "Slow";
-            com.teslamaps.features.Announce.send(com.teslamaps.features.Announce.PARTY,
-                    "Watcher: " + grade + " (" + fmt(ms) + ")");
-        }
-    }
-
-    private static void breakdown(long fullMs, long dlgMs, long mvMs) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        mc.player.sendSystemMessage(Component.literal(
-                "§b[TeslaMaps] Blood camp breakdown - §rFull: §d§l" + fmt(fullMs)
-                        + " §rDialogue: §d§l" + (dlgMs > 0 ? fmt(dlgMs) : "?")
-                        + " §rMove: §d§l" + (mvMs > 0 ? fmt(mvMs) : "?") + "§b!"));
     }
 
     private static void splits(long fullMs, long fullTicks) {

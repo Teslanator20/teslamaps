@@ -1,6 +1,6 @@
 package com.teslamaps.features;
 
-// FloydAddons' FloydServerIdHider / FloydProfileIdHider (FloydNickHider, FloydServerIdAccumulator)
+// FloydAddons' FloydServerIdHider (FloydNickHider, FloydServerIdAccumulator)
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import net.minecraft.network.chat.Style;
@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Replaces Hypixel server ids and profile UUIDs in every piece of rendered text. Hooked from StreamerFontMixin. */
+/** Replaces Hypixel server ids in every piece of rendered text. Hooked from StreamerFontMixin. */
 public final class StreamerMode {
 
     public static final String[] MODES = {"Hidden", "???", "Random"};
@@ -24,14 +24,12 @@ public final class StreamerMode {
             "(?i)(?<![a-z0-9])((?:mini|mega|lobby|limbo|housing|prototype|node|legacylobby)\\d{1,4}[a-z]{0,4})(?![a-z0-9])");
     private static final Pattern DATE_ID = Pattern.compile(
             "\\d{2}/\\d{2}/\\d{2}(?:\\s|§.)+([a-zA-Z]{0,2}\\d{1,4}[a-zA-Z]{0,4})(?![a-zA-Z0-9])");
-    private static final Pattern PROFILE = Pattern.compile(
-            "(?i)profile\\s*id:\\s*(?:§.)*([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})");
 
     private static final Map<String, String> RANDOM = new HashMap<>();
     private static final Map<String, String> CACHE = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static volatile boolean on;
-    private static volatile boolean servers, profiles;
+    private static volatile boolean servers;
 
     private StreamerMode() {}
 
@@ -41,10 +39,9 @@ public final class StreamerMode {
         Feature.of("StreamerMode")
                 .tickAlways(() -> {
                     TeslaMapsConfig c = cfg();
-                    if (servers != c.hideServerId || profiles != c.hideProfileId || CACHE.size() > 2048) CACHE.clear();
+                    if (servers != c.hideServerId || CACHE.size() > 2048) CACHE.clear();
                     servers = c.hideServerId;
-                    profiles = c.hideProfileId;
-                    on = servers || profiles;
+                    on = servers;
                 })
                 .config("Hide", b -> {
                     b.label("Streamer Mode");
@@ -55,8 +52,6 @@ public final class StreamerMode {
                         synchronized (RANDOM) { RANDOM.clear(); }
                         CACHE.clear();
                     });
-                    b.toggle("Hide Profile ID", () -> cfg().hideProfileId, v -> cfg().hideProfileId = v)
-                            .desc("Replaces the profile UUID (Profile ID: ...) in menus, tooltips and chat");
                 });
     }
 
@@ -111,7 +106,6 @@ public final class StreamerMode {
             e.replace(DATE_ID, StreamerMode::serverReplacement);
             e.replace(SERVER, StreamerMode::serverReplacement);
         }
-        if (profiles) e.replace(PROFILE, id -> "[hidden]");
     }
 
     private static String serverReplacement(String id) {

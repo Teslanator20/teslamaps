@@ -52,7 +52,7 @@ public final class CropStats {
 
     static boolean wanted() {
         TeslaMapsConfig c = cfg();
-        return c.cropSpeedMeter || c.cropCalcCommands || c.jacobContestFF || c.fortuneGuide
+        return c.cropCalcCommands || c.jacobContestFF
                 || GardenCropData.needed();
     }
 
@@ -109,7 +109,6 @@ public final class CropStats {
         stretchBlocks++;
         lastBreak = now;
         lastCrop = crop.key;
-        if (cfg().cropSpeedMeter) CropSpeedMeter.onBreak(crop.key);
     }
 
     private static void finishStretch() {
@@ -180,10 +179,8 @@ public final class CropStats {
 
     public static Double latestFortune(Crop c) { return cfg().cropLatestFortune.get(c.key); }
 
-    /** Crops per broken block: the speed meter's measurement, else base drops scaled by the latest fortune. */
+    /** Crops per broken block: base drops scaled by the latest fortune. */
     public static Double cropsPerBlock(Crop c) {
-        Double measured = cfg().cropMeasuredPerBlock.get(c.key);
-        if (measured != null && measured > 0) return measured;
         Double ff = latestFortune(c);
         return ff == null ? null : c.baseDrops * (100.0 + ff) / 100.0;
     }

@@ -23,9 +23,4 @@ public class NoHurtCamMixin {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         return c.noHurtCam ? v * c.hurtCamStrength : v;
     }
-
-    @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
-    private void teslamaps$noViewBobbing(CameraRenderState state, PoseStack pose, CallbackInfo ci) {
-        if (TeslaMapsConfig.get().noViewBobbing) ci.cancel();
-    }
 }

@@ -7,13 +7,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// 60 = death poof; the teleport burst (46) is EndermanTeleportHider's
+// 60 = death poof
 @Mixin(LivingEntity.class)
 public class EntityEventHideMixin {
 
     @Inject(method = "handleEntityEvent", at = @At("HEAD"), cancellable = true)
     private void teslamaps$hideEventParticles(byte id, CallbackInfo ci) {
         if (id == 60 && TeslaMapsConfig.get().hideDeathParticles) ci.cancel();
-        else if (id == 46 && (Object) this instanceof net.minecraft.world.entity.monster.EnderMan && com.teslamaps.features.EndermanTeleportHider.active()) ci.cancel();
     }
 }

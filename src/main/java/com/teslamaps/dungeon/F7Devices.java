@@ -1,12 +1,11 @@
 package com.teslamaps.dungeon;
 
 // Arrows device ported from Odin's ArrowsDevice.kt (+ plate reset from Skyblocker's TargetPractice.java),
-// lights from Skyblocker's LightsOn.java, gate from NoammAddons' GateHighlight.kt
+// lights from Skyblocker's LightsOn.java
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.render.EspStyle;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -31,7 +30,7 @@ public final class F7Devices {
 
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
-    // ---- F7 phase / P3 section (NoammAddons LocationUtils) ----
+    // ---- F7 phase (NoammAddons LocationUtils) ----
 
     /** 1..5 while in the F7/M7 boss, else 0. */
     public static int phase() {
@@ -44,21 +43,6 @@ public final class F7Devices {
         if (y > 100) return 3;
         if (y > 45) return 4;
         return 5;
-    }
-
-    private static final AABB[] P3_SECTIONS = {
-            new AABB(90, 158, 123, 111, 105, 32),
-            new AABB(16, 158, 122, 111, 105, 143),
-            new AABB(19, 158, 48, -3, 106, 142),
-            new AABB(91, 158, 50, -3, 106, 30)
-    };
-
-    /** 1..4 in P3, else 0. */
-    public static int p3Section() {
-        if (phase() != 3) return 0;
-        Vec3 p = Minecraft.getInstance().player.position();
-        for (int i = 0; i < P3_SECTIONS.length; i++) if (P3_SECTIONS[i].contains(p)) return i + 1;
-        return 0;
     }
 
     // ---- arrows device ----
@@ -83,16 +67,6 @@ public final class F7Devices {
             new BlockPos(60, 134, 142), new BlockPos(62, 133, 142), new BlockPos(58, 133, 142)};
     private static final List<AABB> offLevers = new ArrayList<>();
 
-    // ---- gate ----
-
-    private static final BlockPos[] GATE_CHECK = {
-            new BlockPos(103, 134, 123), new BlockPos(17, 134, 135), new BlockPos(5, 134, 49)};
-    private static final AABB[] GATE_BOX = {
-            new AABB(95, 114, 122, 106, 134, 124),
-            new AABB(18, 114, 127, 19, 134, 138),
-            new AABB(1, 114, 49, 14, 134, 51)};
-    private static AABB gate = null;
-
     private static Object lastLevel = null;
 
     public static void register() {
@@ -102,9 +76,6 @@ public final class F7Devices {
         Feature.of("LightsDevice").when(() -> cfg().lightsDeviceHighlight)
                 .tick(F7Devices::tickLights)
                 .world(F7Devices::renderLights);
-        Feature.of("P3Gate").when(() -> cfg().p3GateHighlight)
-                .tick(F7Devices::tickGate)
-                .world(F7Devices::renderGate);
         Feature.of("F7Devices.reset").tick(F7Devices::tickReset);
     }
 
@@ -115,7 +86,6 @@ public final class F7Devices {
             resetArrows();
             arrowsDone = false;
             offLevers.clear();
-            gate = null;
         }
     }
 
@@ -249,20 +219,5 @@ public final class F7Devices {
         if (offLevers.isEmpty()) return;
         int col = TeslaMapsConfig.parseColor(cfg().lightsDeviceColor);
         for (AABB b : offLevers) ESPRenderer.drawFilledBox(pose, b, col, cam, false);
-    }
-
-    // ---- gate ----
-
-    private static void tickGate() {
-        gate = null;
-        int sec = p3Section();
-        if (sec < 1 || sec > 3) return;
-        BlockState s = Minecraft.getInstance().level.getBlockState(GATE_CHECK[sec - 1]);
-        if (s.is(Blocks.CRACKED_STONE_BRICKS) || s.is(Blocks.INFESTED_STONE_BRICKS)) gate = GATE_BOX[sec - 1];
-    }
-
-    private static void renderGate(PoseStack pose, Vec3 cam) {
-        AABB g = gate;
-        if (g != null) EspStyle.of(cfg().p3GateEsp).drawBox(pose, g, cam);
     }
 }

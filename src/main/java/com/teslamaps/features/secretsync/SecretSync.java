@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 
 /**
  * Shares per-room secret counts and mimic/prince/bat kills with everyone in the same dungeon
- * instance, keyed by the Hypixel server id like Skyblocker's secret sync. Own channel runs on
- * supabase realtime broadcast; HyskyBridge additionally listens to Skyblocker users.
+ * instance, keyed by the Hypixel server id like Skyblocker's secret sync. Runs on
+ * supabase realtime broadcast.
  */
 public class SecretSync {
     private static final Pattern SERVER = Pattern.compile("\\b(m\\d+[A-Za-z]+|mini\\d+[A-Za-z]*|mega\\d+[A-Za-z]*)\\b");
@@ -44,7 +44,7 @@ public class SecretSync {
 
     public static void register() {
         Feature.of("SecretSync").section("Secrets & Waypoints")
-                .when(() -> cfg().secretSync || cfg().secretSyncSkyblocker)
+                .when(() -> cfg().secretSync)
                 .tick(SecretSync::tick)
                 .config("Secrets & Waypoints", b -> {
                     TeslaMapsConfig c = cfg();
@@ -52,31 +52,20 @@ public class SecretSync {
                     b.toggle("Secret Sync", () -> c.secretSync, v -> c.secretSync = v)
                             .desc("Shares room secret counts and mimic/prince/bat kills with TeslaMaps users in the same run")
                             .tags("secret", "sync", "share", "party");
-                    b.toggle("Read Skyblocker Secret Sync", () -> c.secretSyncSkyblocker, v -> c.secretSyncSkyblocker = v)
-                            .desc("Also receives what Skyblocker users in the run share. Read only, nothing is sent to Skyblocker")
-                            .tags("secret", "sync", "skyblocker");
                 });
     }
 
     private static void tick() {
         if (!DungeonManager.isInDungeon()) {
             if (joined != null || !known.isEmpty()) leave();
-            HyskyBridge.leave();
             return;
         }
         if (++tickCount % 10 != 0) return;
         String server = serverId();
         if (server == null) return;
 
-        if (cfg().secretSync) {
-            joinRealtime(server);
-            publishChanges();
-        } else if (joined != null) {
-            realtime.close();
-            joined = null;
-        }
-        if (cfg().secretSyncSkyblocker) HyskyBridge.tick(server);
-        else HyskyBridge.leave();
+        joinRealtime(server);
+        publishChanges();
     }
 
     private static void leave() {

@@ -1,11 +1,10 @@
 package com.teslamaps.features;
 
-// Ported from Skytils' GardenFeatures (showSamScytheBlocks, gardenPlotCleanupHelper)
+// Ported from Skytils' GardenFeatures (gardenPlotCleanupHelper)
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.render.ESPRenderer;
-import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.ScoreboardUtils;
 import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.Minecraft;
@@ -13,21 +12,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/** Scythe reach preview and plot cleanup leftovers, both on the Garden's trash blocks. */
+/** Plot cleanup leftovers on the Garden's trash blocks. */
 public final class GardenTrashBlocks {
 
     private static final int SCAN_H = 24, SCAN_DOWN = 8, SCAN_UP = 16, MAX_BOXES = 4000;
 
     private static Set<Block> trash;
-    private static List<AABB> scythe = List.of();
     private static List<AABB> cleanup = List.of();
     private static boolean cleaning;
     private static int ticks;
@@ -38,16 +34,12 @@ public final class GardenTrashBlocks {
 
     public static void register() {
         Feature.of("GardenTrashBlocks").section("Garden")
-                .when(() -> cfg().samScytheBlocks || cfg().plotCleanupHelper)
+                .when(() -> cfg().plotCleanupHelper)
                 .tick(GardenTrashBlocks::tick)
                 .world(GardenTrashBlocks::render)
                 .config("Garden", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Trash Blocks");
-                    b.toggle("Sam's Scythe Blocks", () -> c.samScytheBlocks, v -> c.samScytheBlocks = v)
-                            .desc("Holding Sam's Scythe or the Garden Scythe: boxes every grass, flower and leaf block the swing would break.")
-                            .tags("scythe", "garden scythe", "trash");
-                    b.color("  Box Color", () -> c.samScytheColor, v -> c.samScytheColor = v);
                     b.toggle("Plot Cleanup Helper", () -> c.plotCleanupHelper, v -> c.plotCleanupHelper = v)
                             .desc("While the scoreboard shows \"Cleanup: x%\", grass, flowers and leaves around you get a sponge-colored box so leftovers stand out.")
                             .tags("cleanup", "plot", "unlock", "sponge");
@@ -68,8 +60,6 @@ public final class GardenTrashBlocks {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
         ticks++;
-        scythe = cfg().samScytheBlocks ? scytheBoxes(mc) : List.of();
-
         if (!cfg().plotCleanupHelper) {
             cleaning = false;
             cleanup = List.of();
@@ -89,25 +79,6 @@ public final class GardenTrashBlocks {
             if (s.startsWith("Cleanup:") && s.endsWith("%")) return true;
         }
         return false;
-    }
-
-    private static List<AABB> scytheBoxes(Minecraft mc) {
-        String id = ItemUtil.skyblockId(mc.player.getMainHandItem());
-        int size = switch (id) {
-            case "SAM_SCYTHE" -> 1;
-            case "GARDEN_SCYTHE" -> 2;
-            default -> 0;
-        };
-        if (size == 0) return List.of();
-        HitResult hit = mc.hitResult;
-        if (!(hit instanceof BlockHitResult bh) || hit.getType() != HitResult.Type.BLOCK) return List.of();
-        BlockPos base = bh.getBlockPos();
-        if (!isTrash(mc.level.getBlockState(base).getBlock())) return List.of();
-        List<AABB> out = new ArrayList<>();
-        for (BlockPos p : BlockPos.betweenClosed(base.offset(-size, -size, -size), base.offset(size, size, size))) {
-            if (isTrash(mc.level.getBlockState(p).getBlock())) out.add(new AABB(p).inflate(0.002));
-        }
-        return out;
     }
 
     private static List<AABB> scan(Minecraft mc) {
@@ -133,13 +104,6 @@ public final class GardenTrashBlocks {
             int color = TeslaMapsConfig.parseColor(cfg().plotCleanupColor);
             ESPRenderer.beginBoxBatch(pose, cam, true, false);
             for (AABB b : cl) ESPRenderer.batchBox(b, color, 1f);
-            ESPRenderer.endBoxBatch();
-        }
-        List<AABB> sc = scythe;
-        if (!sc.isEmpty()) {
-            int color = TeslaMapsConfig.parseColor(cfg().samScytheColor) | 0xFF000000;
-            ESPRenderer.beginBoxBatch(pose, cam, false, false);
-            for (AABB b : sc) ESPRenderer.batchBox(b, color, 2f);
             ESPRenderer.endBoxBatch();
         }
     }

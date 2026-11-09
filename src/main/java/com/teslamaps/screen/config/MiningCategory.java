@@ -19,7 +19,6 @@ public final class MiningCategory {
         b.toggle("Crystals (King/Queen/Temple/City/Divan/Bal)", () -> config.chScanCrystals, v -> config.chScanCrystals = v);
         b.toggle("Mob Spots (Corleone/Keys/Xalx/Pete/Odawa)", () -> config.chScanMobSpots, v -> config.chScanMobSpots = v);
         b.toggle("Fairy Grottos", () -> config.chScanGrottos, v -> config.chScanGrottos = v);
-        b.toggle("Worm Fishing Spots", () -> config.chScanWorm, v -> config.chScanWorm = v);
         b.toggle("Landmarks (Goblin Hall, Ruined Forge, Mansion, ...)", () -> config.chScanLandmarks, v -> config.chScanLandmarks = v).fresh()
                 .desc("26 smaller Crystal Hollows spots: jungle caverns, forges, railways, trees, pillars.")
                 .tags("structure", "landmark", "goblin hall", "ruined forge", "jade pedestal", "crystal train", "mansion");
@@ -35,12 +34,11 @@ public final class MiningCategory {
         b.toggle("  Waypoint From Scoreboard Area", () -> config.chWaypointsSubzone, v -> config.chWaypointsSubzone = v).fresh()
                 .desc("Entering Mines of Divan, Jungle Temple, Dragon's Lair, ... sets a waypoint there");
         b.toggle("  Keep Across Lobby Rejoins", () -> config.chWaypointsPersist, v -> config.chWaypointsPersist = v).fresh();
-        b.toggle("Scan Off-Thread", () -> config.chScanOffThread, v -> config.chScanOffThread = v).fresh()
-                .desc("Scans loaded chunks on a background thread instead of the main thread.");
         b.label("Individual Structures").fresh();
-        String[] groups = {"Crystals", "Mob Spots", "Fairy Grottos", "Golden Dragon", "Worm Fishing", "Landmarks"};
+        String[] groups = {"Crystals", "Mob Spots", "Fairy Grottos", "Golden Dragon", null, "Landmarks"};
         java.util.Map<String, Integer> names = com.teslamaps.features.WorldScanner.structureNames();
         for (int g = 0; g < groups.length; g++) {
+            if (groups[g] == null) continue;
             b.info(groups[g]).fresh();
             for (java.util.Map.Entry<String, Integer> e : names.entrySet()) {
                 if (e.getValue() != g) continue;
@@ -51,17 +49,7 @@ public final class MiningCategory {
                 }).fresh().tags("structure", "crystal hollows");
             }
         }
-        b.toggle("Last Death Waypoint", () -> config.chDeathWaypoint, v -> config.chDeathWaypoint = v).fresh()
-                .desc("After a death in the Crystal Hollows, click the chat line for a waypoint where you died.");
         b.label("Glacite Corpses");
-        b.toggle("Corpse ESP", () -> config.corpseESP, v -> config.corpseESP = v)
-                .desc("Highlights Glacite Mineshaft corpses through walls.")
-                .tags("esp", "lapis", "tungsten", "umber", "vanguard", "mineshaft");
-        b.toggle("  Type Colors", () -> config.corpseESPTypeColors, v -> config.corpseESPTypeColors = v);
-        b.color("  Corpse Color", () -> config.colorCorpseESP, v -> config.colorCorpseESP = v);
-        b.toggle("  Key Count On Spawn", () -> config.corpseKeyAnnounce, v -> config.corpseKeyAnnounce = v).fresh()
-                .desc("When the corpses spawn: one chat line per type with the corpse count and your keys (inventory, sacks, ender chest, backpacks)")
-                .tags("corpse", "key", "umber", "tungsten", "skeleton", "mineshaft");
         b.toggle("Corpse Finder (Legit)", () -> config.corpseFinder, v -> config.corpseFinder = v)
                 .desc("Marks a corpse once you had line of sight to it. Never through walls.")
                 .tags("lapis", "tungsten", "umber", "vanguard", "mineshaft", "share");

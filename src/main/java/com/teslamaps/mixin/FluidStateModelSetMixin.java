@@ -1,7 +1,6 @@
 package com.teslamaps.mixin;
 
 import com.teslamaps.features.TranslucentLava;
-import com.teslamaps.features.TranslucentWater;
 import java.util.Map;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.FluidStateModelSet;
@@ -21,9 +20,6 @@ public class FluidStateModelSetMixin {
         FluidModel waterModel = TranslucentLava.getWaterUnbaked().bake(baker, () -> "teslamaps:water_lava");
         FluidModel vanillaModel = TranslucentLava.getLavaUnbaked().bake(baker, () -> "teslamaps:vanilla_lava");
         TranslucentLava.setBakedModels(waterModel, vanillaModel);
-        FluidModel vanillaWater = TranslucentWater.getVanillaWaterUnbaked().bake(baker, () -> "teslamaps:vanilla_water");
-        FluidModel tintedWater = TranslucentWater.getWaterUnbaked().bake(baker, () -> "teslamaps:tinted_water");
-        TranslucentWater.setBakedModels(tintedWater, vanillaWater);
     }
 
     @Inject(method = "get", at = @At("HEAD"), cancellable = true)
@@ -31,11 +27,6 @@ public class FluidStateModelSetMixin {
         Fluid fluid = state.getType();
         if (fluid == Fluids.LAVA || fluid == Fluids.FLOWING_LAVA) {
             FluidModel model = TranslucentLava.getCurrentModel();
-            if (model != null) {
-                cir.setReturnValue(model);
-            }
-        } else if (fluid == Fluids.WATER || fluid == Fluids.FLOWING_WATER) {
-            FluidModel model = TranslucentWater.getCurrentModel();
             if (model != null) {
                 cir.setReturnValue(model);
             }

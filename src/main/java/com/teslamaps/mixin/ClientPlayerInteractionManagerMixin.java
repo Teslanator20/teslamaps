@@ -39,7 +39,6 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.FatalTempo.onHit();
         com.teslamaps.features.mobvisuals.LotumHelper.onClick(target);
         com.teslamaps.features.rift.PunchcardHighlight.onAttack(target);
-        com.teslamaps.features.DamageTracker.onAttack(target);
         com.teslamaps.features.theend.ZealotHelper.onAttack(target);
     }
 
@@ -71,7 +70,6 @@ public class ClientPlayerInteractionManagerMixin {
         if (mc.level == null) return;
 
         BlockPos pos = hitResult.getBlockPos();
-        com.teslamaps.features.rift.LivingCaveSnakes.onClick(pos);
         com.teslamaps.adm.practice.SsPractice.realClick(pos, com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos));
 
         if (com.teslamaps.dungeon.puzzle.SimonSaysSolver.blockClick(pos)
@@ -86,7 +84,6 @@ public class ClientPlayerInteractionManagerMixin {
         com.teslamaps.features.KingRelics.onUseBlock(state, hand);
         com.teslamaps.dungeon.puzzle.BoulderSolver.onBlockInteract(pos);
 
-        if (state.is(Blocks.BREWING_STAND)) com.teslamaps.features.BrewingStandColors.onClick(pos);
         if (state.is(Blocks.JUKEBOX)) com.teslamaps.features.mining.MiningEvents.onJukeboxClick(pos);
         if (state.is(Blocks.CHEST) || state.is(Blocks.TRAPPED_CHEST) || state.is(Blocks.BARREL)) {
             com.teslamaps.features.ItemIndex.onChestClick(pos);

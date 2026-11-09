@@ -14,9 +14,4 @@ public class NameTagTweaksMixin {
     private int teslamaps$noBackground(int color) {
         return TeslaMapsConfig.get().nametagNoBackground ? 0 : color;
     }
-
-    @ModifyArg(method = "renderTranslucent", at = @At(value = "INVOKE", target = DRAW), index = 4)
-    private boolean teslamaps$shadow(boolean shadow) {
-        return shadow || TeslaMapsConfig.get().nametagShadow;
-    }
 }

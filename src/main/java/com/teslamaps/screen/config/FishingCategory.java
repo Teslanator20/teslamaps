@@ -134,17 +134,6 @@ public final class FishingCategory {
         b.toggle("  Hide Hotspot Particles",
                 () -> config.hotspotCircleHideParticles, v -> config.hotspotCircleHideParticles = v).fresh()
                 .desc("Drops Hypixel's hotspot edge particles once the circle replaces them");
-        b.label("Hotspot Gone");
-        b.toggle("Warn When Hotspot Ends",
-                () -> config.hotspotGoneWarning, v -> config.hotspotGoneWarning = v);
-        b.info("Fires when the whirlpool you stand at stops");
-        b.toggle("  Show Title",
-                () -> config.hotspotGoneTitle, v -> config.hotspotGoneTitle = v);
-        b.soundDropdown("  Sound",
-                com.teslamaps.utils.SoundOptions.keys(),
-                () -> config.hotspotGoneSound, v -> config.hotspotGoneSound = v);
-        b.slider("  Volume", 0f, 4f,
-                () -> config.hotspotGoneVolume, v -> config.hotspotGoneVolume = v, 2);
 
         b.label("Exploding Frog");
         b.toggle("Exploding Frog ESP",
@@ -199,9 +188,5 @@ public final class FishingCategory {
                 () -> config.translucentLavaCrimsonOnly, v -> config.translucentLavaCrimsonOnly = v).fresh()
                 .desc("Lava stays normal everywhere else (Dungeons, Kuudra). /tmap lava toggles the feature")
                 .tags("lava", "crimson", "area", "command");
-        b.toggle("Tinted Water",
-                () -> config.tintedWater, v -> config.tintedWater = v);
-        b.color("  Water Tint",
-                () -> config.colorTintedWater, v -> config.colorTintedWater = v);
     }
 }

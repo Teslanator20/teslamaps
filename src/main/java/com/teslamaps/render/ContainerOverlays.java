@@ -70,8 +70,6 @@ public class ContainerOverlays {
         com.teslamaps.features.TradeValue.render(context);
         com.teslamaps.features.BitsShopHelper.render(context);
         com.teslamaps.features.foraging.StarlynCouponProfit.render(context, mouseX, mouseY);
-        com.teslamaps.features.events.FishyTreatProfit.render(context, mouseX, mouseY);
-        com.teslamaps.features.events.StewHelper.render(context);
         com.teslamaps.features.NpcTradeCosts.render(context);
         com.teslamaps.features.SupercraftHelper.render(context);
         com.teslamaps.features.PesthunterProfit.render(context, mouseX, mouseY);
@@ -84,13 +82,10 @@ public class ContainerOverlays {
         com.teslamaps.features.QuickCraftConfirm.render(context);
         com.teslamaps.features.GuideHighlight.render(context);
         com.teslamaps.features.HoppityHelpers.render(context);
-        com.teslamaps.features.events.UpcomingEvents.renderInventory(context);
         com.teslamaps.features.CommissionHighlight.render(context);
         com.teslamaps.features.MenuHighlights.render(context);
         com.teslamaps.features.garden.ComposterMenu.render(context);
-        com.teslamaps.features.garden.VisitorOffer.render(context);
         com.teslamaps.features.garden.ComposterOverlay.render(context, mouseX, mouseY);
-        com.teslamaps.features.CakeTracker.renderSlots(context);
         com.teslamaps.features.MuseumHelper.render(context);
         com.teslamaps.features.MinionHelper.renderPanel(context);
         com.teslamaps.features.PartyFinderHelper.render(context);
@@ -99,7 +94,6 @@ public class ContainerOverlays {
         com.teslamaps.features.qol.CityProject.render(context);
         com.teslamaps.features.EcoOverlays.render(context, mouseX, mouseY);
         com.teslamaps.features.gardenqol.GardenHooks.render(context);
-        com.teslamaps.features.GardenMenuHelpers.render(context, mouseX, mouseY);
         com.teslamaps.features.AbiphoneHelper.render(context);
 
         if (com.teslamaps.features.foraging.HotF.shouldRender()) {

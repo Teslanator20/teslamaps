@@ -65,11 +65,7 @@ public final class ScoreSplitsCategory {
         b.toggle("  Terminal Splits (P3 Sections)", () -> config.terminalSplits, v -> config.terminalSplits = v).fresh()
                 .desc("Adds section and P3 time to every terminal/device line, summary when the core opens.");
         b.toggle("    Use Server Ticks", () -> config.terminalSplitsServerTicks, v -> config.terminalSplitsServerTicks = v).fresh();
-        b.toggle("Live Room Splits HUD", () -> config.roomSplits, v -> config.roomSplits = v);
-        b.slider("  Room Splits Scale", 0.5f, 2.0f,
-                () -> config.roomSplitsScale, v -> config.roomSplitsScale = v, 1);
         b.label("Alerts & Stats");
-        b.toggle("Insta-Clear Alert", () -> config.instaClearAlert, v -> config.instaClearAlert = v);
         b.toggle("Room Cleared Alert", () -> config.roomClearedAlert, v -> config.roomClearedAlert = v).fresh()
                 .desc("Title + pling when the room you stand in gets its checkmark");
         b.toggle("  Only Blood Rush Rooms", () -> config.roomClearedOnlyBloodRush, v -> config.roomClearedOnlyBloodRush = v).fresh()
@@ -78,10 +74,6 @@ public final class ScoreSplitsCategory {
         b.toggle("Secrets Done Alert", () -> config.roomSecretsDoneAlert, v -> config.roomSecretsDoneAlert = v).fresh()
                 .desc("Title when your room goes from white to green check");
         b.slider("Room Alert Time", 0.5f, 3.0f, () -> config.roomAlertTime, v -> config.roomAlertTime = v, 1).fresh();
-        b.toggle("Trinity Alert", () -> config.rareRoomAlert, v -> config.rareRoomAlert = v);
-        b.slider("  Alert Volume", 0.0f, 5.0f,
-                () -> config.rareRoomVolume, v -> config.rareRoomVolume = v, 1);
-        b.info("Title + chat when Trinity is scanned, once per run");
         b.toggle("Auto Extra Stats", () -> config.autoExtraStats, v -> config.autoExtraStats = v);
         b.info("Runs /showextrastats at the end of a run");
         b.toggle("Compact End-of-Run Summary", () -> config.extraStatsCompact, v -> config.extraStatsCompact = v).fresh()
@@ -91,11 +83,5 @@ public final class ScoreSplitsCategory {
         b.toggle("  Show Teammates", () -> config.extraStatsTeammates, v -> config.extraStatsTeammates = v).fresh();
         b.toggle("Server Lag Line", () -> config.serverLagTimer, v -> config.serverLagTimer = v).fresh()
                 .desc("At the end of a run: how long the server lagged (client vs server ticks since Mort). Goes into the compact summary when that is on");
-        b.label("Dungeon Info").fresh();
-        b.toggle("Death Counter", () -> config.deathCounter, v -> config.deathCounter = v).fresh()
-                .desc("Deaths this run as a HUD (yellow, red, dark red)");
-        b.toggle("  \"N. DEATH!\" Chat Line", () -> config.deathCounterChat, v -> config.deathCounterChat = v).fresh();
-        b.toggle("Track Room Time Per Player", () -> config.visitedTracking, v -> config.visitedTracking = v).fresh()
-                .desc("/visited <room> lists how long each player stood in that room this run");
     }
 }

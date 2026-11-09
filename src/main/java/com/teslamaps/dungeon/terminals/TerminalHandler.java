@@ -1,7 +1,6 @@
 package com.teslamaps.dungeon.terminals;
 
 import com.teslamaps.dungeon.termsim.TermSimGUI;
-import com.teslamaps.features.TerminalSimulator;
 import com.teslamaps.features.TerminalSolver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.inventory.ContainerInput;
@@ -88,8 +87,6 @@ public abstract class TerminalHandler {
     public boolean shouldProtect() {
         if (com.teslamaps.adm.practice.AdmTerms.noProtection()) return false;
         Minecraft mc = Minecraft.getInstance();
-        boolean simExempt = TerminalSimulator.disableFirstClickProtection() && mc.screen instanceof TermSimGUI;
-        if (simExempt) return false;
         if (System.currentTimeMillis() - timeOpened < TerminalSolver.firstClickProt()) return true;
         boolean singlePlayer = mc.hasSingleplayerServer();
         return !singlePlayer && TerminalSolver.shouldFirstClickProtWithTicks()

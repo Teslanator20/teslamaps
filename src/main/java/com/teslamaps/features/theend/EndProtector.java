@@ -327,8 +327,8 @@ public class EndProtector {
             if (c.endProtectorStage4Title) {
                 mc.gui.setTitle(Component.literal("PROTECTOR STAGE 4")
                         .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                LoudSound.play(SoundEvents.IRON_GOLEM_HURT, 1.0f, 1.0f);
             }
-            if (c.endProtectorStage4Sound) LoudSound.play(SoundEvents.IRON_GOLEM_HURT, 1.0f, 1.0f);
             return;
         }
 
@@ -346,11 +346,11 @@ public class EndProtector {
             if (stage5TargetTicks == 0 && mc.level != null) {
                 stage5TargetTicks = ServerTicks.now(mc.level.getGameTime()) + 400;
             }
-            if (c.endProtectorStage5Title) {
+            if (c.endProtectorStage4Title) {
                 mc.gui.setTitle(Component.literal("PROTECTOR STAGE 5")
                         .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD));
+                LoudSound.play(SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
             }
-            if (c.endProtectorStage5Sound) LoudSound.play(SoundEvents.ANVIL_LAND, 1.0f, 1.0f);
             return;
         }
 

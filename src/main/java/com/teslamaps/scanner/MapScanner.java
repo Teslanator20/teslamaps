@@ -220,7 +220,6 @@ public class MapScanner {
             }
 
             int scansSinceExplored = roomExplorationScanCount.getOrDefault(roomKey, 0);
-            com.teslamaps.dungeon.InstaClearAlert.onRoomState(room, bestState);
             if (bestState != CheckmarkState.UNEXPLORED && room.getCheckmarkState() != bestState) {
                 if (wasAlreadyExplored && scansSinceExplored >= 2) {
                     CheckmarkState oldState = room.getCheckmarkState();

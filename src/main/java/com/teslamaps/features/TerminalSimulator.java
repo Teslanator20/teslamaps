@@ -20,10 +20,6 @@ public class TerminalSimulator {
         return TeslaMapsConfig.get().termSimPing;
     }
 
-    public static boolean disableFirstClickProtection() {
-        return TeslaMapsConfig.get().termSimDisableFirstClickProt;
-    }
-
     public static Map<String, Float> termSimPBs() {
         return TeslaMapsConfig.get().termSimPbs;
     }

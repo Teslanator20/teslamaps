@@ -14,7 +14,7 @@ public class CameraZoomMixin {
     @Inject(method = "calculateFov", at = @At("RETURN"), cancellable = true)
     private void teslamaps$zoomFov(CallbackInfoReturnable<Float> cir) {
         float base = cir.getReturnValueF();
-        float fov = com.teslamaps.features.CameraTweaks.fov(base);
+        float fov = base;
         if (Zoom.transitioning()) fov = Zoom.apply(fov);
         if (fov != base) cir.setReturnValue(fov);
     }

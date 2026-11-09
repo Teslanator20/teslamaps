@@ -29,12 +29,6 @@ import java.util.Map;
 // blocks and heads worn by armor stands (how Hypixel places most decoration heads).
 public class HeadESP {
 
-    // Golden Dragon pet skin (lvl 1-99), which is what the Crystal Hollows nest eggs use.
-    // Hash from NEU's GOLDEN_DRAGON;4 item.
-    private static final String[] GOLDEN_DRAGON_EGG = {
-        "2e9f9b1fc014166cb46a093e5349b2bf6edd201b680d62e48dbf3af9b0459116",
-    };
-
     private record BlockHit(BlockPos pos, String name, int color) {}
     private record StandHit(ArmorStand stand, String name, int color) {}
 
@@ -45,7 +39,6 @@ public class HeadESP {
     private static boolean enabled() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.section("ESP")) return false;
-        if (cfg.headGoldenDragonEgg) return true;
         return cfg.headESP && cfg.headTargets != null && !cfg.headTargets.isEmpty();
     }
 
@@ -121,13 +114,6 @@ public class HeadESP {
     private static TeslaMapsConfig.HeadTarget match(String hash) {
         if (hash == null) return null;
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (cfg.headGoldenDragonEgg) {
-            for (String known : GOLDEN_DRAGON_EGG) {
-                if (known.equalsIgnoreCase(hash)) {
-                    return new TeslaMapsConfig.HeadTarget("Golden Dragon Egg", hash, cfg.headGoldenDragonColor);
-                }
-            }
-        }
         if (!cfg.headESP) return null;
         for (TeslaMapsConfig.HeadTarget t : cfg.headTargets) {
             if (t.hash != null && t.hash.equalsIgnoreCase(hash)) return t;

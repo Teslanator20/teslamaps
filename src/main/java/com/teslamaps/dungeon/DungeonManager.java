@@ -186,7 +186,6 @@ public class DungeonManager {
         TeslaMaps.debug("Entered dungeon: {}", currentFloor);
 
         DungeonScore.onDungeonStart();
-        RareRoomAlert.reset();
 
         RoomScanner.triggerFullScan();
     }

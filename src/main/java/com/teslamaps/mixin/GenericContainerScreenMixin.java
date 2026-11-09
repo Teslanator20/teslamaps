@@ -35,7 +35,6 @@ public abstract class GenericContainerScreenMixin extends AbstractContainerScree
 
     @Inject(method = "extractBackground", at = @At("TAIL"))
     private void teslamaps$fancyCrafting(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-        com.teslamaps.features.FancyCraftingTable.drawBackground(context, this);
         com.teslamaps.features.BetterContainers.drawOverVanilla(context, this);
     }
 }

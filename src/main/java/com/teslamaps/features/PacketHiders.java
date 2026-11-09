@@ -11,7 +11,7 @@ import net.minecraft.world.entity.EntityType;
 // in this mod reads them (verified: the only references are the render hider itself).
 // Anything you can pick up or has to be hit must NOT go here - SoulweaverHider
 // deliberately stays on the render path because it also hides Revive Stone / Premium
-// Flesh / Journal Entry item drops, which are collectable secrets.
+// Flesh item drops, which are collectable secrets.
 public class PacketHiders {
 
     private static int cancelled = 0;
@@ -26,8 +26,7 @@ public class PacketHiders {
         boolean cancel = (type == EntityType.LIGHTNING_BOLT && cfg.noLightning)
                 || (type == EntityType.FALLING_BLOCK && cfg.noFallingBlocks)
                 || (type == EntityType.EXPERIENCE_ORB && cfg.noXpOrbs)
-                || (type == EntityType.FIREWORK_ROCKET && cfg.hideFireworks)
-                || (type == EntityType.HORSE && cfg.hideHorses);
+                || (type == EntityType.FIREWORK_ROCKET && cfg.hideFireworks);
         if (cancel) cancelled++;
         return cancel;
     }

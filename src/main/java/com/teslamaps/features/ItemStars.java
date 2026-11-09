@@ -1,6 +1,6 @@
 package com.teslamaps.features;
 
-// Devonian's StarsStackSize.kt + SkyOcean's ItemStars.kt (colours, red master stars)
+// Devonian's StarsStackSize.kt + SkyOcean's ItemStars.kt (colours)
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.utils.ItemUtil;
@@ -10,17 +10,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public final class ItemStars {
 
@@ -41,12 +36,7 @@ public final class ItemStars {
 
     public static void register() {
         feature = Feature.of("ItemStars").section("Inventory")
-                .when(() -> cfg().starsStackSize || cfg().redMasterStars);
-        net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {
-            if (!cfg().redMasterStars || lines.isEmpty() || !feature.active()) return;
-            Component fixed = masterStars(lines.get(0));
-            if (fixed != null) lines.set(0, fixed);
-        });
+                .when(() -> cfg().starsStackSize);
     }
 
     private static Entry get(ItemStack stack) {
@@ -89,39 +79,5 @@ public final class ItemStars {
         if (e == null) return;
         Font font = Minecraft.getInstance().font;
         ctx.text(font, e.text, x + 17 - e.width, y + 9, color(e), true);
-    }
-
-    // ✪✪✪✪✪➋ -> two red ✪ and three gold ones
-    private static Component masterStars(Component name) {
-        String s = name.getString();
-        int at = s.indexOf("✪✪✪✪✪");
-        if (at < 0) return null;
-        int master = 0;
-        for (int i = at + 5; i < s.length() && master == 0; i++) {
-            char c = s.charAt(i);
-            if (c >= '➊' && c <= '➎') master = c - '➊' + 1;
-        }
-        if (master == 0) return null;
-        final int m = master;
-        MutableComponent out = Component.empty();
-        int[] seen = {0};
-        name.visit((Style style, String seg) -> {
-            StringBuilder plain = new StringBuilder();
-            for (int i = 0; i < seg.length(); i++) {
-                char c = seg.charAt(i);
-                if (c >= '➊' && c <= '➎') continue;
-                if (c == '✪' && seen[0] < 5) {
-                    if (!plain.isEmpty()) { out.append(Component.literal(plain.toString()).withStyle(style)); plain.setLength(0); }
-                    int col = seen[0] < m ? 0xFF5555 : 0xFFAA00;
-                    out.append(Component.literal("✪").withStyle(style.withColor(TextColor.fromRgb(col))));
-                    seen[0]++;
-                    continue;
-                }
-                plain.append(c);
-            }
-            if (!plain.isEmpty()) out.append(Component.literal(plain.toString()).withStyle(style));
-            return Optional.empty();
-        }, Style.EMPTY);
-        return out;
     }
 }

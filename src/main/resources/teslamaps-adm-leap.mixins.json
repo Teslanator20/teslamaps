@@ -4,14 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "AdmBlockUpdateMixin",
-    "AdmCameraAccessor",
-    "AdmClientLevelMixin",
-    "AdmGameRendererInvoker",
-    "AdmLeapRenderMixin",
-    "AdmLeapScreenMixin",
-    "AdmLivingEntityAccessor",
-    "AdmMinecraftAccessor",
-    "AdmPovGameRendererMixin"
+    "AdmClientLevelMixin"
   ],
   "injectors": {
     "defaultRequire": 1

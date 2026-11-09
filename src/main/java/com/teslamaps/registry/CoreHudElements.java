@@ -17,9 +17,6 @@ final class CoreHudElements {
     };
     private static final String SPLITS_SAMPLE_TIME = "1:23.4";
     private static final String[] BLOOD_SAMPLE = { "§eReturn to Blood: ~23.0s", "§cThe Watcher: §f13§7/§f19" };
-    private static final String[] ROOM_SPLITS_SAMPLE = {
-            "§6§lRoom Splits", "§e▶ Water Board §f4.2s", "§7Trap §f31.8s", "§7Ice Fill §f12.1s"
-    };
     private static final String[] WATCHER_SAMPLE = {
             "§c§lWatcher Stats:", "§dDialogue§r: 8.3s", "§dMove§r: 2.1s", "§dCamp§r: 24.7s"
     };
@@ -54,9 +51,6 @@ final class CoreHudElements {
         HudEditElement.of("bloodCamp", "Blood Camp").ctx(HudCtx.DUNGEON).section("Blood Camp")
                 .size(() -> maxWidth(BLOOD_SAMPLE), () -> BLOOD_SAMPLE.length * 10)
                 .scaleRange(0.5f, 3.0f).preview(CoreHudElements::drawBloodCamp);
-        HudEditElement.of("roomSplits", "Room Splits").ctx(HudCtx.DUNGEON).section("Score & Splits").enabled(() -> cfg().roomSplits)
-                .size(() -> maxWidth(ROOM_SPLITS_SAMPLE), () -> 10 + (ROOM_SPLITS_SAMPLE.length - 1) * 9)
-                .scaleRange(0.5f, 2.0f).dragColor(0xFFFFAA00).preview((g, m, x, y, s) -> drawTextBlock(g, ROOM_SPLITS_SAMPLE, x, y, s));
         HudEditElement.of("itemValue", "Item Value").section("Tooltips & Value").enabled(() -> cfg().itemValueGui && cfg().itemValueFixedPos)
                 .size(() -> com.teslamaps.features.ItemValueOverlay.previewSize(font())[0],
                         () -> com.teslamaps.features.ItemValueOverlay.previewSize(font())[1])
@@ -83,9 +77,6 @@ final class CoreHudElements {
         HudEditElement.of("spiritBear", "Spirit Bear").ctx(HudCtx.DUNGEON).enabled(() -> cfg().spiritBearTimer)
                 .size(() -> font().width(com.teslamaps.dungeon.puzzle.SpiritBearTimer.SAMPLE_TEXT), () -> font().lineHeight)
                 .scaleRange(0.5f, 5.0f).dragColor(0xFFAA55FF).preview(com.teslamaps.dungeon.puzzle.SpiritBearTimer::draw);
-        HudEditElement.of("bearSpawn", "Bear Warning").ctx(HudCtx.DUNGEON).section("Sounds").enabled(() -> cfg().bearSpawnWarning)
-                .size(() -> font().width(com.teslamaps.features.BearSpawnWarning.ALERT_TEXT), () -> font().lineHeight)
-                .scaleRange(0.5f, 10.0f).preview(com.teslamaps.features.BearSpawnWarning::drawAlert);
         HudEditElement.of("overkill", "Overkill").ctx(HudCtx.DUNGEON).section("Timers").enabled(() -> cfg().overkillCounter)
                 .size(() -> font().width("Chickens: 00"), () -> font().lineHeight * 7)
                 .scaleRange(0.5f, 5.0f).preview(com.teslamaps.features.OverkillCounter::draw);

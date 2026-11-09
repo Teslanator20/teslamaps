@@ -10,7 +10,6 @@ public final class AdmPractice {
         AdmSimonSays.register();
         SsPractice.register();
         AdmTerms.register();
-        BladeHighlight.register();
         BrBoxes.register();
         LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
             if (!SsPractice.practicing()) return;

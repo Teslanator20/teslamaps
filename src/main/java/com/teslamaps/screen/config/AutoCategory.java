@@ -15,11 +15,6 @@ public final class AutoCategory {
         b.toggle("Enable Auto GFS", () -> config.autoGFS, v -> config.autoGFS = v);
         b.label("Triggers");
         b.toggle("Refill on Dungeon Start", () -> config.autoGFSOnStart, v -> config.autoGFSOnStart = v);
-        b.toggle("Refill on Timer", () -> config.autoGFSTimer, v -> config.autoGFSTimer = v);
-        b.slider("  Timer Interval", 5f, 120f,
-                () -> (float) config.autoGFSInterval, v -> config.autoGFSInterval = v.intValue());
-        b.toggle("Dungeon Only", () -> config.autoGFSDungeonOnly, v -> config.autoGFSDungeonOnly = v);
-        b.toggle("  Also in Kuudra", () -> config.autoGFSKuudra, v -> config.autoGFSKuudra = v).fresh();
         b.toggle("Skip While Dead", () -> config.autoGFSSkipDead, v -> config.autoGFSSkipDead = v).fresh();
         b.slider("Min Missing Before Refill", 1f, 16f,
                 () -> (float) config.autoGFSMinMissing, v -> config.autoGFSMinMissing = Math.round(v), 0).fresh()
@@ -52,8 +47,6 @@ public final class AutoCategory {
                 .desc("Marks the searched item green on the /bz page until you buy or sell it");
         b.info("Offers the missing rest from the bazaar");
         b.toggle("Supercraft Grab Link", () -> config.gfsSuperCraft, v -> config.gfsSuperCraft = v);
-        b.toggle("Piggy Bank Grab Link", () -> config.gfsPiggyBank, v -> config.gfsPiggyBank = v).fresh()
-                .desc("Clickable /gfs for 8 Enchanted Pork when your piggy bank cracks or breaks on death");
 
         b.label("Special");
         b.toggle("Auto Draft on Puzzle Fail", () -> config.autoGFSDraft, v -> config.autoGFSDraft = v);

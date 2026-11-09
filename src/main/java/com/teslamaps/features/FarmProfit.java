@@ -47,34 +47,6 @@ public class FarmProfit {
     private static final Pattern PEST_DROP =
             Pattern.compile("You received ([\\d,]+)x (.+) for killing an? (.+)!");
 
-    private static final String KERNEL_MESSAGE =
-            "[NPC] Feast Chef Ted: Thanks for the donation! I've added a Kernel to your purse.";
-
-    // Ported from Skysoft's FarmingKernelProfit.
-    public static final String[] KERNEL_ITEMS = {"Feast I", "Freshly Baked Talisman", "Freshly Baked Ring",
-            "Freshly Baked Artifact", "Freshly Baked Relic", "Freshly Baked Heirloom", "Finn's Focaccia",
-            "Ted's Contact Baked in Bread", "Scott's Contact Baked in Bread"};
-    private static final String[] KERNEL_IDS = {"ENCHANTMENT_FEAST_1", "FRESHLY_BAKED_TALISMAN", "FRESHLY_BAKED_RING",
-            "FRESHLY_BAKED_ARTIFACT", "FRESHLY_BAKED_RELIC", "FRESHLY_BAKED_HEIRLOOM", "FINNS_FOCACCIA",
-            "TEDS_CONTACT_BAKED_IN_BREAD", "SCOTTS_CONTACT_BAKED_IN_BREAD"};
-    private static final int[] KERNEL_COSTS = {25, 25, 125, 375, 875, 1875, 50, 500, 500};
-
-    /** Coins one kernel is worth when spent on the chosen item, 0 when unpriced. */
-    public static double kernelValue() {
-        com.teslamaps.config.TeslaMapsConfig c = com.teslamaps.config.TeslaMapsConfig.get();
-        int i = java.util.Arrays.asList(KERNEL_ITEMS).indexOf(c.farmKernelItem);
-        if (i < 0) i = 0;
-        Double price = i == 0
-                ? com.teslamaps.features.croesus.PriceManager.marketPriceOrNull(KERNEL_IDS[i],
-                        "Instant Sell".equals(c.farmPriceMode)
-                                ? com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_SELL
-                                : com.teslamaps.features.croesus.PriceManager.SOURCE_BAZAAR_BUY)
-                : com.teslamaps.features.croesus.PriceManager.lowestBinOrNull(KERNEL_IDS[i]);
-        if (price == null || !Double.isFinite(price) || price <= 0) return 0;
-        double cost = c.farmKernelDiscount ? Math.ceil(KERNEL_COSTS[i] * 0.95) : KERNEL_COSTS[i];
-        return price / cost;
-    }
-
     // Replenish eats one of the drop per broken crop; ported from Skysoft's ProfitReplenishCosts.
     private static final Map<String, Integer> replenish = new HashMap<>();
 
@@ -247,24 +219,10 @@ public class FarmProfit {
     private static String lastHover = null;
     private static long lastHoverTime = 0L;
 
-    private static boolean isKernelMessage(String raw) {
-        return raw.contains("Kernel") && com.teslamaps.utils.StringUtil.stripTrim(raw).equals(KERNEL_MESSAGE);
-    }
-
     public static void onChatComponent(net.minecraft.network.chat.Component message) {
-        if (!SkyblockUtils.isInGarden()) {
-            if (SkyblockUtils.isInSkyblock() && com.teslamaps.config.TeslaMapsConfig.get().farmProfitKernels
-                    && isKernelMessage(message.getString())) {
-                record("Kernel", 1, kernelValue(), false);
-            }
-            return;
-        }
+        if (!SkyblockUtils.isInGarden()) return;
 
         String plain = message.getString().replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
-        if (plain.equals(KERNEL_MESSAGE)) {
-            if (com.teslamaps.config.TeslaMapsConfig.get().farmProfitKernels) record("Kernel", 1, kernelValue(), false);
-            return;
-        }
         if (plain.startsWith("RARE DROP!")) {
             Matcher matcher = RARE_DROP.matcher(plain);
             if (matcher.matches()) {

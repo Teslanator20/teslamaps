@@ -59,7 +59,7 @@ public class WorldScanner {
     // minHits = matching columns needed before the waypoint shows. Only for short generic
     //           patterns - a long column like the dock has exactly ONE matching x/z, so
     //           anything above 1 there means the waypoint never appears at all.
-    // category: 0=crystal, 1=mob spot, 2=grotto, 3=dragon, 4=worm
+    // category: 0=crystal, 1=mob spot, 2=grotto, 3=dragon
     private enum Structure {
         KING("King",
                 new Block[]{Blocks.RED_WOOL, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_STAIRS},
@@ -305,10 +305,6 @@ public class WorldScanner {
 
     // off-thread like legitcatmod's StructureFinder-Scanner, so chunk streaming never stalls the frame
     private static void submit(LevelChunk chunk) {
-        if (!TeslaMapsConfig.get().chScanOffThread) {
-            scanChunk(Snap.live(chunk));
-            return;
-        }
         int gen = generation;
         Snap snap = Snap.copy(chunk);
         SCAN_THREAD.execute(() -> {
@@ -535,7 +531,6 @@ public class WorldScanner {
             case 1 -> cfg.chScanMobSpots;
             case 2 -> cfg.chScanGrottos;
             case 3 -> cfg.chScanDragon;
-            case 4 -> cfg.chScanWorm;
             case 5 -> cfg.chScanLandmarks;
             default -> false;
         };
@@ -547,12 +542,11 @@ public class WorldScanner {
         return on == null || on;
     }
 
-    /** Every waypoint name with its category (0 crystal, 1 mob spot, 2 grotto, 3 dragon, 4 worm, 5 landmark). */
+    /** Every waypoint name with its category (0 crystal, 1 mob spot, 2 grotto, 3 dragon, 5 landmark). */
     public static Map<String, Integer> structureNames() {
         Map<String, Integer> out = new java.util.LinkedHashMap<>();
         for (Structure s : Structure.values()) out.putIfAbsent(s.displayName, s.category);
         out.put("Fairy Grotto", 2);
-        out.put("Worm Fishing", 4);
         return out;
     }
 
@@ -605,11 +599,6 @@ public class WorldScanner {
                         tryAdd(cfg.chScanCrystals, Structure.TEMPLE, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.LAVA) {
                         tryAdd(cfg.chScanCrystals, Structure.BAL, chunk, lx, y, lz, worldX, worldZ);
-                        if (cfg.chScanWorm && structureOn("Worm Fishing") && !waypoints.containsKey("Worm Fishing")
-                                && y > 63 && blockAt(chunk, lx, y + 1, lz).isAir()
-                                && ((worldX >= 564 && worldZ >= 513) || (worldX >= 513 && worldZ >= 564))) {
-                            addWaypoint("Worm Fishing", new BlockPos(worldX, y, worldZ), GOLD, 4, null, null);
-                        }
                     } else if (block == Blocks.SMOOTH_STONE_SLAB) {
                         tryAdd(cfg.chScanMobSpots, Structure.CORLEONE_HIDEOUT, chunk, lx, y, lz, worldX, worldZ);
                     } else if (block == Blocks.POLISHED_GRANITE) {

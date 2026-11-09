@@ -70,7 +70,7 @@ public class ChatCommands {
         boolean runEnd = msg.contains("> EXTRA STATS <") && com.teslamaps.utils.StringUtil.isServerMessage(msg);
         if ((runEnd || (kuudraEnd && cfg.chatCommandsDtReasons)) && !downtimePlayers.isEmpty()) {
             if (cfg.chatCommandsDtReasons) announceReasons();
-            else if (!cfg.requeueDowntimeList) for (String p : downtimePlayers) pc("Downtime: " + p);
+            else for (String p : downtimePlayers) pc("Downtime: " + p);
             downtimePlayers.clear();
             downtimeReasons.clear();
             com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);

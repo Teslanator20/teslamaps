@@ -41,14 +41,11 @@ public class NoSoundsMixin {
         com.teslamaps.features.FatalTempo.onSound(sound);
         com.teslamaps.features.SpringBootsHelper.onSound(sound);
         com.teslamaps.features.hud.SpringBootsHeight.onSound(sound, pitch);
-        if (com.teslamaps.features.TerminatorCooldownMute.muteSound(sound, vol)) { ci.cancel(); return; }
         if (com.teslamaps.features.SadanFeatures.muteSound(sound, vol, pitch)) { ci.cancel(); return; }
         if (com.teslamaps.features.DungeonCleanEnd.muteSound(sound)) { ci.cancel(); return; }
 
         if (com.teslamaps.features.TerminalSounds.cancelPling(sound, vol, pitch)) { ci.cancel(); return; }
 
-        if (c.noExplosionSound && sound == SoundEvents.GENERIC_EXPLODE.value()) { ci.cancel(); return; }
-        if (c.noCreeperHurtSound && sound == SoundEvents.CREEPER_HURT) { ci.cancel(); return; }
         if (c.muteBonzoStaff && c.muteBonzoStaffPrecise && sound == SoundEvents.GHAST_AMBIENT
                 && vol == 1f && pitch >= 1.3968254f && pitch <= 1.7936507f) { ci.cancel(); return; }
 

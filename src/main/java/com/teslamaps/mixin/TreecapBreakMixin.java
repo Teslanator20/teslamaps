@@ -15,7 +15,6 @@ public class TreecapBreakMixin {
     private void teslamaps$treecapStart(BlockPos pos, Direction dir, CallbackInfoReturnable<Boolean> cir) {
         SbItemCooldowns.onStartBreak(pos);
         com.teslamaps.features.rift.LivingMetalHelper.onLeftClick(pos);
-        com.teslamaps.features.rift.LivingCaveSnakes.onClick(pos);
     }
 
     @Inject(method = "destroyBlock", at = @At("HEAD"))

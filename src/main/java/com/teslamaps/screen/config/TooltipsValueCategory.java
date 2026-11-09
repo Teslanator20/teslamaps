@@ -39,8 +39,6 @@ public final class TooltipsValueCategory {
         b.toggle("SkyBlock ID In Tooltip", () -> config.skyblockIdTooltip, v -> config.skyblockIdTooltip = v).fresh()
                 .desc("Dark grey skyblock:<ID> line, below the F3+H id when advanced tooltips are on");
         b.toggle("  Only With F3+H", () -> config.skyblockIdTooltipAdvanced, v -> config.skyblockIdTooltipAdvanced = v).fresh();
-        b.toggle("Restore Wizard Portal \"Earned by\"", () -> config.wizardPortalLore, v -> config.wizardPortalLore = v).fresh()
-                .desc("Adds the missing Earned by line to bought Piece of Wizard Portal mementos");
         b.toggle("Ravengard: Compare With Equipped", () -> config.ravengardCompare, v -> config.ravengardCompare = v).fresh()
                 .desc("Green/red stat deltas and the equipped piece as a second tooltip");
         b.toggle("Ravengard: Weapon DPS", () -> config.ravengardDps, v -> config.ravengardDps = v).fresh()
@@ -98,9 +96,7 @@ public final class TooltipsValueCategory {
         b.keybind("    Price Key", () -> config.priceLineKey, v -> config.priceLineKey = v);
         b.toggle("    Also Estimated Value", () -> config.priceLineKeyValue, v -> config.priceLineKeyValue = v).fresh();
         b.toggle("Show Exact Price", () -> config.itemValueExactPrice, v -> config.itemValueExactPrice = v);
-        b.toggle("Ignore Helmet Skins", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v);
-        b.toggle("Ignore Armor Dyes", () -> config.itemValueIgnoreArmorDyes, v -> config.itemValueIgnoreArmorDyes = v);
-        b.toggle("Ignore Runes", () -> config.itemValueIgnoreRunes, v -> config.itemValueIgnoreRunes = v);
+        b.toggle("Ignore Skins, Dyes & Runes", () -> config.itemValueIgnoreHelmetSkins, v -> config.itemValueIgnoreHelmetSkins = v);
         b.toggle("Container Value (Top 5)", () -> config.containerValue, v -> config.containerValue = v);
         b.toggle("  Group Same Items", () -> config.containerValueGroup, v -> config.containerValueGroup = v);
         b.toggle("  Hover Breakdown + Slots", () -> config.containerValueHover, v -> config.containerValueHover = v);
@@ -125,9 +121,8 @@ public final class TooltipsValueCategory {
         b.toggle("  Bazaar Book Names", () -> config.enchantAbbrevBazaar, v -> config.enchantAbbrevBazaar = v).fresh()
                 .desc("Bazaar books named like Sharpness VII get the abbreviation too");
         b.toggle("Enchant Colors", () -> config.enchantColors, v -> config.enchantColors = v);
-        b.toggle("Levels as Numbers", () -> config.enchantLevelsAsNumbers, v -> config.enchantLevelsAsNumbers = v);
         b.toggle("Roman Numerals As Numbers", () -> config.romanNumerals, v -> config.romanNumerals = v).fresh()
-                .desc("Every tooltip: Level/Tier/Skill/Floor/Collection/Milestone/Heart of the ... numerals become digits.");
+                .desc("Every tooltip: enchant levels, book icons and Level/Tier/Skill/Floor/Collection/Milestone/Heart of the ... numerals become digits.");
         b.dropdown("Enchant Layout", com.teslamaps.features.EnchantColors.LAYOUTS,
                 () -> config.enchantLayout, v -> config.enchantLayout = v);
         b.info("Compressed = 3 per line, Stacked = 1 per line, both sorted");
@@ -146,11 +141,6 @@ public final class TooltipsValueCategory {
                 () -> config.chromaSaturation, v -> config.chromaSaturation = v, 2);
         b.toggle("  Chroma Slant Forward", () -> config.chromaForward, v -> config.chromaForward = v);
         b.toggle("  Chroma Bold", () -> config.enchantChromaBold, v -> config.enchantChromaBold = v);
-        b.toggle("Chroma Format Code (§z)", () -> config.chromaFormatCode, v -> config.chromaFormatCode = v).fresh()
-                .desc("Text after §z is drawn in chroma everywhere: chat, tooltips, HUDs, scoreboard, other mods. Uses the chroma size/speed above.");
-        b.toggle("  Everything Chroma", () -> config.chromaEverything, v -> config.chromaEverything = v).fresh()
-                .desc("Draws ALL text in chroma.");
-        b.toggle("Bold Max Level", () -> config.enchantBoldMax, v -> config.enchantBoldMax = v);
         b.color("Max Level Color", () -> config.enchantColorMax, v -> config.enchantColorMax = v);
         b.color("High Level Color", () -> config.enchantColorHigh, v -> config.enchantColorHigh = v);
         b.color("Normal Level Color", () -> config.enchantColorNormal, v -> config.enchantColorNormal = v);

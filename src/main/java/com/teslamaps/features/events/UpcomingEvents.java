@@ -3,10 +3,8 @@ package com.teslamaps.features.events;
 // After NEU's CalendarOverlay.java and Skyblocker's EventNotifications.java, times from the SkyBlock calendar
 import com.teslamaps.api.ElectionApi;
 import com.teslamaps.config.TeslaMapsConfig;
-import com.teslamaps.features.CalendarExtras;
 import com.teslamaps.features.JacobContests;
 import com.teslamaps.features.hud.TextHud;
-import com.teslamaps.mixin.HandledScreenAccessor;
 import com.teslamaps.registry.Feature;
 import com.teslamaps.registry.HudEditElement;
 import com.teslamaps.utils.LoudSound;
@@ -14,7 +12,6 @@ import com.teslamaps.utils.SkyblockUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 
@@ -29,13 +26,12 @@ public final class UpcomingEvents {
 
     private static final long EPOCH = 1560275700000L, YEAR = 446_400_000L, MONTH = YEAR / 12, DAY = 1_200_000L,
             HOUR_SB = 50_000L, HOUR = 3_600_000L, MIN = 60_000L;
+    private static final String[] ZOO_PETS = {"Lion", "Monkey", "Elephant", "Giraffe", "Blue Whale", "Tiger"};
     private static final List<String> SAMPLE = List.of("§6Upcoming Events", "§5Dark Auction§8: §f12m",
             "§eJacob's Contest§8: §f32m", "§bCult of the Fallen Star§8: §f1h 5m", "§6Spooky Festival§8: §f2d 3h");
 
     private static HudEditElement hud;
-    private static Feature feature;
     private static List<String> lines = List.of();
-    private static String invLine = "";
     private static int width, timer;
     private static final Map<String, Long> reminded = new HashMap<>();
 
@@ -49,8 +45,8 @@ public final class UpcomingEvents {
                 .size(() -> lines.isEmpty() ? TextHud.width(SAMPLE) : width, () -> TextHud.height(lines.isEmpty() ? SAMPLE.size() : lines.size()))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, lines.isEmpty() ? SAMPLE : lines,
                         lines.isEmpty() ? TextHud.width(SAMPLE) : width));
-        feature = Feature.of("UpcomingEvents").section("Events")
-                .when(() -> cfg().upcomingEvents || cfg().upcomingEventsReminder || cfg().upcomingEventsInventory)
+        Feature.of("UpcomingEvents").section("Events")
+                .when(() -> cfg().upcomingEvents || cfg().upcomingEventsReminder)
                 .tickAlways(UpcomingEvents::tick)
                 .hudHiddenInInventory("upcomingevents", UpcomingEvents::render)
                 .config("Events", b -> {
@@ -62,12 +58,14 @@ public final class UpcomingEvents {
                     b.toggle("Event Reminder", () -> c.upcomingEventsReminder, v -> c.upcomingEventsReminder = v)
                             .desc("Title, chat line and sound before an event starts. Dark Auction and Jacob have their own alerts in Contest Timers");
                     b.slider("  Minutes Before", 1f, 30f, () -> (float) c.upcomingEventsLeadMin, v -> c.upcomingEventsLeadMin = Math.round(v), 0);
-                    b.toggle("Next Event In Inventory", () -> c.upcomingEventsInventory, v -> c.upcomingEventsInventory = v)
-                            .desc("One line above every container: the next event and when it starts");
                 });
     }
 
     private static int year(long t) { return (int) Math.floorDiv(t - EPOCH, YEAR) + 1; }
+
+    private static String zooPet(int year, int month) {
+        return ZOO_PETS[Math.floorMod(year * 2 + (month < 6 ? 0 : 1), ZOO_PETS.length)];
+    }
 
     // yearly event: month 0-11, first day 1-31, length in days; the running or next occurrence
     private static Ev yearly(String name, long now, int month, int day, int days, String color, boolean remind) {
@@ -108,7 +106,7 @@ public final class UpcomingEvents {
         Ev zoo2 = yearly("Traveling Zoo", now, 9, 1, 3, "§a", true);
         Ev zoo = zoo1.start < zoo2.start ? zoo1 : zoo2;
         int zm = (int) (Math.floorMod(zoo.start - EPOCH, YEAR) / MONTH);
-        out.add(new Ev(zoo.name, zoo.start, zoo.end, "§6" + CalendarExtras.zooPet(year(zoo.start), zm), true));
+        out.add(new Ev(zoo.name, zoo.start, zoo.end, "§6" + zooPet(year(zoo.start), zm), true));
         out.add(yearly("Spooky Festival", now, 7, 29, 3, "§6", true));
         out.add(yearly("Season of Jerry", now, 11, 24, 3, "§f", true));
         out.add(yearly("New Year Celebration", now, 11, 29, 3, "§b", true));
@@ -144,15 +142,6 @@ public final class UpcomingEvents {
             width = TextHud.width(out);
         } else {
             lines = List.of();
-        }
-
-        invLine = "";
-        if (c.upcomingEventsInventory) {
-            for (Ev e : evs) {
-                if (e.start <= now) continue;
-                invLine = "§7Next: " + e.name + " §7in §f" + fmt(e.start - now);
-                break;
-            }
         }
 
         if (c.upcomingEventsReminder && SkyblockUtils.isInSkyblock()) {
@@ -191,15 +180,5 @@ public final class UpcomingEvents {
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui || lines.isEmpty() || hud == null || !cfg().upcomingEvents) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
-    }
-
-    /** From ContainerOverlays. */
-    public static void renderInventory(GuiGraphicsExtractor g) {
-        String line = invLine;
-        if (line.isEmpty() || feature == null || !cfg().upcomingEventsInventory || !feature.active()) return;
-        Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof AbstractContainerScreen<?> cs)) return;
-        HandledScreenAccessor acc = (HandledScreenAccessor) cs;
-        g.text(mc.font, line, acc.getX(), acc.getY() - mc.font.lineHeight - 2, 0xFFFFFFFF);
     }
 }

@@ -19,10 +19,6 @@ import java.util.Map;
  *
  * <p>Played through {@link LoudSound.LoudSoundInstance} so the volume slider can go past
  * the vanilla 1.0 cap, and at the listener so it is never attenuated by distance.
- *
- * <p>Screens are immediate mode: hover is recomputed every frame, so a row claims the
- * cursor with {@link #hover(Object)} and {@link #endFrame()} plays a tick only when the
- * claim moved to a different row.
  */
 public final class GuiSounds {
 
@@ -32,14 +28,7 @@ public final class GuiSounds {
     /** Order shown in the config dropdown. */
     public static final String[] THEMES = {OFF, CLICKY, "Chime", "Soft", "Digital"};
 
-    private static final long HOVER_GAP_MS = 35;
-
     private static final Map<String, Identifier> IDS = new HashMap<>();
-
-    private static Object frameHover;
-    private static Object lastHover;
-    private static long lastHoverAt;
-    private static int hoverSeq;
 
     private GuiSounds() {}
 
@@ -68,34 +57,6 @@ public final class GuiSounds {
         mc.getSoundManager().play(new LoudSound.LoudSoundInstance(
                 id, SoundSource.MASTER, vol, pitch, RandomSource.create(),
                 false, 0, SoundInstance.Attenuation.NONE, 0, 0, 0, true));
-    }
-
-    /** Marks {@code id} as the row under the cursor for this frame. */
-    public static void hover(Object id) {
-        frameHover = id;
-    }
-
-    /** Plays the hover tick if the cursor moved onto a different row since the last frame. */
-    public static void endFrame() {
-        Object claimed = frameHover;
-        frameHover = null;
-        if (claimed == lastHover) return;
-        lastHover = claimed;
-        if (claimed == null) return;
-        if (!TeslaMapsConfig.get().guiHoverSounds) return;
-
-        long now = System.currentTimeMillis();
-        if (now - lastHoverAt < HOVER_GAP_MS) return;   // sweeping across rows must not machine-gun
-        lastHoverAt = now;
-
-        // tiny alternating detune so a row of ticks does not sound mechanical
-        play("hover", 1.0f + (hoverSeq++ % 3) * 0.02f, 1.5f);
-    }
-
-    /** Forgets the hovered row, so reopening a screen under the cursor ticks again. */
-    public static void resetHover() {
-        frameHover = null;
-        lastHover = null;
     }
 
     public static void press() {

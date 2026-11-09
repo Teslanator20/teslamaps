@@ -68,7 +68,6 @@ public abstract class TermGui {
         TermGui gui = active();
         if (gui == null) return false;
         if (!(Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen)) return false;
-        TerminalSolver.renderDebug(ctx);
         gui.buildTerminal(screen);
         gui.render(ctx, mouseX, mouseY);
         return true;

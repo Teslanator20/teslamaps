@@ -3,7 +3,6 @@ package com.teslamaps.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.teslamaps.features.ToolkitCropIcons;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
@@ -17,12 +16,9 @@ public class ToolkitIconMixin {
             target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;item(Lnet/minecraft/world/item/ItemStack;III)V"))
     private void teslamaps$toolkitIcon(GuiGraphicsExtractor ctx, ItemStack stack, int x, int y, int seed,
                                        Operation<Void> original, @Local(argsOnly = true) Slot slot) {
-        ItemStack icon = ToolkitCropIcons.icon(slot, stack);
-        icon = com.teslamaps.features.StereoHarmony.icon(slot, icon);
+        ItemStack icon = com.teslamaps.features.StereoHarmony.icon(slot, stack);
         icon = com.teslamaps.features.GardenMenuHelpers.icon(slot, icon);
-        icon = com.teslamaps.features.GardenPlotMenu.icon(slot, icon);
         icon = com.teslamaps.features.CommissionHighlight.icon(slot, icon);
-        ItemStack web = com.teslamaps.features.gardenqol.MutationsWebsite.replacement(slot);
-        original.call(ctx, web != null ? web : icon, x, y, seed);
+        original.call(ctx, icon, x, y, seed);
     }
 }

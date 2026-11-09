@@ -25,7 +25,7 @@ public final class MapStyle {
             "mapCheckmarkUnopened", "mapCheckmarkHideWithName", "showPlayerMarker", "showSelfMarker",
             "showOtherPlayers", "showPlayerNames", "useHeadsInsteadOfMarkers", "rotatePlayerHeads", "mapGlowArrow",
             "playerHeadScale", "colorBackground", "colorUnexplored", "mapDarkenUndiscovered", "mapDarkenPercent",
-            "mapGrayUndiscovered", "colorNormal", "colorEntrance", "colorBlood", "colorTrap", "colorPuzzle",
+            "colorNormal", "colorEntrance", "colorBlood", "colorTrap", "colorPuzzle",
             "colorPuzzleUnexplored", "colorFairy", "colorMiniboss", "mapMimicRoomStyle", "colorMimicRoom",
             "colorDoorNormal", "colorDoorWither", "colorDoorBlood", "colorDoorEntrance", "colorTextUnexplored",
             "colorTextCleared", "colorTextGreen", "colorSecretCount", "colorCheckWhite", "colorCheckGreen",

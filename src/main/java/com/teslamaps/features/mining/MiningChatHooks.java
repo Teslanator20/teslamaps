@@ -15,6 +15,6 @@ public final class MiningChatHooks {
         String t = stripped.trim();
         if (c.mineshaftAnnounce && MineshaftAnnounce.hideEcho(t)) return true;
         if (MiningEvents.hideChat(t)) return true;
-        return PowderMiningFilter.handle(message, text, stripped);
+        return null;
     }
 }
