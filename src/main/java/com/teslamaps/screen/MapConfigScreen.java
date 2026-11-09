@@ -736,7 +736,7 @@ public class MapConfigScreen extends Screen {
     }
 
     /** Toggles the user turned on (on now, off by default), with the sub-options of top-level ones. */
-    List<SettingsEntry> activeEntries(List<SettingsEntry> in) {
+    protected List<SettingsEntry> activeEntries(List<SettingsEntry> in) {
         List<SettingsEntry> out = new ArrayList<>();
         boolean carry = false;
         for (SettingsEntry e : visibleChildren(in)) {
@@ -1543,6 +1543,13 @@ public class MapConfigScreen extends Screen {
         @Override public Object readValue() { return getter.get(); }
         @Override public void writeValue(Object v) { setter.accept((Boolean) v); }
         void set(boolean v) { if (getter.get() != v) setter.accept(v); }
+        public boolean value() { return getter.get(); }
+        /** Why the toggle is greyed out right now, null when it is usable. */
+        public String gateReason() {
+            if (legitGated && com.teslamaps.features.LegitMode.blocksCheats()) return "Disabled by Legit Mode";
+            if (sectionGate != null && !TeslaMapsConfig.get().section(sectionGate)) return "\"" + sectionGate + "\" is switched off";
+            return null;
+        }
 
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
@@ -1615,6 +1622,8 @@ public class MapConfigScreen extends Screen {
         }
 
         public ButtonEntry active() { this.active = true; return this; }
+        public boolean isActive() { return active; }
+        public void press() { action.run(); }
 
         @Override public int getHeight() { return ROW_HEIGHT + 4; }
         @Override public String getLabel() { return label; }
@@ -1652,6 +1661,9 @@ public class MapConfigScreen extends Screen {
         public ButtonRowEntry(int x, int w, String[] labels, Runnable[] actions) {
             this.x = x; this.width = w; this.labels = labels; this.actions = actions;
         }
+
+        public String[] labels() { return labels; }
+        public void press(int i) { actions[i].run(); }
 
         @Override public int getHeight() { return 28; }
         @Override public String getLabel() { return String.join(" ", labels); }
@@ -1786,6 +1798,8 @@ public class MapConfigScreen extends Screen {
             this.x = x; this.width = w; this.label = label; this.filter = filter;
         }
 
+        public TeslaMapsConfig.ClassFilter filter() { return filter; }
+
         @Override public int getHeight() { return ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q) || "class".contains(q); }
@@ -1832,6 +1846,8 @@ public class MapConfigScreen extends Screen {
         @Override public void reposition(int x, int w) { this.x = x; this.width = w; }
 
         void setKey(int key) { setter.accept(key); TeslaMapsConfig.save(); keyConflicts = null; }
+        public void bind(int key) { setKey(key); }
+        public List<String> conflicts() { return conflictsOf(this); }
 
         @Override
         public void render(GuiGraphicsExtractor ctx, MapConfigScreen screen, int y, int mouseX, int mouseY, boolean clicked, boolean mouseDown) {
@@ -2140,6 +2156,10 @@ public class MapConfigScreen extends Screen {
             setter.accept((Float) v);
         }
 
+        public float min() { return min; }
+        public float max() { return max; }
+        public int decimals() { return decimals; }
+
         private int sliderWidth() { return controlWidth(80, width); }
         private int sliderLeft() { return x + width - sliderWidth() - 48; }
 
@@ -2315,6 +2335,8 @@ public class MapConfigScreen extends Screen {
         @Override public Object readValue() { return getter.get(); }
         @Override public void writeValue(Object v) { setter.accept((String) v); }
 
+        public String[] options() { return options; }
+
         @Override public int getHeight() { return expanded ? ROW_HEIGHT + (options.length * 18) : ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
@@ -2389,6 +2411,8 @@ public class MapConfigScreen extends Screen {
 
         @Override public Object readValue() { return getter.get(); }
         @Override public void writeValue(Object v) { setter.accept((String) v); }
+
+        public String[] options() { return options; }
 
         @Override public int getHeight() { return ROW_HEIGHT; }
         @Override public String getLabel() { return label; }
