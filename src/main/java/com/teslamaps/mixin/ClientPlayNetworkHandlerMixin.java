@@ -104,7 +104,7 @@ public class ClientPlayNetworkHandlerMixin {
         com.teslamaps.features.rift.BacteHelper.onDamage(packet);
     }
 
-    @org.spongepowered.asm.mixin.injection.ModifyArg(method = "handleParticleEvent", at = @At(value = "INVOKE",
+    @org.spongepowered.asm.mixin.injection.ModifyArg(method = "tryAddParticle", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/ClientLevel;addParticle(Lnet/minecraft/core/particles/ParticleOptions;ZZDDDDDD)V"))
     private net.minecraft.core.particles.ParticleOptions teslamaps$colorParticleFix(net.minecraft.core.particles.ParticleOptions opt,
             @com.llamalad7.mixinextras.sugar.Local(argsOnly = true) ClientboundLevelParticlesPacket packet) {

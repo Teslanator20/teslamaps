@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 // Ported from Skyblocker's ItemStackMixin hideVanillaEnchants
 @Mixin(ItemStack.class)
 public class HideVanillaEnchantsMixin {
-    @Inject(method = "addToTooltip", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addToTooltip(Lnet/minecraft/core/component/DataComponentType;Lnet/minecraft/world/item/Item$TooltipContext;Lnet/minecraft/world/item/component/TooltipDisplay;Ljava/util/function/Consumer;Lnet/minecraft/world/item/TooltipFlag;)V", at = @At("HEAD"), cancellable = true)
     private void teslamaps$hideVanillaEnchants(DataComponentType<?> type, Item.TooltipContext context, TooltipDisplay display,
                                                Consumer<Component> builder, TooltipFlag flag, CallbackInfo ci) {
         if (type != DataComponents.ENCHANTMENTS || !TeslaMapsConfig.get().hideVanillaEnchants) return;

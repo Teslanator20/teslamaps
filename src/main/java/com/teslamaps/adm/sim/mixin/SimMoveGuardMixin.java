@@ -33,12 +33,12 @@ public class SimMoveGuardMixin {
         if (teslamaps$simServer() && packet.id() == this.awaitingTeleport && this.awaitingPositionFromClient == null) ci.cancel();
     }
 
-    @WrapOperation(method = "handleMovePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z"))
+    @WrapOperation(method = "handlePlayerPositionChange", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;noCollision(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;)Z"))
     private boolean teslamaps$noWrongMoveSnap(ServerLevel level, Entity entity, AABB box, Operation<Boolean> original) {
         return !teslamaps$simServer() && original.call(level, entity, box);
     }
 
-    @WrapOperation(method = "handleMovePlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;isEntityCollidingWithAnythingNew(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;DDD)Z"))
+    @WrapOperation(method = "handlePlayerPositionChange", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;isEntityCollidingWithAnythingNew(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;DDD)Z"))
     private boolean teslamaps$noNewCollisionSnap(ServerGamePacketListenerImpl self, LevelReader level, Entity entity, AABB box, double x, double y, double z, Operation<Boolean> original) {
         return !teslamaps$simServer() && original.call(self, level, entity, box, x, y, z);
     }

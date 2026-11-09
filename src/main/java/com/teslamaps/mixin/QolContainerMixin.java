@@ -20,7 +20,7 @@ public class QolContainerMixin {
         if (HarpHelper.onKey((AbstractContainerScreen<?>) (Object) this, event.key())) cir.setReturnValue(true);
     }
 
-    @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "slotClicked(Lnet/minecraft/world/inventory/Slot;IILnet/minecraft/world/inventory/ContainerInput;)V", at = @At("HEAD"), cancellable = true)
     private void teslamaps$harpRestart(Slot slot, int slotId, int button, ContainerInput type, CallbackInfo ci) {
         if (HarpHelper.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, button, type)) ci.cancel();
     }

@@ -17,7 +17,7 @@ public abstract class PauseScreenMixin {
     private long teslamaps$lastClick = -1L;
 
     // onPress of the disconnect button
-    @Inject(method = "lambda$createPauseMenu$6", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "lambda$createPauseMenu$10", at = @At("HEAD"), cancellable = true)
     private void teslamaps$confirmDisconnect(Button button, CallbackInfo ci) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
         if (!c.confirmDisconnect) return;

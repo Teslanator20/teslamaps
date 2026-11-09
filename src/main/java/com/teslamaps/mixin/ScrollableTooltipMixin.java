@@ -29,7 +29,7 @@ public class ScrollableTooltipMixin {
     // shrink tooltips taller than the screen - vanilla only clamps their bottom edge
     @Inject(method = "tooltip", at = @At("HEAD"))
     private void teslamaps$fitPush(Font font, List<ClientTooltipComponent> lines, int x, int y,
-                                   ClientTooltipPositioner positioner, Identifier background, CallbackInfo ci) {
+                                   ClientTooltipPositioner positioner, Identifier background, boolean extraSpace, CallbackInfo ci) {
         GuiGraphicsExtractor self = (GuiGraphicsExtractor) (Object) this;
         float f = TooltipFit.begin(font, lines, self.guiHeight());
         if (f != 1f) self.pose().pushMatrix().scale(f, f);
@@ -37,7 +37,7 @@ public class ScrollableTooltipMixin {
 
     @Inject(method = "tooltip", at = @At("RETURN"))
     private void teslamaps$fitPop(Font font, List<ClientTooltipComponent> lines, int x, int y,
-                                  ClientTooltipPositioner positioner, Identifier background, CallbackInfo ci) {
+                                  ClientTooltipPositioner positioner, Identifier background, boolean extraSpace, CallbackInfo ci) {
         if (TooltipFit.scale() != 1f) ((GuiGraphicsExtractor) (Object) this).pose().popMatrix();
         com.teslamaps.features.RavengardTooltips.renderSide((GuiGraphicsExtractor) (Object) this, font);
     }

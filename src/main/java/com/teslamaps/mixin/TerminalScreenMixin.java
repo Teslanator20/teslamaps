@@ -32,7 +32,7 @@ public class TerminalScreenMixin {
         if (TerminalSolver.onRenderSlot(graphics, slot, (AbstractContainerScreen<?>) (Object) this)) ci.cancel();
     }
 
-    @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "slotClicked(Lnet/minecraft/world/inventory/Slot;IILnet/minecraft/world/inventory/ContainerInput;)V", at = @At("HEAD"), cancellable = true)
     private void teslamaps$onSlotClicked(Slot slot, int slotId, int button, ContainerInput input, CallbackInfo ci) {
         if (TerminalSolver.onSlotClick(slotId, button)) ci.cancel();
     }

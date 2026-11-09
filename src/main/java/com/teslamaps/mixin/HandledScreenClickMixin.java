@@ -20,7 +20,7 @@ public class HandledScreenClickMixin {
     }
 
     // Q inside an inventory goes through slotClicked with THROW, never through mouseClicked
-    @Inject(method = "slotClicked", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "slotClicked(Lnet/minecraft/world/inventory/Slot;IILnet/minecraft/world/inventory/ContainerInput;)V", at = @At("HEAD"), cancellable = true)
     private void teslamaps$blockSlotDrop(net.minecraft.world.inventory.Slot slot, int slotId, int button,
                                          net.minecraft.world.inventory.ContainerInput type, CallbackInfo ci) {
         com.teslamaps.features.ExperimentHelper.onSlotClick((AbstractContainerScreen<?>) (Object) this, slot, type);
