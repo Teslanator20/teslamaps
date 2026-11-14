@@ -255,6 +255,10 @@ public class TeslaMapsConfig {
     public boolean hudEdgeAnchors = false;      // right/bottom panels keep their edge distance when the screen size changes
     public java.util.Map<String, int[]> hudAnchorRefs = new java.util.HashMap<>(); // element -> screen w/h it was placed at
     @Global
+    public java.util.List<String> fakeServers = new java.util.ArrayList<>(); // ips treated as hypixel (/tmap fakeserver)
+    @Global
+    public String fakeServerFloor = "F7";
+    @Global
     public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
     @Global
     public String niaTheme = "Default Dark";   // config screen: Default Dark / Ocean / Cherry Blossom / Custom Colors
@@ -6412,6 +6416,7 @@ public class TeslaMapsConfig {
         c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
         if (c.admSimSettings == null) c.admSimSettings = new java.util.LinkedHashMap<>();
         c.admSimSettings.values().removeIf(java.util.Objects::isNull);
+        if (c.fakeServers == null) c.fakeServers = new java.util.ArrayList<>();
         if (c.dragonAlertTypes == null) c.dragonAlertTypes = new java.util.ArrayList<>();
         if (c.dragonTrackLast == null) c.dragonTrackLast = new java.util.ArrayList<>();
         if (c.mobHealthHudMobs == null) c.mobHealthHudMobs = new java.util.ArrayList<>();

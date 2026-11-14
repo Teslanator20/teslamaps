@@ -142,6 +142,13 @@ public class DungeonManager {
             }
         }
 
+        if (!hasCatacombs && com.teslamaps.features.FakeServer.active()) {
+            if (isInDungeon()) return currentState;
+            if (!SkyblockUtils.isInDungeonArea()) return DungeonState.NOT_IN_DUNGEON;
+            currentFloor = com.teslamaps.features.FakeServer.floor();
+            return DungeonState.IN_DUNGEON;
+        }
+
         if (!hasCatacombs) {
             // M7 P5 swaps the sidebar and the Catacombs line vanishes mid-fight; leaving a
             // dungeon always changes worlds, so stay in until the world-change path exits us

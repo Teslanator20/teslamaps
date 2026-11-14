@@ -13,6 +13,7 @@ public class SkyblockUtils {
     public static boolean isOnHypixel() {
         if (HypixelModApi.live()) return true;
         if (com.teslamaps.adm.sim.P3Sim.pretendHypixel()) return true;
+        if (com.teslamaps.features.FakeServer.active()) return true;
         Minecraft mc = Minecraft.getInstance();
         ServerData serverInfo = mc.getCurrentServer();
         if (serverInfo == null) return false;
@@ -38,6 +39,7 @@ public class SkyblockUtils {
         if (areaOverride != null) return true;
         if (!isOnHypixel()) return false;
         if (com.teslamaps.adm.sim.P3Sim.pretendHypixel()) return true;
+        if (com.teslamaps.features.FakeServer.active()) return true;
         String type = HypixelModApi.serverType();
         if (type != null) return type.equals("SKYBLOCK");
 
