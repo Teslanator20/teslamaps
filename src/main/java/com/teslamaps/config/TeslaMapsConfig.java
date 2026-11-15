@@ -257,6 +257,22 @@ public class TeslaMapsConfig {
     @Global
     public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
     @Global
+    public String niaTheme = "Default Dark";   // config screen: Default Dark / Ocean / Cherry Blossom / Custom Colors
+    @Global
+    public float niaOpacity = 0.9f;
+    @Global
+    public String niaCustomBg = "FF171A21";
+    @Global
+    public String niaCustomSecondary = "FF11141B";
+    @Global
+    public String niaCustomAccent = "FF4794FD";
+    @Global
+    public String niaFont = "Adwaita Sans";
+    @Global
+    public int niaPanelW = 560;
+    @Global
+    public int niaPanelH = 370;
+    @Global
     public String guiSoundTheme = "Off";        // Menu sound set: Off / Clicky / Chime / Soft / Digital
     @Global
     public float guiSoundVolume = 1.0f;         // Scales every interface sound (0.0 - 2.0)

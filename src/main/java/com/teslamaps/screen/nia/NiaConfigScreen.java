@@ -45,7 +45,8 @@ public class NiaConfigScreen extends Screen {
     private static final String SEARCH = "Search";
     private static final long DESC_DELAY_MS = 500;
 
-    private static int savedW = 560, savedH = 370;
+    private String fontName;
+    public static final String[] THEMES = NiaTheme.NAMES, FONTS = NiaTheme.FONTS;
 
     private final Screen parent;
     final NiaModel model;
@@ -127,13 +128,16 @@ public class NiaConfigScreen extends Screen {
 
     private NiaTheme theme() {
         double mul = animTime < 1.0 ? opacityAnim.getValue() : 1.0;
-        return NiaTheme.DEFAULT.configured(mul);
+        TeslaMapsConfig c = TeslaMapsConfig.get();
+        return NiaTheme.base(c).configured(c.niaOpacity, mul);
     }
 
     @Override
     protected void init() {
+        fontName = TeslaMapsConfig.get().niaFont;
+        NiaRender.style = NiaRender.fontStyle(fontName);
         if (seenBuild < 0) model.init(width, height);
-        setPanelSize(savedW, savedH);
+        setPanelSize(TeslaMapsConfig.get().niaPanelW, TeslaMapsConfig.get().niaPanelH);
         panelX = (width - panelW) / 2.0f;
         panelY = (height - panelH) / 2.0f;
         closing = false;
@@ -141,8 +145,9 @@ public class NiaConfigScreen extends Screen {
 
         searchBox = new EditBox(font, 0, 0, Math.max(10, moduleW - 58), 9, Component.literal("Search"));
         searchBox.setBordered(false);
+        NiaRender.applyFont(searchBox);
         searchBox.setTextColor(0xFFFFFFFF);
-        searchBox.setHint(Component.literal("Search..."));
+        searchBox.setHint(NiaRender.styled("Search..."));
         searchBox.setResponder(q -> {
             searchQuery = q;
             lastSearch = q;
@@ -153,6 +158,7 @@ public class NiaConfigScreen extends Screen {
 
         editor = new EditBox(font, 0, 0, 30, 9, Component.literal("Value"));
         editor.setBordered(false);
+        NiaRender.applyFont(editor);
         editor.setTextColor(0xFFFFFFFF);
         editor.setResponder(v -> { if (editListener != null) editListener.accept(v); });
         editor.visible = false;
@@ -428,6 +434,12 @@ public class NiaConfigScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float dt) {
         NiaRender.resetClips();
+        String f = TeslaMapsConfig.get().niaFont;
+        if (f != fontName) {
+            fontName = f;
+            NiaRender.style = NiaRender.fontStyle(f);
+            for (NiaSection sec : activeComps) sec.syncStateImmediately(font);
+        }
         if (model.builds != seenBuild) rebuildFromModel();
         if (sectionsDirty) rebuildActive();
 
@@ -585,6 +597,9 @@ public class NiaConfigScreen extends Screen {
         }
         NiaRender.popClip(g);
         int contentH = yy + (int) Math.round(sidebarScroll) - listTop;
+        int sideBg = NiaRender.withAlpha(theme.secondary(), 255);
+        if (sidebarScroll > 0.5) g.fillGradient(px + 1, listTop, px + SIDEBAR_W - 1, listTop + 10, sideBg, sideBg & 0x00FFFFFF);
+        if (sidebarScroll < sidebarMax - 0.5) g.fillGradient(px + 1, listBottom - 12, px + SIDEBAR_W - 1, listBottom, sideBg & 0x00FFFFFF, sideBg);
         sidebarMax = Math.max(0, contentH - (listBottom - listTop));
         if (sidebarScrollTarget > sidebarMax) sidebarScrollTarget = sidebarMax;
         if (sidebarMax > 0) {
@@ -878,8 +893,9 @@ public class NiaConfigScreen extends Screen {
         if (closing) return true;
         if (resizeEdge != 0) {
             resizeEdge = 0;
-            savedW = panelW;
-            savedH = panelH;
+            TeslaMapsConfig.get().niaPanelW = panelW;
+            TeslaMapsConfig.get().niaPanelH = panelH;
+            TeslaMapsConfig.save();
             return true;
         }
         if (dragging) {

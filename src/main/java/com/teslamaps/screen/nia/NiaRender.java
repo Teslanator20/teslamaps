@@ -19,7 +19,21 @@ final class NiaRender {
 
     static final Style ADWAITA = Style.EMPTY.withFont(new FontDescription.Resource(
             Identifier.fromNamespaceAndPath("teslamaps", "nia/adwaita_sans")));
+    static final Style UNIFORM = Style.EMPTY.withFont(new FontDescription.Resource(
+            Identifier.fromNamespaceAndPath("minecraft", "uniform")));
     static Style style = ADWAITA;
+
+    static Style fontStyle(String name) {
+        return switch (name == null ? "" : name) {
+            case "Minecraft Default" -> Style.EMPTY;
+            case "Minecraft Uniform" -> UNIFORM;
+            default -> ADWAITA;
+        };
+    }
+
+    static void applyFont(net.minecraft.client.gui.components.EditBox box) {
+        box.addFormatter((text, cursor) -> FormattedCharSequence.forward(text, style));
+    }
 
     private static final ArrayDeque<ScreenRectangle> CLIPS = new ArrayDeque<>();
 

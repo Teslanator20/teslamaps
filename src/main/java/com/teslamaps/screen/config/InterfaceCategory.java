@@ -75,6 +75,15 @@ public final class InterfaceCategory {
                 .tags("theme", "accent", "color");
         b.color("    Accent", () -> config.guiAccentColor, v -> config.guiAccentColor = v).fresh().tags("theme", "accent");
         b.info("GUI Style skins these screens, HUD Style the in-game panels");
+        b.label("Config Screen");
+        b.dropdown("Theme", com.teslamaps.screen.nia.NiaConfigScreen.THEMES, () -> config.niaTheme, v -> config.niaTheme = v)
+                .desc("Colours of the config screen.").tags("theme", "nia", "color");
+        b.slider("  Opacity", 0.3f, 1f, () -> config.niaOpacity, v -> config.niaOpacity = v, 2).tags("theme", "nia");
+        b.color("  Custom Background", () -> config.niaCustomBg, v -> config.niaCustomBg = v).desc("Used by theme \"Custom Colors\".").tags("theme", "nia");
+        b.color("  Custom Sidebar", () -> config.niaCustomSecondary, v -> config.niaCustomSecondary = v).tags("theme", "nia");
+        b.color("  Custom Accent", () -> config.niaCustomAccent, v -> config.niaCustomAccent = v).tags("theme", "nia");
+        b.dropdown("Font", com.teslamaps.screen.nia.NiaConfigScreen.FONTS, () -> config.niaFont, v -> config.niaFont = v)
+                .desc("Font of the config screen.").tags("font", "nia");
         b.color("  Custom Background", () -> config.hudCustomBg, v -> config.hudCustomBg = v)
                 .desc("Fill of HUD Style \"Custom\", alpha included.").tags("panel", "hud style");
         b.color("  Custom Border", () -> config.hudCustomBorder, v -> config.hudCustomBorder = v).tags("panel", "hud style");
