@@ -21,7 +21,7 @@ public final class QuickModSwitch {
     private record Mod(String name, String modId, String command, String[] screens) {}
 
     private static final Mod[] KNOWN = {
-            new Mod("TeslaMaps", "teslamaps", "tmap", new String[]{"com.teslamaps.screen.MapConfigScreen"}),
+            new Mod("TeslaMaps", "teslamaps", "tmap", new String[]{"com.teslamaps.screen.MapConfigScreen", "com.teslamaps.screen.nia.NiaConfigScreen"}),
             new Mod("Skyblocker", "skyblocker", "skyblocker config", new String[]{"de.hysky.skyblocker.config", "dev.isxander.yacl3.gui"}),
             new Mod("SkyHanni", "skyhanni", "sh", new String[]{"at.hannibal2.skyhanni.config", "io.github.notenoughupdates.moulconfig"}),
             new Mod("Devonian", "devonian", "devonian", new String[]{"com.github.synnerz.devonian"}),

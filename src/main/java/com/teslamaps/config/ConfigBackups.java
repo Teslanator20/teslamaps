@@ -39,7 +39,7 @@ public final class ConfigBackups {
                                         made ? "§b[TeslaMaps] §fConfig backed up." : "§b[TeslaMaps] §7No changes since the last backup."));
                             },
                             () -> net.minecraft.client.Minecraft.getInstance().gui.setScreen(
-                                    new com.teslamaps.screen.ConfigBackupScreen(b.screen()))});
+                                    new com.teslamaps.screen.ConfigBackupScreen(net.minecraft.client.Minecraft.getInstance().gui.screen()))});
                 });
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> {
             if (TeslaMapsConfig.get().configBackups) copy(TeslaMapsConfig.path());

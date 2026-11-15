@@ -163,22 +163,26 @@ public class MapConfigScreen extends Screen {
         jumpQuery = query;
     }
 
-    /** The settings screen in the layout the user picked (classic sidebar or columns). */
-    public static MapConfigScreen open() {
+    public static Screen open() {
         return open(View.OLD);
     }
 
     /** /tmap all: only the rows of the feature-gap build-out. */
-    public static MapConfigScreen openAll() {
+    public static Screen openAll() {
         return open(View.NEW);
     }
 
     /** /tmap adg: only the ADM group. */
-    public static MapConfigScreen openAdm() {
+    public static Screen openAdm() {
         return open(View.ADM);
     }
 
-    public static MapConfigScreen open(View view) {
+    public static Screen open(View view) {
+        return com.teslamaps.screen.nia.NiaConfigScreen.create(null, view);
+    }
+
+    /** /tmap classic */
+    public static MapConfigScreen classic(View view) {
         MapConfigScreen s = new MapConfigScreen();
         s.view = view;
         return s;
@@ -243,24 +247,19 @@ public class MapConfigScreen extends Screen {
 
     // GUI-013
     public static void openWithSearch(String query) {
-        MapConfigScreen s = new MapConfigScreen();
-        s.view = viewFor(null, query);
-        s.lastSearch(query == null ? "" : query);
-        Minecraft.getInstance().gui.setScreen(s);
+        Minecraft.getInstance().gui.setScreen(com.teslamaps.screen.nia.NiaConfigScreen.withSearch(viewFor(null, query), query));
     }
 
     // GUI-014: toggles listed by /tmap newfeatures, null = normal screen
     protected static final String NEW = "New Options";
-    private static java.util.Set<String> newKeys = null;
+    protected static java.util.Set<String> newKeys = null;
     private List<SettingsEntry> newCache;
     private int newCacheBuild = -1;
 
     public static void openNew(java.util.Set<String> keys) {
         newKeys = keys;
         lastSearch = "";
-        MapConfigScreen s = new MapConfigScreen();
-        s.view = View.ALL;
-        Minecraft.getInstance().gui.setScreen(s);
+        Minecraft.getInstance().gui.setScreen(com.teslamaps.screen.nia.NiaConfigScreen.withSearch(View.ALL, ""));
     }
 
     private static String toggleKey(String category, ToggleEntry te) {
@@ -281,7 +280,7 @@ public class MapConfigScreen extends Screen {
         return out;
     }
 
-    private List<SettingsEntry> newEntries() {
+    protected List<SettingsEntry> newEntries() {
         if (newCache != null && newCacheBuild == buildCount) return newCache;
         List<SettingsEntry> result = new ArrayList<>();
         int contentX = SIDEBAR_WIDTH + 25, contentWidth = Math.max(150, this.width - SIDEBAR_WIDTH - 50);
@@ -904,7 +903,7 @@ public class MapConfigScreen extends Screen {
     private List<SettingsEntry> searchCache;
     private String searchCacheQuery;
     private int searchCacheBuild = -1;
-    int buildCount;
+    private int buildCount;
 
     protected List<SettingsEntry> getEntriesToShow() {
         if (!searchQuery.isEmpty() && searchCache != null && searchQuery.equals(searchCacheQuery) && searchCacheBuild == buildCount) {
@@ -1514,9 +1513,9 @@ public class MapConfigScreen extends Screen {
         private final String label;
         private final Supplier<Boolean> getter;
         private final Consumer<Boolean> setter;
-        boolean legitGated = false;
-        boolean cheat = false;
-        String sectionGate = null;
+        private boolean legitGated = false;
+        private boolean cheat = false;
+        private String sectionGate = null;
 
         public ToggleEntry(int x, int w, String label, Supplier<Boolean> getter, Consumer<Boolean> setter) {
             this.x = x; this.width = w; this.label = label; this.getter = getter; this.setter = setter;
@@ -1614,8 +1613,8 @@ public class MapConfigScreen extends Screen {
     public class ButtonEntry extends DescribedEntry<ButtonEntry> {
         private int x, width;
         private final String label;
-        final Runnable action;
-        boolean active = false;   // draws a check and a green border, for the picked profile
+        private final Runnable action;
+        private boolean active = false;   // draws a check and a green border, for the picked profile
 
         public ButtonEntry(int x, int w, String label, Runnable action) {
             this.x = x; this.width = w; this.label = label; this.action = action;
@@ -1830,7 +1829,7 @@ public class MapConfigScreen extends Screen {
     public class KeybindEntry extends DescribedEntry<KeybindEntry> {
         private int x, width;
         private final String label;
-        final IntSupplier getter;
+        private final IntSupplier getter;
         private final IntConsumer setter;
 
         public KeybindEntry(int x, int w, String label, IntSupplier getter, IntConsumer setter) {
@@ -2136,10 +2135,10 @@ public class MapConfigScreen extends Screen {
     public class SliderEntry extends DescribedEntry<SliderEntry> {
         private int x, width;
         private final String label;
-        final float min, max;
+        private final float min, max;
         private final Supplier<Float> getter;
         private final Consumer<Float> setter;
-        final int decimals;
+        private final int decimals;
         private int lastNotch = Integer.MIN_VALUE;
 
         public SliderEntry(int x, int w, String label, float min, float max, Supplier<Float> getter, Consumer<Float> setter) {
@@ -2247,6 +2246,8 @@ public class MapConfigScreen extends Screen {
             return order;
         }
 
+        public String id() { return id; }
+
         @Override public int getHeight() { return HEAD + order().size() * LINE + 4; }
         @Override public String getLabel() { return label; }
         @Override public boolean matchesSearch(String q) { return label.toLowerCase().contains(q); }
@@ -2322,7 +2323,7 @@ public class MapConfigScreen extends Screen {
     public class DropdownEntry extends DescribedEntry<DropdownEntry> {
         private int x, width;
         private final String label;
-        final String[] options;
+        private final String[] options;
         private final Supplier<String> getter;
         private final Consumer<String> setter;
         private boolean expanded = false;
@@ -2400,7 +2401,7 @@ public class MapConfigScreen extends Screen {
     public class SoundDropdownEntry extends DescribedEntry<SoundDropdownEntry> {
         private int x, width;
         private final String label;
-        final String[] options;
+        private final String[] options;
         private final Supplier<String> getter;
         private final Consumer<String> setter;
 
@@ -2487,6 +2488,20 @@ public class MapConfigScreen extends Screen {
         public SearchListEntry clearAll(Runnable r) { this.clearAll = r; return this; }
 
         private boolean hasActions() { return pick != null || clearAll != null; }
+
+        public List<String> options() { return options.get(); }
+        public boolean isSelected(String id) { return selected.test(id); }
+        public void toggle(String id) { onToggle.accept(id); }
+        public String displayName(String id) { return displayName.apply(id); }
+        public boolean hasIcons() { return icon != null; }
+        public net.minecraft.world.item.ItemStack icon(String id) { return icon == null ? null : icon.apply(id); }
+        public boolean hasColors() { return color != null; }
+        public String color(String id) { return color == null ? null : color.apply(id); }
+        public void setColor(String id, String hex) { if (onColor != null) onColor.accept(id, hex); }
+        public boolean canPick() { return pick != null; }
+        public String pick() { return pick == null ? null : pick.get(); }
+        public boolean canClearAll() { return clearAll != null; }
+        public void clearAll() { if (clearAll != null) clearAll.run(); }
 
         @Override public int getHeight() {
             if (!expanded) return ROW_HEIGHT;

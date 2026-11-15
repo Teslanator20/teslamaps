@@ -95,6 +95,7 @@ public class NiaConfigScreen extends Screen {
     private List<FormattedCharSequence> tipLines;
     private long resetArmedAt;
     private boolean contentHovered;
+    private String jumpTab;
 
     public static Screen create(Screen parent) {
         return new NiaConfigScreen(parent, MapConfigScreen.View.OLD);
@@ -102,6 +103,20 @@ public class NiaConfigScreen extends Screen {
 
     public static Screen create(Screen parent, MapConfigScreen.View view) {
         return new NiaConfigScreen(parent, view);
+    }
+
+    public static Screen withSearch(MapConfigScreen.View view, String query) {
+        lastSearch = query == null ? "" : query;
+        return new NiaConfigScreen(null, view);
+    }
+
+    public boolean isBindingKey() {
+        return model.isBindingKey() || editTarget != null;
+    }
+
+    /** Rows rebuilt from the config, e.g. after a backup restore. */
+    public void rebuild() {
+        rebuildModel();
     }
 
     private NiaConfigScreen(Screen parent, MapConfigScreen.View view) {
@@ -133,7 +148,6 @@ public class NiaConfigScreen extends Screen {
             lastSearch = q;
             updateSearch();
         });
-        searchBox.setValue(lastSearch);
         searchBox.visible = false;
         addRenderableWidget(searchBox);
 
@@ -144,6 +158,21 @@ public class NiaConfigScreen extends Screen {
         editor.visible = false;
         addRenderableWidget(editor);
         editTarget = null;
+        searchBox.setValue(lastSearch);
+        String[] jump = NiaModel.takeJump();
+        if (jump != null) {
+            String g = model.sidebarItemOf(jump[0]);
+            if (g != null) jumpTab = g;
+            String q = jump[1] == null ? "" : jump[1].toLowerCase();
+            boolean hits = false;
+            if (!q.isEmpty()) {
+                for (List<MapConfigScreen.SettingsEntry> l : model.categories().values()) {
+                    for (MapConfigScreen.SettingsEntry e : l) if (!e.isLabel() && hit(e, q)) { hits = true; break; }
+                    if (hits) break;
+                }
+            }
+            searchBox.setValue(hits ? jump[1] : "");
+        }
 
         scaleAnim.setEasing(Animation.Easing.EASE_OUT_EXPO);
         scaleAnim.setDuration(300);
@@ -182,6 +211,9 @@ public class NiaConfigScreen extends Screen {
             String remembered = model.view() == MapConfigScreen.View.OLD ? TeslaMapsConfig.get().lastConfigCategory : null;
             String g = model.sidebarItemOf(remembered);
             if (g != null) selected = g;
+            if (jumpTab != null) selected = jumpTab;
+            if (NiaModel.newMode()) selected = NiaModel.NEW_OPTIONS;
+            jumpTab = null;
         }
         if (!model.groups().containsKey(selected) && !SEARCH.equals(selected)) selected = firstItem();
         if (!searchQuery.isEmpty()) {
@@ -245,7 +277,7 @@ public class NiaConfigScreen extends Screen {
         searchBox.visible = false;
         searchBox.setFocused(false);
         if (getFocused() == searchBox) setFocused(null);
-        if (model.view() == MapConfigScreen.View.OLD && !NiaModel.TURNED_ON.equals(tab)) {
+        if (model.view() == MapConfigScreen.View.OLD && !NiaModel.TURNED_ON.equals(tab) && !NiaModel.NEW_OPTIONS.equals(tab)) {
             TeslaMapsConfig.get().lastConfigCategory = tab;
         }
         scrollSidebarTo(tab);
@@ -265,6 +297,22 @@ public class NiaConfigScreen extends Screen {
                 sec.syncStateImmediately(font);
                 list.add(sec);
             }
+            activeComps = list;
+            return;
+        }
+        if (NiaModel.NEW_OPTIONS.equals(selected)) {
+            NiaSection sec = null;
+            for (MapConfigScreen.SettingsEntry e : model.newRows()) {
+                if (e.isLabel()) {
+                    if (sec != null && !sec.rows.isEmpty()) list.add(sec);
+                    sec = new NiaSection(this, "new#" + e.getLabel(), e.getLabel().trim(), null, null, true);
+                } else {
+                    if (sec == null) sec = new NiaSection(this, "new#", NiaModel.NEW_OPTIONS, null, null, true);
+                    sec.rows.add(NiaRow.of(this, e));
+                }
+            }
+            if (sec != null && !sec.rows.isEmpty()) list.add(sec);
+            for (NiaSection s : list) s.syncStateImmediately(font);
             activeComps = list;
             return;
         }
@@ -473,7 +521,8 @@ public class NiaConfigScreen extends Screen {
         renderModules(g, contentX, top, contentW, top, py + panelH - 1, mx, my, theme);
         if (activeComps.isEmpty()) {
             String msg = searchMode ? (searchQuery.isBlank() ? "Type to search every option" : "No results found.")
-                    : NiaModel.TURNED_ON.equals(selected) ? "Nothing turned on yet" : "";
+                    : NiaModel.TURNED_ON.equals(selected) ? "Nothing turned on yet"
+                    : NiaModel.NEW_OPTIONS.equals(selected) ? "No new options" : "";
             if (!msg.isEmpty()) {
                 int w = NiaRender.width(font, msg);
                 NiaRender.text(g, font, msg, contentX + (moduleW - w) / 2, top + 20, theme.trinaryText());
@@ -589,7 +638,8 @@ public class NiaConfigScreen extends Screen {
     private static final String[] ACTIONS_ARMED = {"Click to confirm", "HUD Editor", "Hotkeys", "Shortcuts"};
 
     private String[] actionLabels() {
-        if (TeslaMapsConfig.get().configResetOptions && !searchMode && !NiaModel.TURNED_ON.equals(selected)) {
+        if (TeslaMapsConfig.get().configResetOptions && !searchMode && !NiaModel.TURNED_ON.equals(selected)
+                && !NiaModel.NEW_OPTIONS.equals(selected)) {
             return System.currentTimeMillis() - resetArmedAt < 3000 ? ACTIONS_ARMED : ACTIONS_RESET;
         }
         return ACTIONS;
@@ -850,7 +900,7 @@ public class NiaConfigScreen extends Screen {
             return true;
         }
         if (mx >= px + SIDEBAR_W && mx <= px + panelW && my >= py && my <= py + panelH) {
-            if (contentHovered && hoverRow instanceof NiaRow.Delegate d && d.entry.scrollAt((int) mx, (int) my, d.y, v)) return true;
+            if (contentHovered && hoverRow != null && hoverRow.scroll(mx, my, v)) return true;
             scrollTarget += v * 30;
             return true;
         }
@@ -900,6 +950,7 @@ public class NiaConfigScreen extends Screen {
         resizeEdge = 0;
         endEdit();
         model.cancelEdits();
+        NiaModel.finishNew();
         closing = true;
         GuiSounds.close();
     }

@@ -1,12 +1,12 @@
 package com.teslamaps.compat;
 
-import com.teslamaps.screen.MapConfigScreen;
+import com.teslamaps.screen.nia.NiaConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
 public class ModMenuIntegration implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return MapConfigScreen::new;
+        return NiaConfigScreen::create;
     }
 }

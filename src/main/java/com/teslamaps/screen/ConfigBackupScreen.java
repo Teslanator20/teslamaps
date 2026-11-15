@@ -151,6 +151,9 @@ public class ConfigBackupScreen extends Screen {
     public void onClose() {
         if (parent instanceof MapConfigScreen m) {
             minecraft.gui.setScreen(MapConfigScreen.open());
+        } else if (parent instanceof com.teslamaps.screen.nia.NiaConfigScreen n) {
+            n.rebuild();
+            minecraft.gui.setScreen(n);
         } else {
             minecraft.gui.setScreen(parent);
         }

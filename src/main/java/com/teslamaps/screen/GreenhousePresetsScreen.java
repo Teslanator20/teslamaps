@@ -134,6 +134,7 @@ public class GreenhousePresetsScreen extends Screen {
     @Override
     public void onClose() {
         if (parent instanceof MapConfigScreen m) minecraft.gui.setScreen(MapConfigScreen.open(m.view()));
+        else if (parent instanceof com.teslamaps.screen.nia.NiaConfigScreen n) { n.rebuild(); minecraft.gui.setScreen(n); }
         else minecraft.gui.setScreen(parent);
     }
 }

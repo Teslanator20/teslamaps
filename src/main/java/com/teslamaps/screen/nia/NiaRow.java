@@ -54,6 +54,8 @@ abstract class NiaRow {
         if (e instanceof MapConfigScreen.ClassFilterEntry t) return new ClassFilter(s, t);
         if (e instanceof MapConfigScreen.InfoEntry) return new Info(s, e);
         if (e instanceof MapConfigScreen.ProfileTilesEntry) return new ProfileTiles(s, e);
+        if (e instanceof MapConfigScreen.SearchListEntry t) return new SearchList(s, t);
+        if (e instanceof MapConfigScreen.LineOrderEntry t) return new LineOrder(s, t);
         return new Delegate(s, e);
     }
 
@@ -90,6 +92,8 @@ abstract class NiaRow {
     boolean mouseDragged(double mx, double my) { return false; }
 
     boolean mouseReleased(double mx, double my) { return false; }
+
+    boolean scroll(double mx, double my, double v) { return false; }
 
     void drawLabel(GuiGraphicsExtractor g, Font font, int lx, int rowH, int color) {
         int ty = centeredY(y, rowH, textHeight(font, lines));
@@ -956,6 +960,378 @@ abstract class NiaRow {
         }
     }
 
+    // ------------------------------------------------------------------ searchable multi-select list
+
+    static final class SearchList extends NiaRow {
+        private static final int HEAD = 18, FIELD_H = 16, ITEM_H = 18, VIEW_ROWS = 8, BUTTON_H = 18, GAP = 4;
+        final MapConfigScreen.SearchListEntry t;
+        private boolean expanded;
+        private int scroll;
+        private String query = "";
+        private String colorId;
+        private boolean editingColor;
+        private long clearArmed;
+        private List<String> rows;
+        private final java.util.Set<String> on = new java.util.HashSet<>();
+        private String rowsQuery;
+        private long rowsAt;
+        private int countFor = -1;
+        private String countText = "";
+        private int listX, listY, listW, fieldY, actionsY;
+
+        SearchList(NiaConfigScreen s, MapConfigScreen.SearchListEntry t) {
+            super(s, t);
+            this.t = t;
+        }
+
+        @Override
+        int labelMaxWidth(int w) { return Math.max(1, w - 90); }
+
+        private boolean editingColor() { return editingColor && colorId != null && s.editing(this); }
+
+        private boolean hasActions() { return t.canPick() || t.canClearAll(); }
+
+        @Override
+        void layout(Font font, int w) {
+            super.layout(font, w);
+            height = Math.max(HEAD, height);
+            if (!expanded) return;
+            height += GAP + FIELD_H + GAP + VIEW_ROWS * ITEM_H + 4 + GAP;
+            if (editingColor()) height += BUTTON_H + GAP;
+            if (hasActions()) height += BUTTON_H + GAP;
+        }
+
+        private void invalidate() { rows = null; }
+
+        private List<String> rows() {
+            long now = System.currentTimeMillis();
+            if (rows != null && query.equals(rowsQuery) && now - rowsAt < 1000) return rows;
+            String q = query.toLowerCase(Locale.ROOT);
+            List<String> sel = new ArrayList<>(), rest = new ArrayList<>();
+            on.clear();
+            for (String id : t.options()) {
+                boolean v = t.isSelected(id);
+                if (v) on.add(id);
+                if (!q.isEmpty() && !id.toLowerCase(Locale.ROOT).contains(q) && !t.displayName(id).toLowerCase(Locale.ROOT).contains(q)) continue;
+                (v ? sel : rest).add(id);
+            }
+            sel.addAll(rest);
+            rows = sel;
+            rowsQuery = query;
+            rowsAt = now;
+            return sel;
+        }
+
+        private int swatch(String id) {
+            String hex = t.color(id);
+            return hex == null ? 0xFF555555 : TeslaMapsConfig.parseColor(hex);
+        }
+
+        @Override
+        void render(GuiGraphicsExtractor g, Font font, int mx, int my, NiaTheme theme, int opacity) {
+            List<String> all = rows();
+            int textColor = textColor(opacity);
+            boolean headHover = mx >= x && mx <= x + width && my >= y && my < y + HEAD;
+            if (headHover) NiaRender.roundedRect(g, x, y, width, HEAD, 5, NiaRender.withAlpha(0xFFFFFF, Math.min(10, opacity)));
+            drawLabel(g, font, x, HEAD, textColor);
+            if (on.size() != countFor) {
+                countFor = on.size();
+                countText = countFor + " selected";
+            }
+            int cw = NiaRender.width(font, countText);
+            int ty = centeredY(y, HEAD, font.lineHeight);
+            NiaRender.text(g, font, countText, x + width - 14 - cw, ty, NiaRender.withAlpha(theme.trinaryText(), Math.min(200, opacity)));
+            NiaRender.text(g, font, expanded ? "-" : "+", x + width - 8, ty, NiaRender.withAlpha(theme.accentColor(), Math.min(255, opacity)));
+            if (!expanded) return;
+
+            listX = x;
+            listW = width;
+            fieldY = y + HEAD + GAP;
+            boolean typing = s.editing(this) && !editingColor;
+            boolean fieldHover = mx >= listX && mx <= listX + listW && my >= fieldY && my < fieldY + FIELD_H;
+            int border = typing ? NiaRender.withAlpha(theme.accentColor(), Math.min(120, opacity + 30))
+                    : NiaRender.withAlpha(0xFFFFFF, Math.min(fieldHover ? 50 : 30, opacity));
+            NiaRender.surface(g, listX, fieldY, listW, FIELD_H, 5, NiaRender.withAlpha(theme.secondary(), Math.min(220, opacity)), border);
+            int fty = fieldY + (FIELD_H - font.lineHeight) / 2 + 1;
+            if (typing) s.placeEditor(listX + 6, fieldY, listW - 12, FIELD_H);
+            else if (query.isEmpty()) NiaRender.text(g, font, "Search...", listX + 6, fty, NiaRender.withAlpha(theme.trinaryText(), Math.min(160, opacity)));
+            else NiaRender.text(g, font, NiaRender.ellipsize(font, query, listW - 12), listX + 6, fty, textColor);
+
+            listY = fieldY + FIELD_H + GAP;
+            int viewH = VIEW_ROWS * ITEM_H + 4;
+            NiaRender.surface(g, listX, listY, listW, viewH, 6, NiaRender.withAlpha(theme.secondary(), Math.min(170, opacity)),
+                    NiaRender.withAlpha(0xFFFFFF, Math.min(20, opacity)));
+            int max = Math.max(0, all.size() - VIEW_ROWS);
+            if (scroll > max) scroll = max;
+            if (all.isEmpty()) NiaRender.text(g, font, "Nothing here", listX + 8, listY + 7, NiaRender.withAlpha(theme.trinaryText(), Math.min(160, opacity)));
+            int right = listX + listW - (max > 0 ? 8 : 4);
+            for (int i = 0; i < VIEW_ROWS && scroll + i < all.size(); i++) {
+                String id = all.get(scroll + i);
+                boolean sel = on.contains(id);
+                int ry = listY + 2 + i * ITEM_H;
+                boolean hover = mx >= listX + 2 && mx < right && my >= ry && my < ry + ITEM_H;
+                if (hover) NiaRender.roundedRect(g, listX + 2, ry, right - listX - 2, ITEM_H, 4, NiaRender.withAlpha(0xFFFFFF, Math.min(14, opacity)));
+                int tx = listX + 6;
+                if (t.hasIcons()) {
+                    net.minecraft.world.item.ItemStack st = t.icon(id);
+                    if (st != null && !st.isEmpty()) g.item(st, tx, ry + 1);
+                    else NiaRender.roundedRect(g, tx + 2, ry + 3, 12, 12, 3, NiaRender.withAlpha(0xFFFFFF, Math.min(24, opacity)));
+                    tx += 20;
+                }
+                int sx = right - Toggle.SWITCH_WIDTH - 2;
+                int nameRight = sx - 6;
+                if (t.hasColors()) {
+                    int c = swatch(id);
+                    NiaRender.surface(g, sx - 18, ry + 3, 12, 12, 3, NiaRender.withAlpha(c, Math.min(opacity, c >>> 24)),
+                            NiaRender.withAlpha(0xFFFFFF, Math.min(72, opacity)));
+                    nameRight -= 18;
+                }
+                int nameColor = NiaRender.withAlpha(0xFFFFFF, Math.min(sel ? 235 : 150, opacity));
+                NiaRender.text(g, font, NiaRender.ellipsize(font, t.displayName(id), nameRight - tx), tx, ry + (ITEM_H - font.lineHeight) / 2 + 1, nameColor);
+                Toggle.renderToggle(g, theme, sx, ry + (ITEM_H - Toggle.SWITCH_HEIGHT) / 2, sel ? 1 : 0, opacity, false);
+                if (hover && t.hasColors()) s.tip("Right-click: colour");
+            }
+            if (max > 0) {
+                int trackH = VIEW_ROWS * ITEM_H;
+                int thumbH = Math.max(12, trackH * VIEW_ROWS / all.size());
+                int thumbY = listY + 2 + (trackH - thumbH) * scroll / max;
+                g.fill(listX + listW - 4, thumbY, listX + listW - 3, thumbY + thumbH, theme.scrollbarColor());
+            }
+
+            int below = listY + viewH + GAP;
+            if (editingColor()) {
+                int c = swatch(colorId);
+                NiaRender.surface(g, listX, below + 3, 12, 12, 3, NiaRender.withAlpha(c, Math.min(opacity, c >>> 24)),
+                        NiaRender.withAlpha(0xFFFFFF, Math.min(72, opacity)));
+                String name = NiaRender.ellipsize(font, t.displayName(colorId), Math.max(10, listW - 110));
+                NiaRender.text(g, font, name, listX + 18, below + (BUTTON_H - font.lineHeight) / 2 + 1, textColor);
+                int hx = listX + listW - 70;
+                NiaRender.surface(g, hx, below, 70, BUTTON_H, 5, NiaRender.withAlpha(theme.secondary(), Math.min(220, opacity)),
+                        NiaRender.withAlpha(theme.accentColor(), Math.min(120, opacity + 30)));
+                s.placeEditor(hx + 6, below, 58, BUTTON_H);
+                below += BUTTON_H + GAP;
+            }
+            actionsY = below;
+            if (!hasActions()) return;
+            String[] labels = actionLabels();
+            int bw = actionWidth(labels.length);
+            for (int i = 0; i < labels.length; i++) {
+                int bx = listX + i * (bw + 6);
+                boolean hover = mx >= bx && mx <= bx + bw && my >= below && my < below + BUTTON_H;
+                boolean armed = labels[i].startsWith("Sure");
+                NiaRender.surface(g, bx, below, bw, BUTTON_H, 5, NiaRender.withAlpha(theme.secondary(), Math.min(hover ? 242 : 224, opacity)),
+                        armed ? NiaRender.withAlpha(0xFF5555, Math.min(200, opacity)) : NiaRender.withAlpha(0xFFFFFF, Math.min(hover ? 56 : 26, opacity)));
+                String text = NiaRender.ellipsize(font, labels[i], bw - 8);
+                int tw = NiaRender.width(font, text);
+                NiaRender.text(g, font, text, bx + (bw - tw) / 2, below + (BUTTON_H - font.lineHeight) / 2 + 1,
+                        armed ? NiaRender.withAlpha(0xFF5555, Math.min(255, opacity)) : NiaRender.withAlpha(0xFFFFFF, Math.min(hover ? 255 : 214, opacity)));
+            }
+        }
+
+        private static final String[] PICK = {"Pick from World"}, CLEAR = {"Clear All"}, ARMED = {"Sure? Click again"},
+                PICK_CLEAR = {"Pick from World", "Clear All"}, PICK_ARMED = {"Pick from World", "Sure? Click again"};
+
+        private String[] actionLabels() {
+            boolean armed = System.currentTimeMillis() - clearArmed < 3000;
+            if (!t.canClearAll()) return PICK;
+            if (!t.canPick()) return armed ? ARMED : CLEAR;
+            return armed ? PICK_ARMED : PICK_CLEAR;
+        }
+
+        private int actionWidth(int n) {
+            return Math.min(150, (listW - 6 * (n - 1)) / n);
+        }
+
+        @Override
+        boolean mouseClicked(double mx, double my, int button) {
+            if (!contains(mx, my)) return false;
+            if (my < y + HEAD) {
+                if (!left(button)) return true;
+                expanded = !expanded;
+                if (!expanded && s.editing(this)) s.endEdit();
+                colorId = null;
+                GuiSounds.fold(expanded);
+                return true;
+            }
+            if (!expanded) return true;
+            if (left(button) && my >= fieldY && my < fieldY + FIELD_H) {
+                editingColor = false;
+                s.beginEdit(this, query, 40, v -> {
+                    query = v;
+                    scroll = 0;
+                });
+                return true;
+            }
+            if (my >= listY + 2 && my < listY + 2 + VIEW_ROWS * ITEM_H) {
+                int i = (int) ((my - listY - 2) / ITEM_H);
+                List<String> all = rows();
+                if (scroll + i >= all.size()) return true;
+                String id = all.get(scroll + i);
+                if (left(button)) {
+                    boolean was = on.contains(id);
+                    t.toggle(id);
+                    TeslaMapsConfig.save();
+                    invalidate();
+                    GuiSounds.toggle(!was);
+                } else if (t.hasColors()) {
+                    colorId = id;
+                    editingColor = true;
+                    s.beginEdit(this, String.format("%06X", swatch(id) & 0xFFFFFF), 6, v -> {
+                        if (v.length() == 6 && v.chars().allMatch(c -> Character.digit(c, 16) >= 0)) {
+                            t.setColor(colorId, v.toUpperCase(Locale.ROOT));
+                        }
+                    });
+                }
+                return true;
+            }
+            if (left(button) && hasActions() && my >= actionsY && my < actionsY + BUTTON_H) {
+                String[] labels = actionLabels();
+                int bw = actionWidth(labels.length);
+                for (int i = 0; i < labels.length; i++) {
+                    int bx = listX + i * (bw + 6);
+                    if (mx < bx || mx > bx + bw) continue;
+                    GuiSounds.press();
+                    if (labels[i].startsWith("Pick")) {
+                        String id = t.pick();
+                        if (id != null && !t.isSelected(id)) {
+                            t.toggle(id);
+                            TeslaMapsConfig.save();
+                        }
+                    } else if (labels[i].startsWith("Sure")) {
+                        t.clearAll();
+                        TeslaMapsConfig.save();
+                        clearArmed = 0;
+                    } else {
+                        clearArmed = System.currentTimeMillis();
+                    }
+                    invalidate();
+                }
+            }
+            return true;
+        }
+
+        @Override
+        boolean scroll(double mx, double my, double v) {
+            if (!expanded || my < listY || my >= listY + VIEW_ROWS * ITEM_H + 4) return false;
+            int max = Math.max(0, rows().size() - VIEW_ROWS);
+            scroll = Math.clamp(scroll - (int) Math.signum(v), 0, max);
+            return true;
+        }
+    }
+
+    // ------------------------------------------------------------------ hud line order
+
+    static final class LineOrder extends NiaRow {
+        private static final int HEAD = 18, LINE = 16;
+        final MapConfigScreen.LineOrderEntry t;
+        private List<String> order;
+        private int dragging = -1;
+        private int headH = HEAD;
+
+        LineOrder(NiaConfigScreen s, MapConfigScreen.LineOrderEntry t) {
+            super(s, t);
+            this.t = t;
+        }
+
+        private List<String> order() {
+            if (order == null) order = new ArrayList<>(com.teslamaps.utils.LineOrder.resolved(t.id()));
+            return order;
+        }
+
+        @Override
+        int labelMaxWidth(int w) { return Math.max(1, w - 50); }
+
+        @Override
+        void layout(Font font, int w) {
+            super.layout(font, w);
+            headH = Math.max(HEAD, height);
+            height = headH + order().size() * LINE + 4;
+        }
+
+        private int resetX(Font font) { return x + width - NiaRender.width(font, "Reset") - 4; }
+
+        @Override
+        void render(GuiGraphicsExtractor g, Font font, int mx, int my, NiaTheme theme, int opacity) {
+            drawLabel(g, font, x, headH, textColor(opacity));
+            boolean custom = com.teslamaps.utils.LineOrder.customized(t.id());
+            int rx = resetX(font);
+            boolean rHover = custom && mx >= rx - 3 && mx <= x + width && my >= y && my < y + headH;
+            NiaRender.text(g, font, "Reset", rx, centeredY(y, headH, font.lineHeight),
+                    !custom ? NiaRender.withAlpha(0xFFFFFF, Math.min(60, opacity))
+                            : rHover ? NiaRender.withAlpha(theme.accentColor(), Math.min(255, opacity))
+                            : NiaRender.withAlpha(theme.trinaryText(), Math.min(200, opacity)));
+            var def = com.teslamaps.utils.LineOrder.def(t.id());
+            List<String> o = order();
+            int top = y + headH;
+            for (int i = 0; i < o.size(); i++) {
+                String k = o.get(i);
+                boolean hidden = k.startsWith("-");
+                String key = hidden ? k.substring(1) : k;
+                int ry = top + i * LINE;
+                boolean hover = mx >= x && mx <= x + width && my >= ry && my < ry + LINE;
+                if (i == dragging) NiaRender.roundedRect(g, x, ry, width, LINE, 4, NiaRender.withAlpha(theme.accentColor(), Math.min(40, opacity)));
+                else if (hover && dragging < 0) NiaRender.roundedRect(g, x, ry, width, LINE, 4, NiaRender.withAlpha(0xFFFFFF, Math.min(12, opacity)));
+                int ty = ry + (LINE - font.lineHeight) / 2 + 1;
+                NiaRender.text(g, font, "=", x + 5, ty, NiaRender.withAlpha(theme.trinaryText(), Math.min(160, opacity)));
+                int sx = x + width - Toggle.SWITCH_WIDTH - 4;
+                String name = def != null ? com.teslamaps.utils.LineOrder.label(def, key) : key;
+                NiaRender.text(g, font, NiaRender.ellipsize(font, name, sx - x - 24), x + 16, ty,
+                        hidden ? NiaRender.withAlpha(0xFFFFFF, Math.min(110, opacity)) : textColor(opacity));
+                Toggle.renderToggle(g, theme, sx, ry + (LINE - Toggle.SWITCH_HEIGHT) / 2, hidden ? 0 : 1, opacity, false);
+            }
+        }
+
+        @Override
+        boolean mouseClicked(double mx, double my, int button) {
+            if (!left(button) || !contains(mx, my)) return false;
+            if (my < y + headH) {
+                if (com.teslamaps.utils.LineOrder.customized(t.id()) && mx >= resetX(Minecraft.getInstance().font) - 3) {
+                    GuiSounds.press();
+                    com.teslamaps.utils.LineOrder.reset(t.id());
+                    TeslaMapsConfig.save();
+                    order = null;
+                }
+                return true;
+            }
+            List<String> o = order();
+            int i = (int) ((my - y - headH) / LINE);
+            if (i < 0 || i >= o.size()) return true;
+            if (mx >= x + width - Toggle.SWITCH_WIDTH - 8) {
+                String k = o.get(i);
+                boolean hidden = k.startsWith("-");
+                o.set(i, hidden ? k.substring(1) : "-" + k);
+                com.teslamaps.utils.LineOrder.save(t.id(), o);
+                TeslaMapsConfig.save();
+                GuiSounds.toggle(hidden);
+            } else {
+                dragging = i;
+            }
+            return true;
+        }
+
+        @Override
+        boolean mouseDragged(double mx, double my) {
+            if (dragging < 0) return false;
+            List<String> o = order();
+            int target = Math.clamp((int) ((my - y - headH) / LINE), 0, o.size() - 1);
+            if (target != dragging) {
+                o.add(target, o.remove(dragging));
+                dragging = target;
+                GuiSounds.step(target / (float) Math.max(1, o.size() - 1));
+            }
+            return true;
+        }
+
+        @Override
+        boolean mouseReleased(double mx, double my) {
+            if (dragging < 0) return false;
+            dragging = -1;
+            com.teslamaps.utils.LineOrder.save(t.id(), order());
+            TeslaMapsConfig.save();
+            return true;
+        }
+    }
+
     // ------------------------------------------------------------------ everything else: drawn by the row itself
 
     static final class Delegate extends NiaRow {
@@ -980,6 +1356,11 @@ abstract class NiaRow {
         @Override
         boolean mouseClicked(double mx, double my, int button) {
             return contains(mx, my);
+        }
+
+        @Override
+        boolean scroll(double mx, double my, double v) {
+            return entry.scrollAt((int) mx, (int) my, y, v);
         }
     }
 }

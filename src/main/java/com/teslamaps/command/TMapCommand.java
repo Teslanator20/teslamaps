@@ -115,14 +115,9 @@ public class TMapCommand {
                     });
                     return 1;
                 })
-                .then(ClientCommands.literal("nia").executes(context -> {
+                .then(ClientCommands.literal("classic").executes(context -> {
                     Minecraft mc = Minecraft.getInstance();
-                    mc.schedule(() -> mc.gui.setScreen(com.teslamaps.screen.nia.NiaConfigScreen.create(null)));
-                    return 1;
-                }))
-                .then(ClientCommands.literal("h2").executes(context -> {
-                    Minecraft mc = Minecraft.getInstance();
-                    mc.schedule(() -> mc.gui.setScreen(com.teslamaps.screen.h2.H2ConfigScreen.create(null)));
+                    mc.schedule(() -> mc.gui.setScreen(MapConfigScreen.classic(MapConfigScreen.View.OLD)));
                     return 1;
                 }))
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())

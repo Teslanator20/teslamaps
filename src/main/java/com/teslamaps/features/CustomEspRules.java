@@ -98,7 +98,7 @@ public final class CustomEspRules {
                     b.toggle("Custom ESP Rules", () -> c.customEspRules, v -> c.customEspRules = v).cheat()
                             .desc("Highlight mobs by type, name, armor, held item, island, invisibility or health.");
                     b.button("  Edit Rules", () -> Minecraft.getInstance()
-                            .gui.setScreen(new com.teslamaps.screen.EspRuleScreen(b.screen())));
+                            .gui.setScreen(new com.teslamaps.screen.EspRuleScreen(Minecraft.getInstance().gui.screen())));
                     b.toggle("  Labels + Distance", () -> c.customEspRuleLabels, v -> c.customEspRuleLabels = v);
                     b.slider("  Line Width", 1f, 8f, () -> c.customEspRuleLineWidth, v -> c.customEspRuleLineWidth = v, 1);
                     b.soundDropdown("  Alert Sound", SoundOptions.keys(), () -> c.customEspRuleSound, v -> c.customEspRuleSound = v);

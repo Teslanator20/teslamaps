@@ -60,4 +60,24 @@ final class NiaModel extends MapConfigScreen {
     }
 
     boolean clickHandled() { return clickHandled; }
+
+    static final String NEW_OPTIONS = NEW;
+
+    static boolean newMode() { return newKeys != null; }
+
+    List<SettingsEntry> newRows() { return newEntries(); }
+
+    static void finishNew() {
+        if (newKeys == null) return;
+        newKeys = null;
+        com.teslamaps.features.NewOptions.markSeen();
+    }
+
+    /** Category and query of a pending jumpTo, consumed once. */
+    static String[] takeJump() {
+        if (jumpCategory == null && jumpQuery == null) return null;
+        String[] r = {jumpCategory, jumpQuery};
+        jumpCategory = jumpQuery = null;
+        return r;
+    }
 }

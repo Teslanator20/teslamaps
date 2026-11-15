@@ -25,7 +25,7 @@ public class ConfigHotkey {
         if (mc.getWindow() == null || window != mc.getWindow().handle()) return false;
 
         // a screen owns its own input, and the key could just be a modifier while typing
-        boolean ours = mc.gui.screen() instanceof MapConfigScreen;
+        boolean ours = mc.gui.screen() instanceof MapConfigScreen || mc.gui.screen() instanceof com.teslamaps.screen.nia.NiaConfigScreen;
         if (mc.gui.screen() != null && !ours) return false;
 
         if (action == com.mojang.blaze3d.platform.InputConstants.PRESS) {
@@ -40,6 +40,7 @@ public class ConfigHotkey {
         Minecraft mc = Minecraft.getInstance();
         if (mc.gui.screen() == null) return false;
         if (mc.gui.screen() instanceof MapConfigScreen s && s.isBindingKey()) return true;
+        if (mc.gui.screen() instanceof com.teslamaps.screen.nia.NiaConfigScreen s && s.isBindingKey()) return true;
         return mc.gui.screen().getFocused() instanceof net.minecraft.client.gui.components.EditBox box && box.isFocused();
     }
 
