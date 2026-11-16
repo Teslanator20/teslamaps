@@ -482,6 +482,8 @@ public class ShardOverlay {
         return true;
     }
 
+    public static boolean wantsText() { return focused && config().shardPanelSearch && shouldRender(); }
+
     public static boolean charTyped(int codepoint) {
         if (!focused || !config().shardPanelSearch || !shouldRender()) return false;
         if (codepoint < 32 || codepoint == 127) return false;

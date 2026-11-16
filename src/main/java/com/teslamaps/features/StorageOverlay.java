@@ -1192,6 +1192,8 @@ public class StorageOverlay {
         return true;
     }
 
+    public static boolean wantsText() { return searchFocused && active(); }
+
     public static boolean charTyped(int codepoint) {
         if (active() && rename != null) {
             if (codepoint >= 32 && codepoint != 127 && renameText.length() < 32) renameText += Character.toString(codepoint);

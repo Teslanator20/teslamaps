@@ -88,6 +88,8 @@ public class Searchbar {
         return true;
     }
 
+    public static boolean wantsText() { return focused && enabled(); }
+
     public static boolean charTyped(int codepoint) {
         if (!enabled() || !focused) return false;
         if (codepoint < 32 || codepoint == 127) return false;

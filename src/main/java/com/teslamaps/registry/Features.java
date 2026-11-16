@@ -282,6 +282,7 @@ final class Features {
         com.teslamaps.features.FancyWarpMenu.register();
         com.teslamaps.features.DevWorldTools.register();
         com.teslamaps.features.FakeServer.register();
+        com.teslamaps.utils.TextInputSync.register();
         com.teslamaps.features.CameraTweaks.register();
         com.teslamaps.features.InfernoMinion.register();
         // w06-07-qol
