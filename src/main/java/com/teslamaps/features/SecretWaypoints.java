@@ -44,6 +44,7 @@ public class SecretWaypoints {
     private static boolean loaded = false;
 
     private static Map<Integer, Map<WaypointType, List<int[]>>> cachedWaypoints = new HashMap<>();
+    private static final Map<Integer, Long> fallbackAt = new HashMap<>();
     private static int lastRoomId = -1;
 
     private static final Set<BlockPos> foundSecrets = new HashSet<>();
@@ -239,7 +240,9 @@ public class SecretWaypoints {
         lastRoomId = roomId;
 
         Map<WaypointType, List<int[]>> worldWaypoints = cachedWaypoints.get(roomId);
-        if (worldWaypoints == null) {
+        Long fb = fallbackAt.get(roomId);
+        if (worldWaypoints == null || (fb != null && System.currentTimeMillis() - fb > 1000)) {
+            fallbackAt.remove(roomId);
             worldWaypoints = addSecretsForRoom(room, mc.level);
             if (worldWaypoints != null) {
                 cachedWaypoints.put(roomId, worldWaypoints);
@@ -551,7 +554,21 @@ public class SecretWaypoints {
             }
         }
 
+        int[] best = null;
+        int bestBlocked = 5;
+        for (int[] corner : possibleCorners) {
+            int y = com.teslamaps.dungeon.DungeonWaypoints.topBlueY(world, corner[2], corner[3]);
+            if (y < 0) continue;
+            int blocked = com.teslamaps.dungeon.DungeonWaypoints.blockedNeighbors(world, corner[2], y, corner[3]);
+            if (blocked < bestBlocked) {
+                bestBlocked = blocked;
+                best = new int[]{corner[0] * 90, corner[2], corner[3]};
+            }
+        }
+        if (best != null) return best;
+
         if (!sortedComps.isEmpty()) {
+            fallbackAt.put(room.getRoomData().getRoomID(), System.currentTimeMillis());
             int[] comp = sortedComps.get(0);
             int cx = comp[0] * 2;
             int cz = comp[1] * 2;
@@ -771,6 +788,7 @@ public class SecretWaypoints {
     public static void reset() {
         foundSecrets.clear();
         cachedWaypoints.clear();
+        fallbackAt.clear();
         roomTransform.clear();
         routeCache.clear();
         labels = List.of();

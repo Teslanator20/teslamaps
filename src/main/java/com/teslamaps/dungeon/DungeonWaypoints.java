@@ -1026,7 +1026,42 @@ public class DungeonWaypoints {
                 }
             }
         }
-        return null;
+        if (!multi) return null;
+        // non-hypixel servers put blocks next to the clay: take the least boxed-in one
+        int[] best = null;
+        int bestBlocked = 5;
+        for (int r : new int[]{1, 0, 2, 3}) {
+            for (int[] comp : comps) {
+                int[] corner = ComponentGrid.gridToWorldCorner(comp[0], comp[1]);
+                int bx = corner[0] + ComponentGrid.HALF_ROOM_SIZE + ROT_OFFSETS[r][0];
+                int bz = corner[1] + ComponentGrid.HALF_ROOM_SIZE + ROT_OFFSETS[r][1];
+                int y = topBlueY(level, bx, bz);
+                if (y < 0) continue;
+                int blocked = blockedNeighbors(level, bx, y, bz);
+                if (blocked < bestBlocked) {
+                    bestBlocked = blocked;
+                    best = new int[]{bx, bz, r};
+                }
+            }
+        }
+        return best;
+    }
+
+    public static int topBlueY(net.minecraft.world.level.Level level, int x, int z) {
+        net.minecraft.core.BlockPos.MutableBlockPos m = new net.minecraft.core.BlockPos.MutableBlockPos();
+        for (int y = 150; y >= 11; y--)
+            if (level.getBlockState(m.set(x, y, z)).is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue())) return y;
+        return -1;
+    }
+
+    public static int blockedNeighbors(net.minecraft.world.level.Level level, int x, int y, int z) {
+        net.minecraft.core.BlockPos.MutableBlockPos m = new net.minecraft.core.BlockPos.MutableBlockPos();
+        int n = 0;
+        for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            var st = level.getBlockState(m.set(x + d[0], y, z + d[1]));
+            if (!st.isAir() && !st.is(net.minecraft.world.level.block.Blocks.DYED_TERRACOTTA.blue())) n++;
+        }
+        return n;
     }
 
     private static boolean neighborsClear(net.minecraft.world.level.Level level, int x, int y, int z) {
