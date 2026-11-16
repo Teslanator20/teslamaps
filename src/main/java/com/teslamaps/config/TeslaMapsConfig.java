@@ -1276,6 +1276,7 @@ public class TeslaMapsConfig {
     public int fishingCatchSource = 0;         // what counts as a catch: 0 = auto, 1 = sea creatures + trophies (chat), 2 = every catch (xp)
     public float skillTrackerScale = 1.0f;     // Scale of skill tracker HUD
     public boolean skillTrackerHidden = false; // keep tracking, but only show the panel in the inventory
+    public boolean skillTrackerInDungeon = false;
     public String skillTrackerPin = "";        // "" = follow the xp, otherwise stay on that skill
     public boolean skillExpDisplay = false;    // cut the skill xp out of the action bar into its own HUD element
     public boolean petOverlay = false;         // equipped pet HUD: level, xp progress, held item

@@ -483,7 +483,7 @@ public class SkillTracker {
 
     public static boolean shouldRender() {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
-        if (!cfg.skillTracker || com.teslamaps.dungeon.DungeonManager.isInDungeon()) return false;
+        if (!cfg.skillTracker || (!cfg.skillTrackerInDungeon && com.teslamaps.dungeon.DungeonManager.isInDungeon())) return false;
         if (pinned() != null) return true;
         // a pause stops show(), so the panel would time out while it is parked
         return activeSkill != null && (paused || System.currentTimeMillis() - lastGain <= 10 * 60_000);
