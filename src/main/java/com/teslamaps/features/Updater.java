@@ -92,6 +92,9 @@ public class Updater {
     }
 
     public static void check(boolean verbose) {
+        // releases are 26.1.2 jars, never offer them to the 26.3 build
+        if (verbose) chat("§fUpdater is off in the 26.3 build");
+        if (true) return;
         if (state == State.CHECKING || state == State.DOWNLOADING) return;
         state = State.CHECKING;
         lastCheck = System.currentTimeMillis();
