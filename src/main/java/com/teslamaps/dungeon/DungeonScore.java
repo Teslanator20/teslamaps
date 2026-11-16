@@ -57,6 +57,7 @@ public class DungeonScore {
     private static Boolean firstDeathHasSpirit = null;
 
     private static int tabCrypts = 0;
+    private static int totalRoomsGuess = 0;
     private static int tabCompletedRooms = 0;
     private static int tabPuzzlesDone = 0;
     private static boolean blazeDoneChat = false;
@@ -91,6 +92,7 @@ public class DungeonScore {
         lastSkill = lastExplore = lastTime = lastBonus = 0;
         firstDeathHasSpirit = null;
         tabCrypts = 0;
+        totalRoomsGuess = 0;
         tabCompletedRooms = 0;
         tabPuzzlesDone = 0;
         blazeDoneChat = false;
@@ -244,10 +246,13 @@ public class DungeonScore {
         return paulScore + cryptsScore + mimicScore + princeScore + batBonus();
     }
 
+    // hypixel floors the cleared %, so completed/pct only ever overshoots: keep the lowest guess (odin's +0.4)
     private static int getTotalRooms() {
         double clearPct = getClearPercentage();
-        if (clearPct <= 0) return 36;
-        return (int) Math.round(getCompletedRooms() / clearPct);
+        if (clearPct <= 0 || getCompletedRooms() <= 0) return totalRoomsGuess > 0 ? totalRoomsGuess : 36;
+        int guess = (int) Math.floor(getCompletedRooms() / clearPct + 0.4);
+        if (totalRoomsGuess <= 0 || guess < totalRoomsGuess) totalRoomsGuess = guess;
+        return totalRoomsGuess;
     }
 
     private static int paulBonus() {

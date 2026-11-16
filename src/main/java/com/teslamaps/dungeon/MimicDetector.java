@@ -243,6 +243,10 @@ public class MimicDetector {
         if (!DungeonManager.isInDungeon() || mimicKilled) return;
 
         String clean = message.replaceAll("(?i)§[0-9A-FK-OR]", "").trim();
+        if (clean.startsWith("CHARM! You charmed the Mimic ") && !DungeonManager.isInBossArea()) {
+            setMimicKilled();
+            return;
+        }
         if (DungeonScore.MIMIC_PATTERN.matcher(clean).matches()) {
             TeslaMaps.debug("[MimicDetector] Detected mimic dead message from chat: {}", clean);
             mimicKilled = true;
