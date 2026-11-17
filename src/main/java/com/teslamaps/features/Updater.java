@@ -91,20 +91,25 @@ public class Updater {
         } catch (Exception ignored) {}
     }
 
+    private static final String CHANNEL = "-26.3";
+
     public static void check(boolean verbose) {
-        // releases are 26.1.2 jars, never offer them to the 26.3 build
-        if (verbose) chat("§fUpdater is off in the 26.3 build");
-        if (true) return;
         if (state == State.CHECKING || state == State.DOWNLOADING) return;
         state = State.CHECKING;
         lastCheck = System.currentTimeMillis();
         CompletableFuture.runAsync(() -> {
             try {
                 HttpClient client = http();
-                HttpResponse<String> release = client.send(api("/releases/latest", "application/vnd.github+json"),
+                // "latest" stays the 26.1.2 line for old clients; 26.3 builds only take tags ending in -26.3
+                HttpResponse<String> release = client.send(api("/releases?per_page=30", "application/vnd.github+json"),
                         HttpResponse.BodyHandlers.ofString());
                 if (release.statusCode() != 200) throw new Exception("release lookup HTTP " + release.statusCode());
-                JsonObject root = JsonParser.parseString(release.body()).getAsJsonObject();
+                JsonObject root = null;
+                for (var el : JsonParser.parseString(release.body()).getAsJsonArray()) {
+                    JsonObject r = el.getAsJsonObject();
+                    if (!r.get("draft").getAsBoolean() && r.get("tag_name").getAsString().endsWith(CHANNEL)) { root = r; break; }
+                }
+                if (root == null) throw new Exception("no " + CHANNEL.substring(1) + " release yet");
                 JsonArray assets = root.getAsJsonArray("assets");
                 long manifestId = -1, sigId = -1;
                 for (var el : assets) {
@@ -122,6 +127,8 @@ public class Updater {
 
                 JsonObject manifest = JsonParser.parseString(
                         new String(manifestBytes, StandardCharsets.UTF_8)).getAsJsonObject();
+                if (!manifest.has("mc") || !CHANNEL.equals("-" + manifest.get("mc").getAsString()))
+                    throw new Exception("release is for another minecraft version");
                 String version = manifest.get("version").getAsString();
                 String jar = manifest.get("jar").getAsString();
                 String sha = manifest.get("sha256").getAsString().toLowerCase();
