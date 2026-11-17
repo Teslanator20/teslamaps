@@ -364,6 +364,8 @@ public class MapConfigScreen extends Screen {
         return super.keyPressed(event);
     }
 
+    public boolean wantsText() { return editingList != null || editingColor != null || editingSlider != null; }
+
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
         if (editingList != null) { editingList.chr((char) event.codepoint()); return true; }

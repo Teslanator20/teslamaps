@@ -37,6 +37,9 @@ public class BestiaryPage extends ProfileViewerPage {
 
     private final com.teslamaps.profileviewer.ui.SearchField search = new com.teslamaps.profileviewer.ui.SearchField();
 
+    @Override
+    public boolean wantsText() { return search.focused(); }
+
     private int lastLeft;
     private int lastTop;
 

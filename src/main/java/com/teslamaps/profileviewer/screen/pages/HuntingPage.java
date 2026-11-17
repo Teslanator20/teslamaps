@@ -33,6 +33,9 @@ public class HuntingPage extends ProfileViewerPage {
     private static boolean boxMode = false;
 
     private final SearchField search = new SearchField();
+
+    @Override
+    public boolean wantsText() { return search.focused(); }
     private List<Cell> attributes;
     private List<Cell> box;
     private List<Cell> filtered = List.of();

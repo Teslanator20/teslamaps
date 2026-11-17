@@ -48,6 +48,7 @@ public class TeslaRenderPipelines {
                 .withVertexShader("core/position_color")
                 .withFragmentShader("core/position_color")
                 .withColorTargetState(TRANSLUCENT)
+                .withCull(false)
                 .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
                 .withPrimitiveTopology(PrimitiveTopology.QUADS);
     }

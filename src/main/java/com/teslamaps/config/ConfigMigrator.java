@@ -25,7 +25,7 @@ import java.util.function.UnaryOperator;
  */
 public final class ConfigMigrator {
 
-    public static final int CONFIG_VERSION = 3;
+    public static final int CONFIG_VERSION = 4;
     static final String KEY = "configVersion";
 
     private record Step(int version, String what, UnaryOperator<JsonObject> fix) {}
@@ -43,6 +43,7 @@ public final class ConfigMigrator {
         s.add(move(2, "safariShareTimeParty", "safariShareTimeChannel"));
         s.add(transform(2, "safariShareTimeChannel", ConfigMigrator::boolToChannel));
         s.add(new Step(3, "glfw keys -> sdl scancodes", ConfigMigrator::glfwToSdl));
+        s.add(new Step(4, "harp + insta loadout keys -> sdl", ConfigMigrator::keyArraysToSdl));
         for (Step step : s) {
             if (step.version() < 1 || step.version() > CONFIG_VERSION) {
                 String msg = "ConfigMigrator: step '" + step.what() + "' has version " + step.version()
@@ -64,6 +65,16 @@ public final class ConfigMigrator {
     }
 
     private static final java.util.regex.Pattern KEY_FIELD = java.util.regex.Pattern.compile("\\w*(Key|Keybind)|leapKey\\w+|farmKeys\\w+");
+
+    // v3 skipped these two arrays; harp only while it still holds the old glfw 1-7 default
+    private static JsonObject keyArraysToSdl(JsonObject json) {
+        if (json.get("harpKeys") instanceof JsonArray a && a.toString().equals("[49,50,51,52,53,54,55]"))
+            for (int i = 0; i < a.size(); i++) a.set(i, new JsonPrimitive(KeyNames.fromGlfw(a.get(i).getAsInt())));
+        if (json.get("instaLoadoutKeys") instanceof JsonArray a)
+            for (int i = 0; i < a.size(); i++)
+                if (isNum(a.get(i))) a.set(i, new JsonPrimitive(KeyNames.fromGlfw(a.get(i).getAsInt())));
+        return json;
+    }
 
     // 26.3: binds are SDL scancodes and 1-based mouse buttons, modifiers are SDL bits
     private static JsonObject glfwToSdl(JsonObject json) {

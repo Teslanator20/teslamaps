@@ -48,6 +48,7 @@ public final class WorldBuffers implements MultiBufferSource.BufferSource {
     private Slot last;
     private boolean any;
     private boolean broken;
+    private long brokenAt;
     private int reserved;
 
     private WorldBuffers() {}
@@ -102,7 +103,8 @@ public final class WorldBuffers implements MultiBufferSource.BufferSource {
         if (!any && !InstancedBoxes.pending()) return;
         any = false;
         last = null;
-        if (broken) {
+        // retry now and then so one bad frame does not kill every overlay for the session
+        if (broken && System.currentTimeMillis() - brokenAt < 10_000) {
             discard();
             InstancedBoxes.clear();
             return;
@@ -111,7 +113,8 @@ public final class WorldBuffers implements MultiBufferSource.BufferSource {
             drawAll();
         } catch (Throwable t) {
             broken = true;
-            TeslaMaps.LOGGER.warn("World overlay rendering disabled", t);
+            brokenAt = System.currentTimeMillis();
+            TeslaMaps.LOGGER.warn("World overlay rendering failed, retrying in 10s", t);
         } finally {
             for (int i = 0, n = slots.size(); i < n; i++) {
                 Slot s = slots.get(i);

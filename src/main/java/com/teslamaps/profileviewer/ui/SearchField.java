@@ -18,6 +18,8 @@ public class SearchField {
         return text;
     }
 
+    public boolean focused() { return focused; }
+
     public boolean isEmpty() {
         return text.isEmpty();
     }

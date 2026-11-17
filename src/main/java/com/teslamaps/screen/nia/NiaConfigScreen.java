@@ -946,6 +946,10 @@ public class NiaConfigScreen extends Screen {
         if (!searchMode && editTarget == null && key >= InputConstants.KEY_A && key <= InputConstants.KEY_Z
                 && !event.hasControlDown() && !event.hasAltDown()) {
             selectTab(SEARCH, true);
+            // the key that switched tabs never produces a char on 26.3
+            char c = (char) ('a' + key - InputConstants.KEY_A);
+            searchBox.setValue(searchBox.getValue() + (event.hasShiftDown() ? Character.toUpperCase(c) : c));
+            return true;
         }
         return super.keyPressed(event);
     }

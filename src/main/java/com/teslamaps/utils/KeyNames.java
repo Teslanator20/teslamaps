@@ -38,7 +38,7 @@ public class KeyNames {
             return switch (b) {
                 case InputConstants.MOUSE_BUTTON_LEFT -> com.teslamaps.utils.MouseState.left();
                 case InputConstants.MOUSE_BUTTON_RIGHT -> com.teslamaps.utils.MouseState.right();
-                case InputConstants.MOUSE_BUTTON_MIDDLE -> mc.mouseHandler.isMiddlePressed();
+                case InputConstants.MOUSE_BUTTON_MIDDLE -> com.teslamaps.utils.MouseState.middle();
                 default -> b > 0 && b <= 32 && (org.lwjgl.sdl.SDLMouse.nSDL_GetMouseState(0L, 0L) & (1 << (b - 1))) != 0;
             };
         }

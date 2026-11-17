@@ -35,7 +35,7 @@ public class GuiDump {
         if (key < 0 || mc.getWindow() == null) return;
         if (mc.gui.screen() instanceof net.minecraft.client.gui.screens.ChatScreen) return;
 
-        boolean down = com.mojang.blaze3d.platform.InputConstants.isKeyDown(key);
+        boolean down = KeyNames.isDown(key);
         if (down && !keyWasDown) {
             boolean shift = com.mojang.blaze3d.platform.InputConstants.isKeyDown(com.mojang.blaze3d.platform.InputConstants.KEY_LSHIFT);
             if (shift) dumpTooltip();

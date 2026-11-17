@@ -22,6 +22,12 @@ import java.util.function.IntConsumer;
 
 /** Hex colour field, one nibble at a time. Ported from Skyblocker's ARGBTextInput. */
 public class ArgbTextInput extends AbstractWidget {
+
+    @Override
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+        net.minecraft.client.Minecraft.getInstance().onTextInputFocusChange(this, focused);
+    }
     private static final ChatFormatting[] FORMATTINGS = {ChatFormatting.WHITE, ChatFormatting.RED, ChatFormatting.GREEN, ChatFormatting.BLUE};
     private static final String HEXADECIMAL_CHARS = "0123456789aAbBcCdDeEfF";
 

@@ -2436,7 +2436,6 @@ public class TeslaMapsConfig {
     public int petFavoriteKey = -1;
     public String petFavoriteColor = "80FFAA00";
     public java.util.Set<String> petFavoriteIds = new java.util.HashSet<>();
-    public boolean petWheelFavoritesOnly = false;
     public boolean petKeybinds = false;
     public int[] petKeys = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
     public String[] petKeyUuids = new String[9];
@@ -5405,7 +5404,8 @@ public class TeslaMapsConfig {
     public boolean damageAlertChat = false;
     public boolean mhDungeonHubSelector = false;
     public boolean harpHelper = false;
-    public int[] harpKeys = {49, 50, 51, 52, 53, 54, 55};
+    public int[] harpKeys = {com.mojang.blaze3d.platform.InputConstants.KEY_1, com.mojang.blaze3d.platform.InputConstants.KEY_2, com.mojang.blaze3d.platform.InputConstants.KEY_3,
+            com.mojang.blaze3d.platform.InputConstants.KEY_4, com.mojang.blaze3d.platform.InputConstants.KEY_5, com.mojang.blaze3d.platform.InputConstants.KEY_6, com.mojang.blaze3d.platform.InputConstants.KEY_7};
     public boolean harpKeyLabels = true;
     public boolean harpGuiScale = false;
     public boolean harpQuickRestart = false;
@@ -6554,7 +6554,7 @@ public class TeslaMapsConfig {
             if (t.matcher == null) t.matcher = "Contains";
             if (t.time == null) t.time = "1h";
         }
-        if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new int[]{49, 50, 51, 52, 53, 54, 55};
+        if (c.harpKeys == null || c.harpKeys.length != 7) c.harpKeys = new TeslaMapsConfig().harpKeys;
         if (c.damageAlertSoundType == null) c.damageAlertSoundType = "NOTE_PLING";
         if (c.colorWardrobeEquipped == null) c.colorWardrobeEquipped = "55FF55";
         if (c.colorWardrobeFavorite == null) c.colorWardrobeFavorite = "FFAA00";

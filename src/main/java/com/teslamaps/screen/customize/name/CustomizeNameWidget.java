@@ -541,7 +541,7 @@ public class CustomizeNameWidget extends AbstractContainerWidget {
         public void setFocused(boolean focused) {
             super.setFocused(focused);
             // required for IME support
-            if (focused) Minecraft.getInstance().onTextInputFocusChange(this, focused);
+            Minecraft.getInstance().onTextInputFocusChange(this, focused);
         }
 
         @Override

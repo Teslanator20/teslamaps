@@ -269,6 +269,9 @@ public class DungeonPage extends ProfileViewerPage {
 
     private static int targetLevel = -1;
     private boolean targetFocused = false;
+
+    @Override
+    public boolean wantsText() { return targetFocused; }
     private String targetText = "";
     private int calcX, calcY = -1000;
 

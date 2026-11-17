@@ -33,6 +33,7 @@ public class ItemSearchScreen extends Screen {
 
     private EditBox field;
     public boolean swallowNextChar; // hotkey press that opened us still emits a char event
+    private final long openedAt = System.currentTimeMillis();
     private List<Row> rows = new ArrayList<>();
     private int scroll = 0;
     private String status = "";
@@ -212,9 +213,10 @@ public class ItemSearchScreen extends Screen {
 
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        // 26.3 sends no char for a hotkey pressed outside a text field, so only eat one that comes right away
         if (swallowNextChar) {
             swallowNextChar = false;
-            return true;
+            if (System.currentTimeMillis() - openedAt < 100) return true;
         }
         return super.charTyped(event);
     }

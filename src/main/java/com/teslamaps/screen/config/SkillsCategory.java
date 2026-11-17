@@ -82,7 +82,6 @@ public final class SkillsCategory {
                 .desc("Pets menu: press the key over a pet to mark it, marked pets get a colored background");
         b.keybind("  Favorite Key", () -> config.petFavoriteKey, v -> config.petFavoriteKey = v).fresh();
         b.color("  Favorite Color", () -> config.petFavoriteColor, v -> config.petFavoriteColor = v).fresh();
-        b.toggle("  Pets Radial Menu: Favorites Only", () -> config.petWheelFavoritesOnly, v -> config.petWheelFavoritesOnly = v).fresh();
         b.label("Skill XP Display");
         b.toggle("Skill XP Display", () -> config.skillExpDisplay, v -> config.skillExpDisplay = v);
         b.info("Cuts the +XP out of the action bar into its own HUD element");

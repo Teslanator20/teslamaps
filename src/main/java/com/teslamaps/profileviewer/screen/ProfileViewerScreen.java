@@ -110,6 +110,10 @@ public class ProfileViewerScreen extends Screen {
     }
 
     private String nameInput = null;
+
+    public boolean wantsText() {
+        return nameInput != null || (selectedPageIndex >= 0 && selectedPageIndex < pages.size() && pages.get(selectedPageIndex).wantsText());
+    }
     private long nameCursorBlink = 0;
     private float scale = 1;
     private int panelX = 0;

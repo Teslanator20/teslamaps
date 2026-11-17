@@ -246,7 +246,7 @@ public class HudEditScreen extends Screen {
         }
         wasMouseDown = isMouseDown;
         if (extras && cfg.hudEditJump) {
-            boolean mid = minecraft.mouseHandler.isMiddlePressed();
+            boolean mid = com.teslamaps.utils.MouseState.middle();
             boolean midClicked = mid && !wasMiddleDown;
             wasMiddleDown = mid;
             HudEditElement hit = midClicked && dragging == null ? at(mouseX, mouseY) : null;

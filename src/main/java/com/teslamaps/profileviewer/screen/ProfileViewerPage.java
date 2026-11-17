@@ -95,6 +95,8 @@ public abstract class ProfileViewerPage {
         return false;
     }
 
+    public boolean wantsText() { return false; }
+
     public boolean charTyped(char chr) {
         return false;
     }

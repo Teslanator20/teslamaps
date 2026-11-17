@@ -29,6 +29,7 @@ public class ItemListScreen extends Screen {
     private static String lastQuery = "";
 
     public boolean swallowNextChar;
+    private final long openedAt = System.currentTimeMillis();
     private EditBox field;
     private List<Entry> all = List.of();
     private List<Entry> shown = List.of();
@@ -222,9 +223,10 @@ public class ItemListScreen extends Screen {
 
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        // 26.3 sends no char for a hotkey pressed outside a text field, so only eat one that comes right away
         if (swallowNextChar) {
             swallowNextChar = false;
-            return true;
+            if (System.currentTimeMillis() - openedAt < 100) return true;
         }
         return super.charTyped(event);
     }
