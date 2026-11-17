@@ -98,7 +98,7 @@ public final class ContainerPanelMover {
         }
         Minecraft mc = Minecraft.getInstance();
         if (dragging >= 0) {
-            boolean down = mc.mouseHandler.isLeftPressed();
+            boolean down = com.teslamaps.utils.MouseState.left();
             if (!down) {
                 dragging = -1;
                 TeslaMapsConfig.save();

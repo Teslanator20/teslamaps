@@ -76,7 +76,7 @@ public class ColorPickerWidget extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
+        boolean isMouseDown = com.teslamaps.utils.MouseState.left();
 
         int pickerX = popupX + PADDING;
         int pickerY = popupY + 25;

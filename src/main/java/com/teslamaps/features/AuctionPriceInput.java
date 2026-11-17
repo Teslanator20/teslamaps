@@ -207,7 +207,6 @@ public class AuctionPriceInput {
         private long lowestBin = 0L;
 
         private int panelX, panelY;
-        private boolean wasMouseDown = false;
 
         AuctionInputScreen(SignBlockEntity sign, String[] originalText, ItemStack stack) {
             super(Component.literal("Auction Price Input"));
@@ -255,8 +254,6 @@ public class AuctionPriceInput {
 
         @Override
         public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-            boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
-            boolean clicked = isMouseDown && !wasMouseDown;
 
             ctx.fill(0, 0, width, height, 0xC0000000);
             TeslaGui.hudPanel(ctx, panelX, panelY, PANEL_W, PANEL_H, 6);
@@ -296,16 +293,9 @@ public class AuctionPriceInput {
             }
             ctx.centeredText(font, display, centerX, panelY + 108, displayColor);
 
-            boolean modeHover = button(ctx, boxX, modeButtonY(), boxW,
+            button(ctx, boxX, modeButtonY(), boxW,
                     mode == UNDERCUT ? "Mode: Undercut" : "Mode: Normal", mouseX, mouseY);
-            boolean doneHover = button(ctx, boxX, doneButtonY(), boxW, "Done", mouseX, mouseY);
-
-            if (clicked && modeHover) {
-                mode = mode == NORMAL ? UNDERCUT : NORMAL;
-                TeslaMapsConfig.get().auctionDefaultMode = mode == UNDERCUT ? "Undercut" : "Normal";
-                TeslaMapsConfig.save();
-                recalculateValue();
-            }
+            button(ctx, boxX, doneButtonY(), boxW, "Done", mouseX, mouseY);
 
             super.extractRenderState(ctx, mouseX, mouseY, delta);
 
@@ -314,8 +304,26 @@ public class AuctionPriceInput {
                 ctx.setTooltipForNextFrame(font, stack, mouseX, mouseY);
             }
 
-            wasMouseDown = isMouseDown;
-            if (clicked && doneHover) finish();
+        }
+
+        @Override
+        public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {
+            if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) {
+                int boxX = panelX + 16, boxW = PANEL_W - 32;
+                boolean inX = event.x() >= boxX && event.x() < boxX + boxW;
+                if (inX && event.y() >= modeButtonY() && event.y() < modeButtonY() + BUTTON_H) {
+                    mode = mode == NORMAL ? UNDERCUT : NORMAL;
+                    TeslaMapsConfig.get().auctionDefaultMode = mode == UNDERCUT ? "Undercut" : "Normal";
+                    TeslaMapsConfig.save();
+                    recalculateValue();
+                    return true;
+                }
+                if (inX && event.y() >= doneButtonY() && event.y() < doneButtonY() + BUTTON_H) {
+                    finish();
+                    return true;
+                }
+            }
+            return super.mouseClicked(event, doubleClick);
         }
 
         /** Draws a row button in the config-screen style and reports whether it is hovered. */

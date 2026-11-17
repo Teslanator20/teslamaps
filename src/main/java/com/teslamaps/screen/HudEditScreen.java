@@ -185,7 +185,7 @@ public class HudEditScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
+        boolean isMouseDown = com.teslamaps.utils.MouseState.left();
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         boolean extras = extras();
         boolean showOff = extras && cfg.hudEditShowDisabled;

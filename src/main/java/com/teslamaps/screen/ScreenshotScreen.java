@@ -278,7 +278,7 @@ public class ScreenshotScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean down = minecraft.mouseHandler.isLeftPressed();
+        boolean down = com.teslamaps.utils.MouseState.left();
         boolean clicked = down && !wasMouseDown;
 
         ctx.fill(0, 0, width, height, 0xB0000000);

@@ -610,7 +610,7 @@ public class StorageOverlay {
             int trackW = 10, trackX = sw - trackW - 3, trackTop = HEADER_PX, trackH = wallBottom - HEADER_PX;
             int thumbH = Math.max(24, (int) (trackH * Math.min(1f, visVirt / (contentVirt - startY()))));
             if (scrollDragging) {
-                if (!mc.mouseHandler.isLeftPressed()) scrollDragging = false;
+                if (!com.teslamaps.utils.MouseState.left()) scrollDragging = false;
                 else {
                     float frac = (mouseY - trackTop - thumbH / 2f) / Math.max(1, trackH - thumbH);
                     scroll = Math.max(0, Math.min(maxScroll, frac * maxScroll));

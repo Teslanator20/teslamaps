@@ -443,8 +443,8 @@ public class NiaConfigScreen extends Screen {
         if (model.builds != seenBuild) rebuildFromModel();
         if (sectionsDirty) rebuildActive();
 
-        boolean down = minecraft.mouseHandler.isLeftPressed();
-        boolean rightDown = minecraft.mouseHandler.isRightPressed();
+        boolean down = com.teslamaps.utils.MouseState.left();
+        boolean rightDown = com.teslamaps.utils.MouseState.right();
         frameClicked = down && !wasDown && !dragging && resizeEdge == 0;
         frameMouseDown = down && !dragging && resizeEdge == 0;
         wasDown = down;

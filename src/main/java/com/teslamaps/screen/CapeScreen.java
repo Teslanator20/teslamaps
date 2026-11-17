@@ -321,14 +321,14 @@ public class CapeScreen extends Screen {
         // mouseDragged does not reach us reliably, so the held bar is followed per frame instead
         if (draggingBar) {
             scrollToBar(mouseY);
-            if (!minecraft.mouseHandler.isLeftPressed()) {
+            if (!com.teslamaps.utils.MouseState.left()) {
                 draggingBar = false;
                 setDragging(false);
             }
         }
         if (draggingWaviness) {
             setWaviness(mouseX);
-            if (!minecraft.mouseHandler.isLeftPressed()) {
+            if (!com.teslamaps.utils.MouseState.left()) {
                 draggingWaviness = false;
                 setDragging(false);
             }

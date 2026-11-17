@@ -46,7 +46,7 @@ public class MapEditScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
+        boolean isMouseDown = com.teslamaps.utils.MouseState.left();
 
         if (isMouseDown && !wasMouseDown) {
             if (isMouseOverMap(mouseX, mouseY)) {

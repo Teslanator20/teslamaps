@@ -178,6 +178,7 @@
     "NoCloudsMixin",
     "NoCursorResetMixin",
     "NoCursorResetMouseMixin",
+    "MouseStateMixin",
     "NoDeathAnimationMixin",
     "NoExplosionsMixin",
     "FireOverlayMixin",

@@ -984,9 +984,9 @@ public class MapConfigScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
+        boolean isMouseDown = com.teslamaps.utils.MouseState.left();
         boolean clicked = isMouseDown && !wasMouseDown; // Calculate BEFORE updating wasMouseDown
-        boolean isRightDown = minecraft.mouseHandler.isRightPressed();
+        boolean isRightDown = com.teslamaps.utils.MouseState.right();
         boolean rightClicked = isRightDown && !wasRightDown;
         wasRightDown = isRightDown; // early, the block below has several return paths
         if (clicked && com.teslamaps.features.QuickModSwitch.covers(this, mouseX, mouseY)) clicked = false;

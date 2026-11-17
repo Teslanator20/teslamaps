@@ -93,7 +93,7 @@ public class SoundPickerScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        boolean isMouseDown = minecraft.mouseHandler.isLeftPressed();
+        boolean isMouseDown = com.teslamaps.utils.MouseState.left();
         boolean clicked = isMouseDown && !wasMouseDown;
 
         ctx.fill(0, 0, width, height, 0xB0000000);
