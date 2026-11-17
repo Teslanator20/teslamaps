@@ -21,7 +21,7 @@ cp "$JAR" "$TMP/$NAME"
 # optional: CHANGELOG_FILE=path, one line per entry, shown in the in-game update popup
 CHANGELOG="[]"
 if [ -n "${CHANGELOG_FILE:-}" ] && [ -f "$CHANGELOG_FILE" ]; then
-    CHANGELOG="[$(sed -e 's/\r$//' -e 's/\t/ /g' -e '/^[[:space:]]*$/d' -e 's/\/\\/g' -e 's/"/\\"/g' -e 's/.*/"&"/' "$CHANGELOG_FILE" | paste -sd, -)]"
+    CHANGELOG=$(python -c 'import json,sys; print(json.dumps([l.strip() for l in open(sys.argv[1],encoding="utf-8") if l.strip()]))' "$CHANGELOG_FILE")
 fi
 printf '{"version":"%s","mc":"%s","jar":"%s","sha256":"%s","published":%s,"changelog":%s}' \
     "$VERSION" "$MC" "$NAME" "$SHA" "$(date +%s)" "$CHANGELOG" > "$TMP/manifest.json"
