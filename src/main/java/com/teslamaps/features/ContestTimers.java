@@ -189,6 +189,19 @@ public final class ContestTimers {
         return System.currentTimeMillis() < ticketHideUntil;
     }
 
+    /** Index of the current Miria's Contest window. */
+    public static long foragingWindow(long now) {
+        return Math.floorDiv(now - START_OFFSET_MS, FORAGING_PERIOD_MS);
+    }
+
+    public static int foragingSecondsIn(long now) {
+        return (int) (Math.floorMod(now - START_OFFSET_MS, FORAGING_PERIOD_MS) / 1000L);
+    }
+
+    public static boolean ticketEarned() {
+        return hasTicket();
+    }
+
     /** Ticket is in — the foraging line has nothing left to say until the next contest. */
     public static boolean ticketDone() {
         return TeslaMapsConfig.get().contestHideAtTicket && hasTicket();

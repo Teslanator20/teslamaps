@@ -796,6 +796,7 @@ final class Features {
         com.teslamaps.safari.SparklingFocus.register();
         com.teslamaps.safari.SafariPartyCommands.register();
         com.teslamaps.safari.SparklingLookup.register();
+        com.teslamaps.safari.SafariEntryGuard.register();
         // w16-08-kuu
         com.teslamaps.features.kuudra.KuudraContext.register();
         com.teslamaps.features.kuudra.KuudraProfitTracker.register();

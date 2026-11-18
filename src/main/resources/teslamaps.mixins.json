@@ -108,6 +108,7 @@
     "ClientBrandMixin",
     "ClientPlayNetworkHandlerMixin",
     "ClientPlayerInteractionManagerMixin",
+    "SafariManagerMixin",
     "ColdOverlayMixin",
     "CommandsNodeMixin",
     "CompactorTooltipMixin",

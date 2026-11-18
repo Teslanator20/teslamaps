@@ -1759,6 +1759,10 @@ public class TeslaMapsConfig {
     public boolean safariAnnounceBiomeDone = true;  // alert when every critter of a biome is caught
     public boolean safariAnnounceUniqueDone = true; // alert when the whole dex is complete
     public boolean safariWarnNotFull = true;        // warn shortly after entry when fewer than 4 players are in
+    public boolean safariEntryGuard = false;        // block own Safari Manager / ticket click while party not ready
+    public boolean safariDowntime = false;          // !dt in party chat holds the entry
+    public boolean safariDowntimeAnnounce = false;  // leader posts DT requests / ticket reminder
+    public boolean safariContestGuard = false;      // leader posts contest start, holds entry until tickets confirmed
     public String safariShareTimeChannel = "Nobody"; // post those completion times: Nobody / Party / All
     public boolean safariAutoHideyho = false;       // click the [Sure] the server put on the Hideyho question
     public int safariAutoHideyhoMinMs = 300;        // never answer faster than this
