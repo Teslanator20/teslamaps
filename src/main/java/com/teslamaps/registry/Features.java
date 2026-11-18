@@ -951,5 +951,6 @@ final class Features {
         com.teslamaps.adm.Adm.register();
         com.teslamaps.features.PlayersLeaped.register();
         com.teslamaps.features.NoammTweaks.register();
+        com.teslamaps.safari.capsule.CapsulePreview.register();
     }
 }

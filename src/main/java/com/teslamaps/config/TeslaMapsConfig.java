@@ -3025,6 +3025,16 @@ public class TeslaMapsConfig {
     // w17-04-for
     public boolean safariSummaryLine = false;
     public boolean safariCenterNames = false;
+    public boolean safariCapsulePath = false;
+    public boolean safariCapsulePathThroughTerrain = true;
+    public float safariCapsulePathWidth = 3.0f;
+    public String colorSafariCapsulePath = "FFB347";
+    public String colorSafariCapsuleHit = "55DDEE";
+    public String colorSafariCapsuleOutline = "151515";
+    public boolean parkRainTimer = false;
+    public int parkRainTimerX = 10;
+    public int parkRainTimerY = 200;
+    public float parkRainTimerScale = 1.0f;
     public boolean mobVisualInvisibugBox = false;
     public String colorInvisibugBox = "80FF55FF";
     public boolean mobVisualHideCaught = false;
