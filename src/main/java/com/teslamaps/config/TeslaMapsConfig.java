@@ -6859,6 +6859,7 @@ public class TeslaMapsConfig {
                 TeslaMaps.LOGGER.info("Config loaded from {}", CONFIG_PATH);
             } else {
                 instance = new TeslaMapsConfig();
+                normalize(instance);
                 save();
                 TeslaMaps.LOGGER.info("Created default config at {}", CONFIG_PATH);
             }
