@@ -4502,6 +4502,8 @@ public class TeslaMapsConfig {
     public java.util.List<String> mutePartySpamPrefixes = new java.util.ArrayList<>(com.teslamaps.features.MutePartySpam.DEFAULTS);
     public boolean safariHotspotPost = false;
     public String safariHotspotPostChannel = "Party";
+    public boolean safariPartyCommands = false;
+    public boolean safariPartyCommandsTimesave = false;
     public boolean hunterTrades = false;
     public String hunterTradesChannel = "Party";
     public boolean hunterTradesChat = true;

@@ -211,7 +211,9 @@ public class ChatCommands {
                 if (downtimePlayers.isEmpty()) com.teslamaps.dungeon.AutoRequeue.setDowntimeHold(false);
                 say("Downtime reminder removed (" + sender + ")");
             }
-            case "missing", "miss" -> say(com.teslamaps.safari.SafariTracker.missingLine());
+            case "missing", "miss" -> {
+                if (!(c.equals("missing") && party && com.teslamaps.safari.SafariPartyCommands.on())) say(com.teslamaps.safari.SafariTracker.missingLine());
+            }
             case "help", "h" -> say(helpLine(party));
             default -> {
                 String instance = floorInstance(c);

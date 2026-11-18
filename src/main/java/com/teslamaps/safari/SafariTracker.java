@@ -1057,6 +1057,20 @@ public class SafariTracker {
         return out;
     }
 
+    /** What the live run still needs in one biome, plain text; null without a run. */
+    public static List<String> missingIn(SafariData.Biome b) {
+        if (runStart == 0) return null;
+        RunView v = currentView();
+        List<String> out = new ArrayList<>();
+        for (SafariData.Critter c : SafariData.in(b)) {
+            boolean gone = unavailable(v, c);
+            if (!gone && v.complete(c)) continue;
+            int q = SafariData.quota(c);
+            out.add(gone ? c.name() + " (none)" : q > 1 ? c.name() + " (" + v.catches(c) + "/" + q + ")" : c.name());
+        }
+        return out;
+    }
+
     public static void copyMissing() {
         Minecraft.getInstance().keyboardHandler.setClipboard(String.join("\n", missingLines(false)));
     }
