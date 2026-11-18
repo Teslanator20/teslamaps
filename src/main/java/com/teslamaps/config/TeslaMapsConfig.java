@@ -258,7 +258,9 @@ public class TeslaMapsConfig {
     @Global
     public java.util.List<String> fakeServers = new java.util.ArrayList<>(); // ips treated as hypixel (/tmap fakeserver)
     @Global
-    public String fakeServerFloor = "F7";
+    public boolean fakeServersDefaulted = false;
+    @Global
+    public String fakeServerFloor = "M7";
     @Global
     public String guiStyle = "Default";         // Look of the mod's screens: Default / Vanilla / Tooltip / Glass
     @Global
@@ -6421,6 +6423,10 @@ public class TeslaMapsConfig {
         if (c.admSimSettings == null) c.admSimSettings = new java.util.LinkedHashMap<>();
         c.admSimSettings.values().removeIf(java.util.Objects::isNull);
         if (c.fakeServers == null) c.fakeServers = new java.util.ArrayList<>();
+        if (!c.fakeServersDefaulted) {
+            c.fakeServersDefaulted = true;
+            if (!c.fakeServers.contains("mc.dungeonsim.net")) c.fakeServers.add("mc.dungeonsim.net");
+        }
         if (c.dragonAlertTypes == null) c.dragonAlertTypes = new java.util.ArrayList<>();
         if (c.dragonTrackLast == null) c.dragonTrackLast = new java.util.ArrayList<>();
         if (c.mobHealthHudMobs == null) c.mobHealthHudMobs = new java.util.ArrayList<>();
