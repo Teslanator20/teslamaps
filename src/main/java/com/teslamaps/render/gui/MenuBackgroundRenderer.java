@@ -29,10 +29,10 @@ public class MenuBackgroundRenderer {
     private static final Map<String, Preset> PRESETS = new LinkedHashMap<>();
 
     static {
-        PRESETS.put("Snow", new Preset(TeslaGuiPipelines.BG_SNOW, 0xFF0B2C4A, "sky_snow"));
-        PRESETS.put("Shimmer", new Preset(TeslaGuiPipelines.BG_SHIMMER, 0xFF0D2B3A, "sky_shimmer"));
+        PRESETS.put("Snow", new Preset(TeslaGuiPipelines.BG_SNOW, 0xFF0B2C4A, null));
+        PRESETS.put("Shimmer", new Preset(TeslaGuiPipelines.BG_SHIMMER, 0xFF0D2B3A, null));
         PRESETS.put("Liquid", new Preset(TeslaGuiPipelines.BG_LIQUID, 0xFF2B0F1C, "sky_liquid"));
-        PRESETS.put("Surge", new Preset(TeslaGuiPipelines.BG_SURGE, 0xFF8BE9FF, "sky_surge"));
+        PRESETS.put("Surge", new Preset(TeslaGuiPipelines.BG_SURGE, 0xFF8BE9FF, null));
         PRESETS.put("Starfield", new Preset(TeslaGuiPipelines.BG_STARFIELD, 0xFF9CC7FF, "sky_starfield"));
         PRESETS.put("Nebula", new Preset(TeslaGuiPipelines.BG_NEBULA, 0xFFD2A8FF, "sky_nebula"));
         PRESETS.put("Mesh", new Preset(TeslaGuiPipelines.BG_MESH, 0xFF12122A, "sky_mesh"));
@@ -44,7 +44,8 @@ public class MenuBackgroundRenderer {
     /** Post-chain file for a preset, used by the in-world skybox. */
     public static String chainFor(String preset) {
         Preset p = PRESETS.get(preset);
-        return p == null ? "sky_snow" : p.chain();
+        // snow/shimmer/surge only exist as menu backgrounds
+        return p == null || p.chain() == null ? "sky_starfield" : p.chain();
     }
 
     /** Preset one step along from {@code name}; wraps at both ends. */
@@ -93,6 +94,11 @@ public class MenuBackgroundRenderer {
 
     /** Procedural presets only. */
     public static String[] shaderNames() { return PRESETS.keySet().toArray(new String[0]); }
+
+    /** Presets that also have an in-world sky shader. */
+    public static String[] skyNames() {
+        return PRESETS.entrySet().stream().filter(e -> e.getValue().chain() != null).map(java.util.Map.Entry::getKey).toArray(String[]::new);
+    }
 
     /** Everything the menu can show: the procedural presets plus the player's own images. */
     public static String[] names() {

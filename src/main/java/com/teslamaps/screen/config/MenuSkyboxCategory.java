@@ -50,7 +50,7 @@ public final class MenuSkyboxCategory {
         b.toggle("  Only In Skyblock",
                 () -> config.skyboxOnlySkyblock, v -> config.skyboxOnlySkyblock = v);
         b.dropdown("  Skybox",
-                com.teslamaps.render.gui.MenuBackgroundRenderer.shaderNames(),
+                com.teslamaps.render.gui.MenuBackgroundRenderer.skyNames(),
                 () -> config.skyboxPreset, v -> config.skyboxPreset = v);
         b.color("  Skybox Tint",
                 () -> config.skyboxColor, v -> config.skyboxColor = v);

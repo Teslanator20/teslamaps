@@ -1230,7 +1230,7 @@ public class TeslaMapsConfig {
     @Global
     public boolean skyboxOnlySkyblock = true;     // Only while on Skyblock
     @Global
-    public String skyboxPreset = "Shimmer";       // Which skybox shader
+    public String skyboxPreset = "Starfield";       // Which skybox shader
     @Global
     public String skyboxColor = "FFFFFFFF";       // Tint applied to the skybox
     @Global
