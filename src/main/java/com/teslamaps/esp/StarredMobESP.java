@@ -66,6 +66,7 @@ public class StarredMobESP {
     private static boolean bloodKeyPickedUp = false;
 
     public static void reset() {
+        fairyVisited = false;
         witherKeyPickedUp = false;
         bloodKeyPickedUp = false;
     }
@@ -432,36 +433,46 @@ public class StarredMobESP {
 
     }
 
-    // the fairy-room doors stay closed until the wither door behind them is opened; the map already
-    // shows a door pixel there, so: map says door + neighbor is fairy + gap still solid -> highlight
+    private static boolean fairyVisited = false;
+
+    // fairy doors on the room grid: the map only says which sides have a door,
+    // the box sits in the 3-wide, 4-high gap between the two rooms
     private static void scanFairyDoors() {
         Minecraft mc = Minecraft.getInstance();
         fairyDoorBoxes.clear();
-        if (mc.level == null) return;
+        if (mc.level == null || mc.player == null || DungeonManager.isInBossArea()) return;
 
-        for (double[] p : com.teslamaps.scanner.MapScanner.getAllDoorPositions()) {
-            int wx = (int) Math.floor(p[0]), wz = (int) Math.floor(p[1]);
-            if (!isAdjacentToFairy(wx, wz)) continue;
+        com.teslamaps.map.DungeonRoom fairy = null;
+        for (com.teslamaps.map.DungeonRoom r : DungeonManager.getGrid().getAllRooms())
+            if (r.getType() == com.teslamaps.map.RoomType.FAIRY) { fairy = r; break; }
+        if (fairy == null || fairy.getComponents().isEmpty()) return;
+        int[] g = fairy.getComponents().get(0);
 
-            int solid = 0;
-            for (int off = -1; off <= 1; off++) {
-                if (!mc.level.getBlockState(new BlockPos(wx + off, 70, wz)).isAir()) solid++;
-                if (!mc.level.getBlockState(new BlockPos(wx, 70, wz + off)).isAir()) solid++;
-            }
-            // open = the doorway you walk in through
-            if (solid < 3 && !TeslaMapsConfig.get().fairyEntranceESP) continue;
+        if (fairy == DungeonManager.getCurrentRoom()) fairyVisited = true;
+        if (fairyVisited) return;
 
-            fairyDoorBoxes.add(new AABB(wx - 1.5, 69, wz - 1.5, wx + 2.5, 73, wz + 2.5));
+        int[] c = com.teslamaps.scanner.ComponentGrid.gridToWorldCorner(g[0], g[1]);
+        int mid = com.teslamaps.scanner.ComponentGrid.HALF_ROOM_SIZE;
+        int size = com.teslamaps.scanner.ComponentGrid.ROOM_SIZE;
+        // gap block in front of each side: east, west, south, north
+        int[][] sides = {{c[0] + size, c[1] + mid, 1}, {c[0] - 1, c[1] + mid, 1},
+                {c[0] + mid, c[1] + size, 0}, {c[0] + mid, c[1] - 1, 0}};
+        for (int[] sd : sides) {
+            int gx = sd[0], gz = sd[1];
+            if (!mapHasDoorNear(gx, gz)) continue;
+            boolean open = mc.level.getBlockState(new BlockPos(gx, 70, gz)).isAir();
+            if (open && !TeslaMapsConfig.get().fairyEntranceESP) continue;
+            boolean alongZ = sd[2] == 1;
+            fairyDoorBoxes.add(alongZ
+                    ? new AABB(gx, 69, gz - 1, gx + 1, 73, gz + 2)
+                    : new AABB(gx - 1, 69, gz, gx + 2, 73, gz + 1));
         }
     }
 
-    private static boolean isAdjacentToFairy(int wx, int wz) {
-        int[][] probes = {{wx + 3, wz}, {wx - 3, wz}, {wx, wz + 3}, {wx, wz - 3}};
-        for (int[] pr : probes) {
-            int[] g = com.teslamaps.scanner.ComponentGrid.worldToGrid(pr[0], pr[1]);
-            if (g == null) continue;
-            com.teslamaps.map.DungeonRoom r = DungeonManager.getRoomAt(g[0], g[1]);
-            if (r != null && r.getType() == com.teslamaps.map.RoomType.FAIRY) return true;
+    private static boolean mapHasDoorNear(int x, int z) {
+        for (double[] p : com.teslamaps.scanner.MapScanner.getAllDoorPositions()) {
+            double dx = p[0] - x, dz = p[1] - z;
+            if (dx * dx + dz * dz <= 36) return true;
         }
         return false;
     }
