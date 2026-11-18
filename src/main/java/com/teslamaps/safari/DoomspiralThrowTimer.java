@@ -105,7 +105,7 @@ public final class DoomspiralThrowTimer {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || hud == null || !timer.active() || !wardenNear) return;
+        if (mc.gui.hud.isHidden() || hud == null || !timer.active() || !wardenNear) return;
         long left = Math.max(timer.remaining() - LINGER, 0);
         List<String> ls = lines(left);
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), ls, TextHud.width(ls));

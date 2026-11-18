@@ -221,7 +221,7 @@ public final class SafariEntryGuard {
 
     private static Slot entrySlot(int containerId, int slotId) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || !(mc.screen instanceof AbstractContainerScreen<?> screen)) return null;
+        if (mc.player == null || !(mc.gui.screen() instanceof AbstractContainerScreen<?> screen)) return null;
         AbstractContainerMenu menu = mc.player.containerMenu;
         if (menu.containerId != containerId || slotId < 0 || slotId >= menu.slots.size()) return null;
         Slot slot = menu.slots.get(slotId);

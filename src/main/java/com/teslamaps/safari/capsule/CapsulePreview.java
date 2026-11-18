@@ -20,7 +20,8 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.teslamaps.render.MultiBufferSource;
+import com.teslamaps.render.WorldBuffers;
 import net.minecraft.world.phys.Vec3;
 
 public final class CapsulePreview {
@@ -129,7 +130,7 @@ public final class CapsulePreview {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer p = mc.player;
         if (!available || scene == null || p == null || mc.level != world) return;
-        if (mc.screen != null || mc.options.hideGui || mc.level.getGameTime() - tickedAt > 1) return;
+        if (mc.gui.screen() != null || mc.gui.hud.isHidden() || mc.level.getGameTime() - tickedAt > 1) return;
 
         float partial = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
         ShotVector eye = ShotVector.of(p.getEyePosition(partial));
@@ -169,9 +170,8 @@ public final class CapsulePreview {
 
     private static void draw(PoseStack matrices, Vec3 cam) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.renderBuffers() == null) return;
         TeslaMapsConfig c = cfg();
-        MultiBufferSource.BufferSource src = mc.renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource src = WorldBuffers.INSTANCE;
         boolean through = c.safariCapsulePathThroughTerrain && !c.safariLegitMode;
         var layer = through ? TeslaRenderLayers.LINES_ESP : TeslaRenderLayers.LINES_DEPTH;
         float width = Float.isFinite(c.safariCapsulePathWidth) ? Math.max(1f, Math.min(5f, c.safariCapsulePathWidth)) : 3f;

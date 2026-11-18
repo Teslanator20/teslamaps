@@ -296,7 +296,7 @@ public final class FloorDropDecoder {
     private static void renderBanner(GuiGraphicsExtractor g, DeltaTracker d) {
         if (banner == null) return;
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui) return;
+        if (mc.gui.hud.isHidden()) return;
         long age = System.currentTimeMillis() - bannerAt;
         if (age > BANNER_MS) {
             banner = null;
