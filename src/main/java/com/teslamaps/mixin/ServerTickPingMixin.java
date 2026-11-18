@@ -13,8 +13,12 @@ public class ServerTickPingMixin {
 
     @Inject(method = "handlePing", at = @At("HEAD"))
     private void teslamaps$onServerPing(ClientboundPingPacket packet, CallbackInfo ci) {
-        BloodCamp.onServerPing(packet.getId());
-        com.teslamaps.utils.ServerTickTimer.onPing(packet.getId());
-        if (packet.getId() != 0) com.teslamaps.dungeon.terminals.TerminalUtils.onServerTick();
+        // runs on netty and again on main; interleaved pings made the id check double count
+        if (!net.minecraft.client.Minecraft.getInstance().isSameThread()) {
+            BloodCamp.onServerPing(packet.getId());
+            com.teslamaps.utils.ServerTickTimer.onPing(packet.getId());
+        } else if (packet.getId() != 0) {
+            com.teslamaps.dungeon.terminals.TerminalUtils.onServerTick();
+        }
     }
 }

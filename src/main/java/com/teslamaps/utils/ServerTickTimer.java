@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class ServerTickTimer {
 
     private static final long NO_PING_MS = 250L;
+    // a lagging server sends no pings and ticks nothing either; only a server without pings gets the client clock
+    private static final long FALLBACK_MS = 5000L;
     private static final List<ServerTickTimer> PENDING = new ArrayList<>();
 
     private static final AtomicLong TICKS = new AtomicLong();
@@ -38,7 +40,7 @@ public final class ServerTickTimer {
 
     /** Client tick: fallback clock and due callbacks. */
     public static void clientTick() {
-        if (System.currentTimeMillis() - lastPingMs > NO_PING_MS) TICKS.incrementAndGet();
+        if (System.currentTimeMillis() - lastPingMs > FALLBACK_MS) TICKS.incrementAndGet();
         if (PENDING.isEmpty()) return;
         long now = TICKS.get();
         for (int i = PENDING.size() - 1; i >= 0; i--) {
