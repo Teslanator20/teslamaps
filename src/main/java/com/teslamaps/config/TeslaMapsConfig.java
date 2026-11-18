@@ -1693,6 +1693,7 @@ public class TeslaMapsConfig {
     public boolean critterBunbun = true;            // Bunbun (Rabbit)
     public boolean critterDrybark = true;           // Drybark (Creaking)
     public boolean critterFirefox = true;           // Firefox (Fox)
+    public boolean critterGrizzly = true;           // Grizzly Bear (by name)
     public boolean critterGroundhog = true;         // Groundhog (Hoglin)
     public boolean critterHideonsun = true;         // Hideonsun (Shulker)
     public boolean critterMountainGoat = true;      // Mountain Goat (Goat)
@@ -1704,6 +1705,7 @@ public class TeslaMapsConfig {
     public String colorCritterBunbun = "#2A8B7C";
     public String colorCritterDrybark = "#A08050";
     public String colorCritterFirefox = "#FF7F11";
+    public String colorCritterGrizzly = "#8A7A6A";
     public String colorCritterGroundhog = "#CC5500";
     public String colorCritterHideonsun = "#AA66CC";
     public String colorCritterMountainGoat = "#D8D8D8";

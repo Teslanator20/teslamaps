@@ -73,7 +73,21 @@ public class CritterESP {
         if (c.critterSepialot && e instanceof Axolotl) return c.colorCritterSepialot;
         if (c.critterDustybit && e instanceof Frog) return c.colorCritterDustybit;
         if (c.critterPuck && e instanceof Vex) return c.colorCritterPuck;
+        if (c.critterGrizzly && e instanceof net.minecraft.world.entity.Mob && named(e, "Grizzly")) return c.colorCritterGrizzly;
         return null;
+    }
+
+    // skyblock mobs often carry the display name on an armor stand riding/above them
+    private static boolean named(Entity e, String needle) {
+        if (e.getName().getString().contains(needle)) return true;
+        if (e.getCustomName() != null && e.getCustomName().getString().contains(needle)) return true;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return false;
+        for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, e.getBoundingBox().inflate(1, 3, 1), a -> true)) {
+            if (as.getName().getString().contains(needle)) return true;
+            if (as.getCustomName() != null && as.getCustomName().getString().contains(needle)) return true;
+        }
+        return false;
     }
 
     public static void render(PoseStack matrices, Vec3 cameraPos) {
