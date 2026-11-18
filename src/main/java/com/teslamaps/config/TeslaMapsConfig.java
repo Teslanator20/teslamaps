@@ -156,6 +156,7 @@ public class TeslaMapsConfig {
     public int lividTimerY = 120;
     public float lividTimerScale = 1.0f;
     public boolean doorESP = true;              // Highlight wither/blood doors through walls
+    public boolean fairyEntranceESP = true;
     public boolean fairyDoorESP = true;         // Highlight the closed fairy-room doors (open when the wither door behind falls)
     public boolean doorTracers = false;         // Draw tracers to wither/blood doors
     public boolean doorColorBasedOnKey = true;  // Color doors red if key not picked up, green if picked up

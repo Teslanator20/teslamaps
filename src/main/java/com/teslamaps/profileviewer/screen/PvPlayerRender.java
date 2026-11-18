@@ -56,6 +56,8 @@ public class PvPlayerRender {
                 return false;
             }
         };
+        // 26.3 only hands out ids when an entity joins the level; this one never does
+        player.setId(-2);
         player.yHeadRot = player.yHeadRotO = 0;
         cachedUuid = uuid;
         return player;

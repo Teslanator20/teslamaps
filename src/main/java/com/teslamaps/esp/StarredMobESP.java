@@ -448,7 +448,8 @@ public class StarredMobESP {
                 if (!mc.level.getBlockState(new BlockPos(wx + off, 70, wz)).isAir()) solid++;
                 if (!mc.level.getBlockState(new BlockPos(wx, 70, wz + off)).isAir()) solid++;
             }
-            if (solid < 3) continue; // already open (or never closed)
+            // open = the doorway you walk in through
+            if (solid < 3 && !TeslaMapsConfig.get().fairyEntranceESP) continue;
 
             fairyDoorBoxes.add(new AABB(wx - 1.5, 69, wz - 1.5, wx + 2.5, 73, wz + 2.5));
         }
