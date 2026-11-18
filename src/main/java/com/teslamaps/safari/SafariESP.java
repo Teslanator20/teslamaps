@@ -77,6 +77,7 @@ public class SafariESP {
             spotScanTimer = 10;
             spots.clear();
             scanSpots(mc);
+            spots.removeIf(cl -> FloorDropDecoder.covers(cl.center()));
         }
     }
 

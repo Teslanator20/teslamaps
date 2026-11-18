@@ -28,6 +28,115 @@ public final class ScrappyFish {
         Feature.of("ScrappyFish").section("Critter Safari").when(() -> cfg().safariScrappyFish)
                 .tick(ScrappyFish::tick)
                 .world(ScrappyFish::render);
+        Feature.of("ScrappyFood").section("Critter Safari").legit().when(() -> cfg().safariScrappyFood)
+                .tick(ScrappyFish::foodTick)
+                .world(ScrappyFish::foodRender)
+                .config("Critter Safari", b -> {
+                    TeslaMapsConfig c = cfg();
+                    b.label("Scrappy Food");
+                    b.toggle("Scrappy Food Decoder", () -> c.safariScrappyFood, v -> c.safariScrappyFood = v).cheat()
+                            .desc("Which food each Scrappy wants (Wheat / Fish / Lily Pad), read from the order the three spawned in")
+                            .tags("scrappy", "food", "wheat", "fish", "lily");
+                    b.color("  Wheat Color", () -> c.safariScrappyWheatColor, v -> c.safariScrappyWheatColor = v);
+                    b.color("  Fish Color", () -> c.safariScrappyFishColor, v -> c.safariScrappyFishColor = v);
+                    b.color("  Lily Pad Color", () -> c.safariScrappyLilyColor, v -> c.safariScrappyLilyColor = v);
+                    b.slider("  Label Size", 0.5f, 3.0f, () -> c.safariScrappyFoodScale, v -> c.safariScrappyFoodScale = v, 1);
+                });
+    }
+
+    // Ported from Sparkling Mutuals' ScrappyFoods.kt: the three Scrappys spawn 3 entity ids apart, wheat / fish / lily pad
+    private enum Food { WHEAT("Wheat"), FISH("Fish"), LILY_PAD("Lily Pad");
+        final String label;
+        Food(String label) { this.label = label; }
+    }
+
+    private static final java.util.Map<java.util.UUID, Integer> bodies = new java.util.LinkedHashMap<>();
+    private static final java.util.Set<Integer> otherIds = new java.util.HashSet<>();
+    private static Integer base;
+    private static boolean invalid;
+    private static net.minecraft.world.level.Level foodLevel;
+    private static int foodTicks;
+    private static final List<Entity> scrappys = new ArrayList<>();
+
+    private static void foodReset() {
+        bodies.clear();
+        otherIds.clear();
+        base = null;
+        invalid = false;
+        scrappys.clear();
+    }
+
+    private static void foodTick() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != foodLevel) {
+            foodReset();
+            foodLevel = mc.level;
+        }
+        if (!SafariData.inSafari()) {
+            scrappys.clear();
+            return;
+        }
+        if (++foodTicks < 5) return;
+        foodTicks = 0;
+        scrappys.clear();
+        scrappys.addAll(EntityCache.byType(net.minecraft.world.entity.animal.armadillo.Armadillo.class));
+        Integer start = base;
+        for (Entity e : scrappys) {
+            if (start == null || (e.getId() - start) % 3 == 0 && e.getId() - start >= 0 && e.getId() - start <= 6) {
+                bodies.putIfAbsent(e.getUUID(), e.getId());
+            }
+        }
+        if (start != null || invalid) return;
+        java.util.Set<Integer> known = new java.util.HashSet<>(bodies.values());
+        int room = Math.max(8192 - otherIds.size(), 0);
+        for (Entity e : EntityCache.all()) {
+            if (room <= 0) break;
+            int id = e.getId();
+            if (known.contains(id) || otherIds.contains(id)) continue;
+            otherIds.add(id);
+            room--;
+        }
+        otherIds.removeAll(known);
+        if (known.isEmpty()) return;
+        int min = java.util.Collections.min(known);
+        List<Integer> fits = new ArrayList<>();
+        for (int s : new int[]{min, min - 3, min - 6}) {
+            List<Integer> slots = List.of(s, s + 3, s + 6);
+            if (!slots.containsAll(known)) continue;
+            boolean clean = true;
+            for (int id : slots) if (otherIds.contains(id)) { clean = false; break; }
+            if (clean) fits.add(s);
+        }
+        base = fits.size() == 1 ? fits.get(0) : null;
+        invalid = fits.isEmpty() || otherIds.size() >= 8192;
+        if (base != null || invalid) otherIds.clear();
+    }
+
+    private static Food food(Entity e) {
+        Integer id = bodies.get(e.getUUID());
+        if (id == null || base == null) return null;
+        int offset = id - base;
+        return offset >= 0 && offset < 7 && offset % 3 == 0 ? Food.values()[offset / 3] : null;
+    }
+
+    private static void foodRender(PoseStack pose, Vec3 cam) {
+        if (scrappys.isEmpty()) return;
+        TeslaMapsConfig c = cfg();
+        float pt = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
+        for (Entity e : scrappys) {
+            if (e.isRemoved()) continue;
+            Food f = food(e);
+            if (f == null) continue;
+            String hex = switch (f) {
+                case WHEAT -> c.safariScrappyWheatColor;
+                case FISH -> c.safariScrappyFishColor;
+                case LILY_PAD -> c.safariScrappyLilyColor;
+            };
+            Vec3 p = e.getPosition(pt);
+            Vec3 at = new Vec3(p.x, p.y + e.getBbHeight() + 0.2, p.z);
+            com.teslamaps.render.ESPRenderer.drawText(pose, f.label, at, c.safariScrappyFoodScale, cam, true, true,
+                    TeslaMapsConfig.parseColor(hex) | 0xFF000000);
+        }
     }
 
     private static boolean active() {

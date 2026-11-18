@@ -797,6 +797,11 @@ final class Features {
         com.teslamaps.safari.SafariPartyCommands.register();
         com.teslamaps.safari.SparklingLookup.register();
         com.teslamaps.safari.SafariEntryGuard.register();
+        // sparkling mutuals
+        com.teslamaps.safari.FloorDropDecoder.register();
+        com.teslamaps.safari.ShywormTracker.register();
+        com.teslamaps.safari.DoomspiralThrowTimer.register();
+        com.teslamaps.safari.TeammateEsp.register();
         // w16-08-kuu
         com.teslamaps.features.kuudra.KuudraContext.register();
         com.teslamaps.features.kuudra.KuudraProfitTracker.register();

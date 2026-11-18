@@ -850,6 +850,7 @@ public class SafariTracker {
         if (count) {
             partyCatches.merge(c.name(), 1, Integer::sum);
             SafariBanners.onCatch(c.name());
+            ShywormTracker.onCatch(c.name());
         }
         if (catcher != null) catchers.computeIfAbsent(c.name(), k -> new LinkedHashSet<>()).add(catcher);
 
