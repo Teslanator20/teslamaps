@@ -94,8 +94,6 @@ public final class ESPCategory {
         b.color("  Wither Door", () -> config.colorESPWitherDoor, v -> config.colorESPWitherDoor = v);
         b.color("  Blood Door", () -> config.colorESPBloodDoor, v -> config.colorESPBloodDoor = v);
         b.toggle("Fairy Door ESP", () -> config.fairyDoorESP, v -> config.fairyDoorESP = v);
-        b.toggle("  Also the Open Entrance", () -> config.fairyEntranceESP, v -> config.fairyEntranceESP = v)
-                .desc("Marks the open doorway into the fairy room too, so you can find your way in");
         b.label("Livid");
         b.toggle("Livid Finder", () -> config.lividFinder, v -> config.lividFinder = v);
         b.toggle("  Livid Glow", () -> config.lividGlow, v -> config.lividGlow = v).fresh();

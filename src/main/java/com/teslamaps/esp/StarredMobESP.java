@@ -435,8 +435,7 @@ public class StarredMobESP {
 
     private static boolean fairyVisited = false;
 
-    // fairy doors on the room grid: the map only says which sides have a door,
-    // the box sits in the 3-wide, 4-high gap between the two rooms
+    // fairy door = wither door (coal) in front of an unvisited fairy room, as Devonian's DungeonDoor
     private static void scanFairyDoors() {
         Minecraft mc = Minecraft.getInstance();
         fairyDoorBoxes.clear();
@@ -459,22 +458,13 @@ public class StarredMobESP {
                 {c[0] + mid, c[1] + size, 0}, {c[0] + mid, c[1] - 1, 0}};
         for (int[] sd : sides) {
             int gx = sd[0], gz = sd[1];
-            if (!mapHasDoorNear(gx, gz)) continue;
-            boolean open = mc.level.getBlockState(new BlockPos(gx, 70, gz)).isAir();
-            if (open && !TeslaMapsConfig.get().fairyEntranceESP) continue;
+            BlockPos door = new BlockPos(gx, 69, gz);
+            if (!mc.level.isLoaded(door) || mc.level.getBlockState(door).getBlock() != Blocks.COAL_BLOCK) continue;
             boolean alongZ = sd[2] == 1;
             fairyDoorBoxes.add(alongZ
                     ? new AABB(gx, 69, gz - 1, gx + 1, 73, gz + 2)
                     : new AABB(gx - 1, 69, gz, gx + 2, 73, gz + 1));
         }
-    }
-
-    private static boolean mapHasDoorNear(int x, int z) {
-        for (double[] p : com.teslamaps.scanner.MapScanner.getAllDoorPositions()) {
-            double dx = p[0] - x, dz = p[1] - z;
-            if (dx * dx + dz * dz <= 36) return true;
-        }
-        return false;
     }
 
     // a blood door can only sit next to the blood room - Chambers has the same red-terracotta
