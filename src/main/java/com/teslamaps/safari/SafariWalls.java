@@ -36,6 +36,8 @@ public class SafariWalls {
 
     /** Walls seen to be gone this run. */
     private static final Set<BlockPos> seenBroken = new HashSet<>();
+    /** Last state seen while loaded, true = intact; kept when the chunk unloads. */
+    private static final java.util.Map<BlockPos, Boolean> known = new java.util.HashMap<>();
     private static int ticks = 0;
 
     private static boolean latch() {
@@ -44,16 +46,26 @@ public class SafariWalls {
 
     public static void reset() {
         seenBroken.clear();
+        known.clear();
+    }
+
+    /** Intact, broken or null when never seen loaded. */
+    private static Boolean intact(Minecraft mc, BlockPos pos) {
+        if (mc.level.isLoaded(pos)) return !mc.level.getBlockState(pos).isAir();
+        return known.get(pos);
     }
 
     /** Latches walls that are loaded, air and in plain sight. */
     public static void tick(Minecraft mc) {
-        if (!latch() || mc.level == null || mc.player == null) return;
+        if (mc.level == null || mc.player == null) return;
         if (++ticks < 10) return;
         ticks = 0;
+        boolean latch = latch();
         for (WallSet set : SETS) {
             for (BlockPos pos : set.positions()) {
-                if (seenBroken.contains(pos) || !mc.level.isLoaded(pos)) continue;
+                if (!mc.level.isLoaded(pos)) continue;
+                known.put(pos, !mc.level.getBlockState(pos).isAir());
+                if (!latch || seenBroken.contains(pos)) continue;
                 if (!mc.level.getBlockState(pos).isAir()) continue;
                 if (SafariSight.canSee(pos)) seenBroken.add(pos);
             }
@@ -69,9 +81,10 @@ public class SafariWalls {
             int intact = 0, unknown = 0;
             for (BlockPos pos : set.positions()) {
                 if (latch && seenBroken.contains(pos)) continue;
-                if (!mc.level.isLoaded(pos)) unknown++;
-                else if (!mc.level.getBlockState(pos).isAir()) intact++;
-                else if (latch) unknown++;
+                Boolean in = intact(mc, pos);
+                if (in == null) unknown++;
+                else if (in) intact++;
+                else if (latch && mc.level.isLoaded(pos)) unknown++;
             }
             return new int[] {intact, unknown};
         }
@@ -95,9 +108,8 @@ public class SafariWalls {
                     // only a wall seen gone drops out, unknown ones stay marked
                     if (seenBroken.contains(pos)) continue;
                 } else {
-                    // an unloaded chunk reports air too, so that is not a broken wall
-                    if (!mc.level.isLoaded(pos)) continue;
-                    if (mc.level.getBlockState(pos).isAir()) continue;
+                    // unloaded: last seen state, never seen = still marked
+                    if (Boolean.FALSE.equals(intact(mc, pos))) continue;
                 }
                 String label = null;
                 if (labels) {
