@@ -67,6 +67,7 @@ public class StarredMobESP {
 
     public static void reset() {
         fairyVisited = false;
+        fairyExitSides.clear();
         witherKeyPickedUp = false;
         bloodKeyPickedUp = false;
     }
@@ -434,8 +435,10 @@ public class StarredMobESP {
     }
 
     private static boolean fairyVisited = false;
+    // the wither exit flashes pink on the map, so a side once seen black stays the exit
+    private static final java.util.Set<Integer> fairyExitSides = new java.util.HashSet<>();
 
-    // fairy door = wither door (coal) in front of an unvisited fairy room, as Devonian's DungeonDoor
+    // fairy room: one open entrance + one wither-door exit; boxes the entrance, door read off the map pixel
     private static void scanFairyDoors() {
         Minecraft mc = Minecraft.getInstance();
         fairyDoorBoxes.clear();
@@ -456,10 +459,15 @@ public class StarredMobESP {
         // gap block in front of each side: east, west, south, north
         int[][] sides = {{c[0] + size, c[1] + mid, 1}, {c[0] - 1, c[1] + mid, 1},
                 {c[0] + mid, c[1] + size, 0}, {c[0] + mid, c[1] - 1, 0}};
-        for (int[] sd : sides) {
+        for (int i = 0; i < sides.length; i++) {
+            int[] sd = sides[i];
             int gx = sd[0], gz = sd[1];
+            int col = com.teslamaps.scanner.MapScanner.doorColor(g[0], g[1], i);
             BlockPos door = new BlockPos(gx, 69, gz);
-            if (!mc.level.isLoaded(door) || mc.level.getBlockState(door).getBlock() != Blocks.COAL_BLOCK) continue;
+            if (col == 119 || (mc.level.isLoaded(door) && mc.level.getBlockState(door).getBlock() == Blocks.COAL_BLOCK)) {
+                fairyExitSides.add(i);
+            }
+            if (col <= 0 || col == 85 || fairyExitSides.contains(i)) continue;
             boolean alongZ = sd[2] == 1;
             fairyDoorBoxes.add(alongZ
                     ? new AABB(gx, 69, gz - 1, gx + 1, 73, gz + 2)
