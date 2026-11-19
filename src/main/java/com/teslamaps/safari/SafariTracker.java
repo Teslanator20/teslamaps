@@ -116,6 +116,8 @@ public class SafariTracker {
     private static long dexDoneAt = 0L;
 
     private static long lastHideyhoAnswer = 0L;
+    private static ClickEvent pendingHideyho;
+    private static long pendingHideyhoAt;
     private static final java.util.Random RANDOM = new java.util.Random();
 
     public static boolean isActive() {
@@ -484,6 +486,11 @@ public class SafariTracker {
     }
 
     public static void register() {
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> {
+            if (!(screen instanceof net.minecraft.client.gui.screens.ChatScreen)) return;
+            net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseClick(screen).register((s, e) ->
+                    e.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || !answerPendingHideyho());
+        });
         net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(
                 net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("tmap")
                         .then(net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal("safari")
@@ -1108,7 +1115,9 @@ public class SafariTracker {
      * put on the component, so nothing is guessed or typed.
      */
     public static void onChatComponent(Component message) {
-        if (!TeslaMapsConfig.get().safariAutoHideyho) return;
+        TeslaMapsConfig cfg = TeslaMapsConfig.get();
+        boolean auto = cfg.safariAutoHideyho && !com.teslamaps.features.LegitMode.blocksCheats();
+        if (!auto && !cfg.safariHideyhoClickAnywhere) return;
         if (!message.getString().contains("Select an option:")) return;
         if (!SafariData.inSafari()) {
             com.teslamaps.TeslaMaps.LOGGER.info("[Hideyho] prompt outside safari, area '{}'", com.teslamaps.utils.SkyblockUtils.getArea());
@@ -1134,6 +1143,15 @@ public class SafariTracker {
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         long now = System.currentTimeMillis();
+        if (!auto) {
+            boolean fresh = pendingHideyho == null || now - pendingHideyhoAt > 5000;
+            pendingHideyho = ev;
+            pendingHideyhoAt = now;
+            if (fresh && mc.player != null) {
+                mc.player.sendSystemMessage(Component.literal("§a[TeslaMaps] §7Click anywhere with chat open to answer §a[Sure]"));
+            }
+            return;
+        }
         // Hypixel repeats the prompt, and answering every copy is a command-spam block.
         if (now - lastHideyhoAnswer < c.safariAutoHideyhoMinMs) return;
         lastHideyhoAnswer = now;
@@ -1141,14 +1159,28 @@ public class SafariTracker {
         int jitter = Math.max(0, c.safariAutoHideyhoJitterMs);
         int delay = Math.max(0, c.safariAutoHideyhoMinMs) + (jitter == 0 ? 0 : RANDOM.nextInt(jitter + 1));
         com.teslamaps.utils.TickScheduler.schedule(Math.max(1, delay / 50), () -> {
-            if (mc.getConnection() == null) return;
-            if (ev instanceof ClickEvent.Custom custom) {
-                mc.getConnection().send(new net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket(custom.id(), custom.payload()));
-            } else if (ev instanceof ClickEvent.RunCommand run) {
-                String cmd = run.command();
-                mc.getConnection().sendCommand(cmd.startsWith("/") ? cmd.substring(1) : cmd);
-            }
+            sendHideyho(ev);
         });
+    }
+
+    private static boolean answerPendingHideyho() {
+        ClickEvent ev = pendingHideyho;
+        if (ev == null) return false;
+        pendingHideyho = null;
+        if (System.currentTimeMillis() - pendingHideyhoAt > 60_000 || !TeslaMapsConfig.get().safariHideyhoClickAnywhere) return false;
+        sendHideyho(ev);
+        return true;
+    }
+
+    private static void sendHideyho(ClickEvent ev) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getConnection() == null) return;
+        if (ev instanceof ClickEvent.Custom custom) {
+            mc.getConnection().send(new net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket(custom.id(), custom.payload()));
+        } else if (ev instanceof ClickEvent.RunCommand run) {
+            String cmd = run.command();
+            mc.getConnection().sendCommand(cmd.startsWith("/") ? cmd.substring(1) : cmd);
+        }
     }
 
     private static int wumpaMissing() {

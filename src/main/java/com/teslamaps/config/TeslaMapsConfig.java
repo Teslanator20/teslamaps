@@ -1764,6 +1764,7 @@ public class TeslaMapsConfig {
     public boolean safariDowntimeAnnounce = false;  // leader posts DT requests / ticket reminder
     public boolean safariContestGuard = false;      // leader posts contest start, holds entry until tickets confirmed
     public String safariShareTimeChannel = "Nobody"; // post those completion times: Nobody / Party / All
+    public boolean safariHideyhoClickAnywhere = false;
     public boolean safariAutoHideyho = false;       // click the [Sure] the server put on the Hideyho question
     public int safariAutoHideyhoMinMs = 300;        // never answer faster than this
     public int safariAutoHideyhoJitterMs = 400;     // extra 0..n ms on top, so the delay varies

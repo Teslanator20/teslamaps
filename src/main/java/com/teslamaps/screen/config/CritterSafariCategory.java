@@ -106,7 +106,9 @@ public final class CritterSafariCategory {
                 .desc("Plays every banner stage, milestone and the sparkling screen once");
         b.label("Quality of Life");
         b.toggle("Hide Cold Overlay (Icy)", () -> config.safariHideCold, v -> config.safariHideCold = v);
-        b.toggle("Auto Accept Hideyho", () -> config.safariAutoHideyho, v -> config.safariAutoHideyho = v);
+        b.toggle("Hideyho Click Anywhere", () -> config.safariHideyhoClickAnywhere, v -> config.safariHideyhoClickAnywhere = v).fresh()
+                .desc("When Hideyho asks, a left click anywhere with chat open answers [Sure]");
+        b.toggle("Auto Accept Hideyho", () -> config.safariAutoHideyho, v -> config.safariAutoHideyho = v).cheat();
         b.slider("  Min Delay (ms)", 0f, 2000f,
                 () -> (float) config.safariAutoHideyhoMinMs, v -> config.safariAutoHideyhoMinMs = (int) (float) v, 0);
         b.slider("  Extra Random (ms)", 0f, 2000f,
