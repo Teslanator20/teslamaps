@@ -102,6 +102,7 @@ public class ShardData {
             parsed.add(shard);
             byBazaarId.put(shard.bazaarId, shard);
             byInternal.put(base(shard.internalName), shard);
+            com.teslamaps.utils.SkyblockItems.registerNeuAlias(shard.bazaarId, shard.internalName);
             if (!shard.displayName.isEmpty()) byDisplay.put(shard.displayName.toLowerCase(Locale.ROOT), shard);
             if (!shard.abilityName.isEmpty()) byAbility.put(shard.abilityName.toLowerCase(Locale.ROOT), shard);
             if (!shard.shardId.isEmpty()) byShardId.put(shard.shardId.toUpperCase(Locale.ROOT), shard);
