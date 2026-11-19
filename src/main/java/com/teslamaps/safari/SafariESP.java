@@ -303,6 +303,17 @@ public class SafariESP {
                     || (c.safariHideyhoTracer && critter.name().equals("Hideyho"));
             critters.add(new Marker(bodyOf(mc, as), color, label, tracer));
         }
+
+        if (c.safariCritterESP) {
+            Entity hideyho = HideyhoFinder.npc(mc);
+            SafariData.Critter critter = SafariData.byName("Hideyho");
+            boolean tagged = false;
+            for (Marker m : critters) if (m.label() != null && m.label().contains("Hideyho")) tagged = true;
+            if (hideyho != null && critter != null && !tagged && !(c.safariOnlyMissing && SafariTracker.hasCaught(critter))) {
+                critters.add(new Marker(hideyho.getBoundingBox(), critter.rarity().color, rarityCode(critter) + "Hideyho",
+                        c.safariTracers || c.safariHideyhoTracer));
+            }
+        }
     }
 
     /** Hideyho hides and the legendaries are one-per-run, so those always get a label. */

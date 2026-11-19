@@ -28,6 +28,8 @@ public final class HideyhoFinder {
     private static final double ARRIVE_SQ = 5.0 * 5.0;
     private static final double SEEN_RANGE = 5.0;
     private static final int COLOR = 0xFFAA55FF;
+    private static final String SKIN = "3504f1f2327a5110e643bb8667082512815fa434a29ed37f4ca83bb16d2db533";
+    private static final java.util.Map<String, Boolean> skins = new java.util.HashMap<>();
 
     private static Vec3 start;
     private static final List<BlockPos> route = new ArrayList<>();
@@ -92,6 +94,32 @@ public final class HideyhoFinder {
         return best;
     }
 
+    // Ported from Sparkling Mutuals' SafariEspRules: Hideyho is a player entity with its own skin
+    public static net.minecraft.world.entity.Entity npc(Minecraft mc) {
+        if (mc.level == null) return null;
+        for (net.minecraft.world.entity.player.Player p : mc.level.players()) {
+            if (p == mc.player) continue;
+            for (com.mojang.authlib.properties.Property prop : p.getGameProfile().properties().get("textures")) {
+                Boolean hit = skins.get(prop.value());
+                if (hit == null) {
+                    try {
+                        hit = new String(java.util.Base64.getDecoder().decode(prop.value()), java.nio.charset.StandardCharsets.UTF_8).contains(SKIN);
+                    } catch (IllegalArgumentException e) {
+                        hit = false;
+                    }
+                    if (skins.size() > 512) skins.clear();
+                    skins.put(prop.value(), hit);
+                }
+                if (hit) return p;
+            }
+        }
+        return null;
+    }
+
+    private static boolean useNpc() {
+        return TeslaMapsConfig.get().safariCritterESP && !com.teslamaps.features.LegitMode.blocksCheats();
+    }
+
     private static void tick() {
         if (route.isEmpty()) return;
         Minecraft mc = Minecraft.getInstance();
@@ -101,6 +129,22 @@ public final class HideyhoFinder {
         }
         if (++ticks < 10) return;
         ticks = 0;
+
+        net.minecraft.world.entity.Entity hideyho = useNpc() ? npc(mc) : null;
+        if (hideyho != null) {
+            if (mc.player.distanceToSqr(hideyho) <= ARRIVE_SQ) {
+                route.clear();
+                say(mc, "§aFound Hideyho!");
+                return;
+            }
+            BlockPos at = hideyho.blockPosition();
+            if (route.size() != 1 || !route.get(0).equals(at)) {
+                route.clear();
+                route.add(at);
+            }
+            updateLabel();
+            return;
+        }
 
         for (BlockPos p : route) {
             if (hideyhoNear(mc, p)) {
