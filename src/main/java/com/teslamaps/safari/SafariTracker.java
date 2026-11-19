@@ -1116,10 +1116,11 @@ public class SafariTracker {
         }
 
         // the buttons can sit nested, so walk the whole tree
-        java.util.Optional<String> found = message.visit((style, text) -> {
+        java.util.Optional<ClickEvent> found = message.visit((style, text) -> {
             String plain = COLORS.matcher(text).replaceAll("").trim();
-            if (plain.equals("[Sure]") && style.getClickEvent() instanceof ClickEvent.RunCommand run) {
-                return java.util.Optional.of(run.command());
+            ClickEvent ev = style.getClickEvent();
+            if (plain.equals("[Sure]") && (ev instanceof ClickEvent.RunCommand || ev instanceof ClickEvent.Custom)) {
+                return java.util.Optional.of(ev);
             }
             return java.util.Optional.empty();
         }, net.minecraft.network.chat.Style.EMPTY);
@@ -1129,9 +1130,7 @@ public class SafariTracker {
         }
 
         Minecraft mc = Minecraft.getInstance();
-        String cmd = found.get();
-        if (cmd.startsWith("/")) cmd = cmd.substring(1);
-        String finalCmd = cmd;
+        ClickEvent ev = found.get();
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         long now = System.currentTimeMillis();
@@ -1142,7 +1141,13 @@ public class SafariTracker {
         int jitter = Math.max(0, c.safariAutoHideyhoJitterMs);
         int delay = Math.max(0, c.safariAutoHideyhoMinMs) + (jitter == 0 ? 0 : RANDOM.nextInt(jitter + 1));
         com.teslamaps.utils.TickScheduler.schedule(Math.max(1, delay / 50), () -> {
-            if (mc.getConnection() != null) mc.getConnection().sendCommand(finalCmd);
+            if (mc.getConnection() == null) return;
+            if (ev instanceof ClickEvent.Custom custom) {
+                mc.getConnection().send(new net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket(custom.id(), custom.payload()));
+            } else if (ev instanceof ClickEvent.RunCommand run) {
+                String cmd = run.command();
+                mc.getConnection().sendCommand(cmd.startsWith("/") ? cmd.substring(1) : cmd);
+            }
         });
     }
 
