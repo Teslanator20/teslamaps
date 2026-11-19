@@ -3211,7 +3211,7 @@ public class TeslaMapsConfig {
     public boolean safariScrappyFishStopCaught = true;
     public com.teslamaps.render.EspStyle safariScrappyFishStyle = new com.teslamaps.render.EspStyle("55FFFF", com.teslamaps.render.EspStyle.GLOW);
     public boolean safariFloorDecoder = true;           // floor drop types from entity ids (cheat, on by request)
-    public boolean safariFloorDecoderAll = false;
+    public boolean safariFloorDecoderHideDone = false;
     public boolean safariFloorDecoderRewards = false;
     public boolean safariFloorDecoderBiome = true;
     public boolean safariFloorDecoderBanner = true;

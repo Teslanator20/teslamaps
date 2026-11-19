@@ -73,8 +73,8 @@ public final class FloorDropDecoder {
                     b.toggle("Floor Drop Decoder", () -> c.safariFloorDecoder, v -> c.safariFloorDecoder = v).cheat()
                             .desc("Tells every floor drop apart before you pick it up (gem, bird food, incense, coin, icebreaker) from its entity ids. Boxes only the types you still need.")
                             .tags("floor", "drop", "gem", "incense", "coin", "icebreaker", "food");
-                    b.toggle("  Show Every Type", () -> c.safariFloorDecoderAll, v -> c.safariFloorDecoderAll = v)
-                            .desc("Also the types you already have enough of");
+                    b.toggle("  Hide Types You Have", () -> c.safariFloorDecoderHideDone, v -> c.safariFloorDecoderHideDone = v)
+                            .desc("Off: types you already have enough of stay labeled in grey. On: they disappear");
                     b.toggle("  Reward Drops", () -> c.safariFloorDecoderRewards, v -> c.safariFloorDecoderRewards = v)
                             .desc("Also the XP / Essence / Shard drops");
                     b.toggle("  Only In Your Biome", () -> c.safariFloorDecoderBiome, v -> c.safariFloorDecoderBiome = v);
@@ -156,7 +156,7 @@ public final class FloorDropDecoder {
         for (FloorDropPredictor.Drop d : live) {
             if (!eligible(mc, d, here)) continue;
             int bx = (int) Math.floor(d.x), by = (int) Math.floor(d.y), bz = (int) Math.floor(d.z);
-            int col = d.type == FloorDropPredictor.Type.GENERIC ? reward : color;
+            int col = d.type == FloorDropPredictor.Type.GENERIC ? reward : useful(d) ? color : 0xFF808080;
             out.add(new Shown(new AABB(bx, by + 1.0, bz, bx + 1.0, by + 1.0, bz + 1.0), col, d.type.label,
                     new Vec3(d.x, d.y + 1.2, d.z), c.safariFloorDecoderScale));
         }
@@ -185,9 +185,12 @@ public final class FloorDropDecoder {
     private static boolean selected(FloorDropPredictor.Drop d) {
         FloorDropPredictor.Type t = d.type;
         if (t == FloorDropPredictor.Type.GENERIC) return cfg().safariFloorDecoderRewards;
-        if (t == FloorDropPredictor.Type.INCENSE && doomSummoned) return false;
-        if (cfg().safariFloorDecoderAll) return true;
-        return needed(t) && biomeEnabled(d.biome);
+        return !cfg().safariFloorDecoderHideDone || useful(d);
+    }
+
+    private static boolean useful(FloorDropPredictor.Drop d) {
+        if (d.type == FloorDropPredictor.Type.INCENSE && doomSummoned) return false;
+        return needed(d.type) && biomeEnabled(d.biome);
     }
 
     private static int amount(FloorDropPredictor.Type t) {
