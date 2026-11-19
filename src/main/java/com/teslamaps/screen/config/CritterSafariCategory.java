@@ -83,6 +83,8 @@ public final class CritterSafariCategory {
         b.toggle("  Full Screen Alert", () -> config.safariSparklingScreen, v -> config.safariSparklingScreen = v);
         b.info("Screen wash with SPARKLING!, the critter, biome and coords, 7s");
         b.toggle("  Only When Visible", () -> config.safariSparklingVisible, v -> config.safariSparklingVisible = v);
+        b.toggle("  Map-Wide Sparkle Detection", () -> config.safariSparklingParticles, v -> config.safariSparklingParticles = v).fresh().cheat()
+                .desc("Alerts on sparkling particles anywhere in the Safari, even when the critter itself is not loaded (species unknown)");
         b.toggle("  Sparkling HUD", () -> config.safariSparklingHud, v -> config.safariSparklingHud = v).fresh()
                 .desc("Label stays on screen while a sparkling is within 64 blocks. Position in /tmap gui");
         b.toggle("  Focus Sparkling", () -> config.safariSparklingFocus, v -> config.safariSparklingFocus = v).fresh()

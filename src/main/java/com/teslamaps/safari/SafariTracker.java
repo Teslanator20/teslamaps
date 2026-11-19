@@ -702,6 +702,8 @@ public class SafariTracker {
         missingPanel = null;
         gems.clear();
         alerted.clear();
+        sparkleAlertAt.clear();
+        sparkleSpots.clear();
         sparklingSeen.clear();
         capsules = 0;
         escapes = 0;
@@ -729,6 +731,9 @@ public class SafariTracker {
         if (!TeslaMapsConfig.get().safariTracker) return;
         String msg = COLORS.matcher(raw).replaceAll("").trim();
         SafariBanners.onChat(msg);
+        if (msg.startsWith("CAPTURE!") || msg.startsWith("LOOT SHARE!") || msg.startsWith("SPARKLING!")) {
+            captureChatAt = System.currentTimeMillis();
+        }
 
         Matcher m;
         if ((m = CAUGHT.matcher(msg)).matches() || (m = FOUND.matcher(msg)).matches()) {
@@ -948,6 +953,10 @@ public class SafariTracker {
     private static final java.util.concurrent.ConcurrentLinkedQueue<Vec3> sparklePackets =
             new java.util.concurrent.ConcurrentLinkedQueue<>();
     private static int sparkleScanTicks = 0;
+    private record SparkleSpot(Vec3 at, SafariData.Biome biome, long seen) {}
+    private static final List<SparkleSpot> sparkleSpots = new ArrayList<>();
+    private static long captureChatAt = 0L;
+    private static final Map<SafariData.Biome, Long> sparkleAlertAt = new EnumMap<>(SafariData.Biome.class);
 
     /** Sparkling critters spawn WAX_ON particles. Only queue the position. */
     public static void onParticlePacket(ClientboundLevelParticlesPacket packet) {
@@ -966,7 +975,10 @@ public class SafariTracker {
             return;
         }
         Vec3 at;
+        long now = System.currentTimeMillis();
+        sparkleSpots.removeIf(sp -> now - sp.seen() > 1000L);
         while ((at = sparklePackets.poll()) != null) {
+            boolean labeled = false;
             for (ArmorStand as : mc.level.getEntitiesOfClass(ArmorStand.class, AABB.ofSize(at, 1.0, 1.0, 1.0), a -> true)) {
                 if (as.getCustomName() == null) continue;
                 String name = COLORS.matcher(as.getCustomName().getString()).replaceAll("");
@@ -974,8 +986,11 @@ public class SafariTracker {
                 for (SafariData.Critter candidate : SafariData.ALL) {
                     if (name.contains(candidate.name())) { c = candidate; break; }
                 }
-                if (c != null && sparkling(mc, cfg, as, c)) break;
+                if (c == null) continue;
+                labeled = true;
+                if (sparkling(mc, cfg, as, c)) break;
             }
+            if (!labeled) unknownSparkle(cfg, at, now);
         }
         // critterMod's SparklingWatch: the label itself says Sparkling
         if (++sparkleScanTicks < 10) return;
@@ -988,6 +1003,33 @@ public class SafariTracker {
             SafariData.Critter c = SafariData.byName(n.substring(SPARKLING_PREFIX.length()));
             if (c != null) sparkling(mc, cfg, e, c);
         }
+    }
+
+    // Ported from Sparkling Mutuals' SparklingParticleLocations: sparkles alone, no entity loaded
+    private static void unknownSparkle(TeslaMapsConfig cfg, Vec3 at, long now) {
+        if (!cfg.safariSparklingParticles || com.teslamaps.features.LegitMode.blocksCheats()) return;
+        if (at.y < 0.0 || at.y > 160.0 || now - captureChatAt < 1500L) return;
+        net.minecraft.core.BlockPos bp = net.minecraft.core.BlockPos.containing(at);
+        SafariData.Biome biome = SafariData.biomeAt(bp);
+        if (biome == null) return;
+        for (int i = 0; i < sparkleSpots.size(); i++) {
+            SparkleSpot sp = sparkleSpots.get(i);
+            if (sp.biome() == biome && sp.at().distanceToSqr(at) <= 9.0) {
+                sparkleSpots.set(i, new SparkleSpot(at, biome, now));
+                return;
+            }
+        }
+        if (sparkleSpots.size() >= 128) return;
+        sparkleSpots.add(new SparkleSpot(at, biome, now));
+        Long last = sparkleAlertAt.get(biome);
+        if (last != null && now - last < 30_000L) return;
+        sparkleAlertAt.put(biome, now);
+        String where = biome.label + " " + bp.getX() + " " + bp.getY() + " " + bp.getZ();
+        testAlert("§d§lSPARKLING §7(sparkles) §7at §f" + where);
+        if (cfg.safariSparklingScreen) {
+            SafariBanners.fullScreen("SPARKLING!", "Unknown critter", where, TeslaMapsConfig.parseColor(cfg.colorSafariSparkling));
+        }
+        com.teslamaps.features.Announce.send(cfg.safariSparklingChannel, "SPARKLING at " + where);
     }
 
     private static boolean sparkling(Minecraft mc, TeslaMapsConfig cfg, net.minecraft.world.entity.Entity label, SafariData.Critter c) {
