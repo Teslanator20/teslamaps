@@ -336,25 +336,6 @@ public class MapScanner {
         }
     }
 
-    private static byte[] doorColors;
-
-    /** Map color in the gap on one side of a grid cell (0 east, 1 west, 2 south, 3 north), 0 = none, -1 = no map. */
-    public static int doorColor(int gridX, int gridZ, int side) {
-        byte[] colors = doorColors;
-        if (colors == null || !mapParamsDetected || mapCornerX < 0 || mapCornerY < 0) return -1;
-        int cell = mapRoomSize + mapGapSize;
-        int x0 = mapCornerX + gridX * cell, y0 = mapCornerY + gridZ * cell;
-        int mx, my;
-        switch (side) {
-            case 0 -> { mx = x0 + mapRoomSize; my = y0 + mapRoomSize / 2; }
-            case 1 -> { mx = x0 - mapGapSize; my = y0 + mapRoomSize / 2; }
-            case 2 -> { mx = x0 + mapRoomSize / 2; my = y0 + mapRoomSize; }
-            default -> { mx = x0 + mapRoomSize / 2; my = y0 - mapGapSize; }
-        }
-        if (mx < 0 || mx >= 128 || my < 0 || my >= 128) return 0;
-        return colors[mx + my * 128] & 0xFF;
-    }
-
     private static void scanDoorsFromMap(MapItemSavedData mapState) {
         witherDoorBoxes.clear();
         bloodDoorBoxes.clear();
@@ -369,7 +350,6 @@ public class MapScanner {
             return;
         }
 
-        doorColors = colors;
         int cellSize = mapRoomSize + mapGapSize;  // Usually 16 + 4 = 20
 
         boolean shouldDebug = debugLogCounter % 100 == 0;

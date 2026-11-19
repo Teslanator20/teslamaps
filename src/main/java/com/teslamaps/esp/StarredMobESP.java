@@ -67,7 +67,6 @@ public class StarredMobESP {
 
     public static void reset() {
         fairyVisited = false;
-        fairyExitSides.clear();
         witherKeyPickedUp = false;
         bloodKeyPickedUp = false;
     }
@@ -435,10 +434,8 @@ public class StarredMobESP {
     }
 
     private static boolean fairyVisited = false;
-    // the wither exit flashes pink on the map, so a side once seen black stays the exit
-    private static final java.util.Set<Integer> fairyExitSides = new java.util.HashSet<>();
 
-    // fairy room: one open entrance + one wither-door exit; boxes the entrance, door read off the map pixel
+    // the fairy room's entrance = the door it is reached through from the entrance room
     private static void scanFairyDoors() {
         Minecraft mc = Minecraft.getInstance();
         fairyDoorBoxes.clear();
@@ -447,32 +444,21 @@ public class StarredMobESP {
         com.teslamaps.map.DungeonRoom fairy = null;
         for (com.teslamaps.map.DungeonRoom r : DungeonManager.getGrid().getAllRooms())
             if (r.getType() == com.teslamaps.map.RoomType.FAIRY) { fairy = r; break; }
-        if (fairy == null || fairy.getComponents().isEmpty()) return;
-        int[] g = fairy.getComponents().get(0);
+        if (fairy == null) return;
 
         if (fairy == DungeonManager.getCurrentRoom()) fairyVisited = true;
         if (fairyVisited) return;
 
-        int[] c = com.teslamaps.scanner.ComponentGrid.gridToWorldCorner(g[0], g[1]);
-        int mid = com.teslamaps.scanner.ComponentGrid.HALF_ROOM_SIZE;
-        int size = com.teslamaps.scanner.ComponentGrid.ROOM_SIZE;
-        // gap block in front of each side: east, west, south, north
-        int[][] sides = {{c[0] + size, c[1] + mid, 1}, {c[0] - 1, c[1] + mid, 1},
-                {c[0] + mid, c[1] + size, 0}, {c[0] + mid, c[1] - 1, 0}};
-        for (int i = 0; i < sides.length; i++) {
-            int[] sd = sides[i];
-            int gx = sd[0], gz = sd[1];
-            int col = com.teslamaps.scanner.MapScanner.doorColor(g[0], g[1], i);
-            BlockPos door = new BlockPos(gx, 69, gz);
-            if (col == 119 || (mc.level.isLoaded(door) && mc.level.getBlockState(door).getBlock() == Blocks.COAL_BLOCK)) {
-                fairyExitSides.add(i);
-            }
-            if (col <= 0 || col == 85 || fairyExitSides.contains(i)) continue;
-            boolean alongZ = sd[2] == 1;
-            fairyDoorBoxes.add(alongZ
-                    ? new AABB(gx, 69, gz - 1, gx + 1, 73, gz + 2)
-                    : new AABB(gx - 1, 69, gz, gx + 2, 73, gz + 1));
-        }
+        DoorRoute.Door door = DoorRoute.parentDoor(fairy);
+        if (door == null || door.type() == com.teslamaps.map.DoorType.WITHER) return;
+        double x = door.x(), z = door.z();
+        boolean alongZ = false;
+        for (int[] ca : door.a().getComponents())
+            for (int[] cb : door.b().getComponents())
+                if (ca[1] == cb[1] && Math.abs(ca[0] - cb[0]) == 1) alongZ = true;
+        fairyDoorBoxes.add(alongZ
+                ? new AABB(x - 0.5, 69, z - 1.5, x + 0.5, 73, z + 1.5)
+                : new AABB(x - 1.5, 69, z - 0.5, x + 1.5, 73, z + 0.5));
     }
 
     // a blood door can only sit next to the blood room - Chambers has the same red-terracotta

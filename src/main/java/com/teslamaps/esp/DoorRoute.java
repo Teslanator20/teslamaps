@@ -107,6 +107,28 @@ public final class DoorRoute {
         return out;
     }
 
+    /** The door a room is reached through from the entrance room, null when the map does not connect it yet. */
+    public static Door parentDoor(DungeonRoom target) {
+        DungeonRoom entrance = null;
+        for (DungeonRoom r : DungeonManager.getGrid().getAllRooms()) {
+            if (r.getType() == RoomType.ENTRANCE) { entrance = r; break; }
+        }
+        if (entrance == null || target == null || target == entrance) return null;
+        Map<DungeonRoom, Door> via = new IdentityHashMap<>();
+        ArrayDeque<DungeonRoom> queue = new ArrayDeque<>();
+        via.put(entrance, null);
+        queue.add(entrance);
+        while (!queue.isEmpty() && !via.containsKey(target)) {
+            DungeonRoom r = queue.poll();
+            for (Door d : doorsOf(r)) {
+                if (via.containsKey(d.b())) continue;
+                via.put(d.b(), d);
+                queue.add(d.b());
+            }
+        }
+        return via.get(target);
+    }
+
     // IllegalMap searchForDoors: path entrance -> blood, then the next N wither/blood doors from the player's room
     private static void buildRoute(DungeonRoom current) {
         routeAhead.clear();
