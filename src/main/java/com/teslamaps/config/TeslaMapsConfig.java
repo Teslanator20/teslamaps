@@ -1751,8 +1751,8 @@ public class TeslaMapsConfig {
     public boolean safariBannerDoomspiral = true;
     public boolean safariBannerBiomeOnly = false;
     public String safariBannerChannel = "Nobody";
-    public boolean safariSparklingAlert = true;
-    public boolean safariSparklingParticles = false;     // alert on the WAX_ON particles of a sparkling critter
+    public boolean safariSparklingAlert = true;     // alert on the WAX_ON particles of a sparkling critter
+    public boolean safariSparklingParticles = true;
     public String safariSparklingChannel = "Nobody"; // post the sparkling coords: Nobody / Party / All
     public boolean safariSparklingScreen = false;   // full-screen SPARKLING! wash
     public boolean safariSparklingVisible = false;  // only sparklings with a free line of sight
