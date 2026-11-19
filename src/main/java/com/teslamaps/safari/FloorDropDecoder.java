@@ -156,7 +156,12 @@ public final class FloorDropDecoder {
         for (FloorDropPredictor.Drop d : live) {
             if (!eligible(mc, d, here)) continue;
             int bx = (int) Math.floor(d.x), by = (int) Math.floor(d.y), bz = (int) Math.floor(d.z);
-            int col = d.type == FloorDropPredictor.Type.GENERIC ? reward : useful(d) ? color : 0xFF808080;
+            int col = d.type == FloorDropPredictor.Type.GENERIC ? reward : !useful(d) ? 0xFF808080 : switch (d.type) {
+                case LIME -> 0xFF80FF20;
+                case PURPLE -> 0xFFB45AFF;
+                case ORANGE -> 0xFFFFA020;
+                default -> color;
+            };
             out.add(new Shown(new AABB(bx, by + 1.0, bz, bx + 1.0, by + 1.0, bz + 1.0), col, d.type.label,
                     new Vec3(d.x, d.y + 1.2, d.z), c.safariFloorDecoderScale));
         }
