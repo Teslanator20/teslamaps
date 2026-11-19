@@ -117,20 +117,14 @@ public class InventoriesPage extends ProfileViewerPage {
 
     private static List<Section> visibleSections() {
         boolean sacks = com.teslamaps.config.TeslaMapsConfig.get().pvSacks;
-        if (!extra(true)) return sacks ? RAIL_PLAIN_SACKS : RAIL_PLAIN;
         if (com.teslamaps.profileviewer.PvExtras.miscBags()) return sacks ? RAIL_MISC_SACKS : RAIL_MISC;
         return sacks ? RAIL_SACKS : RAIL;
     }
 
     private static List<Section> railOf(boolean misc, boolean sacks) {
-        return railOf(misc, sacks, true);
-    }
-
-    private static List<Section> railOf(boolean misc, boolean sacks, boolean wardrobe) {
         List<Section> out = new ArrayList<>();
         for (Section s : Section.values()) {
             if (s == Section.SACKS && !sacks) continue;
-            if (s == Section.WARDROBE && !wardrobe) continue;
             boolean miscOnly = s == Section.CANDY || s == Section.CARNIVAL || s == Section.MISC;
             boolean grouped = s == Section.FISHING || s == Section.POTIONS || s == Section.QUIVER || s == Section.CANDY || s == Section.CARNIVAL;
             if (misc ? grouped : miscOnly) continue;
@@ -139,8 +133,6 @@ public class InventoriesPage extends ProfileViewerPage {
         return List.copyOf(out);
     }
 
-    private static final List<Section> RAIL_PLAIN = railOf(false, false, false);
-    private static final List<Section> RAIL_PLAIN_SACKS = railOf(false, true, false);
     private static final List<Section> RAIL = railOf(false, false);
     private static final List<Section> RAIL_SACKS = railOf(false, true);
     private static final List<Section> RAIL_MISC = railOf(true, false);

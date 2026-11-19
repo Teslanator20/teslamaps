@@ -161,7 +161,7 @@ public class ProfileViewerScreen extends Screen {
         allPages.add(new LevelPage());
 
         pages.clear();
-        for (ProfileViewerPage page : allPages) if (!gatedOff(page)) pages.add(page);
+        for (ProfileViewerPage page : allPages) if (page.isAvailable(null) && !gatedOff(page)) pages.add(page);
 
         loadProfile();
     }
