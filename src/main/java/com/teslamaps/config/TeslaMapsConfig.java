@@ -1316,7 +1316,6 @@ public class TeslaMapsConfig {
     public int flareWarnSeconds = 20;          // how often that warning may repeat
     public boolean flareWarnSound = true;
 
-    public boolean autoScan = true;
     public int scanTickInterval = 5;
 
     public boolean autoGFS = true;             // Master toggle for Auto GFS

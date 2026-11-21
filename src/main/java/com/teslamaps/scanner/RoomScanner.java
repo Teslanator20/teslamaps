@@ -32,8 +32,7 @@ public class RoomScanner {
             return;
         }
 
-        if (TeslaMapsConfig.get().autoScan &&
-                tickCounter % TeslaMapsConfig.get().scanTickInterval == 0) {
+        if (tickCounter % Math.max(1, TeslaMapsConfig.get().scanTickInterval) == 0) {
             scanUnscannedPositions();
         }
 
