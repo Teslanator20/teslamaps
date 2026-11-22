@@ -205,6 +205,37 @@ public class StorageOverlay {
         com.teslamaps.registry.Feature.of("StorageLastPage").section("Inventory")
                 .when(() -> TeslaMapsConfig.get().storageRememberLast).tick(StorageOverlay::trackLast);
         net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents.MODIFY_COMMAND.register(StorageOverlay::rewriteStorage);
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> {
+            if (screen instanceof AbstractContainerScreen<?>) claimInput(screen);
+        });
+    }
+
+    private static final net.minecraft.resources.Identifier FIRST =
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("teslamaps", "storage_first");
+
+    // other mods' allow* listeners (SkyBlock Item List) would eat clicks meant for the overlay
+    private static void claimInput(net.minecraft.client.gui.screens.Screen screen) {
+        var click = net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseClick(screen);
+        click.addPhaseOrdering(FIRST, net.fabricmc.fabric.api.event.Event.DEFAULT_PHASE);
+        click.register(FIRST, (s, event) -> {
+            if (!active()) return true;
+            s.mouseClicked(event, false);
+            return false;
+        });
+        var scroll = net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents.allowMouseScroll(screen);
+        scroll.addPhaseOrdering(FIRST, net.fabricmc.fabric.api.event.Event.DEFAULT_PHASE);
+        scroll.register(FIRST, (s, x, y, hx, vy) -> {
+            if (!active()) return true;
+            s.mouseScrolled(x, y, hx, vy);
+            return false;
+        });
+        var key = net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents.allowKeyPress(screen);
+        key.addPhaseOrdering(FIRST, net.fabricmc.fabric.api.event.Event.DEFAULT_PHASE);
+        key.register(FIRST, (s, event) -> {
+            if (!wantsText()) return true;
+            s.keyPressed(event);
+            return false;
+        });
     }
 
     private static String lastPage = null;

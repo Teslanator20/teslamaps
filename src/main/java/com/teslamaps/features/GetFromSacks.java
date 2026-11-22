@@ -33,7 +33,10 @@ public class GetFromSacks {
     private static final Pattern MISSING = Pattern.compile("You have no (?<item>.+) in your Sacks!");
     private static final Pattern SUPERCRAFTED = Pattern.compile("You Supercrafted (?<item>[^§]+?)(?: x(?<amount>[\\d,]+))?!");
 
-    private record Request(String item, int amount) {}
+    private record Request(String item, int amount, long queued) {}
+
+    // tables still downloading: hold the request this long, then send it raw
+    private static final long RESOLVE_WAIT_MS = 10_000;
 
     private static final Deque<Request> queue = new ArrayDeque<>();
     private static int cooldown = 0;
@@ -80,14 +83,9 @@ public class GetFromSacks {
             query.append(parts[i]);
         }
 
-        // no list yet (still downloading) means no validation, better than swallowing the command
+        // unknown item goes to Hypixel untouched, same as SkyHanni; still loading = tick resolves it
         String item = query.toString();
-        if (SackItems.ready()) {
-            String resolved = SackItems.resolve(item);
-            // unknown item goes to Hypixel untouched, same as SkyHanni
-            if (resolved == null) return true;
-            item = resolved;
-        }
+        if (SackItems.ready() && SackItems.resolve(item) == null) return true;
 
         enqueue(item, amount);
         return false;
@@ -108,22 +106,28 @@ public class GetFromSacks {
 
     public static void enqueue(String item, int amount) {
         if (item == null || item.isBlank() || amount <= 0) return;
-        queue.add(new Request(item, amount));
+        queue.add(new Request(item.trim().replace(' ', '_'), amount, System.currentTimeMillis()));
     }
 
     public static void tick() {
         if (cooldown > 0) cooldown--;
         if (queue.isEmpty() || cooldown > 0) return;
 
-        Request request = queue.poll();
+        Request request = queue.peek();
+        boolean ready = SackItems.ready();
+        if (!ready && System.currentTimeMillis() - request.queued() < RESOLVE_WAIT_MS) return;
+        queue.poll();
         Minecraft mc = Minecraft.getInstance();
         if (mc.getConnection() == null) return;
+
+        String resolved = ready ? SackItems.resolve(request.item()) : null;
+        String id = (resolved != null ? resolved : request.item()).replace('-', ':');
 
         lastSent = request;
         cooldown = SEND_INTERVAL_TICKS;
         sendingOwnCommand = true;
         try {
-            mc.getConnection().sendCommand("gfs " + request.item().replace(':', '-') + " " + request.amount());
+            mc.getConnection().sendCommand("gfs " + id + " " + request.amount());
         } finally {
             sendingOwnCommand = false;
         }
@@ -187,7 +191,7 @@ public class GetFromSacks {
     public static void grabLink(String item, String id, int amount) {
         send(Component.literal("§e§lCLICK HERE§r§e to grab §ax" + amount + " §9" + item + "§e from sacks!")
                 .withStyle(style -> style
-                        .withClickEvent(new ClickEvent.RunCommand("/gfs " + id.replace(':', '-') + " " + amount))
+                        .withClickEvent(new ClickEvent.RunCommand("/gfs " + id.replace('-', ':') + " " + amount))
                         .withHoverEvent(new HoverEvent.ShowText(Component.literal("§eClick to get from sacks!")))));
     }
 

@@ -63,7 +63,8 @@ public class SackItems {
     /** False while the list is still downloading, so callers can skip validation instead of blocking. */
     public static boolean ready() {
         load();
-        return loaded;
+        SkyblockItems.load();
+        return loaded && SkyblockItems.loaded();
     }
 
     public static boolean isSackItem(String internalName) {

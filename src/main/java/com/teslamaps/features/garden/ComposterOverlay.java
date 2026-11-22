@@ -359,7 +359,7 @@ public final class ComposterOverlay {
         String plain = StringUtil.strip(name(r.id));
         long inSacks = SackApi.amount(plain);
         if (inSacks > 0 && !r.id.equals("SUNFLOWER_OIL")) {
-            mc.getConnection().sendCommand("gfs " + r.id.replace(':', '-') + " " + Math.min(r.need, inSacks));
+            mc.getConnection().sendCommand("gfs " + r.id.replace('-', ':') + " " + Math.min(r.need, inSacks));
         } else {
             mc.getConnection().sendCommand("bz " + plain);
         }
