@@ -117,7 +117,7 @@ public class TMapCommand {
                 })
                 .then(ClientCommands.literal("classic").executes(context -> {
                     Minecraft mc = Minecraft.getInstance();
-                    mc.schedule(() -> mc.gui.setScreen(MapConfigScreen.classic(MapConfigScreen.View.OLD)));
+                    mc.schedule(() -> mc.gui.setScreen(MapConfigScreen.classic(MapConfigScreen.View.ALL)));
                     return 1;
                 }))
                 .then(com.teslamaps.dungeon.puzzle.PuzzleReset.command())

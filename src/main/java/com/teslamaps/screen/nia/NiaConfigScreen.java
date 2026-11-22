@@ -99,7 +99,7 @@ public class NiaConfigScreen extends Screen {
     private String jumpTab;
 
     public static Screen create(Screen parent) {
-        return new NiaConfigScreen(parent, MapConfigScreen.View.OLD);
+        return new NiaConfigScreen(parent, MapConfigScreen.View.ALL);
     }
 
     public static Screen create(Screen parent, MapConfigScreen.View view) {
@@ -214,7 +214,7 @@ public class NiaConfigScreen extends Screen {
             }
         }
         if (first) {
-            String remembered = model.view() == MapConfigScreen.View.OLD ? TeslaMapsConfig.get().lastConfigCategory : null;
+            String remembered = model.view() == MapConfigScreen.View.ALL ? TeslaMapsConfig.get().lastConfigCategory : null;
             String g = model.sidebarItemOf(remembered);
             if (g != null) selected = g;
             if (jumpTab != null) selected = jumpTab;
@@ -283,7 +283,7 @@ public class NiaConfigScreen extends Screen {
         searchBox.visible = false;
         searchBox.setFocused(false);
         if (getFocused() == searchBox) setFocused(null);
-        if (model.view() == MapConfigScreen.View.OLD && !NiaModel.TURNED_ON.equals(tab) && !NiaModel.NEW_OPTIONS.equals(tab)) {
+        if (model.view() == MapConfigScreen.View.ALL && !NiaModel.TURNED_ON.equals(tab) && !NiaModel.NEW_OPTIONS.equals(tab)) {
             TeslaMapsConfig.get().lastConfigCategory = tab;
         }
         scrollSidebarTo(tab);

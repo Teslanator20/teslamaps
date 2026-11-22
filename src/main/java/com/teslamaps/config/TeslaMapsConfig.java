@@ -546,7 +546,7 @@ public class TeslaMapsConfig {
     public boolean chatFilterUltReady = true;    // Hide "<ult> is ready to use! Press DROP to activate it!"
     public boolean chatFilterAoeDamage = true;   // Hide "Your <ability> hit N enemies for X damage."
     public boolean chatFilterGuildXp = true;     // Hide "You earned N GEXP from playing SkyBlock!"
-    public boolean chatFilterKillCombo = true;   // Hide "+N Kill Combo ..." lines
+    public boolean chatFilterKillCombo = false;  // Hide "+N Kill Combo ..." lines
     public boolean chatFilterStash = true;       // Hide "... items/materials stashed away!" + "CLICK HERE to pick them up!"
     public boolean stashCompact = false;         // Stash warning block -> one clickable line
     public boolean stashHideDuplicates = false;  // Skip a warning with the same count as the last one

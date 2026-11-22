@@ -61,7 +61,7 @@ public class MapConfigScreen extends Screen {
 
     /** OLD = /tmap (what existed up to 2.1.77), NEW = /tmap all (the feature-gap build-out), ALL = both, ADM = /tmap adg. */
     public enum View { OLD, NEW, ALL, ADM }
-    protected View view = View.OLD;
+    protected View view = View.ALL;
     private final java.util.Set<SettingsEntry> freshEntries = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     // every row of both views, for checks that must see all of them
     protected final Map<String, List<SettingsEntry>> allCategories = new LinkedHashMap<>();
@@ -164,12 +164,12 @@ public class MapConfigScreen extends Screen {
     }
 
     public static Screen open() {
-        return open(View.OLD);
+        return open(View.ALL);
     }
 
-    /** /tmap all: only the rows of the feature-gap build-out. */
+    /** /tmap all: same screen as /tmap. */
     public static Screen openAll() {
-        return open(View.NEW);
+        return open(View.ALL);
     }
 
     /** /tmap adg: only the ADM group. */
@@ -214,23 +214,9 @@ public class MapConfigScreen extends Screen {
         return olds + " old / " + news + " new rows -> " + p;
     }
 
-    /** The view whose rows hold this category / search hit, /tmap preferred. */
+    /** Old and new rows live in one screen now. */
     public static View viewFor(String category, String query) {
-        for (View v : new View[]{View.OLD, View.NEW}) {
-            try {
-                MapConfigScreen s = new MapConfigScreen(true);
-                s.view = v;
-                s.buildCategories();
-                if (category != null && s.groupOf(category) == null) continue;
-                if (query == null || query.isEmpty()) return v;
-                String q = query.toLowerCase();
-                for (List<SettingsEntry> l : s.categories.values()) {
-                    for (SettingsEntry e : l) if (searchHit(e, q)) return v;
-                }
-            } catch (RuntimeException ignored) {
-            }
-        }
-        return View.OLD;
+        return View.ALL;
     }
 
     private net.minecraft.client.gui.screens.Screen returnTo;
