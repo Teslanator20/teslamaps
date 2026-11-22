@@ -56,10 +56,8 @@ public class SkillOverflow {
         }
 
         String progress = strip(lines.get(progressIndex).getString());
-        // maxed tooltip shows xp past the cap, not the total
-        long overflow = parseAmount(progress.substring(progress.lastIndexOf(' ') + 1));
-        if (overflow <= 0) return;
-        long totalXp = SkillXp.xpRequiredForLevel(level) + overflow;
+        long totalXp = parseAmount(progress.substring(progress.lastIndexOf(' ') + 1));
+        if (totalXp <= 0) return;
 
         SkillTracker.setTotalXp(skill, totalXp);
         SkillXp.Level lvl = SkillXp.calculate(totalXp, level);
@@ -92,8 +90,8 @@ public class SkillOverflow {
             String line = strip(lines.get(i).getString());
             if (line.contains("Max Skill level reached!")) maxIndex = i;
             else if (maxIndex >= 0 && line.startsWith(PROGRESS_INDENT)) {
-                long overflow = parseAmount(line.substring(line.lastIndexOf(' ') + 1));
-                if (overflow > 0) SkillTracker.setTotalXp(skill, SkillXp.xpRequiredForLevel(level) + overflow);
+                long totalXp = parseAmount(line.substring(line.lastIndexOf(' ') + 1));
+                if (totalXp > 0) SkillTracker.setTotalXp(skill, totalXp);
                 SkillGoals.onTooltip(skill, lines);
                 return;
             }
