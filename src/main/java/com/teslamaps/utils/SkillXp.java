@@ -41,6 +41,11 @@ public final class SkillXp {
         return total;
     }
 
+    /** xp for the step into that level, table levels only */
+    public static long stepInto(int level) {
+        return step(level);
+    }
+
     private static long step(int level) {
         return level >= 1 && level < STEP.length ? STEP[level] : 4_000_000L;
     }

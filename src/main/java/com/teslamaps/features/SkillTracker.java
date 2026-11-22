@@ -52,6 +52,7 @@ public class SkillTracker {
         double xpGained;
         long activeMs, lastActivity;
         double lastAbs = -1;
+        double lastPctTotal = -1;
         String lastSegment = "";
         long kills, bossKills, cocoons;      // combat
         double slayerXp;
@@ -326,8 +327,31 @@ public class SkillTracker {
         String segment = m.group();
         Session s = session(skill);
         double delta = 0;
+        long exactTotal = -1;
 
-        if (paren.contains("/")) {
+        if (paren.endsWith("/0") && caps.containsKey(skill)) {
+            // maxed: "(1,604,241,241/0)" = xp past the cap, an exact total every time
+            exactTotal = SkillXp.xpRequiredForLevel(cap(skill)) + (long) parseNum(paren.substring(0, paren.indexOf('/')));
+            long before = totalXp(skill);
+            delta = before > 0 ? Math.max(0, exactTotal - before) : gain;
+            if (delta > gain * 20 + 100 && before > 0) delta = gain;
+            s.lastSegment = segment;
+        } else if (paren.endsWith("%") && levels.containsKey(skill)) {
+            // percent display: tab level + % gives an absolute total, equal gains no longer vanish
+            int lvl = levels.get(skill);
+            double pct = parseNum(paren.substring(0, paren.length() - 1));
+            double abs = SkillXp.xpRequiredForLevel(lvl) + SkillXp.stepInto(lvl + 1) * pct / 100.0;
+            double d = s.lastPctTotal >= 0 ? abs - s.lastPctTotal : 0;
+            if (s.lastPctTotal >= 0 && d >= 0) {
+                delta = d;
+                s.lastPctTotal = abs;
+            } else {
+                // first line, or level up before the tab caught up
+                delta = segment.equals(s.lastSegment) ? 0 : gain;
+                if (s.lastPctTotal < 0) s.lastPctTotal = abs;
+            }
+            s.lastSegment = segment;
+        } else if (paren.contains("/")) {
             double abs = parseNum(paren.substring(0, paren.indexOf('/')));
             if (s.lastAbs >= 0) {
                 double d = abs - s.lastAbs;
@@ -339,7 +363,7 @@ public class SkillTracker {
         } else if (!segment.equals(s.lastSegment)) {
             delta = gain;
         }
-        s.lastSegment = segment;
+        if (exactTotal < 0) s.lastSegment = segment;
 
         if (delta > 0) {
             com.teslamaps.features.pets.PetTracker.onSkillXp(skill, delta);
@@ -352,7 +376,13 @@ public class SkillTracker {
                 if (skill.equals("Fishing") && cfg.skillTracker && countEverything()) countCatch("xp");
             }
             long before = totalXp(skill);
-            if (before > 0) {
+            if (exactTotal > 0) {
+                setTotalXp(skill, exactTotal);
+                if (before > 0) {
+                    SkillOverflow.checkLevelUp(skill, before, exactTotal);
+                    SkillGoals.check(skill, before, exactTotal);
+                }
+            } else if (before > 0) {
                 setTotalXp(skill, before + (long) delta);
                 SkillOverflow.checkLevelUp(skill, before, before + (long) delta);
                 SkillGoals.check(skill, before, before + (long) delta);
