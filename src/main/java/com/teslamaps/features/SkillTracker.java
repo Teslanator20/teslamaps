@@ -331,7 +331,8 @@ public class SkillTracker {
             double abs = parseNum(paren.substring(0, paren.indexOf('/')));
             if (s.lastAbs >= 0) {
                 double d = abs - s.lastAbs;
-                delta = d > 0 ? d : (d < 0 ? gain : 0); // negative = level rollover
+                // negative = level rollover; a jump far past the gain is a misread, not xp
+                delta = d > 0 && d <= gain * 20 + 100 ? d : (d != 0 ? gain : 0);
             } else {
                 delta = gain;
             }
@@ -352,6 +353,12 @@ public class SkillTracker {
                 if (skill.equals("Fishing") && cfg.skillTracker && countEverything()) countCatch("xp");
             }
             long before = totalXp(skill);
+            // a stored total that disagrees with the tab level is stale or drifted, reseed it
+            if (before > 0 && levels.containsKey(skill)
+                    && Math.abs(Math.min(SkillXp.calculate(before, cap(skill)).level(), cap(skill)) - levels.get(skill)) > 1) {
+                before = 0;
+                TeslaMapsConfig.get().skillTotalXp.remove(skill);
+            }
             if (before > 0) {
                 setTotalXp(skill, before + (long) delta);
                 SkillOverflow.checkLevelUp(skill, before, before + (long) delta);
