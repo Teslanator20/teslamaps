@@ -60,11 +60,11 @@ public final class TeamStats {
                 .serverChat(TeamStats::onChat)
                 .config("Score & Splits", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.toggle("Team Stats at Run End", () -> c.teamStats, v -> c.teamStats = v)
+                    b.toggle("Team Stats At Run End", () -> c.teamStats, v -> c.teamStats = v)
                             .desc("Chat summary per teammate after the run: secrets, cleared rooms (solo/stacked), deaths. /tmap teamstats reprints it.");
-                    b.toggle("  Secrets per Player (API)", () -> c.teamStatsSecrets, v -> c.teamStatsSecrets = v)
+                    b.toggle("  Secrets Per Player (API)", () -> c.teamStatsSecrets, v -> c.teamStatsSecrets = v)
                             .desc("Reads every teammate's secret total at run start and end from the API.");
-                    b.toggle("  Rooms Cleared per Player", () -> c.teamStatsRooms, v -> c.teamStatsRooms = v)
+                    b.toggle("  Rooms Cleared Per Player", () -> c.teamStatsRooms, v -> c.teamStatsRooms = v)
                             .desc("Counts a room for everyone standing in it when it gets its checkmark.");
                 });
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> d.register(ClientCommands.literal("tmap")

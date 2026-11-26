@@ -33,7 +33,7 @@ public final class BeaconPower {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        hud = HudEditElement.of("beaconPower", "Beacon Power")
+        hud = HudEditElement.of("beaconPower", "Island Beacon Power")
                 .enabled(() -> cfg().beaconPower)
                 .size(() -> TextHud.width(SAMPLE), () -> TextHud.height(1))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, SAMPLE, TextHud.width(SAMPLE)));
@@ -42,8 +42,8 @@ public final class BeaconPower {
                 .hudHiddenInInventory("beaconpower", BeaconPower::render)
                 .config("HUD Widgets", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Beacon Power");
-                    b.toggle("Beacon Power", () -> c.beaconPower, v -> c.beaconPower = v)
+                    b.label("Island Beacon Power");
+                    b.toggle("Island Beacon Power Timer", () -> c.beaconPower, v -> c.beaconPower = v)
                             .desc("Time left on your island Beacon's power. Open the Beacon once to read it. Position in /tmap gui.");
                     b.toggle("  Show Stat", () -> c.beaconPowerStat, v -> c.beaconPowerStat = v);
                     b.toggle("  Short Stat", () -> c.beaconPowerCompress, v -> c.beaconPowerCompress = v)

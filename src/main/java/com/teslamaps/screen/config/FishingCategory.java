@@ -168,7 +168,7 @@ public final class FishingCategory {
         b.info("-0.5% per Slug level, needs the Pet Overlay on");
         b.info("Position and scale in /tmap gui");
         b.label("Umberella");
-        b.toggle("Expiry Warning",
+        b.toggle("Umberella Expiry Warning",
                 () -> config.umbrellaWarning, v -> config.umbrellaWarning = v);
         b.slider("  Warn Seconds Before", 0f, 120f,
                 () -> (float) config.umbrellaWarnBefore, v -> config.umbrellaWarnBefore = v.intValue());

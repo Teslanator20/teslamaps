@@ -96,7 +96,7 @@ public final class RenderCategory {
         b.dropdown("  Post Drops To", com.teslamaps.features.RareDropEffects.ANNOUNCE,
                 () -> config.rareDropAnnounce, v -> config.rareDropAnnounce = v).fresh()
                 .desc("Sends the RARE DROP line with a per-item counter to party and/or guild chat");
-        b.slider("    Only Over (Mio, 0 = all)", 0f, 100f,
+        b.slider("    Only Over (million, 0 = all)", 0f, 100f,
                 () -> config.rareDropAnnounceMin, v -> config.rareDropAnnounceMin = v, 1).fresh();
         b.toggle("  Copy Drop Line To Clipboard", () -> config.rareDropCopy, v -> config.rareDropCopy = v).fresh();
         b.dropdown("  Burrowing Spores Alarm", com.teslamaps.features.RareDropEffects.SPORES_ALARM,
@@ -127,15 +127,15 @@ public final class RenderCategory {
         b.slider("  Title Time (s)", 0.5f, 5f, () -> config.rareGroundDropsTime, v -> config.rareGroundDropsTime = v, 1).fresh();
         b.toggle("Show Item Name", () -> config.rareDropText, v -> config.rareDropText = v);
         b.toggle("Show Item Value", () -> config.rareDropPrice, v -> config.rareDropPrice = v);
-        b.slider("Any Drop Worth Over (Mio)", 0f, 50f,
+        b.slider("Any Drop Worth Over (million)", 0f, 50f,
                 () -> config.rareDropMinValue, v -> config.rareDropMinValue = v, 1);
         b.info("0 = off. Plays the effect for any RARE DROP over this value");
         b.toggle("Valuable Drop Warning (Trackers)", () -> config.valuableDropWarn, v -> config.valuableDropWarn = v).fresh()
                 .desc("Any tracker gain or [Sacks] gain over the value, no RARE DROP line needed")
                 .tags("expensive", "item warning", "tracker");
-        b.slider("  Chat Line Over (Mio)", 0.1f, 50f,
+        b.slider("  Chat Line Over (million)", 0.1f, 50f,
                 () -> config.valuableDropChatValue, v -> config.valuableDropChatValue = v, 1).fresh();
-        b.slider("  Title Over (Mio, 0 = off)", 0f, 200f,
+        b.slider("  Title Over (million, 0 = off)", 0f, 200f,
                 () -> config.valuableDropTitleValue, v -> config.valuableDropTitleValue = v, 1).fresh();
         b.label("Etherwarp");
         b.toggle("Etherwarp Guess Box", () -> config.etherwarp, v -> config.etherwarp = v);

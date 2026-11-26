@@ -35,11 +35,9 @@ public class SafariESP {
     private static final List<Marker> critters = new ArrayList<>();
     private static final List<BlockPos> nests = new ArrayList<>();
     private static final List<SafariWalls.Wall> walls = new ArrayList<>();
-    private static final List<Cluster> spots = new ArrayList<>();
     private static final java.util.Set<Long> looted = new java.util.HashSet<>();
     private static long lastNestScan = 0;
     private static SafariData.Biome lastNestBiome = null;
-    private static int spotScanTimer = 0;
 
     /** A nest you already punched keeps its box otherwise, the scan finds it again every 5s. */
     public static void onNestClick(BlockPos pos) {
@@ -50,10 +48,8 @@ public class SafariESP {
         critters.clear();
         walls.clear();
         if (!SafariData.inSafari() || LegitMode.blocksCheats()) {
-            spots.clear();
             nests.clear();
             looted.clear();
-            spotScanTimer = 0;
             return;
         }
 
@@ -70,38 +66,6 @@ public class SafariESP {
         if (c.safariWallMarkers) SafariWalls.collect(mc, walls);
         if (c.safariNestESP) scanNests(mc);
         else nests.clear();   // without this the last scan kept drawing after switching it off
-        if (!c.critterSpotESP) {
-            spots.clear();
-            spotScanTimer = 0;
-        } else if (--spotScanTimer <= 0) {   // drops are static, no need to rescan per tick
-            spotScanTimer = 10;
-            spots.clear();
-            scanSpots(mc);
-            spots.removeIf(cl -> FloorDropDecoder.covers(cl.center()));
-        }
-    }
-
-    // a floor drop is a cluster of 3-4 item_display entities holding a re-modelled string item
-    private static void scanSpots(Minecraft mc) {
-        SafariData.Biome here = SafariData.currentBiome();
-        for (Entity e : com.teslamaps.utils.EntityCache.byType(Display.ItemDisplay.class)) {
-            if (!(e instanceof Display.ItemDisplay id)) continue;
-            SlotAccess slot = id.getSlot(0);
-            if (slot == null || slot.get().getItem() != Items.STRING) continue;
-            if (here != null && SafariData.biomeAt(e.blockPosition()) != here) continue;
-
-            Vec3 p = e.position();
-            boolean merged = false;
-            for (int i = 0; i < spots.size(); i++) {
-                Cluster cl = spots.get(i);
-                if (cl.center().distanceToSqr(p) < 9) {
-                    spots.set(i, cl.add(p));
-                    merged = true;
-                    break;
-                }
-            }
-            if (!merged) spots.add(new Cluster(p, 1));
-        }
     }
 
     /**
@@ -266,11 +230,6 @@ public class SafariESP {
         return false;
     }
 
-    private record Cluster(Vec3 sum, int n) {
-        Vec3 center() { return sum.scale(1.0 / n); }
-        Cluster add(Vec3 p) { return new Cluster(sum.add(p), n + 1); }
-    }
-
     private static void scanCritters(Minecraft mc, TeslaMapsConfig c) {
         int sparklingColor = TeslaMapsConfig.parseColor(c.colorSafariSparkling);
         SafariData.Biome here = SafariData.currentBiome();
@@ -397,7 +356,7 @@ public class SafariESP {
     public static void render(PoseStack matrices, Vec3 cameraPos) {
         if (SparklingFocus.focusActive()) return;
         AABB pin = RecatchSpots.pinned();
-        if (critters.isEmpty() && nests.isEmpty() && spots.isEmpty() && walls.isEmpty() && pin == null) return;
+        if (critters.isEmpty() && nests.isEmpty() && walls.isEmpty() && pin == null) return;
 
         TeslaMapsConfig c = TeslaMapsConfig.get();
         boolean filled = c.safariFilled;
@@ -448,14 +407,6 @@ public class SafariESP {
             AABB box = new AABB(p);
             if (filled) ESPRenderer.drawFilledBox(matrices, box, nestColor, cameraPos, through);
             ESPRenderer.drawBoxOutline(matrices, box, nestColor | 0xFF000000, 2.0f, cameraPos, through);
-        }
-
-        int spotColor = TeslaMapsConfig.parseColor(c.colorCritterSpot) | 0xFF000000;
-        for (Cluster cl : spots) {
-            Vec3 p = cl.center();
-            AABB box = new AABB(p.x - 0.5, p.y - 0.05, p.z - 0.5, p.x + 0.5, p.y + 0.5, p.z + 0.5);
-            if (filled) ESPRenderer.drawFilledBox(matrices, box, spotColor & 0x00FFFFFF, cameraPos, through);
-            ESPRenderer.drawBoxOutline(matrices, box, spotColor, 2.0f, cameraPos, through);
         }
     }
 }

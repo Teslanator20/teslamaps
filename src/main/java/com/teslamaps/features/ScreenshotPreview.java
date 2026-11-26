@@ -46,7 +46,7 @@ public final class ScreenshotPreview {
                     if (Minecraft.getInstance().gui.screen() == null) render(ctx, -1, -1, false);
                 })
                 .config("Screenshots", b -> {
-                    b.toggle("Capture Preview", () -> cfg().screenshotPreview, v -> cfg().screenshotPreview = v)
+                    b.toggle("Screenshot Capture Preview", () -> cfg().screenshotPreview, v -> cfg().screenshotPreview = v)
                             .desc("After a screenshot a preview sits in the top right corner with Share, Delete and Close. Click the picture to open the browser (works while a screen, e.g. chat, is open)");
                     b.toggle("  Fly-In Animation", () -> cfg().screenshotPreviewAnimation, v -> cfg().screenshotPreviewAnimation = v);
                     b.toggle("  Shutter Sound", () -> cfg().screenshotPreviewSound, v -> cfg().screenshotPreviewSound = v);

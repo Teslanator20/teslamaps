@@ -57,7 +57,7 @@ public final class InventoryCategory {
                 .desc("Breaks goals into steps (islands, skills, items) and shows what to do next");
         b.toggle("Pet Menu Shift Right-Click", () -> config.petShiftTakeOut, v -> config.petShiftTakeOut = v);
         b.info("Pets menu: right-click only works with shift held");
-        b.toggle("Middle Click GUI", () -> config.middleClickGui, v -> config.middleClickGui = v).fresh()
+        b.toggle("Middle-Click Menu Buttons", () -> config.middleClickGui, v -> config.middleClickGui = v).fresh()
                 .desc("SkyBlock menus: a left-click on a menu button is sent as a middle-click, so nothing sticks to the cursor. Hold Ctrl for a normal click.");
         b.keybind("  Blacklist Menu Key", () -> config.middleClickGuiBlacklistKey, v -> config.middleClickGuiBlacklistKey = v).fresh();
         b.info("  Press it in a menu to add or remove that menu from the blacklist").fresh();
@@ -69,7 +69,7 @@ public final class InventoryCategory {
         b.toggle("    Invert Wheel", () -> config.pageScrollInvert, v -> config.pageScrollInvert = v).fresh();
         b.toggle("Ignore Filler Items", () -> config.hideFillerItems, v -> config.hideFillerItems = v).fresh()
                 .desc("No tooltip on blank glass panes, no clicks on fillers and locked backpack slots (off in dungeons and experiments)");
-        b.toggle("Sign Enter Key", () -> config.signEnterKey, v -> config.signEnterKey = v);
+        b.toggle("Enter Confirms Signs", () -> config.signEnterKey, v -> config.signEnterKey = v);
         b.toggle("  Shift+Enter = New Line", () -> config.signEnterShiftNewline, v -> config.signEnterShiftNewline = v).fresh();
         b.toggle("No Cursor Reset", () -> config.noCursorReset, v -> config.noCursorReset = v);
         b.slider("  Hold Time (s)", 0.5f, 30f,
@@ -77,7 +77,7 @@ public final class InventoryCategory {
         b.toggle("  Ignore Hold Time", () -> config.noCursorResetForever, v -> config.noCursorResetForever = v);
         b.info("Also restores after closing a menu, walking and reopening");
         b.toggle("Own Nametag (3rd person)", () -> config.ownNameTag, v -> config.ownNameTag = v);
-        b.toggle("Searchbar (type to search)", () -> config.searchbar, v -> config.searchbar = v);
+        b.toggle("Inventory Search Bar", () -> config.searchbar, v -> config.searchbar = v);
         b.toggle("  Ctrl+F To Search", () -> config.searchbarCtrlF, v -> config.searchbarCtrlF = v);
         b.toggle("    Hide Until Ctrl+F", () -> config.searchbarHidden, v -> config.searchbarHidden = v);
         b.dropdown("  Highlight", com.teslamaps.features.Searchbar.MODES, () -> config.searchbarMode, v -> config.searchbarMode = v);
@@ -86,7 +86,7 @@ public final class InventoryCategory {
         b.toggle("  Calculator In Signs", () -> config.signCalculator, v -> config.signCalculator = v).fresh()
                 .desc("Bazaar/AH/craft amount signs: shows 1.5k*3 = 4,500 live and puts the result in on confirm. k/m/b/t, s=64, e=160, x, purse");
         b.toggle("    Only With = Prefix", () -> config.signCalculatorEquals, v -> config.signCalculatorEquals = v).fresh();
-        b.toggle("Backpack/Ender Preview", () -> config.backpackPreview, v -> config.backpackPreview = v);
+        b.toggle("Backpack / Ender Chest Preview", () -> config.backpackPreview, v -> config.backpackPreview = v);
         b.toggle("  Only While Shift Held", () -> config.backpackPreviewShift, v -> config.backpackPreviewShift = v);
         b.keybind("  Freeze Preview Key", () -> config.backpackPreviewFreezeKey, v -> config.backpackPreviewFreezeKey = v);
         b.info("Freeze pins the preview, hover its items for their tooltip");
@@ -115,7 +115,7 @@ public final class InventoryCategory {
         b.info("Private Island: large chests per half, minion chests skipped, broken chests removed");
         b.toggle("    Warp To Island On Click", () -> config.itemSearchWarpIsland, v -> config.itemSearchWarpIsland = v).fresh()
                 .desc("Clicking an island chest hit away from your island sends /warp island");
-        b.keybind("Open Item Search", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
+        b.keybind("Item Search Key", () -> config.itemSearchKey, v -> config.itemSearchKey = v);
         b.toggle("  Search Hovered Item", () -> config.itemSearchFromHover, v -> config.itemSearchFromHover = v).fresh()
                 .desc("The search key over an item in a menu opens the search with its name");
         b.keybind("  Highlight Hovered Item Key", () -> config.itemHighlightKey, v -> config.itemHighlightKey = v).fresh();
@@ -339,13 +339,13 @@ public final class InventoryCategory {
                 .desc("Co-op Bazaar Orders: orders of other co-op members are hidden and can't be clicked");
         b.toggle("Bazaar: Own Orders In Create-Order Tooltip", () -> config.bazaarOrderTooltip, v -> config.bazaarOrderTooltip = v).fresh()
                 .desc("Create Buy Order / Sell Offer: \"N of them are yours\" under each price level. Open Your Bazaar Orders once so it knows them.");
-        b.toggle("Progress Highlight (Ways to Level Up / Bestiary)", () -> config.progressHighlight, v -> config.progressHighlight = v);
+        b.toggle("Level Up / Bestiary Progress", () -> config.progressHighlight, v -> config.progressHighlight = v);
         b.color("  Progress Color", () -> config.colorProgressDone, v -> config.colorProgressDone = v);
         b.toggle("  Bestiary Tier As Number", () -> config.progressHighlightTier, v -> config.progressHighlightTier = v).fresh()
                 .desc("Writes the family tier as a number in the slot corner, locked families show 0");
         b.toggle("  Mark Unfinished Red", () -> config.progressHighlightRed, v -> config.progressHighlightRed = v).fresh();
         b.color("  Unfinished Color", () -> config.colorProgressUnfinished, v -> config.colorProgressUnfinished = v).fresh();
-        b.toggle("  Slayer LVL Rewards: Unclaimed Green", () -> config.slayerRewardsHighlight, v -> config.slayerRewardsHighlight = v).fresh()
+        b.toggle("  Unclaimed Slayer Rewards Green", () -> config.slayerRewardsHighlight, v -> config.slayerRewardsHighlight = v).fresh()
                 .desc("Slayer LVL Rewards menu: rewards you can still claim get a green background");
         b.toggle("Commission Highlight", () -> config.commissionHighlight, v -> config.commissionHighlight = v);
         b.color("  Commission Color", () -> config.colorCommissionDone, v -> config.colorCommissionDone = v);

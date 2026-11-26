@@ -194,24 +194,49 @@ public final class PetMenus {
 
     private static ItemStack tipStack;
     private static List<Component> tipLines = List.of();
+    private static Component tipLevelLine;
     private static int tipAnchor;
 
     private static void onTooltip(ItemStack stack, List<Component> lines) {
         if (tipFeature == null || !cfg().petExpTooltip || !tipFeature.active()) return;
-        if (!cfg().petExpTooltipAlways && !Minecraft.getInstance().hasShiftDown()) return;
+        boolean full = cfg().petExpTooltipAlways || Minecraft.getInstance().hasShiftDown();
+        boolean levelXp = cfg().petExpTooltipLevelXp;
+        if (!full && !levelXp) return;
         if (stack != tipStack) {
             tipStack = stack;
             tipLines = buildTip(stack);
+            tipLevelLine = buildLevelLine(stack);
         }
-        if (tipLines.isEmpty()) return;
-        int at = -1;
+        int at = -1, progress = -1;
         for (int i = 0; i < lines.size(); i++) {
             String s = lines.get(i).getString();
             if (s.contains("MAX LEVEL")) { at = i + 2; break; }
-            if (s.contains("Progress to Level")) { at = i + 3; break; }
+            if (s.contains("Progress to Level")) { at = i + 3; progress = i; break; }
         }
-        if (at < 0 || at > lines.size()) at = lines.size();
-        lines.addAll(at, tipLines);
+        if (full && !tipLines.isEmpty()) {
+            if (at < 0 || at > lines.size()) at = lines.size();
+            lines.addAll(at, tipLines);
+        }
+        if (levelXp && tipLevelLine != null && progress >= 0 && progress + 2 <= lines.size())
+            lines.add(progress + 2, tipLevelLine);
+    }
+
+    private static Component buildLevelLine(ItemStack stack) {
+        try {
+            JsonObject pi = PetStore.petInfo(stack);
+            if (pi == null || !pi.has("type") || !pi.has("exp")) return null;
+            String type = pi.get("type").getAsString();
+            String rarity = PetStore.tier(pi);
+            double exp = pi.get("exp").getAsDouble();
+            int level = PetConstants.xpToLevel(type, rarity, exp);
+            double need = PetConstants.costForLevel(type, rarity, level);
+            if (need <= 0) return null;
+            double cur = exp - PetConstants.levelToXp(type, rarity, level);
+            return Component.literal("§7EXP: §e" + String.format(Locale.US, "%,d", Math.round(cur))
+                    + "§6/§e" + String.format(Locale.US, "%,d", Math.round(need)));
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private static List<Component> buildTip(ItemStack stack) {

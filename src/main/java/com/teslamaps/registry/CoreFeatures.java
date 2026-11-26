@@ -167,7 +167,6 @@ final class CoreFeatures {
         Feature.of("OrderedWaypoints").section("Ordered Waypoints").world(com.teslamaps.features.waypoints.OrderedWaypoints::render);
         Feature.of("PrinceWaypoints").section("Map").world(com.teslamaps.dungeon.PrinceWaypoints::render);
 
-        Feature.of("BossESP").section("ESP").legit().world(com.teslamaps.esp.BossESP::render);
         Feature.of("M4Highlight").section("ESP").legit().world(com.teslamaps.features.M4Highlight::render);
         Feature.of("M4Trajectories").section("ESP").legit().world(com.teslamaps.features.M4Trajectories::render);
         Feature.of("M4Decoy").section("ESP").legit().world(com.teslamaps.features.M4Decoy::render);

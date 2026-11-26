@@ -79,7 +79,7 @@ public final class PartyFinderHelper {
                     b.slider("  Mark Class Level At Or Below (yellow, 0 = off)", 0f, 50f,
                             () -> (float) cfg().pfBelowClassLevel, v -> cfg().pfBelowClassLevel = Math.round(v));
                     b.toggle("  Mark Own Class Missing (green)", () -> cfg().pfMarkMissingClass, v -> cfg().pfMarkMissingClass = v);
-                    b.toggle("  Coloured Class Levels", () -> cfg().pfColorLevels, v -> cfg().pfColorLevels = v);
+                    b.toggle("  Colored Class Levels", () -> cfg().pfColorLevels, v -> cfg().pfColorLevels = v);
                     b.toggle("  Show Missing Classes", () -> cfg().pfMissingClasses, v -> cfg().pfMissingClasses = v);
                     b.dropdown("  Right-Click Party", RIGHT_CLICK_MODES, () -> cfg().pfRightClickMode, v -> cfg().pfRightClickMode = v)
                             .desc("Right click on a party: copy the leader's name, or leave your current party (/p leave)");

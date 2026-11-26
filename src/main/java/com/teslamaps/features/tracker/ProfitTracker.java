@@ -41,8 +41,8 @@ public final class ProfitTracker {
                           Set<String> items, String action, String actionName) {}
 
     public static final String[] CHOICES = {"Auto", "Zombie Slayer", "Spider Slayer", "Wolf Slayer", "Enderman Slayer",
-            "Blaze Slayer", "Vampire Slayer", "Fishing", "Foraging", "Mining", "Diana"};
-    private static final String BOSSES = "PROFIT_BOSSES", BURROWS = "PROFIT_BURROWS", QUEST_COST = "PROFIT_QUEST_COST";
+            "Blaze Slayer", "Vampire Slayer", "Fishing", "Foraging", "Mining"};
+    private static final String BOSSES = "PROFIT_BOSSES", QUEST_COST = "PROFIT_QUEST_COST";
     private static final String CATCHES = "PROFIT_CATCHES";
     private static final Pattern SACK_CHANGE = Pattern.compile("([+-][\\d,]+) (.+?) \\((.+?)\\)");
     private static final Pattern PURSE = Pattern.compile("^(?:Purse|Piggy): ([\\d,]+(?:\\.\\d+)?)");
@@ -57,7 +57,7 @@ public final class ProfitTracker {
     private static Map<String, Long> counts = new HashMap<>();
     private static final Map<String, long[]> suppress = new HashMap<>();
     private static Object lastLevel;
-    private static long graceUntil, lastTick, questStartAt, burrowAt, fishingAt;
+    private static long graceUntil, lastTick, questStartAt, fishingAt;
     private static long purse = -1, pendingCost, pendingAt;
     private static boolean screenOpen;
     private static int ticks;
@@ -83,7 +83,6 @@ public final class ProfitTracker {
                     .name(Tracker.COINS, p.key.contains("slayer") ? "§6Mob Kill Coins" : "§6Coins")
                     .name(QUEST_COST, "§cQuest Cost").coinKey(QUEST_COST).fixedValue(QUEST_COST, -1)
                     .name(BOSSES, "§bBosses Killed").fixedValue(BOSSES, 0)
-                    .name(BURROWS, "§bBurrows Dug").fixedValue(BURROWS, 0)
                     .name(CATCHES, "§bTimes Fished").fixedValue(CATCHES, 0);
             if ("fishing".equals(p.key)) {
                 t.extra(v -> {
@@ -118,9 +117,9 @@ public final class ProfitTracker {
                     TeslaMapsConfig c = cfg();
                     b.label("Profit Tracker");
                     b.toggle("Profit Tracker", () -> c.profitTracker, v -> c.profitTracker = v)
-                            .desc("Drops, coins and profit/h for Slayer, Fishing, Foraging, Mining and Diana, one tracker each (/tmap gui).");
+                            .desc("Drops, coins and profit/h for Slayer, Fishing, Foraging and Mining, one tracker each (/tmap gui).");
                     b.dropdown("  Activity", CHOICES, () -> c.profitTrackerPreset, v -> c.profitTrackerPreset = v)
-                            .desc("Auto = slayer quest, fishing rod out, Diana burrows or the island you are on");
+                            .desc("Auto = slayer quest, fishing rod out or the island you are on");
                     b.toggle("  Only Known Drops", () -> c.profitTrackerPresetOnly, v -> c.profitTrackerPresetOnly = v)
                             .desc("Count only the drop list of the activity instead of every item you pick up");
                     b.toggle("  Sacks", () -> c.profitTrackerSacks, v -> c.profitTrackerSacks = v);
@@ -210,7 +209,6 @@ public final class ProfitTracker {
             put(root.getAsJsonObject("fishing"), "Fishing", "fishing", null, null);
             put(root.getAsJsonObject("foraging"), "Foraging", "foraging", null, null);
             put(root.getAsJsonObject("mining"), "Mining", "mining", null, null);
-            put(root.getAsJsonObject("mythologicalRitual"), "Diana", "diana", BURROWS, null);
         } catch (Exception e) {
             TeslaMaps.LOGGER.warn("Failed to read profit_tracker_presets.json: {}", e.toString());
         }
@@ -248,8 +246,6 @@ public final class ProfitTracker {
             return PRESETS.get(p);
         }
         long now = System.currentTimeMillis();
-        Preset diana = PRESETS.get("Diana");
-        if (diana != null && burrowAt != 0 && now - burrowAt < 300_000 && diana.islands.contains(island)) return diana;
         if (fishingAt != 0 && now - fishingAt < 120_000 && !SkyblockUtils.isInGarden()) return PRESETS.get("Fishing");
         for (String n : new String[]{"Mining", "Foraging"}) {
             Preset p = PRESETS.get(n);
@@ -433,10 +429,6 @@ public final class ProfitTracker {
                 cfg().slayerLastRngMs.put(active.key, lastRngAt);
                 TeslaMapsConfig.save();
             }
-        } else if (t.startsWith("You dug out a Griffin Burrow") || t.startsWith("You finished the Griffin burrow chain")) {
-            burrowAt = System.currentTimeMillis();
-            Tracker d = TRACKERS.get("Diana");
-            if (d != null && (active == null || !BOSSES.equals(active.action))) d.add(BURROWS, 1);
         }
     }
 

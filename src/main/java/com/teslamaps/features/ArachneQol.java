@@ -22,7 +22,7 @@ public final class ArachneQol {
                 .config("Combat", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Arachne");
-                    b.toggle("Arachne QOL", () -> c.arachneQol, v -> c.arachneQol = v)
+                    b.toggle("Arachne Fight Helpers", () -> c.arachneQol, v -> c.arachneQol = v)
                             .desc("Spider's Den, only while Arachne is loaded").tags("spider", "arachne");
                     b.toggle("  Hide Other Players", () -> c.arachneHidePlayers, v -> c.arachneHidePlayers = v);
                     b.toggle("  Click Through Cobwebs", () -> c.arachneWebClick, v -> c.arachneWebClick = v)

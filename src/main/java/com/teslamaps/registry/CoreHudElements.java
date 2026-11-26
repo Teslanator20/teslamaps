@@ -90,7 +90,7 @@ final class CoreHudElements {
                 .scaledSize(s -> com.teslamaps.features.SkillExpDisplay.width(mc(), s),
                         com.teslamaps.features.SkillExpDisplay::height)
                 .dragColor(0xFF30D158).preview(com.teslamaps.features.SkillExpDisplay::drawPreview);
-        HudEditElement.of("petOverlay", "Pet").section("Skills").enabled(() -> cfg().petOverlay)
+        HudEditElement.of("petOverlay", "Pet").section("Skills").enabled(() -> cfg().petOverlay && !cfg().petLevelTracker)
                 .size(() -> com.teslamaps.features.pets.PetOverlay.previewSize(mc())[0],
                         () -> com.teslamaps.features.pets.PetOverlay.previewSize(mc())[1])
                 .boxOffset(4).dragColor(0xFF30D158).preview(com.teslamaps.features.pets.PetOverlay::drawPreview);

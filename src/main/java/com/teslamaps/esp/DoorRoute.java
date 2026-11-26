@@ -107,12 +107,30 @@ public final class DoorRoute {
         return out;
     }
 
+    /** Every door the map scanner knows, once per pair of rooms. */
+    public static List<Door> allDoors() {
+        List<Door> out = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (DungeonRoom r : DungeonManager.getGrid().getAllRooms()) {
+            for (Door d : doorsOf(r)) {
+                if (seen.add(d.x() + "," + d.z())) out.add(d);
+            }
+        }
+        return out;
+    }
+
     /** The door a room is reached through from the entrance room, null when the map does not connect it yet. */
     public static Door parentDoor(DungeonRoom target) {
         DungeonRoom entrance = null;
         for (DungeonRoom r : DungeonManager.getGrid().getAllRooms()) {
             if (r.getType() == RoomType.ENTRANCE) { entrance = r; break; }
         }
+        return doorToward(entrance, target);
+    }
+
+    /** Last door on the way from one room to another, null when the scanned doors do not connect them. */
+    public static Door doorToward(DungeonRoom from, DungeonRoom target) {
+        DungeonRoom entrance = from;
         if (entrance == null || target == null || target == entrance) return null;
         Map<DungeonRoom, Door> via = new IdentityHashMap<>();
         ArrayDeque<DungeonRoom> queue = new ArrayDeque<>();

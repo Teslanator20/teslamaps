@@ -72,7 +72,7 @@ public final class KuudraBuild {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Build Phase");
-                    b.toggle("Build Helper", () -> c.kuuBuildHelper, v -> c.kuuBuildHelper = v)
+                    b.toggle("Kuudra Build Helper", () -> c.kuuBuildHelper, v -> c.kuuBuildHelper = v)
                             .desc("Ballista build progress, builders and freshers, beams on unfinished piles and a stun call");
                     b.toggle("  Build HUD", () -> c.kuuBuildHud, v -> c.kuuBuildHud = v)
                             .desc("Build %, builders and freshers. Move it in /tmap gui");
@@ -81,7 +81,7 @@ public final class KuudraBuild {
                     b.toggle("  Pile Beams", () -> c.kuuBuildBeams, v -> c.kuuBuildBeams = v)
                             .desc("Beam and % over every unfinished pile, red to green");
                     b.toggle("  Hide Hypixel Pile Tags", () -> c.kuuBuildHideTags, v -> c.kuuBuildHideTags = v);
-                    b.toggle("  Text on Ballista", () -> c.kuuBuildBallistaText, v -> c.kuuBuildBallistaText = v);
+                    b.toggle("  Text On Ballista", () -> c.kuuBuildBallistaText, v -> c.kuuBuildBallistaText = v);
                     b.slider("  Stun Alert %", 0, 100, () -> c.kuuBuildStunPercent, v -> c.kuuBuildStunPercent = v, 0)
                             .desc("\"Go to stun\" title at this build % from T3 up, 0 = off");
                     KuudraStunWaypoint.config(b);

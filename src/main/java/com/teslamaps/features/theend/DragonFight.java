@@ -109,9 +109,9 @@ public final class DragonFight {
         b.searchList("      Alert Types", () -> TYPES, t -> c.dragonAlertTypes.contains(t),
                 t -> { if (!c.dragonAlertTypes.remove(t)) c.dragonAlertTypes.add(t); });
         b.toggle("      Superior: Wither Sound", () -> c.dragonSuperiorSound, v -> c.dragonSuperiorSound = v);
-        b.toggle("    DPS in Chat", () -> c.dragonDpsChat, v -> c.dragonDpsChat = v)
+        b.toggle("    DPS In Chat", () -> c.dragonDpsChat, v -> c.dragonDpsChat = v)
                 .desc("Fight time and your DPS after DRAGON DOWN, hover for the top 3");
-        b.toggle("    Loot Quality in Chat", () -> c.dragonLootQualityChat, v -> c.dragonLootQualityChat = v)
+        b.toggle("    Loot Quality In Chat", () -> c.dragonLootQualityChat, v -> c.dragonLootQualityChat = v)
                 .desc("Placement + 100 x your eyes + damage share; hover shows if a Legendary/Epic Ender Dragon pet was possible");
         b.toggle("    Drop Tracker HUD", () -> c.dragonDropTracker, v -> c.dragonDropTracker = v)
                 .desc("Dragons with your eyes: last 3 types, since Superior / AOTD / pet, Ender Dragon pets, AOTDs, eyes placed. Position in /tmap gui")

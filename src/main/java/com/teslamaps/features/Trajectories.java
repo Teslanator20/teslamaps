@@ -40,8 +40,8 @@ public final class Trajectories {
                 .world(Trajectories::render)
                 .config("Render", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Trajectories");
-                    b.toggle("Trajectories", () -> c.trajectories, v -> c.trajectories = v)
+                    b.label("Projectile Trajectories");
+                    b.toggle("Projectile Trajectories", () -> c.trajectories, v -> c.trajectories = v)
                             .desc("Shows where your arrow or ender pearl will fly and land.");
                     b.toggle("  Bows", () -> c.trajBows, v -> c.trajBows = v);
                     b.toggle("  Terminator 3 Arrows", () -> c.trajTerminator, v -> c.trajTerminator = v);

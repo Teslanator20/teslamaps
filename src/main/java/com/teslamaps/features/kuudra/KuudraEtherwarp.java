@@ -50,7 +50,7 @@ public final class KuudraEtherwarp {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Etherwarp");
-                    b.toggle("Etherwarp Spots", () -> c.kuuEtherSpots, v -> { c.kuuEtherSpots = v; visibleFor = null; })
+                    b.toggle("Kuudra Etherwarp Spots", () -> c.kuuEtherSpots, v -> { c.kuuEtherSpots = v; visibleFor = null; })
                             .desc("Warp spots per phase from config/teslamaps/kuudra_etherwarp.json (IQ format, part-block shapes like EDGE_TOP)");
                     if (all == null) load();
                     for (String cat : categories) {

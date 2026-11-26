@@ -70,6 +70,10 @@ final class Features {
         com.teslamaps.features.croesus.KuudraKeys.register();
         com.teslamaps.features.pets.PetStore.register();
         com.teslamaps.features.pets.PetOverlay.register();
+        com.teslamaps.features.pets.PetLevelTracker.register();
+        com.teslamaps.features.HealerFairyEsp.register();
+        com.teslamaps.screen.nia.NiaConfigScreen.registerOptions();
+        com.teslamaps.debug.DevAutopilot.register();
         // everything below: /tmap all
         FeatureRegistry.newFeaturesFromHere();
         // w02-06-term
@@ -335,7 +339,6 @@ final class Features {
         com.teslamaps.features.hud.PlayerStats.register();
         com.teslamaps.features.hud.QuiverHud.register();
         // w08-07-hud
-        com.teslamaps.features.LootCounters.register();
         com.teslamaps.features.hud.TabWidgetHud.register();
         // w07-05-qol
         com.teslamaps.features.ScoreboardLogger.register();
@@ -801,7 +804,6 @@ final class Features {
         com.teslamaps.safari.FloorDropDecoder.register();
         com.teslamaps.safari.ShywormTracker.register();
         com.teslamaps.safari.DoomspiralThrowTimer.register();
-        com.teslamaps.safari.TeammateEsp.register();
         // w16-08-kuu
         com.teslamaps.features.kuudra.KuudraContext.register();
         com.teslamaps.features.kuudra.KuudraProfitTracker.register();

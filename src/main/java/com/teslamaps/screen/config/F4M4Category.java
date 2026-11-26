@@ -13,7 +13,7 @@ public final class F4M4Category {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Highlight (F4/M4)");
         b.toggle("Enable Highlight", () -> config.m4Highlight, v -> config.m4Highlight = v);
-        b.dropdown("Style", new String[]{"Filled", "Outline", "Filled Outline"},
+        b.dropdown("Highlight Style", new String[]{"Filled", "Outline", "Filled Outline"},
                 () -> config.m4HighlightStyle, v -> config.m4HighlightStyle = v);
         b.toggle("Hide Nametags", () -> config.m4HideNametags, v -> config.m4HideNametags = v);
         b.toggle("Thorn", () -> config.m4HlThorn, v -> config.m4HlThorn = v);
@@ -47,18 +47,13 @@ public final class F4M4Category {
         b.label("Boss Timers");
         b.toggle("Spirit Bear Timer", () -> config.spiritBearTimer, v -> config.spiritBearTimer = v);
         b.toggle("Thorn Stun Timer", () -> config.thornStunTimer, v -> config.thornStunTimer = v);
-        b.toggle("  Thorn Stun: Healer Only", () -> config.thornStunHealerOnly, v -> config.thornStunHealerOnly = v);
+        b.toggle("  Only As Healer", () -> config.thornStunHealerOnly, v -> config.thornStunHealerOnly = v);
         b.toggle("Overkill Counter", () -> config.overkillCounter, v -> config.overkillCounter = v);
-        b.toggle("  Overkill: Hide Zero", () -> config.overkillHideZero, v -> config.overkillHideZero = v);
+        b.toggle("  Hide When Zero", () -> config.overkillHideZero, v -> config.overkillHideZero = v);
         b.label("Titles");
         b.toggle("Bow Missed Title", () -> config.titleBowMiss, v -> config.titleBowMiss = v);
         b.toggle("Bow Pickup Title", () -> config.titleBowPickup, v -> config.titleBowPickup = v);
         b.toggle("Bear Event Titles", () -> config.titleBearEvents, v -> config.titleBearEvents = v);
         b.toggle("Hide Default Titles (boss)", () -> config.hideDefaultTitles, v -> config.hideDefaultTitles = v);
-        b.toggle("Global Title Duration", () -> config.titleDurationOverride, v -> config.titleDurationOverride = v).fresh()
-                .desc("Every title alert TeslaMaps shows (not only these) stays this long. Server titles are left alone.")
-                .tags("title", "alert", "duration", "warning");
-        b.slider("  Duration (ticks)", 5f, 200f, () -> (float) config.titleDurationTicks,
-                v -> config.titleDurationTicks = Math.round(v), 0).fresh().desc("20 ticks = 1 second");
     }
 }

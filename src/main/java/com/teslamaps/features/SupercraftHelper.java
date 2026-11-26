@@ -52,7 +52,7 @@ public final class SupercraftHelper {
         presets = Feature.of("SupercraftPresets").section("Inventory").when(() -> cfg().supercraftPresets);
         waste.config("Inventory", b -> {
             b.label("Supercraft");
-            b.toggle("Supercraft Waste Block", () -> cfg().supercraftWasteBlock, v -> cfg().supercraftWasteBlock = v)
+            b.toggle("Block Wasteful Supercrafts", () -> cfg().supercraftWasteBlock, v -> cfg().supercraftWasteBlock = v)
                     .desc("Blocks the Supercraft click when instant-selling the materials and instant-buying the result is much cheaper. Hold Ctrl to bypass.")
                     .tags("supercraft", "waste", "craft loss");
             b.slider("  Loss Limit (M, Cookie)", 1f, 100f, () -> cfg().supercraftWasteThreshold, v -> cfg().supercraftWasteThreshold = v, 0);

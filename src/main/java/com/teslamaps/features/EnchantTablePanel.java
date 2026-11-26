@@ -54,7 +54,7 @@ public final class EnchantTablePanel {
                     b.label("Enchanting");
                     b.toggle("Enchant Table & Hex Panel", () -> cfg().enchantTablePanel, v -> cfg().enchantTablePanel = v)
                             .desc("Side panel in the Enchant Item and Hex menus: every enchant seen across the pages with cost and current level, plus what is on the item.");
-                    b.toggle("  Sort by Name", () -> cfg().enchantPanelSortName, v -> cfg().enchantPanelSortName = v)
+                    b.toggle("  Sort By Name", () -> cfg().enchantPanelSortName, v -> cfg().enchantPanelSortName = v)
                             .desc("Off = sorted by cost.");
                     b.toggle("  Mark Conflicts", () -> cfg().enchantPanelConflicts, v -> cfg().enchantPanelConflicts = v);
                 });

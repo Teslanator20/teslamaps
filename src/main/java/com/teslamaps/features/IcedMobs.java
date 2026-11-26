@@ -49,7 +49,7 @@ public final class IcedMobs {
                 .world(IcedMobs::render)
                 .config("Mob Visuals", b -> {
                     b.label("Ice Spray");
-                    b.toggle("Box Ice Sprayed Mobs", () -> cfg().icedMobs, v -> cfg().icedMobs = v)
+                    b.toggle("Highlight Ice Sprayed Mobs", () -> cfg().icedMobs, v -> cfg().icedMobs = v)
                             .desc("Mobs in front of an Ice Spray user count as frozen for 5s and get a box. Client-side guess, affected by lag.");
                     b.color("  Outline Color", () -> cfg().icedMobsOutline, v -> cfg().icedMobsOutline = v);
                     b.color("  Fill Color", () -> cfg().icedMobsFill, v -> cfg().icedMobsFill = v);

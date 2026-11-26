@@ -26,7 +26,7 @@ public final class KuudraDanger {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Boss Fight");
-                    b.toggle("Danger Warning", () -> c.kuuDangerWarning, v -> c.kuuDangerWarning = v)
+                    b.toggle("Kuudra Floor Danger Warning", () -> c.kuuDangerWarning, v -> c.kuuDangerWarning = v)
                             .desc("\"DANGER\" title in the stage colour when the floor under you is about to break");
                     b.toggle("  Sound", () -> c.kuuDangerSound, v -> c.kuuDangerSound = v);
                 });

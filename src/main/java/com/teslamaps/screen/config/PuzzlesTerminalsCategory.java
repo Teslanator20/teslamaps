@@ -28,14 +28,14 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Display Sound", () -> config.melodyDisplaySound, v -> config.melodyDisplaySound = v).fresh();
         b.toggle("Terminal Solver", () -> config.terminalSolver, v -> config.terminalSolver = v);
         String[] renderTypes = {"Odin", "Normal", "Custom GUI"};
-        b.dropdown("Render Type", renderTypes,
+        b.dropdown("Terminal Solver Style", renderTypes,
                 () -> renderTypes[Math.max(0, Math.min(2, config.terminalRenderType))],
                 v -> config.terminalRenderType = switch (v) {
                     case "Normal" -> 1;
                     case "Custom GUI" -> 2;
                     default -> 0;
                 });
-        b.slider("Normal Term Size", 1f, 6f,
+        b.slider("Terminal GUI Scale", 1f, 6f,
                 () -> (float) config.terminalNormalSize, v -> config.terminalNormalSize = Math.round(v), 0);
         b.toggle("  Inventory Scale (all containers)", () -> config.inventoryScaleOverride, v -> config.inventoryScaleOverride = v).fresh()
                 .desc("Same idea as the terminal size for every chest menu and the inventory: own GUI scale while open, restored on close. Terminals and the storage scale win.")
@@ -74,7 +74,7 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("Client Prediction", () -> config.terminalHideClicked, v -> config.terminalHideClicked = v);
         b.slider("Resolve Timeout (ms)", 300f, 1200f,
                 () -> (float) config.terminalReloadThreshold, v -> config.terminalReloadThreshold = Math.round(v), 0);
-        b.slider("First Click Prot (ms)", 350f, 800f,
+        b.slider("First Click Protection (ms)", 350f, 800f,
                 () -> (float) config.terminalFirstClickProt, v -> config.terminalFirstClickProt = Math.round(v), 0);
         b.toggle("Account For Server Lag", () -> config.terminalLagProtection, v -> config.terminalLagProtection = v);
         b.slider("  Lag Protection Ticks", 7f, 16f,
@@ -124,20 +124,20 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Weirdos: Block Wrong Chests", () -> config.weirdosBlockWrongClicks, v -> config.weirdosBlockWrongClicks = v).fresh()
                 .legit().desc("Right-clicks on a lying weirdo's chest do nothing once the answer is known. Sneak to click anyway. Nothing is sent to the server.");
         b.toggle("Tic Tac Toe Solver", () -> config.solveTicTacToe, v -> config.solveTicTacToe = v);
-        b.toggle("  TTT: Show All Best Moves", () -> config.tttShowAllBest, v -> config.tttShowAllBest = v).fresh()
+        b.toggle("  Show All Best Moves", () -> config.tttShowAllBest, v -> config.tttShowAllBest = v).fresh()
                 .desc("Marks every equally good move instead of one");
-        b.toggle("  TTT: Gamble Color", () -> config.tttGamble, v -> config.tttGamble = v).fresh()
+        b.toggle("  Use Gamble Color", () -> config.tttGamble, v -> config.tttGamble = v).fresh()
                 .desc("Uses the gamble color when no move is safe any more");
-        b.toggle("  TTT: Prediction", () -> config.tttPrediction, v -> config.tttPrediction = v).fresh()
+        b.toggle("  Predict Next Move", () -> config.tttPrediction, v -> config.tttPrediction = v).fresh()
                 .desc("Marks your likely next move after the AI answers (may be off)");
-        b.toggle("  TTT: Done Message (/pc)", () -> config.tttDoneMessage, v -> config.tttDoneMessage = v).fresh()
+        b.toggle("  Done Message (/pc)", () -> config.tttDoneMessage, v -> config.tttDoneMessage = v).fresh()
                 .desc("Sends \"Tic Tac Toe done\" to party chat when you tie it");
-        b.toggle("  TTT: Block Wrong Buttons", () -> config.tttBlockWrongClicks, v -> config.tttBlockWrongClicks = v).fresh()
+        b.toggle("  Block Wrong Buttons", () -> config.tttBlockWrongClicks, v -> config.tttBlockWrongClicks = v).fresh()
                 .legit().desc("Right-clicks on board buttons that are not a best move do nothing. Sneak to click anyway. Nothing is sent to the server.");
-        b.dropdown("  TTT Style", PuzzleDraw.STYLES, () -> config.tttStyle, v -> config.tttStyle = v).fresh();
-        b.color("  TTT: Best Move", () -> config.colorTttBest, v -> config.colorTttBest = v).fresh();
-        b.color("  TTT: Gamble", () -> config.colorTttGamble, v -> config.colorTttGamble = v).fresh();
-        b.color("  TTT: Prediction Color", () -> config.colorTttPrediction, v -> config.colorTttPrediction = v).fresh();
+        b.dropdown("  Highlight Style", PuzzleDraw.STYLES, () -> config.tttStyle, v -> config.tttStyle = v).fresh();
+        b.color("  Best Move Color", () -> config.colorTttBest, v -> config.colorTttBest = v).fresh();
+        b.color("  Gamble Color", () -> config.colorTttGamble, v -> config.colorTttGamble = v).fresh();
+        b.color("  Prediction Color", () -> config.colorTttPrediction, v -> config.colorTttPrediction = v).fresh();
         b.toggle("Creeper Beams Solver", () -> config.solveCreeperBeams, v -> config.solveCreeperBeams = v);
         b.toggle("  Creeper Beams Tracers", () -> config.creeperBeamsTracers, v -> config.creeperBeamsTracers = v);
         b.dropdown("  Creeper Beams Style", PuzzleDraw.STYLES_WITH_DEFAULT, () -> config.creeperBeamsStyle, v -> config.creeperBeamsStyle = v).fresh();
@@ -168,8 +168,8 @@ public final class PuzzlesTerminalsCategory {
         b.toggle("  Quiz: Block Wrong Answers", () -> config.quizBlockWrongClicks, v -> config.quizBlockWrongClicks = v).fresh()
                 .legit().desc("Right-clicks next to a wrong answer do nothing once the right one is known. Sneak to click anyway. Nothing is sent to the server.");
         b.toggle("Teleport Maze Solver", () -> config.solveTPMaze, v -> config.solveTPMaze = v);
-        b.toggle("  TP Maze Next-Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
-        b.toggle("  TP Maze Prioritize Diagonal", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
+        b.toggle("  Next Portal Tracer", () -> config.tpMazeTracer, v -> config.tpMazeTracer = v);
+        b.toggle("  Prioritize Diagonal Portals", () -> config.tpMazePrioritizeDiagonal, v -> config.tpMazePrioritizeDiagonal = v);
         b.toggle("Water Board Solver", () -> config.solveWaterBoard, v -> config.solveWaterBoard = v);
         b.toggle("  Water Board Tracers", () -> config.waterBoardTracers, v -> config.waterBoardTracers = v);
         b.toggle("  Water Board Colored Countdown", () -> config.waterBoardColorStages, v -> config.waterBoardColorStages = v);
@@ -213,10 +213,10 @@ public final class PuzzlesTerminalsCategory {
         b.color("Ice Fill Path End", () -> config.colorIceFillEnd, v -> config.colorIceFillEnd = v);
         b.color("Ice Path: Next", () -> config.colorIcePathNext, v -> config.colorIcePathNext = v);
         b.color("Ice Path: Rest", () -> config.colorIcePathRest, v -> config.colorIcePathRest = v);
-        b.color("TP Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);
-        b.color("TP Maze: Multiple", () -> config.colorTPMazeMultiple, v -> config.colorTPMazeMultiple = v);
-        b.color("TP Maze: Visited", () -> config.colorTPMazeVisited, v -> config.colorTPMazeVisited = v);
-        b.color("TP Maze: Tracer", () -> config.colorTPMazeTracer, v -> config.colorTPMazeTracer = v);
+        b.color("Teleport Maze: Single", () -> config.colorTPMazeOne, v -> config.colorTPMazeOne = v);
+        b.color("Teleport Maze: Multiple", () -> config.colorTPMazeMultiple, v -> config.colorTPMazeMultiple = v);
+        b.color("Teleport Maze: Visited", () -> config.colorTPMazeVisited, v -> config.colorTPMazeVisited = v);
+        b.color("Teleport Maze: Tracer", () -> config.colorTPMazeTracer, v -> config.colorTPMazeTracer = v);
         b.color("Puzzle Unexplored", () -> config.colorPuzzleUnexplored, v -> config.colorPuzzleUnexplored = v);
         b.color("Simon Says: First", () -> config.colorSimonSaysFirst, v -> config.colorSimonSaysFirst = v);
         b.color("Simon Says: Second", () -> config.colorSimonSaysSecond, v -> config.colorSimonSaysSecond = v);

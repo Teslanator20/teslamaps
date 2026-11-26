@@ -40,7 +40,7 @@ public final class AtmosphericFilter {
                 .config("Garden", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Atmospheric Filter");
-                    b.toggle("Atmospheric Filter Perk", () -> c.atmosphericFilterHud, v -> c.atmosphericFilterHud = v)
+                    b.toggle("Atmospheric Filter HUD", () -> c.atmosphericFilterHud, v -> c.atmosphericFilterHud = v)
                             .desc("Current SkyBlock season and the Atmospheric Filter perk it gives. Position in /tmap gui.");
                     b.toggle("  Only Show Perk", () -> c.atmosphericFilterOnlyBuff, v -> c.atmosphericFilterOnlyBuff = v);
                     b.toggle("  Short Season", () -> c.atmosphericFilterShortSeason, v -> c.atmosphericFilterShortSeason = v);

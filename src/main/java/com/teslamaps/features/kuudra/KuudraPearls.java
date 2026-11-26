@@ -84,7 +84,7 @@ public final class KuudraPearls {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Pearls");
-                    b.toggle("Pearl Waypoints", () -> c.kuuPearlSpots, v -> c.kuuPearlSpots = v)
+                    b.toggle("Kuudra Pearl Waypoints", () -> c.kuuPearlSpots, v -> c.kuuPearlSpots = v)
                             .desc("Supply phase: pearl start spots and lineup blocks per drop-off, colored per supply");
                     b.toggle("  Preset Lineups", () -> c.kuuPearlPresets, v -> c.kuuPearlPresets = v);
                     b.toggle("  Only Closest", () -> c.kuuPearlClosest, v -> c.kuuPearlClosest = v)
@@ -95,7 +95,7 @@ public final class KuudraPearls {
                     b.toggle("    Throw Timer", () -> c.kuuPearlTimer, v -> c.kuuPearlTimer = v)
                             .desc("Time left until the throw lands as the pickup finishes, from the pickup bar title");
                     b.slider("    Timer Offset (ms)", -500f, 500f, () -> c.kuuPearlTimerOffset, v -> c.kuuPearlTimerOffset = v, 0);
-                    b.toggle("Pearl Block Interact", () -> c.kuuPearlInteract, v -> c.kuuPearlInteract = v).cheat()
+                    b.toggle("Pearls Ignore Block Clicks", () -> c.kuuPearlInteract, v -> c.kuuPearlInteract = v).cheat()
                             .desc("Right-clicking a block with an Ender Pearl throws the pearl instead of using the block (supply phase)");
                     b.toggle("  Everywhere", () -> c.kuuPearlInteractEverywhere, v -> c.kuuPearlInteractEverywhere = v)
                             .desc("Not only in the Kuudra supply phase");

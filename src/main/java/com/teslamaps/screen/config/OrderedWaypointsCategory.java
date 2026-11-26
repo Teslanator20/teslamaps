@@ -12,7 +12,7 @@ public final class OrderedWaypointsCategory {
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.info("Routes outside dungeons - Coleweight / Skytils format");
-        b.toggle("Render Route",
+        b.toggle("Show Route",
                 () -> config.orderedWaypoints, v -> config.orderedWaypoints = v);
         b.button("Manage Routes",
                 () -> Minecraft.getInstance().schedule(() -> Minecraft.getInstance().gui.setScreen(new WaypointRoutesScreen())));

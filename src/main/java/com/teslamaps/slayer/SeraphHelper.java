@@ -94,7 +94,7 @@ public final class SeraphHelper {
                             .desc("Hides the guardian beam of Voidgloom bosses picked below. \"Not mine/carries\" hides other players' Broken Heart Radiation.")
                             .tags("slayer", "enderman", "beam", "guardian");
                     b.dropdown("  Hide For", LASER_MODES, () -> c.voidgloomHideLaserFor, v -> c.voidgloomHideLaserFor = v);
-                    b.toggle("Hide Mobs at the Seraph", () -> c.voidgloomHideSummons, v -> c.voidgloomHideSummons = v)
+                    b.toggle("Hide Mobs Near Voidgloom", () -> c.voidgloomHideSummons, v -> c.voidgloomHideSummons = v)
                             .desc("Summons, pets and other players within 5 blocks of a Voidgloom Seraph are not drawn.")
                             .tags("slayer", "enderman", "summons", "hide");
                     VoidgloomLaser.config(b);

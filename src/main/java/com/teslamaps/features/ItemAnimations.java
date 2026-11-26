@@ -35,8 +35,6 @@ public final class ItemAnimations {
                     b.toggle("  Change Empty Hand", () -> c.itemAnimEmptyHand, v -> c.itemAnimEmptyHand = v);
                     b.toggle("  Ignore Haste / Fatigue", () -> c.itemAnimIgnoreEffects, v -> c.itemAnimIgnoreEffects = v)
                             .desc("Swing speed ignores Haste and Mining Fatigue.");
-                    b.toggle("  No Re-Equip Animation", () -> c.itemAnimNoReequip, v -> c.itemAnimNoReequip = v)
-                            .desc("The item no longer dips when Hypixel updates it or you swap items.");
                     b.toggle("  In-Place Swing", () -> c.itemAnimInPlaceSwing, v -> c.itemAnimInPlaceSwing = v)
                             .desc("The swing only rotates the item instead of moving it.");
                     b.toggle("  No Swing", () -> c.itemAnimNoSwing, v -> c.itemAnimNoSwing = v);
@@ -57,7 +55,10 @@ public final class ItemAnimations {
         return c.itemAnimations && c.section("Render");
     }
 
-    public static boolean noReequip() { return on() && cfg().itemAnimNoReequip; }
+    public static boolean noReequip() {
+        TeslaMapsConfig c = cfg();
+        return c.noReequipAnimation && "Always".equals(c.noReequipMode);
+    }
 
     public static boolean inPlaceSwing() { return on() && cfg().itemAnimInPlaceSwing; }
 

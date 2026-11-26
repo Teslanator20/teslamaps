@@ -36,7 +36,7 @@ public final class ScorpionFoilTicker {
                 .config("Combat", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Tickers");
-                    b.toggle("Ticker / Charges Display", () -> c.scorpionFoilTicker, v -> c.scorpionFoilTicker = v)
+                    b.toggle("Scorpion Foil Ticker HUD", () -> c.scorpionFoilTicker, v -> c.scorpionFoilTicker = v)
                             .desc("Ticker charges (Scorpion Foil) from the action bar as a row of filled and empty dots. Position in /tmap gui")
                             .tags("scorpion", "foil", "ticker", "charges");
                 });

@@ -10,7 +10,7 @@ public final class ChatCategory {
 
     private ChatCategory() {}
 
-    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterTeleportPads", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy"};
+    private static final String[] MORE = {"chatFilterBossAll", "chatFilterLobby", "chatFilterFriendJoin", "chatFilterWarpMore", "chatFilterBzAhMinis", "chatFilterSlayerSpam", "chatFilterUselessWarnings", "chatFilterUselessNotifications", "chatFilterFireSale", "chatFilterHoppity", "chatFilterChocolateFactory", "chatFilterSacrifice", "chatFilterNoPests", "chatFilterTeleportPads", "chatFilterRewardBundles", "chatFilterWinterGift", "chatFilterAnita", "chatFilterRareRewards", "chatFilterSoloClass", "chatFilterFairy", "chatFilterBlocksInWay", "chatFilterThornSpirits", "chatFilterPetLevelUp", "chatFilterClaimReminders", "chatFilterAbilityUsed", "chatFilterLoadout"};
 
     private static void groupAction(ConfigBuilder b, TeslaMapsConfig config, String group, String label) {
         b.dropdown(label, com.teslamaps.features.ChatFilter.GROUP_ACTIONS,
@@ -54,7 +54,7 @@ public final class ChatCategory {
         b.slider("  Stack Window (min)", 1f, 30f,
                 () -> (float) config.chatStackWindowMinutes, v -> config.chatStackWindowMinutes = Math.round(v));
         b.toggle("  Stack Divider Blocks (---/===/▬▬▬)", () -> config.chatStackBlocks, v -> config.chatStackBlocks = v);
-        b.toggle("  Colours Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
+        b.toggle("  Colors Must Match", () -> config.chatStackCompareColors, v -> config.chatStackCompareColors = v);
         b.toggle("  Ignore Numbers (Smart Collapse)", () -> config.chatStackNormalizeNumbers, v -> config.chatStackNormalizeNumbers = v).fresh()
                 .desc("Lines that only differ in their numbers stack too; player chat only stacks with the line right above");
         b.toggle("Keep Scroll Position On Reopen", () -> config.chatKeepScroll, v -> config.chatKeepScroll = v).fresh()
@@ -139,10 +139,10 @@ public final class ChatCategory {
         b.toggle("  Grey Other Players' Deaths", () -> config.chatCompactDeaths, v -> config.chatCompactDeaths = v).fresh()
                 .desc("Your own death stays as it is");
         b.toggle("Compact Drop & Economy Lines", () -> config.chatCompactDrops, v -> { config.chatCompactDrops = v; if (v) config.chatFilterEnabled = true; }).fresh()
-                .desc("SkyBlock XP, loot share, rare reward, pet summon, autopet, [Sacks], Abiphone ring, fire sales, inventory full");
+                .desc("SkyBlock XP, loot share, rare reward, pet summon, autopet, Abiphone ring, fire sales, inventory full. [Sacks]: Hide Sacks (Spam action Compact = short line)");
         b.toggle("  Grey NPC Dialog", () -> config.chatCompactNpcGrey, v -> config.chatCompactNpcGrey = v).fresh();
         b.toggle("Compact Mining Lines", () -> config.chatCompactMining, v -> { config.chatCompactMining = v; if (v) config.chatFilterEnabled = true; }).fresh()
-                .desc("Breaking Power, crystals, Metal Detector, Keepers, Automaton parts; treasure chest notices hidden");
+                .desc("Breaking Power; treasure chest notices hidden. Crystals, Metal Detector, Keepers, Robot: Mining > Nucleus Chat Filter");
         b.dropdown("  Hollows Chest Rewards", com.teslamaps.features.mining.MiningChestSummary.MODES,
                 () -> config.miningChestSummary, v -> config.miningChestSummary = v).fresh()
                 .desc("CHEST LOCKPICKED / LOOT CHEST COLLECTED block as one line (Compact), dimmed (Grey) or gone (Hide). Full block on hover")
@@ -210,17 +210,15 @@ public final class ChatCategory {
         b.toggle("Hide Ult Ready (DROP to activate)", () -> config.chatFilterUltReady, v -> config.chatFilterUltReady = v);
         b.toggle("Hide AOE Damage Messages", () -> config.chatFilterAoeDamage, v -> config.chatFilterAoeDamage = v);
         b.toggle("Hide Guild XP (GEXP)", () -> config.chatFilterGuildXp, v -> config.chatFilterGuildXp = v);
-        b.toggle("Hide Kill Combo", () -> config.chatFilterKillCombo, v -> config.chatFilterKillCombo = v);
+        b.toggle("Hide Kill Combo Lines", () -> config.chatFilterKillCombo, v -> config.chatFilterKillCombo = v);
         b.toggle("Hide Ability Cooldown Message", () -> config.chatFilterAbilityCooldown, v -> config.chatFilterAbilityCooldown = v).fresh()
                 .desc("\"This ability is on cooldown for Ns.\"").tags("cooldown", "hyperion", "ability");
-        b.toggle("Mute Ability Cooldown Sound", () -> config.muteAbilityCooldownSound, v -> config.muteAbilityCooldownSound = v).fresh()
-                .desc("Mutes Hypixel's loud cooldown sound in dungeons or while holding an item with an ability. Real endermen stay audible.")
-                .tags("cooldown", "sound", "mute");
         b.label("Spam / Info");
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_SPAM, "  Spam Filter Action");
-        b.toggle("Hide Stash Messages", () -> config.chatFilterStash, v -> config.chatFilterStash = v);
-        b.toggle("Compact Stash Warnings", () -> config.stashCompact, v -> config.stashCompact = v);
-        b.info("One clickable line instead of the block (wins over Hide Stash Messages)");
+        b.dropdown("Stash Messages", new String[]{"Show", "Hide", "Compact"},
+                () -> config.stashCompact ? "Compact" : config.chatFilterStash ? "Hide" : "Show",
+                v -> { config.chatFilterStash = v.equals("Hide"); config.stashCompact = v.equals("Compact"); })
+                .desc("Compact: one clickable line instead of the block").tags("stash", "compact");
         b.toggle("  Hide Repeated Counts", () -> config.stashHideDuplicates, v -> config.stashHideDuplicates = v);
         b.toggle("    Repeat Once Per World", () -> config.stashDuplicatesPerWorld, v -> config.stashDuplicatesPerWorld = v);
         b.toggle("  Hide \"Added To Stash\"", () -> config.stashHideAdded, v -> config.stashHideAdded = v);
@@ -233,7 +231,8 @@ public final class ChatCategory {
         b.toggle("  One Line Instead (☀ Sky Mall · buff)", () -> config.chatFilterPerkBuffsCompact, v -> config.chatFilterPerkBuffsCompact = v).fresh()
                 .desc("Sky Mall, Lottery and Beekeeper: the buff of the day as one short line instead of hiding it");
         b.toggle("Hide Bone Plating", () -> config.chatFilterBonePlating, v -> config.chatFilterBonePlating = v);
-        b.toggle("Hide Sacks", () -> config.chatFilterSacks, v -> config.chatFilterSacks = v);
+        b.toggle("Hide Sacks", () -> config.chatFilterSacks, v -> config.chatFilterSacks = v)
+                .desc("[Sacks] +N items lines. With the Spam action on Compact they become one short line");
         b.toggle("Hide GFS (Sacks to inventory)", () -> config.chatFilterGfs, v -> config.chatFilterGfs = v);
         b.toggle("Hide Watchdog Announcements", () -> config.chatFilterWatchdog, v -> config.chatFilterWatchdog = v);
         b.toggle("Hide Milestones", () -> config.chatFilterMilestone, v -> config.chatFilterMilestone = v);
@@ -258,7 +257,7 @@ public final class ChatCategory {
         b.info("/tmap chatfilter title|sound|flash|show|system <n> ...").fresh();
         b.toggle("Highlight Own Name", () -> config.chatHighlightOwnName, v -> config.chatHighlightOwnName = v).fresh()
                 .desc("Your name is drawn in its own colour in every chat line and channel");
-        b.color("  Own Name Colour", () -> config.chatOwnNameColor, v -> config.chatOwnNameColor = v).fresh();
+        b.color("  Own Name Color", () -> config.chatOwnNameColor, v -> config.chatOwnNameColor = v).fresh();
         b.button("List Own Filters In Chat", () -> {
             var mc = Minecraft.getInstance();
             if (mc.player == null) return;
@@ -271,12 +270,21 @@ public final class ChatCategory {
         b.label("More Filters");
         b.button("Toggle All More Filters", () -> toggleAll(config, MORE));
         groupAction(b, config, com.teslamaps.features.ChatFilter.G_MORE, "  More Filter Action");
-        b.toggle("Hide All [BOSS] Lines", () -> config.chatFilterBossAll, v -> config.chatFilterBossAll = v);
+        b.toggle("Hide All [BOSS] Lines", () -> config.chatFilterBossAll, v -> config.chatFilterBossAll = v)
+                .desc("Every [BOSS] line (dungeon floors, slayers, ...) and the M7 crystal lines");
         b.toggle("Hide Lobby Messages", () -> config.chatFilterLobby, v -> config.chatFilterLobby = v);
-        b.toggle("Hide Friend/Guild Join & Leave", () -> config.chatFilterFriendJoin, v -> config.chatFilterFriendJoin = v);
+        b.dropdown("Friend/Guild Join & Leave", new String[]{"Show", "Hide", "Compact"},
+                () -> config.chatFilterFriendJoin ? "Hide" : config.compactJoinLeave ? "Compact" : "Show",
+                v -> { config.chatFilterFriendJoin = v.equals("Hide"); config.compactJoinLeave = v.equals("Compact"); })
+                .desc("Compact: \"Friend > Name joined.\" becomes \"F >> Name\", left = \"F << Name\"; same with G for the guild")
+                .tags("friend", "guild", "join", "compact");
         b.toggle("Hide More Warp/Visit Messages", () -> config.chatFilterWarpMore, v -> config.chatFilterWarpMore = v);
         b.toggle("Hide Bazaar/AH Progress Lines", () -> config.chatFilterBzAhMinis, v -> config.chatFilterBzAhMinis = v);
-        b.toggle("Hide Slayer Quest Spam", () -> config.chatFilterSlayerSpam, v -> config.chatFilterSlayerSpam = v);
+        b.dropdown("Slayer Quest Chat", new String[]{"Show", "Hide", "Compact"},
+                () -> config.compactSlayerChat ? "Compact" : config.chatFilterSlayerSpam ? "Hide" : "Show",
+                v -> { config.chatFilterSlayerSpam = v.equals("Hide"); config.compactSlayerChat = v.equals("Compact"); })
+                .desc("Hide: quest start/complete block, Maddox, RING. Compact: start + objective and complete + level as one block each (needs the Combat section)")
+                .tags("slayer", "quest", "compact");
         b.toggle("Hide Hellion Shield Lines", () -> config.chatFilterHellion, v -> config.chatFilterHellion = v).fresh()
                 .desc("\"Your hit was reduced by Hellion Shield!\" and \"Strike using the X attunement on your dagger!\" (Inferno Demonlord)");
         b.toggle("Hide Useless Warnings", () -> config.chatFilterUselessWarnings, v -> config.chatFilterUselessWarnings = v);
@@ -288,13 +296,26 @@ public final class ChatCategory {
         b.toggle("Hide \"No Pests\" Line", () -> config.chatFilterNoPests, v -> config.chatFilterNoPests = v);
         b.toggle("Hide Teleport Pad Messages", () -> config.chatFilterTeleportPads, v -> config.chatFilterTeleportPads = v);
         b.toggle("Hide Reward Reminders", () -> config.chatFilterRewardBundles, v -> config.chatFilterRewardBundles = v);
-        b.toggle("Hide Gift Rewards", () -> config.chatFilterWinterGift, v -> config.chatFilterWinterGift = v);
+        b.toggle("Hide Gift Rewards", () -> config.chatFilterWinterGift, v -> config.chatFilterWinterGift = v)
+                .desc("Gift reward lines. Gift error lines: Events > Hide Gift Error Messages");
         b.toggle("Hide Anita Fortune (outside Garden)", () -> config.chatFilterAnita, v -> config.chatFilterAnita = v);
         b.toggle("Hide Dungeon Rare Rewards (others)", () -> config.chatFilterRareRewards, v -> config.chatFilterRareRewards = v);
         b.toggle("Hide Solo Class Messages", () -> config.chatFilterSoloClass, v -> config.chatFilterSoloClass = v);
         b.toggle("Hide Fairy Messages", () -> config.chatFilterFairy, v -> config.chatFilterFairy = v);
+        b.toggle("Hide \"Blocks in the way\"", () -> config.chatFilterBlocksInWay, v -> config.chatFilterBlocksInWay = v).fresh()
+                .desc("\"Blocks in the way\" plus the other not-possible lines: already searched, lever used, no key, no abilities in this room, silverfish");
+        b.toggle("Hide F4 Spirit Lines", () -> config.chatFilterThornSpirits, v -> config.chatFilterThornSpirits = v).fresh()
+                .desc("Spirit Bear appeared, Spirit Bow dropped / picked up / disintegrates, [CROWD] lines");
+        b.toggle("Hide Pet Level Ups", () -> config.chatFilterPetLevelUp, v -> config.chatFilterPetLevelUp = v).fresh()
+                .desc("\"Your X leveled up to level N!\" - the Pet Leveling HUD shows them instead");
+        b.toggle("Hide Claim Reminders", () -> config.chatFilterClaimReminders, v -> config.chatFilterClaimReminders = v).fresh()
+                .desc("Unclaimed event rewards block and \"accessories to claim in your Accessory Bag\"");
+        b.toggle("Hide Ability Used / Available", () -> config.chatFilterAbilityUsed, v -> config.chatFilterAbilityUsed = v).fresh()
+                .desc("\"Used Explosive Shot!\", \"Explosive Shot is now available!\" and the like");
+        b.toggle("Hide Loadout Equipped", () -> config.chatFilterLoadout, v -> config.chatFilterLoadout = v).fresh()
+                .desc("\"You equipped Loadout N!\"");
         b.label("Command Suggestions");
-        b.toggle("Suggest /warp and /call targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v);
+        b.toggle("Suggest /warp and /call Targets", () -> config.commandSuggestions, v -> config.commandSuggestions = v);
         b.toggle("  Suggest Players (/msg, /visit, ...)", () -> config.commandSuggestionsPlayers, v -> config.commandSuggestionsPlayers = v);
         b.toggle("    Only Best Friends", () -> config.tabCompleteBestFriends, v -> config.tabCompleteBestFriends = v).fresh()
                 .desc("Of your friends, only best friends are suggested. Run /f list once to learn them.");

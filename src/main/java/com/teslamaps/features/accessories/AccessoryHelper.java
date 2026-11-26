@@ -283,7 +283,7 @@ public final class AccessoryHelper {
                 sym = r.status().symbol;
             }
             int sx = acc.getX() + slot.x, sy = acc.getY() + slot.y;
-            ctx.text(mc.font, sym, sx + 17 - mc.font.width(sym), sy + 9, 0xFFFFFFFF, true);
+            ctx.text(mc.font, sym, sx - 1, sy - 1, 0xFFFFFFFF, true);
         }
     }
 }

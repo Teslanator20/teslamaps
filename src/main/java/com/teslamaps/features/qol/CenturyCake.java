@@ -61,10 +61,10 @@ public class CenturyCake {
                 .enabled(() -> cfg().centuryCakeTimer)
                 .size(() -> Minecraft.getInstance().font.width(SAMPLE), () -> 9)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, SAMPLE));
+        Feature.of("CenturyCakeData").serverChat(CenturyCake::onChat);
         Feature.of("CenturyCake").section("Timers")
                 .when(() -> cfg().centuryCakeTimer || cfg().centuryCakeGlow)
                 .tick(CenturyCake::tick)
-                .serverChat(CenturyCake::onChat)
                 .hudHiddenInInventory("centurycaketimer", CenturyCake::render)
                 .config("Timers", b -> {
                     TeslaMapsConfig c = b.config();

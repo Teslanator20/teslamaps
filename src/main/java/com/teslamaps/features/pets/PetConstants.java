@@ -65,6 +65,13 @@ public class PetConstants {
         for (Map.Entry<String, String> entry : ID_TO_DISPLAY.entrySet()) {
             if (entry.getValue().equalsIgnoreCase(clean)) return entry.getKey();
         }
+        // "Golden Dragon Egg" = an unhatched Golden Dragon
+        if (clean.endsWith(" Egg")) {
+            String base = clean.substring(0, clean.length() - 4);
+            for (Map.Entry<String, String> entry : ID_TO_DISPLAY.entrySet()) {
+                if (entry.getValue().equalsIgnoreCase(base)) return entry.getKey();
+            }
+        }
         return clean.toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]+", "_").replaceAll("^_+|_+$", "");
     }
 

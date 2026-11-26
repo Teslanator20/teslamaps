@@ -76,7 +76,7 @@ public final class HoppityEggLocator {
                 .serverChat(HoppityEggLocator::onChat)
                 .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.toggle("Egglocator Guess", () -> c.hoppityEggGuess, v -> c.hoppityEggGuess = v)
+                    b.toggle("Hoppity Egglocator Guess", () -> c.hoppityEggGuess, v -> c.hoppityEggGuess = v)
                             .desc("Use the Egglocator: its particle trail is fitted to a curve and snapped to the nearest known egg spot of the island. Warns when the trail was unusable")
                             .tags("hoppity", "egg", "egglocator", "guess", "waypoint");
                     b.toggle("  Line To Crosshair", () -> c.hoppityEggGuessLine, v -> c.hoppityEggGuessLine = v);

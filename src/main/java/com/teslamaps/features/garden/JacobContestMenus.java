@@ -83,7 +83,7 @@ public final class JacobContestMenus {
                             .tags("jacob", "contest", "medal", "reward", "elite", "eliteskyblock");
                     b.toggle("  Medal Icon (✦, ▲ for Finnegan)", () -> c.jacobMedalIcon, v -> c.jacobMedalIcon = v);
                     b.toggle("  Medal Slot Background", () -> c.jacobMedalBackground, v -> c.jacobMedalBackground = v);
-                    b.toggle("  Reward Status Colours", () -> c.jacobRewardStatus, v -> c.jacobRewardStatus = v)
+                    b.toggle("  Reward Status Colors", () -> c.jacobRewardStatus, v -> c.jacobRewardStatus = v)
                             .desc("Claimed rewards green, unclaimed yellow");
                     b.toggle("  Real Time In Tooltip", () -> c.jacobRealTime, v -> c.jacobRealTime = v);
                     b.keybind("  Website Link Key", () -> c.jacobEliteKey, v -> c.jacobEliteKey = v)

@@ -90,7 +90,9 @@ public class ChatFilter {
                 || t.contains("Staff have banned an additional")
                 || t.contains("Blacklisted modifications are a bannable offense!"));
 
-        more("chatFilterBossAll", c -> c.chatFilterBossAll, t -> t.startsWith("[BOSS] "));
+        more("chatFilterBossAll", c -> c.chatFilterBossAll, t -> t.startsWith("[BOSS] ")
+                || t.equals("The Crystal withers your soul as you hold it in your hands!")
+                || t.equals("It doesn't seem like that is supposed to go there."));
         more("chatFilterLobby", c -> c.chatFilterLobby, any(
                 p(".* (?:joined|spooked into|slid into) the lobby!.*"),
                 p("\\s*You can now create your own Hypixel SMP server!\\s*"),
@@ -169,9 +171,7 @@ public class ChatFilter {
             String s = t.trim();
             int sp = s.indexOf(' ');
             return (sp > 1 && s.charAt(sp - 1) == '!' && s.contains(" gift with "))
-                    || (s.startsWith("EXTRA! +") && s.contains("North Star"))
-                    || s.equals("This player is playing a profile mode which doesn't allow gifting!")
-                    || s.equals("Can't place gifts this close to spawn!");
+                    || (s.startsWith("EXTRA! +") && s.contains("North Star"));
         });
         Pattern anita = p(".*\\[NPC] Jacob: Your Anita's \\w+ is giving you \\+\\d{1,2}\\S* .+ Fortune during the contest!");
         more("chatFilterAnita", c -> c.chatFilterAnita,
@@ -186,10 +186,31 @@ public class ChatFilter {
         more("chatFilterFairy", c -> c.chatFilterFairy, t -> com.teslamaps.dungeon.DungeonManager.isInDungeon()
                 && fairy.matcher(t.trim()).matches());
 
+        more("chatFilterBlocksInWay", c -> c.chatFilterBlocksInWay, oneOf("There are blocks in the way!",
+                "You cannot hit the silverfish while it's moving!", "You cannot move the silverfish in that direction!",
+                "This chest has already been searched!", "This lever has already been used.",
+                "You cannot do that in this room!", "You do not have the key for this door!",
+                "You have already opened this dungeon chest!", "You cannot use abilities in this room!",
+                "A mystical force in this room prevents you from using that ability!"));
+        more("chatFilterThornSpirits", c -> c.chatFilterThornSpirits, t -> t.startsWith("[CROWD] ")
+                || t.equals("A Spirit Bear has appeared!") || t.equals("The Spirit Bow has dropped!")
+                || t.equals("You picked up the Spirit Bow! Use it to attack Thorn!")
+                || t.equals("Your Spirit Bow disintegrates in your inventory!"));
+        Pattern petLevel = p("Your [\\w' -]+ leveled up to level \\d+!");
+        more("chatFilterPetLevelUp", c -> c.chatFilterPetLevelUp, t -> petLevel.matcher(t.trim()).matches());
+        Pattern claim = p("(?:You have \\d+ unclaimed event rewards?!|Event rewards are deleted after \\d+ SkyBlock years?!|>>> CLICK HERE to claim! <<<|You have accessories to claim in your Accessory Bag!)");
+        more("chatFilterClaimReminders", c -> c.chatFilterClaimReminders, t -> claim.matcher(t.trim()).matches());
+        Pattern abilityUsed = p("(?:Used [A-Z][\\w' ]{2,30}!|[A-Z][\\w' ]{2,30} is now available!)");
+        more("chatFilterAbilityUsed", c -> c.chatFilterAbilityUsed, t -> abilityUsed.matcher(t.trim()).matches());
+        Pattern loadout = p("You equipped Loadout \\d+!");
+        more("chatFilterLoadout", c -> c.chatFilterLoadout, t -> loadout.matcher(t.trim()).matches());
+
         old("chatFilterBlessings", G_DUNGEON, false, c -> c.chatFilterBlessings, t -> t.contains("DUNGEON BUFF!")
                 || (t.contains("Blessing of") && t.contains("was picked up!"))
                 || (t.contains("Blessing of") && t.contains("has obtained"))
-                || t.contains("Granted you +") || t.contains("Also granted you +"));
+                || t.contains("Granted you +") || t.contains("Also granted you +")
+                || t.trim().startsWith("BUFF! You have gained ") || t.trim().startsWith("Granted you ")
+                || t.trim().startsWith("Also granted you ") || t.trim().startsWith("Grants you "));
         old("chatFilterEssence", G_DUNGEON, false, c -> c.chatFilterEssence, t -> t.contains("ESSENCE!")
                 || (t.contains("Wither Essence!") && t.contains("extra essence")));
         old("chatFilterKeys", G_DUNGEON, false, c -> c.chatFilterKeys, t -> t.contains("Key was picked up!")
@@ -401,6 +422,8 @@ public class ChatFilter {
         }
         if (TeslaMapsConfig.get().chatFilterEnabled) {
             String sf = ChatCompactRulesIslands.shortForm(message, t);
+            // a hide toggle for the same line wins
+            if (sf != null && matchStripped(t) != null) sf = null;
             if (sf != null) lastReason = "compact";
             if (sf != null && sf.isEmpty()) return true;
             if (sf != null && !hasClick(message, true)) {

@@ -13,7 +13,7 @@ public final class SkillsCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Skill Tracker");
         b.toggle("Tracker HUD (XP/h and skill rates)", () -> config.skillTracker, v -> config.skillTracker = v);
-        b.toggle("  Tracker HUD only in Inventory", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
+        b.toggle("  Only While Inventory Open", () -> config.skillTrackerHidden, v -> config.skillTrackerHidden = v);
         b.toggle("  Show in Dungeon", () -> config.skillTrackerInDungeon, v -> config.skillTrackerInDungeon = v);
         b.toggle("  Slayer Stats (avg kill/spawn, slayer XP/h)", () -> config.skillTrackerSlayerStats, v -> config.skillTrackerSlayerStats = v).fresh()
                 .desc("Combat panel: average kill and spawn time and slayer XP/h (Aatrox buff included). Resets when the slayer type changes");
@@ -78,6 +78,8 @@ public final class SkillsCategory {
         b.toggle("Pet XP Tooltip", () -> config.petExpTooltip, v -> config.petExpTooltip = v).fresh()
                 .desc("Pet tooltips: progress to max level with a bar and the total pet XP. Hold Shift");
         b.toggle("  Without Shift", () -> config.petExpTooltipAlways, v -> config.petExpTooltipAlways = v).fresh();
+        b.toggle("  Level XP Numbers", () -> config.petExpTooltipLevelXp, v -> config.petExpTooltipLevelXp = v).fresh()
+                .desc("An \"EXP: 2,345/10,000\" line under the level bar, no Shift needed.");
         b.toggle("Favorite Pets", () -> config.petFavorites, v -> config.petFavorites = v).fresh()
                 .desc("Pets menu: press the key over a pet to mark it, marked pets get a colored background");
         b.keybind("  Favorite Key", () -> config.petFavoriteKey, v -> config.petFavoriteKey = v).fresh();

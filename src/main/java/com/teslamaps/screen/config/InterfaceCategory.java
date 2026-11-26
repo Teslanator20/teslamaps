@@ -26,7 +26,7 @@ public final class InterfaceCategory {
         String[] styles = new String[com.teslamaps.render.gui.HudStyle.NAMES.length + 1];
         styles[0] = "Default";
         System.arraycopy(com.teslamaps.render.gui.HudStyle.NAMES, 0, styles, 1, styles.length - 1);
-        b.dropdown("Per-Panel Style: Panel", labels, () -> pickedPanel, v -> pickedPanel = v)
+        b.dropdown("Per-Panel Style", labels, () -> pickedPanel, v -> pickedPanel = v)
                 .desc("Pick a HUD panel, then give it its own style below.").tags("panel", "hud style");
         b.dropdown("  Style Of That Panel", styles,
                 () -> config.hudPanelStyles.getOrDefault(byLabel.get(pickedPanel), "Default"),
@@ -121,7 +121,7 @@ public final class InterfaceCategory {
                 .tags("hud", "grid", "snap", "resize", "editor");
         b.slider("  Grid Size (0 = off)", 0f, 50f, () -> (float) config.hudEditGrid, v -> config.hudEditGrid = Math.round(v), 0).fresh();
         b.toggle("  Snap To Other Panels", () -> config.hudEditSnapEdges, v -> config.hudEditSnapEdges = v).fresh();
-        b.toggle("  Centre Guides", () -> config.hudEditGuides, v -> config.hudEditGuides = v).fresh();
+        b.toggle("  Center Guides", () -> config.hudEditGuides, v -> config.hudEditGuides = v).fresh();
         b.toggle("  Ctrl+Click Multi-Drag", () -> config.hudEditMultiDrag, v -> config.hudEditMultiDrag = v).fresh();
         b.toggle("  Resize Grip", () -> config.hudEditResize, v -> config.hudEditResize = v).fresh();
         b.toggle("HUD Editor Extras", () -> config.hudEditExtras, v -> config.hudEditExtras = v).fresh()
@@ -145,13 +145,19 @@ public final class InterfaceCategory {
                 id -> config.outsideSbFeatures.contains(id),
                 id -> { if (!config.outsideSbFeatures.remove(id)) config.outsideSbFeatures.add(id); }).fresh()
                 .tags("skyblock", "outside");
+        b.label("Titles");
+        b.toggle("Global Title Duration", () -> config.titleDurationOverride, v -> config.titleDurationOverride = v).fresh()
+                .desc("Every title alert TeslaMaps shows stays this long. Server titles are left alone.")
+                .tags("title", "alert", "duration", "warning");
+        b.slider("  Duration (ticks)", 5f, 200f, () -> (float) config.titleDurationTicks,
+                v -> config.titleDurationTicks = Math.round(v), 0).fresh().desc("20 ticks = 1 second");
         b.label("Sounds");
         b.dropdown("GUI Sounds", GuiSounds.THEMES,
                 () -> config.guiSoundTheme, v -> config.guiSoundTheme = v);
         b.slider("Volume", 0f, 2f,
                 () -> config.guiSoundVolume, v -> config.guiSoundVolume = v, 2);
         b.label("Config Hotkey");
-        b.keybind("Open This Screen",
+        b.keybind("Open Config Screen Key",
                 () -> config.configScreenKey, v -> config.configScreenKey = v);
         b.toggle("  Block Other Mods",
                 () -> config.configScreenKeyExclusive, v -> config.configScreenKeyExclusive = v);

@@ -23,7 +23,7 @@ public final class XpInTooltips {
 
     public static void register() {
         feature = Feature.of("XpInTooltips").when(() -> TeslaMapsConfig.get().xpInTooltips)
-                .config("Tooltips & Value", b -> b.toggle("Your XP in Cost Tooltips", () -> TeslaMapsConfig.get().xpInTooltips,
+                .config("Tooltips & Value", b -> b.toggle("Your XP In Cost Tooltips", () -> TeslaMapsConfig.get().xpInTooltips,
                                 v -> TeslaMapsConfig.get().xpInTooltips = v)
                         .desc("Anvil and enchanting tooltips get a \"Your XP: N\" line, green if you have enough, red if not."));
         ItemTooltipCallback.EVENT.register((stack, ctx, flag, lines) -> {

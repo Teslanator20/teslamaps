@@ -25,7 +25,7 @@ import java.util.function.UnaryOperator;
  */
 public final class ConfigMigrator {
 
-    public static final int CONFIG_VERSION = 4;
+    public static final int CONFIG_VERSION = 5;
     static final String KEY = "configVersion";
 
     private record Step(int version, String what, UnaryOperator<JsonObject> fix) {}
@@ -44,6 +44,7 @@ public final class ConfigMigrator {
         s.add(transform(2, "safariShareTimeChannel", ConfigMigrator::boolToChannel));
         s.add(new Step(3, "glfw keys -> sdl scancodes", ConfigMigrator::glfwToSdl));
         s.add(new Step(4, "harp + insta loadout keys -> sdl", ConfigMigrator::keyArraysToSdl));
+        s.add(remove(5, "hideHealerFairy")); // forced off once, back to the default
         for (Step step : s) {
             if (step.version() < 1 || step.version() > CONFIG_VERSION) {
                 String msg = "ConfigMigrator: step '" + step.what() + "' has version " + step.version()

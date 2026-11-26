@@ -44,7 +44,7 @@ public final class AutoCategory {
         b.toggle("Tab-Complete Sack Items", () -> config.gfsSuggestions, v -> config.gfsSuggestions = v);
         b.toggle("Bazaar Fallback", () -> config.gfsBazaar, v -> config.gfsBazaar = v);
         b.toggle("  Mark Item On Bazaar Page", () -> config.bzPurchaseHelper, v -> config.bzPurchaseHelper = v).fresh()
-                .desc("Marks the searched item green on the /bz page until you buy or sell it");
+                .desc("After our own /bz jump (shard list, Get From Sacks, sack table) the searched item is marked green until you buy or sell it");
         b.info("Offers the missing rest from the bazaar");
         b.toggle("Supercraft Grab Link", () -> config.gfsSuperCraft, v -> config.gfsSuperCraft = v);
 
@@ -59,7 +59,7 @@ public final class AutoCategory {
         b.label("Auto Wish");
         b.toggle("Auto Wish (Healer Ult)", () -> config.autoWish, v -> config.autoWish = v);
         b.toggle("Last Breath Pull Sound", () -> config.lastBreathSound, v -> config.lastBreathSound = v);
-        b.toggle("  Charge HUD (LB: ticks)", () -> config.lastBreathHud, v -> config.lastBreathHud = v).fresh();
+        b.toggle("  Charge HUD (ticks)", () -> config.lastBreathHud, v -> config.lastBreathHud = v).fresh();
         b.toggle("  Target Per Dragon (M7 P5)", () -> config.lastBreathPerDragon, v -> config.lastBreathPerDragon = v).fresh()
                 .desc("Target ticks follow the dragon spawn box you look at; elsewhere the global threshold applies.");
         b.slider("    Red", 0f, 21f, () -> (float) config.lastBreathRed, v -> config.lastBreathRed = Math.round(v), 0).fresh();

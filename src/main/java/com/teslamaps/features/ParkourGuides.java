@@ -43,7 +43,7 @@ public final class ParkourGuides {
                     b.toggle("  Rainbow Colors", () -> c.parkourRainbow, v -> c.parkourRainbow = v);
                     b.color("  Single Color", () -> c.parkourColor, v -> c.parkourColor = v);
                     b.toggle("  Show Shortcuts", () -> c.parkourShortcuts, v -> c.parkourShortcuts = v);
-                    b.toggle("  Hide Players in Mirrorverse", () -> c.parkourHidePlayers, v -> c.parkourHidePlayers = v);
+                    b.toggle("  Hide Players In Mirrorverse", () -> c.parkourHidePlayers, v -> c.parkourHidePlayers = v);
                 });
     }
 

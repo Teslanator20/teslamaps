@@ -60,12 +60,10 @@ public final class ChatRewrites {
                     b.label("Chat Extras");
                     b.toggle("Profile Badges In Chat", () -> c.chatProfileBadges, v -> c.chatProfileBadges = v)
                             .desc("Adds the ♲ Ironman / Ⓑ Bingo / ☀ Stranded symbol (and Crimson faction) from the tab list behind the sender's name");
-                    b.toggle("Compact Friend/Guild Join & Leave", () -> c.compactJoinLeave, v -> c.compactJoinLeave = v)
-                            .desc("\"Friend > Name joined.\" becomes \"F >> Name\", left = \"F << Name\"; same with G for the guild");
                     b.toggle("Guild Bridge Formatting", () -> c.bridgeFormat, v -> c.bridgeFormat = v)
                             .desc("Guild lines of your bridge bot (\"Guild > Bot: Name » text\") become \"Bridge > Name: text\". Set the bot with /tmap bridgebot <name>");
                     b.info("  Bridge bot: /tmap bridgebot <name>");
-                    b.color("  Bridge Name Colour", () -> c.bridgeNameColor, v -> c.bridgeNameColor = v);
+                    b.color("  Bridge Name Color", () -> c.bridgeNameColor, v -> c.bridgeNameColor = v);
                     b.toggle("Log Search (/tmap logsearch)", () -> c.logSearch, v -> c.logSearch = v)
                             .desc("Searches the chat of every log file, zipped ones too. Text or /regex/");
                 });

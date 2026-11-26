@@ -316,7 +316,7 @@ public class SkillTracker {
     public static void onActionBar(String raw) {
         TeslaMapsConfig cfg = TeslaMapsConfig.get();
         if (!cfg.skillTracker && !cfg.skillOverflow && !cfg.petOverlay && !cfg.flareMode
-                && !cfg.allSkillsDisplay && !cfg.skillGoals) return;
+                && !cfg.allSkillsDisplay && !cfg.skillGoals && !cfg.petLevelTracker) return;
         Matcher m = GAIN.matcher(strip(raw));
         if (!m.find()) return;
         String skill = m.group(2);

@@ -225,6 +225,12 @@ public class SoulweaverHider {
     }
 
     // Decodes a skull texture-property base64 to its texture URL hash (cached); null if unparseable.
+    public static boolean isHealerFairy(ItemStack head) {
+        if (head.getItem() != Items.PLAYER_HEAD) return false;
+        String url = textureUrl(skullTexture(head));
+        return url != null && url.equals(HEALER_FAIRY_URL);
+    }
+
     private static String textureUrl(String base64) {
         if (base64 == null) return null;
         String cached = URL_CACHE.get(base64);

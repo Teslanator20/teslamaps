@@ -54,11 +54,11 @@ public final class DungeonInfoHud {
                     b.toggle("  Teammates", () -> cfg().dungeonInfoPlayers, v -> cfg().dungeonInfoPlayers = v);
                     b.toggle("  Downed", () -> cfg().dungeonInfoDowned, v -> cfg().dungeonInfoDowned = v);
                     b.toggle("  Blessings", () -> cfg().dungeonInfoBlessings, v -> cfg().dungeonInfoBlessings = v);
-                    b.toggle("    Levels as Numbers", () -> cfg().dungeonInfoBlessingDigits, v -> {
+                    b.toggle("    Levels As Numbers", () -> cfg().dungeonInfoBlessingDigits, v -> {
                         cfg().dungeonInfoBlessingDigits = v;
                         parsedFooter = "";
                     });
-                    b.toggle("  Hide in Boss", () -> cfg().dungeonInfoHideInBoss, v -> cfg().dungeonInfoHideInBoss = v);
+                    b.toggle("  Hide In Boss", () -> cfg().dungeonInfoHideInBoss, v -> cfg().dungeonInfoHideInBoss = v);
                     b.info("Puzzles: Puzzle HUD in Puzzles & Terminals");
                 });
     }

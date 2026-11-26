@@ -93,7 +93,7 @@ public final class DianaRareMobs {
                 .chat(DianaRareMobs::onChat)
                 .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.toggle("Rare Mob Sharing", () -> c.dianaRareShare, v -> c.dianaRareShare = v)
+                    b.toggle("Diana Rare Mob Sharing", () -> c.dianaRareShare, v -> c.dianaRareShare = v)
                             .desc("Dig out an Inquisitor, Manticore, King Minos or Sphinx: its coords go to party chat. Pings from party members show as waypoint with a title.")
                             .tags("diana", "inquisitor", "manticore", "king minos", "sphinx", "share", "party");
                     b.toggle("  Share Instantly", () -> c.dianaRareShareInstant, v -> c.dianaRareShareInstant = v)
@@ -105,7 +105,7 @@ public final class DianaRareMobs {
                             n -> { if (!c.dianaRareNoShare.remove(n)) c.dianaRareNoShare.add(n); });
                     b.searchList("  Don't Show", () -> RARE, c.dianaRareNoShow::contains,
                             n -> { if (!c.dianaRareNoShow.remove(n)) c.dianaRareNoShow.add(n); });
-                    b.toggle("Lootshare Helper", () -> c.dianaLootshare, v -> c.dianaLootshare = v)
+                    b.toggle("Diana Lootshare Helper", () -> c.dianaLootshare, v -> c.dianaLootshare = v)
                             .desc("Damage splashes right after your hits count as your damage. Above another player's rare mob: \"Lootshare\" red until you dealt 1% of its health, then green.")
                             .tags("diana", "lootshare", "inquisitor", "damage");
                     b.toggle("  Party Message When Secured", () -> c.dianaLootshareMessage, v -> c.dianaLootshareMessage = v);

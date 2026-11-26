@@ -42,7 +42,7 @@ public final class HotfWhisperGoal {
                 .config("Foraging", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Heart of the Forest Reminder");
-                    b.toggle("Whisper Reminder", () -> c.hotfWhisperGoal, v -> c.hotfWhisperGoal = v)
+                    b.toggle("HotF Whisper Reminder", () -> c.hotfWhisperGoal, v -> c.hotfWhisperGoal = v)
                             .desc("Left-click a perk you can't afford in the HotF menu to set a reminder (click again to clear, the perk gets a blue background). Chat line (opens /hotf) once you have enough Forest Whispers. Spent/total, next 10 levels and rest until max: Mining > Powder / Whispers Per Perk.")
                             .tags("hotf", "whispers", "reminder", "goal", "perk");
                     b.toggle("  Also Show Title", () -> c.hotfWhisperGoalTitle, v -> c.hotfWhisperGoalTitle = v);

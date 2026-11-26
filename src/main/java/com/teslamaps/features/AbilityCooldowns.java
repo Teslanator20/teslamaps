@@ -49,7 +49,7 @@ public final class AbilityCooldowns {
 
     private static boolean on() {
         TeslaMapsConfig c = cfg();
-        return c.abilityCooldownHud && c.section("Inventory");
+        return (c.abilityCooldownHud || c.abilityCooldownShade) && c.section("Inventory");
     }
 
     public static void register() {
@@ -57,7 +57,7 @@ public final class AbilityCooldowns {
                 .enabled(() -> cfg().abilityCooldownHud)
                 .size(() -> TextHud.width(SAMPLE), () -> TextHud.height(SAMPLE.size()))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, SAMPLE, TextHud.width(SAMPLE)));
-        Feature.of("AbilityCooldowns").section("Inventory").when(() -> cfg().abilityCooldownHud)
+        Feature.of("AbilityCooldowns").section("Inventory").when(() -> cfg().abilityCooldownHud || cfg().abilityCooldownShade)
                 .tick(AbilityCooldowns::tick)
                 .hudHiddenInInventory("abilitycooldowns", AbilityCooldowns::render)
                 .config("Inventory", b -> {
@@ -68,8 +68,10 @@ public final class AbilityCooldowns {
                             .tags("cooldown", "ability", "lore");
                     b.toggle("  Notify When Ready", () -> c.abilityCooldownNotify, v -> c.abilityCooldownNotify = v)
                             .desc("Chat line once an ability is off cooldown");
-                    b.toggle("  Shade Item Icon", () -> c.abilityCooldownShade, v -> c.abilityCooldownShade = v)
-                            .desc("Vanilla cooldown shading on the item that used the ability");
+                    b.toggle("Shade Item Icon on Cooldown", () -> c.abilityCooldownShade, v -> c.abilityCooldownShade = v)
+                            .desc("Vanilla cooldown shading on the item that used the ability (Spirit Leap, Shadow Fury, Giant's Sword, ...), cooldown read from the lore")
+                            .tags("cooldown", "spirit leap", "shadow fury", "giants sword", "item cooldowns");
+                    SbItemCooldowns.config(b);
                 });
     }
 
@@ -87,7 +89,7 @@ public final class AbilityCooldowns {
             if (left <= 0) {
                 it.remove();
                 BY_ID.remove(e.itemId, e);
-                if (cfg().abilityCooldownNotify) notifyReady(e.name);
+                if (cfg().abilityCooldownNotify && cfg().abilityCooldownHud) notifyReady(e.name);
                 continue;
             }
             String col = left <= 1000 ? "§a" : left <= 3000 ? "§e" : "§c";
@@ -104,7 +106,7 @@ public final class AbilityCooldowns {
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
+        if (!cfg().abilityCooldownHud || mc.gui.hud.isHidden() || lines.isEmpty() || hud == null) return;
         TextHud.draw(g, mc, hud.x(), hud.y(), hud.scale(), lines, width);
     }
 
@@ -189,7 +191,7 @@ public final class AbilityCooldowns {
 
     /** Hotbar/inventory icon shading, per drawn item. */
     public static float percent(ItemStack stack, float vanilla) {
-        if (BY_ID.isEmpty() || stack.isEmpty() || !cfg().abilityCooldownShade || !cfg().abilityCooldownHud) return vanilla;
+        if (BY_ID.isEmpty() || stack.isEmpty() || !cfg().abilityCooldownShade || !cfg().section("Inventory")) return vanilla;
         Entry e = BY_ID.get(ItemUtil.skyblockId(stack));
         if (e == null) return vanilla;
         long left = e.left(System.currentTimeMillis());

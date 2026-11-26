@@ -13,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 
 public final class WitherCloakShields {
 
+    private static final String[] MODES = {"Vanilla", "Hide", "Shields"};
     private static final float[] QUAD = new float[12];
     private static boolean active;
     private static long lastSeen;
@@ -22,15 +23,15 @@ public final class WitherCloakShields {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        Feature.of("WitherCloakShields").section("Render").when(() -> cfg().customWitherCloak)
+        Feature.of("WitherCloakShields").section("Render").when(() -> "Shields".equals(cfg().witherCloakCreepers))
                 .serverChat(WitherCloakShields::onChat)
                 .tick(WitherCloakShields::tick)
                 .world(WitherCloakShields::render)
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Wither Cloak");
-                    b.toggle("Custom Wither Cloak", () -> c.customWitherCloak, v -> c.customWitherCloak = v)
-                            .desc("Replaces the Creeper Veil creepers with rotating shields you can see through.");
+                    b.dropdown("Wither Cloak Creepers", MODES, () -> c.witherCloakCreepers, v -> c.witherCloakCreepers = v)
+                            .desc("Hide = the Creeper Veil creepers are not drawn (they still block clicks). Shields = rotating shields you can see through instead.");
                     b.slider("  Shield Count", 1f, 20f, () -> c.witherCloakCount, v -> c.witherCloakCount = v, 0);
                     b.slider("  Rotation Speed", -360f, 360f, () -> c.witherCloakSpeed, v -> c.witherCloakSpeed = v, 0);
                     b.slider("  Distance", 0.5f, 3f, () -> c.witherCloakDistance, v -> c.witherCloakDistance = v, 1);
@@ -64,7 +65,7 @@ public final class WitherCloakShields {
 
     /** From EntityRenderDispatcherMixin. */
     public static boolean shouldHide(Entity e) {
-        return active && e instanceof Creeper && cfg().customWitherCloak && isCloak(e);
+        return active && e instanceof Creeper && "Shields".equals(cfg().witherCloakCreepers) && isCloak(e);
     }
 
     private static void render(PoseStack pose, Vec3 cam) {

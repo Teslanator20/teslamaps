@@ -63,7 +63,7 @@ public final class KuudraPileWaypoints {
     static void config(com.teslamaps.screen.config.ConfigBuilder b) {
         TeslaMapsConfig c = cfg();
         b.toggle("  Pile Waypoints", () -> c.kuudraPileWaypoints, v -> c.kuudraPileWaypoints = v)
-                .desc("Beam boxes on the crate piles during supplies; the pile of a \"No <pre>!\" party callout gets the No-Pre color. Positions in config/teslamaps/kuudra_piles.json");
+                .desc("Beam boxes on the crate piles during supplies, each one hidden once it is filled; the pile of a \"No <pre>!\" party callout gets the No-Pre color. Positions in config/teslamaps/kuudra_piles.json");
         b.toggle("    Pile Names", () -> c.kuudraPileNames, v -> c.kuudraPileNames = v);
         b.color("    Pile Color", () -> c.kuudraPileColor, v -> c.kuudraPileColor = v);
         b.color("    No-Pre Pile Color", () -> c.kuudraPileNoPreColor, v -> c.kuudraPileNoPreColor = v);
@@ -133,11 +133,11 @@ public final class KuudraPileWaypoints {
         Minecraft mc = Minecraft.getInstance();
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof ArmorStand) || !e.hasCustomName() || e.getCustomName() == null) continue;
-            if (!e.getCustomName().getString().contains("SUPPLIES RECEIVED")) continue;
+            if (!com.teslamaps.utils.StringUtil.strip(e.getCustomName().getString()).contains("SUPPLIES RECEIVED")) continue;
             double x = e.getX(), y = e.getY(), z = e.getZ();
             active.removeIf(p -> {
                 double dx = p.pos.x - x, dz = p.pos.z - z;
-                return dx * dx + dz * dz <= 2.25 && Math.abs(p.pos.y - y) <= 5;
+                return dx * dx + dz * dz <= 4 && Math.abs(p.pos.y - y) <= 5;
             });
         }
     }

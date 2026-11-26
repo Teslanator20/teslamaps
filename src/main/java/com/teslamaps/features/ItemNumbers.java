@@ -24,18 +24,14 @@ public class ItemNumbers {
 
     public static final List<String> TYPES = List.of(
             "Master Star Tier", "Master Skull Tier", "Dungeon Head Floor", "Dungeon Item Quality",
-            "Star Count", "New Year Cake Year", "Pet Level", "Minion Tier", "Kuudra Key Tier",
-            "Collection Level", "Bestiary Tier", "SkyBlock Level", "Rancher's Boots Speed",
-            "Larva Hook Harvests", "Dungeon Potion Level", "Vacuum Pests", "Evolving Item Hours", "Edition",
+            "New Year Cake Year", "Kuudra Key Tier", "SkyBlock Level", "Rancher's Boots Speed",
+            "Larva Hook Harvests", "Vacuum Pests", "Evolving Item Hours", "Edition",
             "Prehistoric Egg Blocks", "Toolkit Indicator");
 
     private static final Pattern MASTER_SKULL = Pattern.compile("MASTER_SKULL_TIER_(\\d)");
-    private static final Pattern PET = Pattern.compile("^\\[Lvl (\\d+)].*");
     private static final Pattern VACUUM = Pattern.compile("Vacuum Bag: ([\\d,]+) Pests?");
     private static final Pattern HARVEST = Pattern.compile("You may harvest (\\d+).*");
-    private static final Pattern POTION = Pattern.compile("Dungeon (\\S+) Potion(?: x1)?");
     private static final Pattern SB_LEVEL = Pattern.compile("Your SkyBlock Level: \\[(\\d+)]");
-    private static final Pattern BESTIARY = Pattern.compile("Progress to Tier (\\S+): [\\d.]+%");
 
     /** Read by ItemNumbersMixin, per item draw. */
     public static volatile boolean on;
@@ -53,7 +49,7 @@ public class ItemNumbers {
                 .config("Inventory", b -> {
                     TeslaMapsConfig c = b.config();
                     b.toggle("Item Numbers As Stack Size", () -> c.itemNumbers, v -> c.itemNumbers = v)
-                            .desc("Pet level, minion tier, key tier, potion level ... where the stack size goes.");
+                            .desc("Key tier, master star, cake year, vacuum pests ... where the stack size goes. Stars, pet level, minion tier, potion level and menu levels have their own toggles (Stars As Stack Size, Pet Level On Slots, Menu Slot Text).");
                     b.searchList("  Number Types", () -> TYPES, c.itemNumberTypes::contains, t -> {
                         if (!c.itemNumberTypes.remove(t)) c.itemNumberTypes.add(t);
                     });
@@ -126,28 +122,10 @@ public class ItemNumbers {
             int q = ea.getIntOr("baseStatBoostPercentage", -1);
             if (q >= 0 && ea.contains("baseStatBoostPercentage")) return String.valueOf(q);
         }
-        if (sel("Star Count")) {
-            if (ea == null) ea = data.copyTag();
-            int s = Math.max(ea.getIntOr("upgrade_level", 0), ea.getIntOr("dungeon_item_level", 0));
-            if (s > 0) return "§6" + s;
-        }
         if (sel("New Year Cake Year") && id.equals("NEW_YEAR_CAKE")) {
             if (ea == null) ea = data.copyTag();
             int y = ea.getIntOr("new_years_cake", -1);
             if (y >= 0) return "§b" + y;
-        }
-        if (sel("Pet Level") && name.startsWith("[Lvl ")) {
-            Matcher m = PET.matcher(name);
-            if (m.matches()) {
-                int lvl = Integer.parseInt(m.group(1));
-                boolean maxed = lvl >= 200 || (lvl == 100 && !name.contains("Dragon"));
-                if (!maxed) return String.valueOf(lvl);
-            }
-        }
-        if (sel("Minion Tier") && name.contains(" Minion ") && !name.contains("Recipe")
-                && ItemUtil.loreContains(stack, "Place this minion")) {
-            int t = roman(name.substring(name.lastIndexOf(' ') + 1));
-            if (t > 0) return String.valueOf(t);
         }
         if (sel("Kuudra Key Tier") && name.contains("Kuudra Key")) {
             return switch (id) {
@@ -158,22 +136,6 @@ public class ItemNumbers {
                 case "KUUDRA_INFERNAL_TIER_KEY" -> "§c5";
                 default -> "§4?";
             };
-        }
-        if (sel("Collection Level") && title.endsWith(" Collections") && ItemUtil.loreContains(stack, "Click to view!")) {
-            int lvl = roman(name.substring(name.lastIndexOf(' ') + 1));
-            if (lvl > 0) return String.valueOf(lvl);
-        }
-        if (sel("Bestiary Tier") && (title.contains("Bestiary ➜") || title.contains("Fishing ➜"))
-                && ItemUtil.loreContains(stack, "Deaths: ")) {
-            for (String l : ItemUtil.loreLines(stack)) {
-                Matcher m = BESTIARY.matcher(l.trim());
-                if (m.matches()) {
-                    int t = roman(m.group(1));
-                    if (t > 0) return String.valueOf(t - 1);
-                }
-            }
-            int t = roman(name.substring(name.lastIndexOf(' ') + 1));
-            if (t > 0) return String.valueOf(t);
         }
         if (sel("SkyBlock Level") && title.equals("SkyBlock Menu") && name.equals("SkyBlock Leveling")) {
             for (String l : ItemUtil.loreLines(stack)) {
@@ -193,13 +155,6 @@ public class ItemNumbers {
                     int a = Integer.parseInt(m.group(1));
                     return (a > 4 ? "§a" : a > 2 ? "§e" : "§c") + a;
                 }
-            }
-        }
-        if (sel("Dungeon Potion Level") && name.startsWith("Dungeon ") && name.contains(" Potion")) {
-            Matcher m = POTION.matcher(name);
-            if (m.matches()) {
-                int lvl = roman(m.group(1));
-                if (lvl > 0) return (lvl <= 2 ? "§f" : lvl <= 4 ? "§a" : lvl <= 6 ? "§9" : "§5") + lvl;
             }
         }
         if (sel("Vacuum Pests") && id.contains("VACUUM") && ownItem(stack)) {
@@ -268,23 +223,5 @@ public class ItemNumbers {
                     || l.contains("Click to inspect")) return false;
         }
         return true;
-    }
-
-    private static int roman(String s) {
-        if (s.isEmpty()) return -1;
-        if (Character.isDigit(s.charAt(0))) {
-            try { return Integer.parseInt(s); } catch (NumberFormatException e) { return -1; }
-        }
-        int result = 0, prev = 0;
-        for (int i = s.length() - 1; i >= 0; i--) {
-            int v = switch (s.charAt(i)) {
-                case 'I' -> 1; case 'V' -> 5; case 'X' -> 10; case 'L' -> 50; case 'C' -> 100;
-                default -> -1;
-            };
-            if (v < 0) return -1;
-            result += v < prev ? -v : v;
-            prev = v;
-        }
-        return result;
     }
 }

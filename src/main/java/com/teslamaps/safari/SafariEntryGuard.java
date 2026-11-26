@@ -66,9 +66,9 @@ public final class SafariEntryGuard {
                     b.toggle("Downtime Command (!dt)", () -> c.safariDowntime, v -> c.safariDowntime = v)
                             .desc("!dt [reason] in party chat holds the entry until that player says r / ready / ticket. Hold Shift to enter anyway")
                             .tags("safari", "dt", "downtime", "ready");
-                    b.toggle("  Leader Posts DT Requests", () -> c.safariDowntimeAnnounce, v -> c.safariDowntimeAnnounce = v)
+                    b.toggle("  Leader Posts Downtime Requests", () -> c.safariDowntimeAnnounce, v -> c.safariDowntimeAnnounce = v)
                             .desc("As party leader in Torrhus Canyon, post \"DT request by X (Reason: ...)\" / \"" + SafariDowntime.TICKET_REMINDER + "\" to party chat");
-                    b.toggle("Contest Guard", () -> c.safariContestGuard, v -> c.safariContestGuard = v)
+                    b.toggle("Miria Contest Guard", () -> c.safariContestGuard, v -> c.safariContestGuard = v)
                             .desc("As party leader: posts \"New Contest Started!\" when a Miria's Contest starts and holds the entry until everyone wrote r or ticket, reminds once after 30s")
                             .tags("safari", "contest", "miria", "ticket");
                 });

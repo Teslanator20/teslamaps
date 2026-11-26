@@ -58,7 +58,7 @@ public final class ChocoFactory {
                     b.toggle("Chocolate Factory Stats", () -> c.cfStats, v -> c.cfStats = v)
                             .desc("Panel with chocolate, production, multiplier, barn, leaderboard, time tower, prestige and hitman. Position in /tmap gui");
                     b.toggle("  Show Outside The Factory", () -> c.cfStatsOutside, v -> c.cfStatsOutside = v);
-                    b.toggle("Upgrade Warning", () -> c.cfUpgradeWarning, v -> c.cfUpgradeWarning = v)
+                    b.toggle("Chocolate Upgrade Warning", () -> c.cfUpgradeWarning, v -> c.cfUpgradeWarning = v)
                             .desc("Chat line when the best upgrade became affordable. Uses the numbers from your last factory visit.");
                     b.slider("  Minutes Between Warnings", 1, 60, () -> (float) c.cfUpgradeWarnMinutes, v -> c.cfUpgradeWarnMinutes = Math.round(v));
                     b.toggle("  Warning Sound", () -> c.cfUpgradeWarnSound, v -> c.cfUpgradeWarnSound = v);

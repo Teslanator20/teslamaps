@@ -33,6 +33,7 @@ public final class DamageIndicator {
             "Arachne", "Broodmother", "Ashfang", "Bladesoul", "Barbarian Duke X", "Mage Outlaw", "Magma Boss",
             "Kuudra", "Bacte", "Leech Supreme", "Shania", "End Stone Protector", "Endstone Protector",
             "Headless Horseman", "Great White Shark", "Grim Reaper", "Phantom Fisher", "Yeti", "Reindrake"};
+    private static final int SLAYERS = 8;
 
     private static final Pattern SINGLE = Pattern.compile("([\\d,.]+[kKmMbB]?)❤");
     private static final long WINDOW_MS = 3000;
@@ -41,6 +42,7 @@ public final class DamageIndicator {
     private static final class Boss {
         Component src;
         String name;
+        boolean slayer;
         double hp, max;
         final long[] at = new long[32];
         final double[] val = new double[32];
@@ -66,7 +68,7 @@ public final class DamageIndicator {
                     TeslaMapsConfig c = cfg();
                     b.label("Damage Indicator");
                     b.toggle("Damage Indicator", () -> c.damageIndicator, v -> c.damageIndicator = v)
-                            .desc("Big coloured HP above slayer, dungeon, Diana, sea creature and other bosses, read from their nametag")
+                            .desc("Big coloured HP above slayer, dungeon, Diana, sea creature and other bosses, read from their nametag. Slayer bosses are skipped while Clean Slayer Nametag or Slayer Boss HUD is on.")
                             .tags("boss", "hp", "health", "dps", "ttk");
                     b.toggle("  DPS and Time to Kill", () -> c.damageIndicatorDps, v -> c.damageIndicatorDps = v)
                             .desc("Damage (or heal) per second over the last 3 s and the time left at that rate");
@@ -91,6 +93,7 @@ public final class DamageIndicator {
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
         TeslaMapsConfig c = cfg();
+        boolean skipSlayers = c.slayerNametag || c.slayerBossHud;
         Int2ObjectOpenHashMap<Boss> next = new Int2ObjectOpenHashMap<>();
         IntOpenHashSet ids = new IntOpenHashSet();
         List<ArmorStand> found = new ArrayList<>();
@@ -100,6 +103,7 @@ public final class DamageIndicator {
             if (name == null || s.distanceToSqr(mc.player) > 48 * 48) continue;
             Boss b = bosses.get(s.getId());
             if (b != null && b.src == name) {
+                if (skipSlayers && b.slayer) continue;
                 next.put(s.getId(), b);
                 found.add(s);
                 continue;
@@ -108,6 +112,8 @@ public final class DamageIndicator {
             if (raw.indexOf('❤') < 0) continue;
             String clean = StringUtil.stripTrim(raw);
             if (!isBoss(clean)) continue;
+            boolean slayer = isSlayer(clean);
+            if (skipSlayers && slayer) continue;
             double cur, max;
             double[] hp = MobHealthHud.parseHealth(clean);
             if (hp != null) {
@@ -122,6 +128,7 @@ public final class DamageIndicator {
             if (b == null) {
                 b = new Boss();
                 b.name = shortName(clean);
+                b.slayer = slayer;
             }
             b.src = name;
             b.hp = cur;
@@ -139,6 +146,11 @@ public final class DamageIndicator {
         bosses = next;
         tagIds = ids;
         labels = out;
+    }
+
+    private static boolean isSlayer(String clean) {
+        for (int i = 0; i < SLAYERS; i++) if (clean.contains(BOSSES[i])) return true;
+        return false;
     }
 
     private static String shortName(String clean) {

@@ -107,7 +107,7 @@ public final class DianaBurrows {
                 .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Diana");
-                    b.toggle("Burrow Guess", () -> c.dianaBurrowGuess, v -> c.dianaBurrowGuess = v)
+                    b.toggle("Diana Burrow Guess", () -> c.dianaBurrowGuess, v -> c.dianaBurrowGuess = v)
                             .desc("Right click a spade: the lava particle trail is fitted to a curve and the next burrow is marked with a waypoint and beam. A real burrow nearby removes the guess.")
                             .tags("diana", "burrow", "spade", "guess", "griffin", "mythological");
                     b.color("  Guess Color", () -> c.dianaGuessColor, v -> c.dianaGuessColor = v);
@@ -120,13 +120,13 @@ public final class DianaBurrows {
                             .desc("No guess 3s after the spade: asks you to try again, after the second miss a clickable line sets /pq extreme");
                     b.toggle("  Mute Bugged Spade Music", () -> c.dianaMuteSpadeMusic, v -> c.dianaMuteSpadeMusic = v)
                             .desc("Mutes the low music the spade sometimes plays on the Hub; real game music stays");
-                    b.toggle("Burrow Waypoints", () -> c.dianaBurrowDetect, v -> c.dianaBurrowDetect = v)
+                    b.toggle("Diana Burrow Waypoints", () -> c.dianaBurrowDetect, v -> c.dianaBurrowDetect = v)
                             .desc("Burrows found by their particles get a waypoint with their type: Start, Mob or Treasure. Dug burrows disappear.")
                             .tags("diana", "burrow", "treasure", "mob", "start");
                     b.color("  Start Color", () -> c.dianaStartColor, v -> c.dianaStartColor = v);
                     b.color("  Mob Color", () -> c.dianaMobColor, v -> c.dianaMobColor = v);
                     b.color("  Treasure Color", () -> c.dianaTreasureColor, v -> c.dianaTreasureColor = v);
-                    b.toggle("Arrow Guess", () -> c.dianaArrowGuess, v -> c.dianaArrowGuess = v)
+                    b.toggle("Diana Arrow Guess", () -> c.dianaArrowGuess, v -> c.dianaArrowGuess = v)
                             .desc("After digging a burrow the dust arrow is read and the next burrow of the chain is guessed without a spade click. Several candidates show grey.")
                             .tags("diana", "burrow", "arrow", "guess");
                 });

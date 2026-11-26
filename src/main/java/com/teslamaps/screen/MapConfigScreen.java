@@ -541,27 +541,35 @@ public class MapConfigScreen extends Screen {
         sections.clear();
         groups.clear();
         groups.put(ACTIVE, List.of());
-        group("Profiles & Interface", "Profiles", "Interface");
+        group("Profiles & Interface", "Profiles", "Interface", "Legit Mode", "Dev & Debug");
+        group("HUD & Trackers", "HUD Widgets", "Trackers");
+        group("QoL & Sounds", "QoL & Misc", "Sounds");
         group("Map & Leap", "Map", "Leap");
-        group("Score & Timers", "Score & Splits", "Timers");
+        group("Secrets & Puzzles", "Secrets & Waypoints", "Puzzles & Terminals");
+        group("Score, Timers & Loot", "Score & Splits", "Timers", "Croesus");
         group("Bosses", "Blood Camp", "F4 / M4", "F7 / M7");
-        group("Render & Hide", "Render", "Hide");
+        group("Render & Hide", "Render", "Hide", "Mob Visuals", "Menu & Skybox");
         group("Inventory & Tooltips", "Inventory", "Tooltips & Value");
         group("Chat & Screenshots", "Chat", "Screenshots");
         group("Party & Auto", "Party", "Auto");
-        group("Skills & Combat", "Skills", "Combat", "Mob Visuals");
+        group("Skills & Combat", "Skills", "Combat");
         group("Garden", "Garden", "Contest Timers");
+        group("Mining & Fishing", "Mining", "Fishing");
         group("Foraging & Hunting", "Foraging", "Shards", "Torrhus Canyon", "Critter Safari");
-        group("Crimson & End", "Crimson Isle", "The End");
-        sections.put("General", new ArrayList<>(List.of(ACTIVE, "Profiles & Interface", "Legit Mode")));
-        sections.put("Dungeon", new ArrayList<>(List.of("Map & Leap", "ESP", "Secrets & Waypoints",
-                "Puzzles & Terminals", "Score & Timers", "Bosses", "Croesus")));
-        sections.put("Visual", new ArrayList<>(List.of("Render & Hide", "Menu & Skybox")));
-        sections.put("Items & Chat", new ArrayList<>(List.of("Inventory & Tooltips", "Chat & Screenshots",
-                "Party & Auto", "Sounds")));
-        sections.put("Skyblock", new ArrayList<>(List.of("Skills & Combat", "Garden", "Mining", "Fishing",
-                "Foraging & Hunting", "Crimson & End", "Ordered Waypoints")));
+        group("Islands", "Crimson Isle", "The End", "Kuudra", "Rift");
+        group("Events & Waypoints", "Events", "Ordered Waypoints");
+        sections.put("General", new ArrayList<>(List.of(ACTIVE, "Profiles & Interface", "HUD & Trackers", "QoL & Sounds")));
+        sections.put("Dungeon", new ArrayList<>(List.of("Map & Leap", "ESP", "Secrets & Puzzles",
+                "Score, Timers & Loot", "Bosses")));
+        sections.put("Visual", new ArrayList<>(List.of("Render & Hide")));
+        sections.put("Items & Chat", new ArrayList<>(List.of("Inventory & Tooltips", "Chat & Screenshots", "Party & Auto")));
+        sections.put("Skyblock", new ArrayList<>(List.of("Skills & Combat", "Garden", "Mining & Fishing",
+                "Foraging & Hunting", "Islands", "Events & Waypoints")));
         com.teslamaps.registry.FeatureRegistry.addSidebar(sections);
+        // registry categories that already sit inside a group get no extra sidebar entry
+        java.util.Set<String> grouped = new java.util.HashSet<>();
+        for (List<String> members : groups.values()) grouped.addAll(members);
+        for (List<String> items : sections.values()) items.removeIf(i -> grouped.contains(i) && !groups.containsKey(i));
         if (newKeys != null) {
             groups.put(NEW, List.of());
             sections.get("General").add(0, NEW);
@@ -579,7 +587,7 @@ public class MapConfigScreen extends Screen {
                 "Show Glow", "Filled ESP (vs Outline)", "Box ESP (Hitbox)",
                 "Starred Mob ESP", "Tracer When Few Left", "Fel ESP", "Sniper ESP", "Shadow Assassin ESP",
                 "Dungeon Bat ESP", "Dungeon Bat Tracers", "Wither Key ESP", "Key Tracers",
-                "Wither ESP", "Wither ESP Filled", "Wither ESP Depth Check", "Boss ESP",
+                "Boss ESP",
                 "Door ESP", "Door Tracers", "Only Show Next Door",
                 "Livid Finder", "Livid Tracer", "Mimic Chest ESP", "Mimic Chest Tracers",
                 "Highlight Teammates",

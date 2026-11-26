@@ -90,7 +90,7 @@ public final class GiftProfitTracker {
                                     () -> { tracker.resetSession(); stats.resetSession(); },
                                     () -> { tracker.resetTotal(); stats.resetTotal(); },
                                     tracker::toggleView});
-                    b.toggle("Gift Error Filter", () -> c.giftSpamFilter, v -> c.giftSpamFilter = v)
+                    b.toggle("Hide Gift Error Messages", () -> c.giftSpamFilter, v -> c.giftSpamFilter = v)
                             .desc("Hides gift error lines (too close to spawn/NPC, not a player, profile mode, refunded ...).")
                             .tags("gift", "spam", "filter");
                 });

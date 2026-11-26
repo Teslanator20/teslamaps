@@ -82,7 +82,7 @@ public class MenuHighlights {
                     b.toggle("  Loadouts: Equipped Loadout", () -> c.mhLoadout, v -> c.mhLoadout = v);
                     b.toggle("  Power Stones Guide: Missing", () -> c.mhPowerStones, v -> c.mhPowerStones = v);
                     b.toggle("    Click Opens Bazaar Search", () -> c.mhPowerStoneBazaar, v -> c.mhPowerStoneBazaar = v);
-                    b.toggle("  Thaumaturgy: Shift-Click Favourites", () -> c.mhFavoritePowers, v -> c.mhFavoritePowers = v);
+                    b.toggle("  Thaumaturgy: Shift-Click Favorites", () -> c.mhFavoritePowers, v -> c.mhFavoritePowers = v);
                     b.toggle("  Stats Tuning: Points, Template", () -> c.mhStatsTuning, v -> c.mhStatsTuning = v);
                     b.toggle("    Template Stats, Free Points, Tuning", () -> c.mhStatsTuningMore, v -> c.mhStatsTuningMore = v)
                             .desc("Load button lists the template's stats, the Stats Tuning item shows free points, and the Thaumaturgy menu shows your tuning on the Stats Tuning item.");

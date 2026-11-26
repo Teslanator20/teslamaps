@@ -49,8 +49,8 @@ public final class KuudraRunInfo {
     private static void config(ConfigBuilder b) {
         TeslaMapsConfig c = cfg();
         b.label("General");
-        b.toggle("Block Profile Viewer", () -> c.kuudraPvBlocker, v -> c.kuudraPvBlocker = v)
+        b.toggle("No Profile Viewer On Click", () -> c.kuudraPvBlocker, v -> c.kuudraPvBlocker = v)
                 .desc("Right-clicking a real player in Kuudra no longer opens the profile viewer (item abilities still work)");
-        b.toggle("  Also in Dungeons", () -> c.kuudraPvBlockerDungeon, v -> c.kuudraPvBlockerDungeon = v);
+        b.toggle("  Also In Dungeons", () -> c.kuudraPvBlockerDungeon, v -> c.kuudraPvBlockerDungeon = v);
     }
 }

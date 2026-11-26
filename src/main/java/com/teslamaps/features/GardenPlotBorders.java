@@ -36,8 +36,8 @@ public final class GardenPlotBorders {
                 .world(GardenPlotBorders::render)
                 .config("Garden", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Plot Borders");
-                    b.toggle("Plot Borders", () -> c.plotBorders, v -> c.plotBorders = v)
+                    b.label("Garden Plot Borders");
+                    b.toggle("Garden Plot Borders", () -> c.plotBorders, v -> c.plotBorders = v)
                             .desc("Walls of the plot you stand on, with the build limit in red")
                             .tags("plot", "border", "build limit", "sprayonator", "spray");
                     b.keybind("  Toggle Key", () -> c.plotBorderKey, v -> c.plotBorderKey = v);

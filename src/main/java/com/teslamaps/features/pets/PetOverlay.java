@@ -98,7 +98,7 @@ public class PetOverlay {
 
     public static void render(GuiGraphicsExtractor ctx, DeltaTracker delta) {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        if (!c.petOverlay) return;
+        if (!c.petOverlay || c.petLevelTracker) return;
         if (!PetTracker.hasPet()) {
             if (com.teslamaps.features.TabWidgetHint.on() && PetTracker.widgetMissing()) {
                 com.teslamaps.features.TabWidgetHint.draw(ctx, Minecraft.getInstance(), c.petOverlayX, c.petOverlayY, c.petOverlayScale, MISSING);

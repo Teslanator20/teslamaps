@@ -66,15 +66,11 @@ public final class ChatCompacts {
     }
 
     public static boolean soundActive(TeslaMapsConfig c) {
-        return (c.muteAbilityCooldownSound || c.abiphoneDnd) && c.section("Chat");
+        return c.abiphoneDnd && c.section("Chat");
     }
 
     public static boolean shouldMuteSound(TeslaMapsConfig c, String id, float vol) {
-        if (c.abiphoneDnd && id.equals("minecraft:block.note_block.pling") && System.currentTimeMillis() < ringUntil) return true;
-        if (!c.muteAbilityCooldownSound || vol < 7.9f || !id.equals("minecraft:entity.enderman.teleport")) return false;
-        if (DungeonManager.isInDungeon()) return true;
-        Minecraft mc = Minecraft.getInstance();
-        return mc.player != null && ItemUtil.loreContains(mc.player.getMainHandItem(), "Ability: ");
+        return c.abiphoneDnd && id.equals("minecraft:block.note_block.pling") && System.currentTimeMillis() < ringUntil;
     }
 
     /** From ChatMixin on server lines: true = drop. May queue a rewrite. */

@@ -51,16 +51,16 @@ public final class ContestTimersCategory {
                 crop -> { if (!config.contestCropWarnFor.remove(crop)) config.contestCropWarnFor.add(crop); }).fresh();
         b.toggle("  Flash Taskbar When Unfocused",
                 () -> config.contestCropWarnFlash, v -> config.contestCropWarnFlash = v).fresh();
-        b.toggle("Alert if < 5 Minutes left",
+        b.toggle("Alert If < 5 Minutes Left",
                 () -> config.contestAlert5Min, v -> config.contestAlert5Min = v);
-        b.toggle("Chat Message",
+        b.toggle("Alert Chat Message",
                 () -> config.contestAlertChat, v -> config.contestAlertChat = v);
-        b.toggle("Show Title",
+        b.toggle("Alert Title",
                 () -> config.contestAlertTitle, v -> config.contestAlertTitle = v);
-        b.soundDropdown("Sound",
+        b.soundDropdown("Alert Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.contestAlertSound, v -> config.contestAlertSound = v);
-        b.slider("Volume", 0f, 4f,
+        b.slider("Alert Volume", 0f, 4f,
                 () -> config.contestAlertVolume, v -> config.contestAlertVolume = v, 2);
         b.info("The two timers only fire while the ticket score is missing");
         b.label("Discord");
@@ -74,10 +74,10 @@ public final class ContestTimersCategory {
                 () -> com.teslamaps.features.DiscordAlert.ring("TeslaMaps test ring"),
                 com.teslamaps.features.DiscordAlert::stop });
         b.label("Party Chat");
-        b.toggle("Contest Announce",
+        b.toggle("Announce Contest to Party",
                 () -> config.contestAnnounceParty, v -> config.contestAnnounceParty = v);
         b.info("Sends /pc Contest Started on every contest start");
-        b.toggle("Ticket Announce",
+        b.toggle("Announce Ticket to Party",
                 () -> config.contestTicketAnnounce, v -> config.contestTicketAnnounce = v);
         b.slider("  Ticket Score", 50f, 1000f,
                 () -> (float) config.contestTicketScore, v -> config.contestTicketScore = Math.round(v), 0);

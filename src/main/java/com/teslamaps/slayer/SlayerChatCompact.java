@@ -30,13 +30,7 @@ public final class SlayerChatCompact {
 
     public static void register() {
         Feature.of("SlayerChatCompact").section("Combat").when(() -> cfg().compactSlayerChat)
-                .tick(SlayerChatCompact::tick)
-                .config("Combat", b -> {
-                    TeslaMapsConfig c = b.config();
-                    b.toggle("Compact Slayer Quest Chat", () -> c.compactSlayerChat, v -> c.compactSlayerChat = v)
-                            .desc("Quest started + objective and quest complete + level line become one block each")
-                            .tags("slayer", "chat", "compact", "quest");
-                });
+                .tick(SlayerChatCompact::tick);
     }
 
     /** From ChatFilter.process. null = untouched, "" = drop, else the replacement. */

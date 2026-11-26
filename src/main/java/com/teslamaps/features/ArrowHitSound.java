@@ -25,8 +25,8 @@ public final class ArrowHitSound {
                     b.toggle("Custom Arrow Hit Sound", () -> c.arrowHitSound, v -> c.arrowHitSound = v)
                             .desc("Replaces the arrow hit 'ding' with a sound of your choice");
                     b.soundDropdown("  Arrow Hit Sound", SoundOptions.keys(), () -> c.arrowHitSoundType, v -> c.arrowHitSoundType = v);
-                    b.slider("  Arrow Hit Volume", 0f, 4f, () -> c.arrowHitSoundVolume, v -> c.arrowHitSoundVolume = v, 2);
-                    b.slider("  Arrow Hit Pitch", 0.5f, 2f, () -> c.arrowHitSoundPitch, v -> c.arrowHitSoundPitch = v, 2);
+                    b.slider("  Volume", 0f, 4f, () -> c.arrowHitSoundVolume, v -> c.arrowHitSoundVolume = v, 2);
+                    b.slider("  Pitch", 0.5f, 2f, () -> c.arrowHitSoundPitch, v -> c.arrowHitSoundPitch = v, 2);
                 });
     }
 

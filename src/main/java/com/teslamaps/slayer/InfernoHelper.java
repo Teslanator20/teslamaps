@@ -80,7 +80,7 @@ public final class InfernoHelper {
                     b.toggle("Blaze Slayer Clear View", () -> c.blazeClearView, v -> c.blazeClearView = v)
                             .desc("Hides all particles and fireballs while an Inferno Demonlord, Quazii or Typhoeus is within 10 blocks.")
                             .tags("blaze", "inferno", "particles", "fireball");
-                    b.toggle("Totem Display", () -> c.infernoTotemDisplay, v -> c.infernoTotemDisplay = v)
+                    b.toggle("Inferno Totem Display", () -> c.infernoTotemDisplay, v -> c.infernoTotemDisplay = v)
                             .desc("Timer and hits of the Demonlord totem during your boss fight. Position in /tmap gui")
                             .tags("totem", "inferno", "demonlord");
                     b.slider("  Totem Ping At (s, 0 = off)", 0, 30, () -> (float) c.infernoTotemPing,

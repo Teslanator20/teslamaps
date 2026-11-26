@@ -38,7 +38,7 @@ public final class PetNametags {
                 .tick(PetNametags::tick)
                 .config("Skills", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.toggle("Pet Nametag: Hide Level", () -> c.petNametagHideLevel, v -> c.petNametagHideLevel = v)
+                    b.toggle("Hide Pet Nametag Level", () -> c.petNametagHideLevel, v -> c.petNametagHideLevel = v)
                             .desc("Drops the \"[Lv100]\" from floating pet names")
                             .tags("pet", "nametag", "level");
                     b.toggle("  Only At Max Level", () -> c.petNametagHideMaxLevel, v -> c.petNametagHideMaxLevel = v)

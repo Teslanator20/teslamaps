@@ -58,7 +58,7 @@ public final class ModChat {
                     b.label("TeslaMaps Chat");
                     b.toggle("TeslaMaps User Chat", () -> c.modChat, v -> { c.modChat = v; if (!v) lastId = -1; })
                             .desc("A chat channel between TeslaMaps users, outside of Hypixel. /tmc <message> or /tmap tmc <message>");
-                    b.toggle("  Show Help Line on Join", () -> c.modChatJoinMessage, v -> c.modChatJoinMessage = v);
+                    b.toggle("  Show Help Line On Join", () -> c.modChatJoinMessage, v -> c.modChatJoinMessage = v);
                 });
 
         ClientCommandRegistrationCallback.EVENT.register((d, ctx) -> {

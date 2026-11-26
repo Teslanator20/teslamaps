@@ -22,7 +22,7 @@ public class SwapSound {
                 .config("Sounds", b -> {
                     b.toggle("Swap Sound (Stonk Swap)", () -> cfg().swapSound, v -> cfg().swapSound = v)
                             .desc("Plays when you left click with a pickaxe the server does not know you hold yet");
-                    b.toggle("  Only on Blocks", () -> cfg().swapSoundOnlyBlock, v -> cfg().swapSoundOnlyBlock = v);
+                    b.toggle("  Only On Blocks", () -> cfg().swapSoundOnlyBlock, v -> cfg().swapSoundOnlyBlock = v);
                     b.soundDropdown("  Sound", SoundOptions.keys(), () -> cfg().swapSoundType, v -> cfg().swapSoundType = v);
                     b.slider("  Volume", 0f, 4f, () -> cfg().swapSoundVolume, v -> cfg().swapSoundVolume = v, 2);
                     b.slider("  Pitch", 0.5f, 2f, () -> cfg().swapSoundPitch, v -> cfg().swapSoundPitch = v, 2);

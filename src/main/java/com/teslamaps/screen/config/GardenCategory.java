@@ -54,7 +54,7 @@ public final class GardenCategory {
         b.toggle("    Visitor Names",
                 () -> config.visitorHudNames, v -> config.visitorHudNames = v).fresh();
         b.label("Harvest Feast");
-        b.toggle("In-Season Display",
+        b.toggle("In-Season Crops Display",
                 () -> config.feastSeasonDisplay, v -> config.feastSeasonDisplay = v);
         b.toggle("  Show Outside The Garden",
                 () -> config.feastSeasonEverywhere, v -> config.feastSeasonEverywhere = v);
@@ -161,7 +161,7 @@ public final class GardenCategory {
                 .desc("0 warns from 8 pests on, where the farming fortune debuff starts");
         b.slider("  Repeat Every (sec)", 1f, 60f,
                 () -> (float) config.pestTpReminderInterval, v -> config.pestTpReminderInterval = Math.round(v), 0).fresh();
-        b.toggle("Custom Cooldown",
+        b.toggle("Custom Pest Cooldown",
                 () -> config.pestCustomCooldown, v -> config.pestCustomCooldown = v);
         b.slider("  Custom Cooldown (sec)", 30f, 600f,
                 () -> (float) config.pestCustomCooldownSeconds,
@@ -265,7 +265,7 @@ public final class GardenCategory {
         b.toggle("Mouse Lock HUD",
                 () -> config.farmingSensitivityHud, v -> config.farmingSensitivityHud = v);
         b.label("Farm Lane Bar");
-        b.toggle("Show Lane Bar",
+        b.toggle("Farm Lane Bar",
                 () -> config.farmBar, v -> config.farmBar = v);
         b.slider("  Warn Distance", 0f, 20f,
                 () -> config.farmWarnDistance, v -> config.farmWarnDistance = v, 0);
@@ -290,8 +290,11 @@ public final class GardenCategory {
         b.toggle("Lane Corner Beacons",
                 () -> config.farmLaneCorners, v -> config.farmLaneCorners = v);
         b.label("Pest Fortune Buff");
-        b.toggle("Warn When Expired",
+        b.toggle("Pest Buff Expiry Warning",
                 () -> config.pestBuffWarning, v -> config.pestBuffWarning = v);
+        b.toggle("  Call Phillip Button In Chat",
+                () -> config.pestBuffCallButton, v -> config.pestBuffCallButton = v).fresh()
+                .desc("Chat line when the buff runs out; clicking it calls Phillip.");
         b.slider("Warn Seconds Before Expiry", 0f, 300f,
                 () -> (float) config.philipWarnSeconds,
                 v -> config.philipWarnSeconds = (int) (float) v, 0);
@@ -301,7 +304,7 @@ public final class GardenCategory {
         b.slider("Warning Volume", 0f, 4f,
                 () -> config.pestBuffVolume, v -> config.pestBuffVolume = v, 2);
         b.label("Pest Routine");
-        b.keybind("Routine Key",
+        b.keybind("Pest Routine Key",
                 () -> config.pestRoutineKey, v -> config.pestRoutineKey = v);
         b.dropdown("Pest Chance Loadout", MapConfigScreen.LOADOUT_NAMES,
                 () -> config.pestChanceLoadout, v -> config.pestChanceLoadout = v);
@@ -316,7 +319,7 @@ public final class GardenCategory {
         b.slider("Warp Delay", 0.0f, 5.0f,
                 () -> config.pestWarpDelay, v -> config.pestWarpDelay = v, 1);
         b.label("Greenhouse Planner");
-        b.toggle("Layout Ghost",
+        b.toggle("Greenhouse Layout Ghost",
                 () -> config.greenhousePlanner, v -> config.greenhousePlanner = v);
         b.info("Only active in the Garden · paste a code with /tmap greenhouse <code>");
         b.info("SkyShards / SkyMutations links work too · /tmap greenhouse preset save|load <name>");

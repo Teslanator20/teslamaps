@@ -128,7 +128,7 @@ public final class MinionFeatures {
         b.slider("  Distance", 4f, 48f, () -> c.minionOverlayDistance, v -> c.minionOverlayDistance = v, 0);
         b.toggle("  Highlight Last Opened Minion", () -> c.minionLastOpened, v -> c.minionLastOpened = v);
         b.color("    Highlight Color", () -> c.minionLastOpenedColor, v -> c.minionLastOpenedColor = v);
-        b.toggle("  Coins/Day in Hopper Tooltip", () -> c.minionCoinsPerDay, v -> c.minionCoinsPerDay = v);
+        b.toggle("  Coins/Day In Hopper Tooltip", () -> c.minionCoinsPerDay, v -> c.minionCoinsPerDay = v);
         b.toggle("  Hide Mob Nametags Near Minions", () -> c.minionHideMobNametags, v -> c.minionHideMobNametags = v);
         b.button("  Remove Bugged Minion Spots", () -> removeBugged(true));
         b.toggle("Minion Warnings", () -> c.minionWarnings, v -> c.minionWarnings = v)
@@ -136,7 +136,7 @@ public final class MinionFeatures {
         b.toggle("  Storage Full", () -> c.minionWarnFull, v -> c.minionWarnFull = v);
         b.toggle("  Can't Reach Mobs", () -> c.minionWarnReach, v -> c.minionWarnReach = v);
         b.soundDropdown("  Sound", SoundOptions.keys(), () -> c.minionWarnSound, v -> c.minionWarnSound = v);
-        b.toggle("Minion XP in Tooltips", () -> c.minionXpTooltip, v -> c.minionXpTooltip = v)
+        b.toggle("Minion XP In Tooltips", () -> c.minionXpTooltip, v -> c.minionXpTooltip = v)
                 .desc("Minion and minion storage menus: skill XP for collecting each item, total on Collect All (Moar Skillz included)");
     }
 

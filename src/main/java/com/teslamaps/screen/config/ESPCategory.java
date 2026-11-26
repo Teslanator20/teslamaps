@@ -75,10 +75,6 @@ public final class ESPCategory {
         b.toggle("  Key Tracers", () -> config.keyTracers, v -> config.keyTracers = v);
         b.color("  Wither Key", () -> config.colorESPWitherKey, v -> config.colorESPWitherKey = v);
         b.color("  Blood Key", () -> config.colorESPBloodKey, v -> config.colorESPBloodKey = v);
-        b.toggle("Wither ESP", () -> config.bossESP, v -> config.bossESP = v);
-        b.toggle("  Wither ESP Filled", () -> config.bossESPFilled, v -> config.bossESPFilled = v);
-        b.toggle("  Wither ESP Depth Check", () -> config.bossESPDepthCheck, v -> config.bossESPDepthCheck = v);
-        b.color("  Wither ESP", () -> config.colorBossESP, v -> config.colorBossESP = v);
         b.label("Doors");
         b.toggle("Door ESP", () -> config.doorESP, v -> config.doorESP = v);
         b.toggle("  Door Tracers", () -> config.doorTracers, v -> config.doorTracers = v);
@@ -125,6 +121,9 @@ public final class ESPCategory {
         b.toggle("  Also Outside Dungeons (Party Glow)", () -> config.highlightPartyOutside, v -> config.highlightPartyOutside = v).fresh()
                 .desc("Party members get an outline glow anywhere in SkyBlock");
         b.color("    Party Glow Color", () -> config.highlightPartyColor, v -> config.highlightPartyColor = v).fresh();
+        b.toggle("    Names Through Walls", () -> config.highlightPartyNames, v -> config.highlightPartyNames = v).fresh()
+                .desc("Party members get a name you can read through walls.");
+        b.slider("      Name Size", 0.5f, 3.0f, () -> config.highlightPartyNameScale, v -> config.highlightPartyNameScale = v, 1).fresh();
         b.toggle("Teammate Health Warning", () -> config.teammateHealth, v -> config.teammateHealth = v).fresh().legit()
                 .desc("Reads the scoreboard hearts: yellow = LOW, red = CRITICAL, shown over the teammate through walls and on the map.");
         b.toggle("  Name Labels ([M] Name)", () -> config.teammateHealthLabels, v -> config.teammateHealthLabels = v).fresh();

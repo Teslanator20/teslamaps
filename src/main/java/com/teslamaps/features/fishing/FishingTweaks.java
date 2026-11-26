@@ -24,7 +24,7 @@ public final class FishingTweaks {
                             .tags("rod", "hook", "line", "fishing");
                     b.toggle("  Also Their Wake Particles", () -> c.hideOtherBobberParticles, v -> c.hideOtherBobberParticles = v)
                             .desc("Drops the fishing wake particles that are not near your own bobber");
-                    b.toggle("Bobber Fix", () -> c.fishingBobberFix, v -> c.fishingBobberFix = v)
+                    b.toggle("Fishing Bobber Fix", () -> c.fishingBobberFix, v -> c.fishingBobberFix = v)
                             .desc("Bobber floats on lava like on water and stops snapping to Hypixel's countdown label")
                             .tags("lava", "rubberband", "bobber");
                 });

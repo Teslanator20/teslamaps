@@ -68,8 +68,6 @@ public final class HideCategory {
         b.toggle("Hide Hidden Item Particles", () -> config.hideDungeonItemParticles, v -> config.hideDungeonItemParticles = v);
         b.info("Firework/dust at hidden Superboom, Revive Stone, Premium Flesh and orbs");
         b.toggle("Hide Cheap Coins", () -> config.hideCheapCoins, v -> config.hideCheapCoins = v);
-        b.toggle("Hide Wither Cloak Creepers", () -> config.hideCloakCreepers, v -> config.hideCloakCreepers = v).fresh()
-                .desc("Invisible powered creepers from Wither Cloak are not drawn. They still block clicks.");
         b.label("Screen & World Hiders");
         b.button("Toggle All Screen & World Hiders", () -> {
             int enabled = 0, total = 21;
@@ -202,11 +200,9 @@ public final class HideCategory {
         b.toggle("  No Underwater FOV Change", () -> config.noWaterFov, v -> config.noWaterFov = v).fresh();
         b.toggle("  Hide Wither Impact Particles", () -> config.hideWitherImpactParticles, v -> config.hideWitherImpactParticles = v).fresh()
                 .desc("Drops witch and heart particles (Hyperion spam).");
-        b.toggle("Hide Night Vision", () -> config.noNightVision, v -> config.noNightVision = v).fresh()
-                .desc("The night vision effect no longer brightens the world.");
         b.label("Interface");
-        b.toggle("Hide Inventory Effects", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v);
-        b.toggle("Hide Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v);
+        b.toggle("Hide Potion Effects (Inventory)", () -> config.hideInventoryEffects, v -> config.hideInventoryEffects = v);
+        b.toggle("Hide Potion Effects (HUD)", () -> config.noEffects, v -> config.noEffects = v);
         b.toggle("Hide Enchant Glint", () -> config.noEnchantGlint, v -> config.noEnchantGlint = v);
         b.toggle("  Only On Worn Armor", () -> config.noEnchantGlintArmorOnly, v -> config.noEnchantGlintArmorOnly = v).fresh()
                 .desc("Items in inventory and hand keep their glint.");
@@ -263,7 +259,7 @@ public final class HideCategory {
         b.toggle("  Hide Offhand Slot Icon", () -> config.hideOffhandSlotIcon, v -> config.hideOffhandSlotIcon = v).fresh()
                 .desc("Hides the shield placeholder in the empty offhand slot.");
         b.label("Camera");
-        b.toggle("No Hurt Camera", () -> config.noHurtCam, v -> config.noHurtCam = v);
+        b.toggle("No Hurt Camera Shake", () -> config.noHurtCam, v -> config.noHurtCam = v);
         b.slider("  Hurt Tilt Strength", 0f, 2f,
                 () -> config.hurtCamStrength, v -> config.hurtCamStrength = v, 2).fresh()
                 .desc("0 = no tilt, 1 = vanilla, 2 = double.");

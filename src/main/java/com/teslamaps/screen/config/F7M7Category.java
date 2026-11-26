@@ -41,7 +41,7 @@ public final class F7M7Category {
         b.toggle("  Unplaced Crystal Alert", () -> config.maxorCrystalAlert, v -> config.maxorCrystalAlert = v).fresh();
         b.label("Other");
         b.toggle("Storm Pillars as Glass (P2)", () -> config.fuckDiorite, v -> config.fuckDiorite = v).fresh()
-                .desc("Client-side: the diorite of the 4 Storm pillars becomes glass.").tags("fuck diorite", "diorite");
+                .desc("The diorite of the 4 Storm pillars is drawn as glass. Render only: the blocks stay diorite.").tags("fuck diorite", "diorite");
         b.dropdown("  Glass Color Mode", com.teslamaps.features.FuckDiorite.MODES,
                 () -> com.teslamaps.features.FuckDiorite.MODES[Math.max(0, Math.min(2, config.fuckDioriteMode))],
                 v -> config.fuckDioriteMode = Math.max(0, java.util.Arrays.asList(com.teslamaps.features.FuckDiorite.MODES).indexOf(v))).fresh();
@@ -63,7 +63,7 @@ public final class F7M7Category {
         b.toggle("  For Terminals", () -> config.terminalTitleTerminal, v -> config.terminalTitleTerminal = v).fresh();
         b.toggle("  For Levers", () -> config.terminalTitleLever, v -> config.terminalTitleLever = v).fresh();
         b.toggle("  For Devices", () -> config.terminalTitleDevice, v -> config.terminalTitleDevice = v).fresh();
-        b.toggle("Term Info HUD", () -> config.termInfoHud, v -> config.termInfoHud = v).fresh();
+        b.toggle("Terminal Info HUD", () -> config.termInfoHud, v -> config.termInfoHud = v).fresh();
         b.info("Terms / Levers / Device / Gate of the current section (/tmap gui)").fresh();
         b.toggle("  Compact (n/7)", () -> config.termInfoCompact, v -> config.termInfoCompact = v).fresh();
         b.toggle("Terminal Breakdown", () -> config.terminalBreakdown, v -> config.terminalBreakdown = v).fresh();
@@ -107,7 +107,7 @@ public final class F7M7Category {
         b.slider("  Spawn Title Duration (ticks)", 5f, 100f,
                 () -> (float) config.witherDragonAlertTicks, v -> config.witherDragonAlertTicks = Math.round(v));
         b.toggle("  Mute Spawn Title Sound", () -> config.witherDragonAlertMute, v -> config.witherDragonAlertMute = v);
-        b.dropdown("Timer Style",
+        b.dropdown("Dragon Timer Style",
                 new String[]{"Milliseconds", "Seconds", "Ticks"},
                 () -> switch (config.witherDragonTimerStyle) { case 1 -> "Seconds"; case 2 -> "Ticks"; default -> "Milliseconds"; },
                 v -> config.witherDragonTimerStyle = switch (v) { case "Seconds" -> 1; case "Ticks" -> 2; default -> 0; });
@@ -123,6 +123,10 @@ public final class F7M7Category {
                 () -> config.witherDragonSoloClass, v -> config.witherDragonSoloClass = v).fresh();
         b.toggle("  First Dragon Only", () -> config.witherDragonFirstOnly, v -> config.witherDragonFirstOnly = v).fresh()
                 .desc("After the first two dragons everyone goes to the earliest spawn.");
+        b.toggle("  Paul Buff (manual)", () -> config.witherDragonPaulBuff, v -> config.witherDragonPaulBuff = v).fresh()
+                .desc("Paul's power bonus (x1.25) counts toward the priority split. Turn on when Paul is mayor.");
+        b.toggle("  Paul Buff From Election", () -> config.witherDragonPaulAuto, v -> config.witherDragonPaulAuto = v).fresh()
+                .desc("Reads Paul's Benediction perk from the election API instead of the manual switch.");
         b.toggle("Priority Tracer", () -> config.witherDragonPriorityTracer, v -> config.witherDragonPriorityTracer = v);
         b.slider("  Tracer Width", 1f, 5f,
                 () -> config.witherDragonTracerWidth, v -> config.witherDragonTracerWidth = v, 1).fresh();
@@ -154,7 +158,7 @@ public final class F7M7Category {
         b.toggle("Dragon Perch Warning", () -> config.dragonPerchWarning, v -> config.dragonPerchWarning = v).fresh();
         b.toggle("Hide Other Dragons' Boss Bars (needs priority)", () -> config.dragonHideBossbars, v -> config.dragonHideBossbars = v).fresh();
         b.label("Wither Highlight");
-        b.toggle("Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v);
+        b.toggle("Wither Highlight", () -> config.witherHighlight, v -> config.witherHighlight = v).legit();
         b.toggle("  Wither Highlight Box", () -> config.witherHighlightBox, v -> config.witherHighlightBox = v);
         b.color("  Wither Highlight Color", () -> config.witherHighlightColor, v -> config.witherHighlightColor = v);
         b.toggle("  Glow Instead of Box", () -> config.witherHighlightGlow, v -> config.witherHighlightGlow = v).legit();

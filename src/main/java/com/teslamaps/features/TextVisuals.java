@@ -58,14 +58,14 @@ public final class TextVisuals {
                     b.label("Text");
                     b.toggle("Full Text Shadow", () -> c.fullTextShadow, v -> c.fullTextShadow = v)
                             .desc("Draws the text shadow all around each letter (outline look) instead of only down-right.");
-                    b.toggle("Visual Words", () -> c.visualWords, v -> c.visualWords = v)
+                    b.toggle("Replace Words On Screen", () -> c.visualWords, v -> c.visualWords = v)
                             .desc("Replaces words or phrases in every text you see (chat, tooltips, scoreboard, name tags). Only on your screen.");
                     b.toggle("  Ignore Case", () -> c.visualWordsIgnoreCase, v -> c.visualWordsIgnoreCase = v);
                     b.info("  /tmap visualwords add <word> | <replacement>");
                     b.info("  & color codes work in the replacement · list · remove <n> · toggle <n> · clear");
                     b.button("  List Visual Words In Chat", TextVisuals::list);
                     b.toggle("Nick Hider", () -> c.nickHider, v -> c.nickHider = v)
-                            .desc("Replaces your own name in every text (chat, tab, scoreboard, name tags, tooltips). Set the nick with /tmap nick <name>, & color codes work. Other names: Visual Words.")
+                            .desc("Replaces your own name in every text (chat, tab, scoreboard, name tags, tooltips). Set the nick with /tmap nick <name>, & color codes work. Other names: Replace Words On Screen.")
                             .tags("streamer", "name changer", "nick");
                     b.info("  /tmap nick <name> · /tmap nick reset");
                 });
@@ -126,7 +126,7 @@ public final class TextVisuals {
         list.add(new VisualWord(from, to));
         TeslaMapsConfig.save();
         msg("§7Added §f" + from + " §7-> §r" + legacy(to));
-        if (!cfg().visualWords) msg("§7Visual Words is off, turn it on in Interface.");
+        if (!cfg().visualWords) msg("§7Replace Words On Screen is off, turn it on in Interface.");
     }
 
     private static void remove(int n) {

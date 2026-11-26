@@ -25,7 +25,7 @@ public final class VoidgloomLaser {
     public static void register() {
         Feature.of("VoidgloomLaser").section("Combat").when(() -> cfg().voidgloomLaserTimer || cfg().slayerNametag)
                 .tick(VoidgloomLaser::tick);
-        Feature.of("VoidgloomLaserText").section("Combat").when(() -> cfg().voidgloomLaserTimer)
+        Feature.of("VoidgloomLaserText").section("Combat").when(() -> cfg().voidgloomLaserTimer && !nametagShowsLaser())
                 .world(VoidgloomLaser::render);
     }
 
@@ -33,8 +33,12 @@ public final class VoidgloomLaser {
     static void config(com.teslamaps.screen.config.ConfigBuilder b) {
         TeslaMapsConfig c = b.config();
         b.toggle("Voidgloom Laser Timer", () -> c.voidgloomLaserTimer, v -> c.voidgloomLaserTimer = v)
-                .desc("Countdown over your Voidgloom Seraph while it rides the laser phase")
+                .desc("Countdown over your Voidgloom Seraph while it rides the laser phase (shown in the Clean Slayer Nametag when that is on)")
                 .tags("slayer", "voidgloom", "enderman", "laser", "timer");
+    }
+
+    private static boolean nametagShowsLaser() {
+        return cfg().slayerNametag && !"Carries".equals(cfg().slayerNametagMode);
     }
 
     /** Laser seconds left on the tracked boss, 0 outside the phase. */

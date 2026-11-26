@@ -53,7 +53,7 @@ public final class KuudraSplits {
                     b.label("Splits");
                     b.toggle("Kuudra Splits", () -> c.kuudraSplits, v -> c.kuudraSplits = v)
                             .desc("Supplies > Build > (T5: Eaten > Stun) > DPS > Cleared > Total, PBs per tier. Move it in /tmap gui");
-                    b.toggle("  Chat Message per Split", () -> c.kuudraSplitsChat, v -> c.kuudraSplitsChat = v)
+                    b.toggle("  Chat Message Per Split", () -> c.kuudraSplitsChat, v -> c.kuudraSplitsChat = v)
                             .desc("\"Build took 12.34s\" with the difference to your PB");
                     b.toggle("  Pace (T5)", () -> c.kuudraSplitsPace, v -> c.kuudraSplitsPace = v)
                             .desc("Projected end time from benchmark seconds per phase");

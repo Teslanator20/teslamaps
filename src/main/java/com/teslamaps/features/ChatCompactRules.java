@@ -107,8 +107,6 @@ public final class ChatCompactRules {
                 (m, c) -> (m.group(1).equals("summoned") ? "§a+ " : "§c- ") + c.span(m.group(2), "§f"));
         r(DROPS, "^Autopet equipped your \\[Lvl (\\d+)] (.+?)!",
                 (m, c) -> "§cAutopet §7[" + m.group(1) + "] " + c.span(m.group(2), "§f"));
-        r(DROPS, "^\\[Sacks] ([-+].*)$",
-                (m, c) -> (m.group(1).startsWith("-") ? "§6[Sacks] §c" : "§6[Sacks] §a") + m.group(1));
         r(DROPS, "^✆ RING", (m, c) -> "§a✆ §7Ring…");
         r(DROPS, "^Fire Sales for (.+) are starting soon!", (m, c) -> "§6♨ Fire Sale soon §8· §f" + m.group(1));
         r(DROPS, "FIRE SALE", (m, c) -> "§6♨ Fire Sale");
@@ -121,20 +119,7 @@ public final class ChatCompactRules {
                 (m, c) -> "§c⛏ Breaking Power " + m.group(1) + " §8· " + c.span(m.group(2), "§7"));
         r(MINING, "^You uncovered a treasure chest!", (m, c) -> "");
         r(MINING, "^You have successfully picked the lock on this chest!", (m, c) -> "");
-        r(MINING, "^✦ You placed the (.+?)!", (m, c) -> "§d✦ " + c.span(m.group(1), "§f") + " §7placed");
-        r(MINING, "^You found (.+?) with your Metal Detector!", (m, c) -> "§c⌖ " + c.span(m.group(1), "§f"));
-        r(MINING, "^(?:\\[NPC] )?(Keeper of \\w+): (.+)$", (m, c) -> "§6" + m.group(1) + "§f: §7" + m.group(2));
-        r(MINING, "Thanks for bringing me the (.+?)! Bring me (.+?) more components? to fix the giant!",
-                (m, c) -> "§9⚙ " + c.span(m.group(1), "§f") + " §8· §7" + m.group(2) + " more");
-        r(MINING, "You've brought me all of the components", (m, c) -> "§a⚙ §7All components brought");
     }
-
-    private static final Pattern CRYSTAL_FOUND = Pattern.compile("^✦ CRYSTAL FOUND \\((\\d+)/(\\d+)\\)");
-    private static final Pattern CRYSTAL_NAME = Pattern.compile("^(Amber|Amethyst|Jade|Sapphire|Topaz|Jasper|Ruby) Crystal$");
-    private static final String[] CRYSTAL_COLORS = {"Amber", "§6", "Amethyst", "§5", "Jade", "§a", "Sapphire", "§b",
-            "Topaz", "§e", "Jasper", "§d", "Ruby", "§c"};
-    private static String crystalCount;
-    private static long crystalAt;
 
     static boolean any(TeslaMapsConfig c) {
         return c.chatCompactCombat || c.chatCompactDrops || c.chatCompactMining;
@@ -148,21 +133,6 @@ public final class ChatCompactRules {
         String s = t.trim();
         if (s.isEmpty()) return null;
 
-        if (c.chatCompactMining) {
-            Matcher f = CRYSTAL_FOUND.matcher(s);
-            if (f.find()) {
-                crystalCount = f.group(1) + "§8/§7" + f.group(2);
-                crystalAt = System.currentTimeMillis();
-                return "";
-            }
-            Matcher n = CRYSTAL_NAME.matcher(s);
-            if (n.matches() && crystalCount != null && System.currentTimeMillis() - crystalAt < 3000) {
-                String out = "§5§l✦ CRYSTAL " + crystalColor(n.group(1)) + n.group(0) + " §7" + crystalCount;
-                crystalCount = null;
-                return out;
-            }
-        }
-
         Ctx ctx = null;
         for (int i = 0, size = RULES.size(); i < size; i++) {
             Rule r = RULES.get(i);
@@ -173,11 +143,6 @@ public final class ChatCompactRules {
             return r.f.apply(m, ctx);
         }
         return null;
-    }
-
-    private static String crystalColor(String name) {
-        for (int i = 0; i < CRYSTAL_COLORS.length; i += 2) if (CRYSTAL_COLORS[i].equals(name)) return CRYSTAL_COLORS[i + 1];
-        return "§f";
     }
 
     static String shortNum(String raw) {

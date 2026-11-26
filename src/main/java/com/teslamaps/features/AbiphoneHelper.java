@@ -55,9 +55,9 @@ public final class AbiphoneHelper {
                     b.toggle("Abiphone Helper", () -> cfg().abiphoneHelper, v -> cfg().abiphoneHelper = v)
                             .desc("Favourite contacts, contact requirements and a remove confirmation")
                             .tags("abiphone", "contacts", "favourite");
-                    b.toggle("  Favourite Contacts", () -> cfg().abiphoneFavorites, v -> cfg().abiphoneFavorites = v)
+                    b.toggle("  Favorite Contacts", () -> cfg().abiphoneFavorites, v -> cfg().abiphoneFavorites = v)
                             .desc("Shift-click a contact to favourite it. The top middle slot switches between all and favourites only.");
-                    b.color("  Favourite Color", () -> cfg().abiphoneFavoriteColor, v -> cfg().abiphoneFavoriteColor = v);
+                    b.color("  Favorite Color", () -> cfg().abiphoneFavoriteColor, v -> cfg().abiphoneFavoriteColor = v);
                     b.toggle("  Contact Requirements", () -> cfg().abiphoneRequirements, v -> cfg().abiphoneRequirements = v)
                             .desc("Contacts Directory tooltip lists what each NPC needs (NEU repo)");
                     b.toggle("  Confirm Removing Contacts", () -> cfg().abiphoneRemoveConfirm, v -> cfg().abiphoneRemoveConfirm = v)

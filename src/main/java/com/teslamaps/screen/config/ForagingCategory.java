@@ -100,7 +100,7 @@ public final class ForagingCategory {
         b.toggle("  Offer Navigation", () -> config.honeyhiveNavOffer, v -> config.honeyhiveNavOffer = v).fresh()
                 .desc("After looting a hive a chat line paths you to every other ready hive. Needs Island Navigation.");
         b.label("Heart of the Forest");
-        b.toggle("Highlight Perks",
+        b.toggle("Highlight HotF Perks",
                 () -> config.hotfHighlight, v -> config.hotfHighlight = v);
         b.color("  Enabled Color",
                 () -> config.colorHotfEnabled, v -> config.colorHotfEnabled = v);
@@ -108,9 +108,9 @@ public final class ForagingCategory {
                 () -> config.colorHotfDisabled, v -> config.colorHotfDisabled = v);
         b.color("  Locked Color",
                 () -> config.colorHotfLocked, v -> config.colorHotfLocked = v);
-        b.toggle("Level Stack",
+        b.toggle("HotF Level As Stack Size",
                 () -> config.hotfLevelStack, v -> config.hotfLevelStack = v);
-        b.toggle("Token Stack",
+        b.toggle("HotF Tokens As Stack Size",
                 () -> config.hotfTokenStack, v -> config.hotfTokenStack = v);
         b.toggle("Rotating Perk Display",
                 () -> config.hotfPerkDisplay, v -> config.hotfPerkDisplay = v);

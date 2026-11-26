@@ -13,12 +13,12 @@ public final class CombatCategory {
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Slayer");
         b.info("Slayer kills/bosses live in the Tracker HUD under Skills");
-        b.toggle("Only Own Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v);
+        b.toggle("Only Track Own Slayer Boss", () -> config.slayerOnlyOwnBoss, v -> config.slayerOnlyOwnBoss = v);
         b.info("Your boss always wins; a boss you hit is tracked too");
         b.toggle("Boss ESP", () -> config.slayerBossESP, v -> config.slayerBossESP = v);
         b.toggle("  Tracer To Boss", () -> config.slayerBossTracer, v -> config.slayerBossTracer = v).fresh()
                 .desc("Line from the crosshair to the tracked slayer boss");
-        b.toggle("  Demon Attunement + IMMUNE", () -> config.slayerAttunementDemons, v -> config.slayerAttunementDemons = v).fresh()
+        b.toggle("  Demon Attunement Colors", () -> config.slayerAttunementDemons, v -> config.slayerAttunementDemons = v).fresh()
                 .desc("Inferno: Quazii/Typhoeus and other attuned demons get their Hellion Shield colour, IMMUNE is red");
         b.toggle("Miniboss ESP", () -> config.slayerMinibossESP, v -> config.slayerMinibossESP = v);
         b.toggle("  Include Flare Demon", () -> config.slayerFlareDemon, v -> config.slayerFlareDemon = v).fresh()
@@ -30,7 +30,7 @@ public final class CombatCategory {
         b.toggle("  Only With Line Of Sight", () -> config.slayerMinibossTracerSight, v -> config.slayerMinibossTracerSight = v).fresh();
         b.toggle("  Mark Cocooned Minibosses", () -> config.slayerMinibossCocoon, v -> config.slayerMinibossCocoon = v).fresh().cheat()
                 .desc("Box on a miniboss cocoon, plus a tracer while Miniboss Tracers is on");
-        b.toggle("Alerts (Miniboss/Cocoon/Boss)", () -> config.slayerAlerts, v -> config.slayerAlerts = v);
+        b.toggle("Slayer Alerts", () -> config.slayerAlerts, v -> config.slayerAlerts = v);
         b.toggle("  Boss Spawn Title", () -> config.slayerAlertSpawnTitle, v -> config.slayerAlertSpawnTitle = v);
         b.toggle("  Boss Spawn Sound", () -> config.slayerAlertSpawnSound, v -> config.slayerAlertSpawnSound = v);
         b.toggle("  Cocoon Title", () -> config.slayerAlertCocoonTitle, v -> config.slayerAlertCocoonTitle = v);
@@ -43,10 +43,10 @@ public final class CombatCategory {
         b.toggle("  Custom Title Color", () -> config.slayerAlertCustomColor, v -> config.slayerAlertCustomColor = v);
         b.color("    Title Color", () -> config.slayerAlertColor, v -> config.slayerAlertColor = v);
         b.label("Slayer Kill Time");
-        b.toggle("Kill Time in Chat", () -> config.slayerKillChat, v -> config.slayerKillChat = v);
+        b.toggle("Slayer Kill Time in Chat", () -> config.slayerKillChat, v -> config.slayerKillChat = v);
         b.info("Timed from the scoreboard's \"Slay the boss!\" line to the kill");
         b.toggle("  Show Server Ticks", () -> config.slayerKillTicks, v -> config.slayerKillTicks = v);
-        b.toggle("Personal Bests", () -> config.slayerKillPb, v -> config.slayerKillPb = v);
+        b.toggle("Slayer Personal Bests", () -> config.slayerKillPb, v -> config.slayerKillPb = v);
         b.info("One PB per slayer and tier, per profile. /tmap slayerpb lists them");
         b.channel("  Post New PB", () -> config.slayerPbChannel, v -> config.slayerPbChannel = v);
         b.label("Bestiary");

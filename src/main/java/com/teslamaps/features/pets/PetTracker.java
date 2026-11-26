@@ -22,6 +22,10 @@ public class PetTracker {
     static final Pattern SUMMON = Pattern.compile(
             "§aYou summoned your §r§(?<rarity>.)(?<pet>[^§]+)(?:§r(?<skin>§. ✦))?§r§a!");
     private static final Pattern DESPAWN = Pattern.compile("You despawned your (?<pet>.+)!");
+    // plain-text fallbacks when the colored patterns miss a format change
+    private static final Pattern SUMMON_PLAIN = Pattern.compile("You summoned your (?<pet>.+?)(?<skin> ✦)?!");
+    private static final Pattern AUTOPET_PLAIN = Pattern.compile(
+            "Autopet equipped your \\[Lvl (?<level>\\d+)] (?:\\[\\d+✦] )?(?<pet>.+?)(?<skin> ✦)?! VIEW RULE");
     static final Pattern AUTOPET = Pattern.compile(
             "§cAutopet §eequipped your §7\\[Lvl (?<level>\\d+)] "
                     + "(?:(?:§.)+\\[(?:§.)*\\d+(?:§.)*(?<altskin>§.✦)(?:§.)*] )?"
@@ -45,6 +49,53 @@ public class PetTracker {
     private static String skinId = null;
 
     private static long lastEstimateAt = 0;
+
+    // estimate calibration: the xp between two level-up lines is exactly one level's cost
+    private static double rawSinceLevel;
+    private static int anchorLevel = -1;
+    private static final java.util.Map<String, double[]> calibs = new java.util.HashMap<>(); // pet id -> {factor, samples}
+    private static double shareCalib = 1;
+    private static int shareCalibSamples;
+    private static final java.util.Map<PetStore.Pet, double[]> shareRaw = new java.util.IdentityHashMap<>();
+
+    private static double[] calibEntry() {
+        return internalName == null ? new double[]{1, 0} : calibs.computeIfAbsent(internalName, k -> new double[]{1, 0});
+    }
+
+    public static double calib() { return calibEntry()[0]; }
+    public static int calibSamples() { return (int) calibEntry()[1]; }
+    public static double shareCalib() { return shareCalib; }
+    public static int shareCalibSamples() { return shareCalibSamples; }
+
+    private static boolean usable(double ratio) {
+        return ratio > 0.25 && ratio < 4;
+    }
+
+    private static void mainLevelUp(int newLevel) {
+        if (anchorLevel == newLevel - 1 && rawSinceLevel > 0) {
+            double ratio = PetConstants.costForLevel(internalName, rarity, newLevel - 1) / rawSinceLevel;
+            double[] c = calibEntry();
+            if (usable(ratio)) {
+                c[0] = c[1] == 0 ? ratio : c[0] * 0.6 + ratio * 0.4;
+                c[1]++;
+            }
+        }
+        anchorLevel = newLevel;
+        rawSinceLevel = 0;
+    }
+
+    /** Exp share pet hit a new level (from PetLevelTracker), before PetStore pulls its xp into the level. */
+    static void shareLevelUp(PetStore.Pet p, int newLevel) {
+        double[] r = shareRaw.get(p);
+        if (r != null && (int) r[1] == newLevel - 1 && r[0] > 0) {
+            double ratio = PetConstants.costForLevel(p.type, p.rarity, newLevel - 1) / r[0];
+            if (usable(ratio)) {
+                shareCalib = shareCalibSamples == 0 ? ratio : shareCalib * 0.6 + ratio * 0.4;
+                shareCalibSamples++;
+            }
+        }
+        shareRaw.put(p, new double[]{0, newLevel});
+    }
 
     // xp samples for the rate, {millis, totalXp}
     private static final java.util.ArrayDeque<double[]> samples = new java.util.ArrayDeque<>();
@@ -135,6 +186,18 @@ public class PetTracker {
         }
 
         String clean = StringUtil.strip(raw).trim();
+        Matcher summonPlain = SUMMON_PLAIN.matcher(clean);
+        if (summonPlain.matches()) {
+            String pet = summonPlain.group("pet").trim();
+            set(pet, rarityBefore(raw, pet), summonPlain.group("skin") != null, -1);
+            return;
+        }
+        Matcher autopetPlain = AUTOPET_PLAIN.matcher(clean);
+        if (autopetPlain.find()) {
+            String pet = autopetPlain.group("pet").trim();
+            set(pet, rarityBefore(raw, pet), autopetPlain.group("skin") != null, Integer.parseInt(autopetPlain.group("level")));
+            return;
+        }
         Matcher despawn = DESPAWN.matcher(clean);
         if (despawn.matches()) {
             clear();
@@ -142,12 +205,20 @@ public class PetTracker {
         }
 
         Matcher levelUp = LEVEL_UP.matcher(clean);
-        if (levelUp.matches() && displayName != null
-                && levelUp.group("pet").equalsIgnoreCase(displayName)) {
+        if (levelUp.matches()) {
+            String type = PetConstants.internalName(levelUp.group("pet"));
             int newLevel = Integer.parseInt(levelUp.group("level"));
-            double floor = PetConstants.levelToXp(internalName, rarity, newLevel);
-            if (totalXp < floor) totalXp = floor;
-            level = newLevel;
+            // the same line comes for exp share pets, which can be the same pet type
+            boolean main = type.equals(internalName) && PetLevelTracker.isMain(type, level, newLevel);
+            if (main) {
+                double floor = PetConstants.levelToXp(internalName, rarity, newLevel);
+                double cost = PetConstants.costForLevel(internalName, rarity, newLevel);
+                if (totalXp < floor || totalXp > floor + cost * 0.05) totalXp = floor;
+                mainLevelUp(newLevel);
+                level = newLevel;
+                maxed = newLevel >= PetConstants.maxLevel(internalName);
+            }
+            PetLevelTracker.onLevelUp(levelUp.group("pet"), type, newLevel, main);
         }
     }
 
@@ -188,8 +259,11 @@ public class PetTracker {
         int widgetLevel = Integer.parseInt(name.group("level").replace(",", ""));
         boolean widgetSkin = name.group("skin") != null || name.group("altskin") != null;
 
+        String tabRarity = rarityBefore(lines.get(petIndex + 1), pet);
         if (displayName == null || !displayName.equalsIgnoreCase(pet)) {
-            set(pet, rarity, widgetSkin, widgetLevel); // rarity unknown from tab, keep the last known
+            set(pet, tabRarity != null ? tabRarity : rarity, widgetSkin, widgetLevel);
+        } else if (rarity == null && tabRarity != null) {
+            rarity = tabRarity;
         }
         level = widgetLevel;
         skin = widgetSkin;
@@ -217,18 +291,28 @@ public class PetTracker {
         double current = parseCompact(xp.group("current"));
         boolean exact = !xp.group("current").toLowerCase(Locale.ROOT).contains("k")
                 && !xp.group("current").contains("M");
+        double tolerance = 0.02;
+        String pct = xp.group("percentage");
+        if (!exact && pct != null && neededLevelXp() > 0) {
+            // "1.2M/5.5M (21.8%)": the percentage is ~20x finer than the rounded number
+            try {
+                current = Double.parseDouble(pct) / 100.0 * neededLevelXp();
+                tolerance = 0.002;
+            } catch (NumberFormatException ignored) {}
+        }
         double read = PetConstants.levelToXp(internalName, rarity, level) + current;
 
         // stale-widget guard: an estimate within 3s beats a lower rounded read
         long now = System.currentTimeMillis();
         if (now - lastEstimateAt < 3000 && read + 1.0 < totalXp) return;
-        if (!exact && totalXp >= 0 && Math.abs(read - totalXp) < neededLevelXp() * 0.02) return;
+        if (!exact && totalXp >= 0 && Math.abs(read - totalXp) < neededLevelXp() * tolerance) return;
         totalXp = read;
     }
 
     // ---- estimation between widget reads (Skysoft PetXpRules, trimmed) ----
 
     public static void onSkillXp(String skill, double amount) {
+        PetLevelTracker.onSkillXp(skill, amount);
         if (!enabled() || !hasPet() || totalXp < 0 || internalName == null) return;
         String type = PetConstants.petType(internalName);
         if (type == null) return;
@@ -241,10 +325,12 @@ public class PetTracker {
         double custom = PetConstants.customMultiplier(internalName);
         double diana = com.teslamaps.api.ElectionApi.hasPerk("Pet XP Buff") ? 1.35 : 1.0;
         double battle = skill.equalsIgnoreCase("COMBAT") ? 1.0 + attributeLevel("Battle Experience") / 100.0 : 1.0;
-        double gain = amount * base * taming * item * custom * diana * PetStore.beastmaster() * battle;
+        double raw = amount * base * taming * item * custom * diana * PetStore.beastmaster() * battle;
+        rawSinceLevel += raw;
+        double gain = raw * calib();
         totalXp += gain;
         lastEstimateAt = System.currentTimeMillis();
-        shareXp(skill, gain);
+        shareXp(skill, raw);
 
         if (!maxed) {
             int newLevel = PetConstants.xpToLevel(internalName, rarity, totalXp);
@@ -260,13 +346,17 @@ public class PetTracker {
                 + (com.teslamaps.api.ElectionApi.hasPerk("Sharing is Caring") ? 0.10 : 0)
                 + attributeLevel("Why Not More") / 100.0;
         for (PetStore.Pet p : share) {
-            if (p.type == null || p.type.equals(internalName)) continue;
+            // same type is fine (two Golden Dragons), only the equipped pet itself is skipped
+            if (p.type == null || (p == PetStore.active() && p.type.equals(internalName))) continue;
             String type = PetConstants.petType(p.type);
             if (type == null) continue;
-            double r = rate + ("PET_ITEM_EXP_SHARE".equals(p.heldItem) ? 0.15 : 0);
+            double r = rate + ("PET_ITEM_EXP_SHARE".equals(p.heldItem) && canHoldItem(p.type, p.level) ? 0.25 : 0);
             double base = baseMultiplier(type, skill);
             if (r <= 0 || base <= 0) continue;
-            PetStore.addExp(p, gain * r * base);
+            double cut = gain * r * base;
+            double[] raw = shareRaw.get(p);
+            if (raw != null) raw[0] += cut;
+            PetStore.addExp(p, cut * shareCalib);
         }
     }
 
@@ -289,8 +379,13 @@ public class PetTracker {
         return 1.0 / 3.0;
     }
 
+    /** A Golden Dragon below level 100 is still an egg and holds no pet item. */
+    static boolean canHoldItem(String type, int lvl) {
+        return !"GOLDEN_DRAGON".equals(type) || lvl >= 100;
+    }
+
     private static double itemMultiplier(String skill) {
-        if (heldItemColored == null) return 1.0;
+        if (heldItemColored == null || !canHoldItem(internalName, level)) return 1.0;
         String id = PetConstants.itemId(heldItemColored);
         if (id == null) return 1.0;
         if (id.equals("ALL_SKILLS_SUPER_BOOST")) return 1.2;
@@ -327,13 +422,16 @@ public class PetTracker {
         if (newRarity != null) rarity = newRarity;
         skin = newSkin;
         if (!samePet) {
+            anchorLevel = -1;
+            rawSinceLevel = 0;
             totalXp = -1;
             maxed = false;
             heldItemColored = null;
             skinId = null;
             samples.clear();
             // rarity, skin and xp the tab widget cannot tell, from the Pets menu cache
-            PetStore.Pet stored = PetStore.resolve(internalName, newRarity, newLevel);
+            Boolean egg = "GOLDEN_DRAGON".equals(internalName) ? pet.trim().endsWith(" Egg") : null;
+            PetStore.Pet stored = PetStore.resolve(internalName, newRarity, newLevel, egg);
             if (stored != null) {
                 if (newRarity == null) rarity = stored.rarity;
                 skinId = stored.skin;
@@ -345,6 +443,8 @@ public class PetTracker {
             } else if (newRarity == null) {
                 rarity = null;
             }
+            // a Golden Dragon only exists as Legendary; without a rarity the xp table would be the common one
+            if (rarity == null && "GOLDEN_DRAGON".equals(internalName)) rarity = "LEGENDARY";
         }
         if (newLevel > 0) level = newLevel;
     }
@@ -367,7 +467,18 @@ public class PetTracker {
 
     private static boolean enabled() {
         TeslaMapsConfig c = TeslaMapsConfig.get();
-        return (c.petOverlay || c.griffinPetWarning) && c.section("Skills");
+        return (c.petOverlay || c.griffinPetWarning || c.petLevelTracker) && c.section("Skills");
+    }
+
+    /** Rarity from the color code right before the pet name in a raw tab line, null when none. */
+    private static String rarityBefore(String raw, String pet) {
+        int at = raw.indexOf(pet);
+        for (int i = Math.min(at, raw.length()) - 2; i >= 0; i--) {
+            if (raw.charAt(i) != '§') continue;
+            String r = rarityFromCode(String.valueOf(Character.toLowerCase(raw.charAt(i + 1))));
+            if (r != null) return r;
+        }
+        return null;
     }
 
     private static String rarityFromCode(String code) {

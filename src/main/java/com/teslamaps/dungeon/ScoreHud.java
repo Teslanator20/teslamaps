@@ -47,7 +47,7 @@ public final class ScoreHud {
                     b.toggle("Score HUD", () -> cfg().scoreHud, v -> cfg().scoreHud = v)
                             .desc("Score with rank, deaths, secrets, crypts and the four part scores, move it in /tmap gui");
                     b.dropdown("  Mode", MODES, () -> cfg().scoreHudMode, v -> cfg().scoreHudMode = v);
-                    b.toggle("  Hide in Boss", () -> cfg().scoreHudHideInBoss, v -> cfg().scoreHudHideInBoss = v);
+                    b.toggle("  Hide In Boss", () -> cfg().scoreHudHideInBoss, v -> cfg().scoreHudHideInBoss = v);
                 });
     }
 

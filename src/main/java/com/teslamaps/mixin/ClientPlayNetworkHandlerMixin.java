@@ -147,7 +147,6 @@ public class ClientPlayNetworkHandlerMixin {
     private void onTabList(ClientboundTabListPacket packet, CallbackInfo ci) {
         WitherDragons.onTabFooter(packet.footer().getString());
         com.teslamaps.dungeon.DungeonInfoHud.onTabFooter(packet.footer().getString());
-        com.teslamaps.features.DailyTimers.onTabFooter(packet.footer().getString());
     }
 
     @Inject(method = "handleMoveEntity", at = @At("HEAD"))
@@ -214,7 +213,6 @@ public class ClientPlayNetworkHandlerMixin {
     private void onTakeItemEntityHead(ClientboundTakeItemEntityPacket packet, CallbackInfo ci) {
         if (net.minecraft.client.Minecraft.getInstance().isSameThread()) {
             com.teslamaps.features.SecretItemPickup.onPacketItem(packet.getItemId(), false);
-            com.teslamaps.features.SecretChime.onTakeItem(packet.getItemId(), packet.getPlayerId());
         }
     }
 

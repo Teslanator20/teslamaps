@@ -1,8 +1,6 @@
 package com.teslamaps.features;
 
 // Ported from Skyblocker's MuseumManager / ItemSorter and SkyOcean's MuseumDonationHelper
-import com.google.gson.JsonObject;
-import com.teslamaps.api.HypixelApi;
 import com.teslamaps.config.TeslaMapsConfig;
 import com.teslamaps.features.croesus.CraftCost;
 import com.teslamaps.features.croesus.PriceManager;
@@ -12,7 +10,6 @@ import com.teslamaps.registry.Feature;
 import com.teslamaps.render.gui.HudStyle;
 import com.teslamaps.utils.ItemUtil;
 import com.teslamaps.utils.NumberUtil;
-import com.teslamaps.utils.SbProfile;
 import com.teslamaps.utils.SkyblockItems;
 import com.teslamaps.utils.StringUtil;
 import net.minecraft.client.Minecraft;
@@ -25,7 +22,6 @@ import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,9 +35,6 @@ public class MuseumHelper {
     private record Missing(String name, Double price, Double craft, int xp) {}
     private record Mark(int slot, int color) {}
 
-    private static volatile Set<String> donated;
-    private static String donatedKey;
-    private static long requestedAt;
     private static List<String> lines = List.of();
     private static int linesWidth;
     private static List<Mark> marks = List.of();
@@ -88,57 +81,13 @@ public class MuseumHelper {
             return;
         }
         if (++ticks % 10 != 0) return;
-        request(mc);
         buildMarks(mc, cs);
         if (ticks % 20 == 0 || lines.isEmpty()) buildList();
     }
 
-    private static void request(Minecraft mc) {
-        String key = SbProfile.key();
-        String name = SbProfile.name();
-        if (key == null || name == null) return;
-        long now = System.currentTimeMillis();
-        if (key.equals(donatedKey) && now - requestedAt < 10 * 60_000L) return;
-        donatedKey = key;
-        requestedAt = now;
-        String uuid = mc.getUser().getProfileId().toString().replace("-", "");
-        HypixelApi.getProfiles(uuid).thenCompose(resp -> {
-            String profileId = profileId(resp, name);
-            return profileId == null ? java.util.concurrent.CompletableFuture.completedFuture(null)
-                    : HypixelApi.getMuseum(profileId);
-        }).thenAccept(museum -> {
-            Set<String> ids = donatedIds(museum, uuid);
-            if (ids != null && key.equals(SbProfile.key())) mc.execute(() -> { donated = ids; lines = List.of(); });
-        }).exceptionally(e -> null);
-    }
-
-    private static String profileId(JsonObject resp, String name) {
-        if (resp == null || !resp.has("profiles") || !resp.get("profiles").isJsonObject()) return null;
-        for (var e : resp.getAsJsonObject("profiles").entrySet()) {
-            if (!e.getValue().isJsonObject()) continue;
-            JsonObject p = e.getValue().getAsJsonObject();
-            String cute = p.has("cute_name") ? p.get("cute_name").getAsString().toLowerCase() : "";
-            if (cute.equals(name.toLowerCase()) && p.has("profile_id")) return p.get("profile_id").getAsString();
-        }
-        return null;
-    }
-
-    private static Set<String> donatedIds(JsonObject museum, String uuid) {
-        if (museum == null || !museum.has("members") || !museum.get("members").isJsonObject()) return null;
-        JsonObject members = museum.getAsJsonObject("members");
-        JsonObject member = null;
-        for (String k : members.keySet()) {
-            if (k.replace("-", "").equalsIgnoreCase(uuid) && members.get(k).isJsonObject()) member = members.getAsJsonObject(k);
-        }
-        if (member == null) return null;
-        Set<String> out = new HashSet<>();
-        if (member.has("items") && member.get("items").isJsonObject()) out.addAll(member.getAsJsonObject("items").keySet());
-        return out;
-    }
-
     private static void buildList() {
         MuseumRepo.Data data = MuseumRepo.get();
-        Set<String> have = donated;
+        Set<String> have = MuseumDonations.donatedIds();
         if (data == null || have == null) {
             lines = List.of(have == null ? "§7Museum Helper: loading donations…" : "§7Museum Helper: no museum data");
             linesWidth = width(lines);

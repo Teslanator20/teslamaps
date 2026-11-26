@@ -33,7 +33,7 @@ public final class GeyserBox {
                 .config("Fishing", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Geyser");
-                    b.toggle("Geyser Box", () -> c.geyserBox, v -> c.geyserBox = v)
+                    b.toggle("Volcano Geyser Box", () -> c.geyserBox, v -> c.geyserBox = v)
                             .desc("Blazing Volcano: flat 4x4 box over the active geyser at Y 118, where the bobber has to land for trophy fish")
                             .tags("geyser", "trophy", "volcano", "crimson", "fishing");
                     b.color("  Color", () -> c.colorGeyserBox, v -> c.colorGeyserBox = v);

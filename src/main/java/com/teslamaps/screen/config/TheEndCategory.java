@@ -12,7 +12,7 @@ public final class TheEndCategory {
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("End Stone Protector");
-        b.toggle("Protector Tracker", () -> config.endProtector, v -> config.endProtector = v);
+        b.toggle("End Stone Protector Tracker", () -> config.endProtector, v -> config.endProtector = v);
         b.info("Stage comes from the protector head and the tremor chat line");
         b.info("The Protector tab widget (/tab) is only a fallback");
         b.toggle("  Status HUD", () -> config.endProtectorStatusHud, v -> config.endProtectorStatusHud = v);
@@ -26,14 +26,14 @@ public final class TheEndCategory {
                 .tags("day", "restart", "reboot", "lobby");
         b.fresh(() -> com.teslamaps.features.theend.DragonFight.config(b));
         b.label("Stage Alerts");
-        b.toggle("Stage 4/5 Title + Sound", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v);
+        b.toggle("Protector Stage 4/5 Alert", () -> config.endProtectorStage4Title, v -> config.endProtectorStage4Title = v);
         b.toggle("Stage 4 Duration in Chat", () -> config.endProtectorStage4Duration, v -> config.endProtectorStage4Duration = v);
         b.label("Fight Summary");
-        b.toggle("DPS in Chat", () -> config.endProtectorDpsChat, v -> config.endProtectorDpsChat = v);
+        b.toggle("Protector DPS in Chat", () -> config.endProtectorDpsChat, v -> config.endProtectorDpsChat = v);
         b.info("Hover the line for the top 3 damagers' DPS");
         b.toggle("Loot Quality in Chat", () -> config.endProtectorLootQualityChat, v -> config.endProtectorLootQualityChat = v);
         b.info("Placement + damage share + zealots; hover shows which drops it reaches");
-        b.toggle("Rare Drop Alert", () -> config.endProtectorDropAlert, v -> config.endProtectorDropAlert = v);
+        b.toggle("Protector Rare Drop Alert", () -> config.endProtectorDropAlert, v -> config.endProtectorDropAlert = v);
         b.toggle("  Skip Tier Boost Core", () -> config.endProtectorIgnoreTbc, v -> config.endProtectorIgnoreTbc = v).fresh()
                 .desc("Still counted, just no alert");
         b.toggle("  Skip Legendary Golem Pet", () -> config.endProtectorIgnoreLegPet, v -> config.endProtectorIgnoreLegPet = v).fresh();

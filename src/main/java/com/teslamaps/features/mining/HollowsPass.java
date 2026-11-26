@@ -42,7 +42,7 @@ public final class HollowsPass {
                     b.label("Crystal Hollows Pass");
                     b.toggle("Hollows Pass Timer", () -> c.hollowsPassTimer, v -> c.hollowsPassTimer = v)
                             .desc("Time left on the 6 hour pass, shown in the Crystal Hollows. Move it in /tmap gui");
-                    b.toggle("Auto Renew Pass", () -> c.hollowsPassAutoRenew, v -> c.hollowsPassAutoRenew = v)
+                    b.toggle("Auto Renew Hollows Pass", () -> c.hollowsPassAutoRenew, v -> c.hollowsPassAutoRenew = v)
                             .desc("Rebuys the pass (10,000 coins) when Hypixel offers a new one.")
                             .cheat();
                 });

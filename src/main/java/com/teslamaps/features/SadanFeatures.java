@@ -44,7 +44,7 @@ public class SadanFeatures {
         Feature.of("SadanTerracottaHide")
                 .config("Hide", b -> {
                     b.label("Boss Fights");
-                    b.toggle("Sadan Terracotta Phase: Hide Particles", () -> cfg().sadanTerracottaHide, v -> cfg().sadanTerracottaHide = v)
+                    b.toggle("Hide Sadan Terracotta Particles", () -> cfg().sadanTerracottaHide, v -> cfg().sadanTerracottaHide = v)
                             .desc("F6/M6: hides all particles between Sadan's first line and \"ENOUGH!\".");
                     b.toggle("  Also Mute Hurt/Eat Sounds", () -> cfg().sadanTerracottaSounds, v -> cfg().sadanTerracottaSounds = v);
                     b.toggle("  Also Hide Damage Splashes", () -> cfg().sadanTerracottaSplashes, v -> cfg().sadanTerracottaSplashes = v);

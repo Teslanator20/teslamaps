@@ -22,7 +22,7 @@ public final class ScreenFlash {
                 .config("QoL & Misc", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Screen Flash");
-                    b.toggle("Screen Flash on Alerts", () -> c.screenFlash, v -> c.screenFlash = v)
+                    b.toggle("Screen Flash On Alerts", () -> c.screenFlash, v -> c.screenFlash = v)
                             .desc("Flashes the whole screen in a colour on top of the title and sound of the alerts below");
                     b.color("  Flash Color", () -> c.screenFlashColor, v -> c.screenFlashColor = v);
                     b.slider("  Duration (ms)", 100, 3000, () -> (float) c.screenFlashMs, v -> c.screenFlashMs = Math.round(v / 50f) * 50);

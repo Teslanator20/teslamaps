@@ -50,9 +50,9 @@ public final class MarkedPlayers {
                     b.label("Marked Players");
                     b.toggle("Marked Players", () -> c.markedPlayers, v -> c.markedPlayers = v)
                             .desc("/tmap mark <name> toggles a player. Marked players are highlighted in the world and in chat");
-                    b.toggle("  Highlight in World", () -> c.markedPlayersWorld, v -> c.markedPlayersWorld = v).gatedBy("Party");
+                    b.toggle("  Highlight In World", () -> c.markedPlayersWorld, v -> c.markedPlayersWorld = v).gatedBy("Party");
                     b.espStyle("  Marked Player", () -> c.markedPlayersStyle);
-                    b.toggle("  Color Name in Chat", () -> c.markedPlayersChat, v -> c.markedPlayersChat = v).gatedBy("Party");
+                    b.toggle("  Color Name In Chat", () -> c.markedPlayersChat, v -> c.markedPlayersChat = v).gatedBy("Party");
                     b.color("    Chat Color", () -> c.markedPlayersChatColor, v -> c.markedPlayersChatColor = v);
                     b.toggle("  Lobby Join / Leave Message", () -> c.markedPlayersJoinLeave, v -> c.markedPlayersJoinLeave = v)
                             .gatedBy("Party").desc("Tells you when a marked player enters or leaves your lobby (tab list)");

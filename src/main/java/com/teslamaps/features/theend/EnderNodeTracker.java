@@ -83,7 +83,7 @@ public final class EnderNodeTracker {
                     b.toggle("Ender Node Tracker", () -> c.enderNodeTracker, v -> c.enderNodeTracker = v)
                             .desc("Counts Ender Nodes, Endermite Nests, node loot (Mite Gel from sacks too), Enderman pets by rarity and Ender armor in The End. Value = max of market, NPC and George price (/tmap gui).")
                             .tags("ender node", "endermite", "nest", "mite gel", "end", "tracker", "mining");
-                    b.toggle("  Only While Holding a Mining Tool", () -> c.enderNodeOnlyTool, v -> c.enderNodeOnlyTool = v);
+                    b.toggle("  Only While Holding A Mining Tool", () -> c.enderNodeOnlyTool, v -> c.enderNodeOnlyTool = v);
                     b.priceSource("  Price Source", () -> c.enderNodePriceSource, v -> c.enderNodePriceSource = v);
                     b.trackerButtons(tracker);
                 });

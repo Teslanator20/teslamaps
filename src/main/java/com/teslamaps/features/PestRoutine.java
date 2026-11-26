@@ -380,6 +380,16 @@ public class PestRoutine {
         }
     }
 
+    /** Clickable chat line that runs /call philip. */
+    public static void callPhilipButton() {
+        TeslaMapsConfig config = TeslaMapsConfig.get();
+        Minecraft mc = Minecraft.getInstance();
+        if (!config.pestBuffWarning || !config.pestBuffCallButton || mc.player == null) return;
+        mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cPest fortune buff has expired! §e[Call Phillip]")
+                .withStyle(st -> st.withClickEvent(new net.minecraft.network.chat.ClickEvent.RunCommand("/call philip"))
+                        .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(Component.literal("§eClick to call Phillip")))));
+    }
+
     private static void warnBuffExpired() {
         TeslaMapsConfig config = TeslaMapsConfig.get();
         if (!config.pestBuffWarning) return;

@@ -389,13 +389,6 @@ public class ChatMixin {
 
     @Unique
     private static void onSecretFound() {
-        TeslaMapsConfig config = TeslaMapsConfig.get();
-        com.teslamaps.features.SecretChime.onSecretFound();
-        if (!config.secretSound) {
-            return;
-        }
-
-        LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(config.secretSoundType),
-                config.secretSoundVolume, config.secretSoundPitch);
+        if (TeslaMapsConfig.get().secretSound) com.teslamaps.features.SecretChime.playSecret();
     }
 }

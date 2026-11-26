@@ -37,7 +37,7 @@ public final class KuudraIchor {
                 .world(KuudraIchor::render)
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.toggle("Ichor Pool Area", () -> c.kuuIchorPool, v -> c.kuuIchorPool = v)
+                    b.toggle("Ichor Pool Circle", () -> c.kuuIchorPool, v -> c.kuuIchorPool = v)
                             .desc("Draws the 8 block Ichor Pool circle for 20 s when you or a party member casts it");
                     b.color("  Circle Color", () -> c.kuuIchorColor, v -> c.kuuIchorColor = v);
                 });

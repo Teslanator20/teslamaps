@@ -101,16 +101,6 @@ public final class FloorDropDecoder {
         slowTicks = 0;
     }
 
-    /** Floor Spot ESP leaves the drops this one boxes to it. */
-    public static boolean covers(Vec3 p) {
-        if (!cfg().safariFloorDecoder || com.teslamaps.features.LegitMode.blocksCheats()) return false;
-        for (Shown s : shown) {
-            double dx = s.at().x - p.x, dy = s.at().y - 1.2 - p.y, dz = s.at().z - p.z;
-            if (dx * dx + dy * dy + dz * dz < 4.0) return true;
-        }
-        return false;
-    }
-
     private static void tick() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != level) {

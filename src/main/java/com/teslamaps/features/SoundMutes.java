@@ -38,7 +38,7 @@ public final class SoundMutes {
             b.toggle("Mute Banshee", () -> c.muteBanshee, v -> c.muteBanshee = v)
                     .desc("Drops the Banshee's ghast wail in Backwater Bayou")
                     .tags("banshee", "ghast", "bayou", "mute", "sound");
-            b.toggle("Mute Cast Sound", () -> c.muteCastSound, v -> c.muteCastSound = v)
+            b.toggle("Mute Rod Cast Sound", () -> c.muteCastSound, v -> c.muteCastSound = v)
                     .desc("Silences the bobber throw sound when casting a rod")
                     .tags("cast", "bobber", "throw", "rod", "mute", "sound");
         });

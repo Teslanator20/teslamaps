@@ -51,7 +51,7 @@ public final class CropMoneyDisplay {
                 .config("Garden", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Money per Hour");
-                    b.toggle("Money per Hour per Crop", () -> c.cropMoneyHud, v -> c.cropMoneyHud = v)
+                    b.toggle("Money Per Hour Per Crop", () -> c.cropMoneyHud, v -> c.cropMoneyHud = v)
                             .desc("Coins per hour every crop would make with your own measured speed (latest fortune and BPS per crop), best first, current crop yellow. Farm a crop once to add it. Position in /tmap gui.")
                             .tags("money", "coins", "profit", "crop", "per hour");
                     b.slider("  Crops Listed", 1f, 13f, () -> (float) c.cropMoneyRows, v -> c.cropMoneyRows = Math.round(v), 0);

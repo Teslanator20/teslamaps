@@ -39,9 +39,11 @@ public final class VisualTweaks {
                 .config("Hide", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Held Item");
-                    b.toggle("No Re-equip Animation On Item Updates", () -> c.noReequipAnimation, v -> c.noReequipAnimation = v)
-                            .desc("SkyBlock: the held item no longer dips down and back up when only its lore/data changes (kill counters, drill fuel, cooldowns). Switching slots still animates.")
+                    b.toggle("No Re-equip Animation", () -> c.noReequipAnimation, v -> c.noReequipAnimation = v)
+                            .desc("The held item no longer dips down and back up. Only On Item Data Updates (SkyBlock): when only its lore/data changes (kill counters, drill fuel, cooldowns), switching slots still animates. Always: also when you swap items.")
                             .tags("reequip", "animation", "bobbing", "book of stats");
+                    b.dropdown("  Mode", new String[]{"Only On Item Data Updates", "Always"},
+                            () -> c.noReequipMode, v -> c.noReequipMode = v);
                 });
 
         HudElementRegistry.replaceElement(VanillaHudElements.HELD_ITEM_TOOLTIP, original ->

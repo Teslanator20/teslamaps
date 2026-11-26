@@ -88,7 +88,7 @@ public final class ChatCompactRulesIslands {
                     TeslaMapsConfig c = TeslaMapsConfig.get();
                     b.label("Compact Lines");
                     b.toggle("Compact Lobby & System Lines", () -> c.chatCompactLobby, v -> c.chatCompactLobby = v)
-                            .desc("\"X joined\", boosters, tips, bank interest, Mystery Box, achievements, \"→ mini12\", Watchdog, profile lines");
+                            .desc("\"X joined\", boosters, tips, bank interest, Mystery Box, achievements, \"→ mini12\", Watchdog, profile lines. A Hide toggle for the same line wins.");
                     b.toggle("Compact Foraging / Hunting / Safari", () -> c.chatCompactForaging, v -> c.chatCompactForaging = v)
                             .desc("Floor Drop, TIMBER!, Beeheemoth, Honeyhive, Safari entries and captures. Capsule throws and Safari NPC lines are dropped.");
                 });

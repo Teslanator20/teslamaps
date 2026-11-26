@@ -37,7 +37,7 @@ public final class HoppityWarpUniques {
         feature = Feature.of("HoppityWarpUniques").when(() -> cfg().hoppityWarpUniques)
                 .serverChat(HoppityWarpUniques::onChat)
                 .config("Tooltips & Value", b -> {
-                    b.toggle("Hoppity Uniques in Warp Menu", () -> cfg().hoppityWarpUniques, v -> cfg().hoppityWarpUniques = v)
+                    b.toggle("Hoppity Uniques In Warp Menu", () -> cfg().hoppityWarpUniques, v -> cfg().hoppityWarpUniques = v)
                             .desc("Fast Travel tooltips show how many unique Hoppity egg spots you found on that island (x/15). Counts eggs found while this is on.");
                     b.toggle("  Hide When Maxed", () -> cfg().hoppityWarpHideMaxed, v -> cfg().hoppityWarpHideMaxed = v);
                 });

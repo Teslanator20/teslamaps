@@ -236,7 +236,7 @@ public class ConfigProfiles {
             // hiders (no player hiding)
             "hideDeadMobs", "hideSoulweaverSkull", "hideSkeletonSkull", "hideThrownBones",
             "hideSuperboomTnt", "hideBlessing", "hideReviveStone", "hidePremiumFlesh",
-            "hideHealerOrbs", "hideHealerFairy", "hideCheapCoins",
+            "hideHealerOrbs", "hideCheapCoins",
             "hideClouds", "noFog", "noNetherFog", "noLightning", "noFallingBlocks", "noBlockBreaking", "noXpOrbs",
             "packetHiders", "noExplosions", "noArrows", "noStuckArrows", "noDeathAnimation",
             "noFire", "noWaterOverlay", "noVignette", "noBlind", "noNausea", "noEnchantGlint",

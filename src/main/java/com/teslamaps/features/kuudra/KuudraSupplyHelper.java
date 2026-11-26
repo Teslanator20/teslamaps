@@ -23,16 +23,11 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Phase 1 aid: supply spots from the giants, giant/crate boxes, pre-spawn circles, reachable hitbox, drop-off pads. */
+/** Phase 1 aid: supply spots from the giants, giant/crate boxes, pre-spawn circles, reachable hitbox, crate piles (KuudraPileWaypoints). */
 public final class KuudraSupplyHelper {
 
-    // Odin's Supply drop-off spots: Triangle, X, Equals, Slash, Shop, X Cannon
-    private static final BlockPos[] DROP_OFFS = {
-            new BlockPos(-94, 78, -106), new BlockPos(-106, 78, -112), new BlockPos(-98, 78, -99),
-            new BlockPos(-106, 78, -99), new BlockPos(-98, 78, -112), new BlockPos(-110, 78, -106)};
     private static final double STAND_EYE = 1.62, SNEAK_EYE = 1.54, REACH = 3.0;
 
-    private static final boolean[] dropDone = new boolean[DROP_OFFS.length];
     private static List<BlockPos> supplies = List.of();
     private static List<Entity> giants = List.of(), zombies = List.of();
     private static List<ArmorStand> preSpawns = List.of();
@@ -50,14 +45,12 @@ public final class KuudraSupplyHelper {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Supply Helper (Phase 1)");
-                    b.toggle("Supply Helper", () -> c.kuudraSupplyHelper, v -> c.kuudraSupplyHelper = v).legit()
+                    b.toggle("Kuudra Supply Helper", () -> c.kuudraSupplyHelper, v -> c.kuudraSupplyHelper = v).legit()
                             .desc("Phase 1 visual aid. Pick the parts below; everything shows only while supplies are out.")
                             .tags("supply", "supplies", "giant", "crate", "kuudra");
                     b.toggle("  Supply Waypoints", () -> c.kuudraSupplyWaypoints, v -> c.kuudraSupplyWaypoints = v)
                             .desc("Beacon + box where each supply lies, worked out from the giant's position and rotation, through walls");
                     b.color("  Supply Color", () -> c.kuudraSupplyColor, v -> c.kuudraSupplyColor = v);
-                    b.toggle("  Drop-Off Waypoints", () -> c.kuudraSupplyDropOffs, v -> c.kuudraSupplyDropOffs = v)
-                            .desc("The 6 pads where supplies are placed, until each one is filled");
                     b.toggle("  Highlight Giants", () -> c.kuudraSupplyGiants, v -> c.kuudraSupplyGiants = v);
                     b.toggle("    Compact Giant Box", () -> c.kuudraSupplyGiantsCompact, v -> c.kuudraSupplyGiantsCompact = v)
                             .desc("Only the top fifth of the giant");
@@ -75,7 +68,6 @@ public final class KuudraSupplyHelper {
     }
 
     static void reset() {
-        java.util.Arrays.fill(dropDone, false);
         supplies = List.of();
         giants = List.of();
         zombies = List.of();
@@ -105,12 +97,6 @@ public final class KuudraSupplyHelper {
             } else if (e instanceof ArmorStand as && as.hasCustomName()) {
                 String name = StringUtil.stripTrim(as.getName().getString());
                 if (c.kuudraSupplyPreCircles && name.equalsIgnoreCase("SUPPLIES") && as.getY() >= 65 && as.getY() <= 85) pre.add(as);
-                else if (name.equals("✓ SUPPLIES RECEIVED ✓")) {
-                    int x = (int) as.getX(), z = (int) as.getZ();
-                    for (int i = 0; i < DROP_OFFS.length; i++) {
-                        if (DROP_OFFS[i].getX() == x && DROP_OFFS[i].getZ() == z) dropDone[i] = true;
-                    }
-                }
             }
         }
         supplies = sup;
@@ -133,11 +119,6 @@ public final class KuudraSupplyHelper {
         if (c.kuudraSupplyWaypoints) {
             int col = TeslaMapsConfig.parseColor(c.kuudraSupplyColor);
             for (int i = 0, n = supplies.size(); i < n; i++) WaypointSet.draw(pose, cam, supplies.get(i), col, "§ePick Up!", true, true, true);
-        }
-        if (c.kuudraSupplyDropOffs) {
-            for (int i = 0; i < DROP_OFFS.length; i++) {
-                if (!dropDone[i]) WaypointSet.draw(pose, cam, DROP_OFFS[i], 0xFFFF5555, "§ePlace Here!", true, true, true);
-            }
         }
         if (c.kuudraSupplyGiants) {
             int col = TeslaMapsConfig.parseColor(c.kuudraSupplyGiantColor);

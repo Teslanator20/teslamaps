@@ -55,7 +55,7 @@ public final class VengeanceTimer {
                             .desc("First Pyrochaos Dagger hit on your own Inferno Demonlord starts a \"Veng proc\" countdown. Move it in /tmap gui.")
                             .tags("slayer", "inferno", "blaze", "dagger", "veng");
                     b.slider("  Proc Delay (s)", 1f, 15f, () -> c.vengeanceProcSeconds, v -> c.vengeanceProcSeconds = v, 1);
-                    b.toggle("  Vengeance Damage in Chat", () -> c.vengeanceDamageChat, v -> c.vengeanceDamageChat = v)
+                    b.toggle("  Vengeance Damage In Chat", () -> c.vengeanceDamageChat, v -> c.vengeanceDamageChat = v)
                             .desc("Damage splashes over 500k within 5 blocks of your boss are written to chat as \"Veng DMG: N\".");
                 });
     }

@@ -19,7 +19,7 @@ public final class MapCategory {
         b.toggle("Center Small Floors", () -> config.mapCenterSmallFloors, v -> config.mapCenterSmallFloors = v);
         b.toggle("Hypixel Map Fallback", () -> config.mapHypixelFallback, v -> config.mapHypixelFallback = v);
         b.toggle("  Use Room Colors (Typed)", () -> config.mapFallbackTyped, v -> config.mapFallbackTyped = v).fresh();
-        b.toggle("Star Mob Radar", () -> config.starMobRadar, v -> config.starMobRadar = v).fresh().legit();
+        b.toggle("Starred Mob Radar", () -> config.starMobRadar, v -> config.starMobRadar = v).fresh().legit();
         b.slider("  Radar Size", 0.5f, 2.5f, () -> config.starMobRadarSize, v -> config.starMobRadarSize = v).fresh();
         b.toggle("  Mob Heads", () -> config.starMobRadarHeads, v -> config.starMobRadarHeads = v).fresh();
         b.toggle("  Radar Border", () -> config.starMobRadarBorder, v -> config.starMobRadarBorder = v).fresh();

@@ -63,7 +63,7 @@ public final class SummoningMobs {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        hud = HudEditElement.of("summoningMobs", "Summoning Mobs").section("Combat")
+        hud = HudEditElement.of("summoningMobs", "Necromancer Summon Helper").section("Combat")
                 .enabled(() -> cfg().summoningMobs && cfg().summoningMobsHud)
                 .size(() -> panelWidth(SAMPLE), () -> SAMPLE.size() * 10 + 6)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, SAMPLE, panelWidth(SAMPLE)));
@@ -77,7 +77,7 @@ public final class SummoningMobs {
                 .config("Combat", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Necromancy");
-                    b.toggle("Summoning Mobs", () -> c.summoningMobs, v -> c.summoningMobs = v)
+                    b.toggle("Necromancer Summon Helper", () -> c.summoningMobs, v -> c.summoningMobs = v)
                             .desc("Your own Necromancer summons: HUD list with health, highlight, hidden nametags and a message when one dies.")
                             .tags("summon", "summoning", "necromancer", "necromancy", "soul");
                     b.toggle("  HUD List", () -> c.summoningMobsHud, v -> c.summoningMobsHud = v).desc("Position in /tmap gui");

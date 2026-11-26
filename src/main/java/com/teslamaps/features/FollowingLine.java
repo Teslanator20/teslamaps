@@ -32,8 +32,8 @@ public final class FollowingLine {
                 .world(FollowingLine::render)
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.label("Following Line");
-                    b.toggle("Following Line", () -> c.followingLine, v -> c.followingLine = v)
+                    b.label("Walked Path Trail");
+                    b.toggle("Walked Path Trail", () -> c.followingLine, v -> c.followingLine = v)
                             .desc("Draws a line along the path you walked. It gets thinner with age and fades out.");
                     b.color("  Color", () -> c.followingLineColor, v -> c.followingLineColor = v);
                     b.slider("  Width", 1f, 10f, () -> c.followingLineWidth, v -> c.followingLineWidth = v, 1);

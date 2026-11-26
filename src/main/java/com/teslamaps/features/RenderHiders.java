@@ -44,7 +44,7 @@ public final class RenderHiders {
 
     /** Witherborn minions (dungeon boss withers stay) and Wither Cloak creepers. */
     public static boolean shouldHide(Entity e) {
-        if (e instanceof Creeper c && cfg().hideCloakCreepers && c.isInvisible() && c.isPowered() && c.getHealth() == 20f) return true;
+        if (e instanceof Creeper c && "Hide".equals(cfg().witherCloakCreepers) && c.isInvisible() && c.isPowered() && c.getHealth() == 20f) return true;
         return e instanceof WitherBoss && cfg().hideWitherbornWithers && SkyblockUtils.isInSkyblock()
                 && !(DungeonManager.isInDungeon() && DungeonManager.isInBossArea());
     }

@@ -15,6 +15,8 @@ import java.util.Set;
 // Ported from NiaMod's gui/component/SectionComponent.java
 final class NiaSection {
     private static final int MIN_HEADER_HEIGHT = 38;
+    private static final int FEATURE_HEADER_HEIGHT = 24;
+    private static final int CHEAT_COLOR = 0xFFFF5555;
     private static final int SETTING_START_X_OFFSET = 6;
     private static final int CONTENT_TOP_PADDING = 6;
     private static final int CONTENT_BOTTOM_PADDING = 6;
@@ -38,6 +40,9 @@ final class NiaSection {
     final MapConfigScreen.ToggleEntry master;
     final List<NiaRow> rows = new ArrayList<>();
     final boolean search;
+    /** One feature: its toggle sits in the header, its sub-options are the rows. */
+    final boolean feature;
+    private final NiaRow masterRow;
     private final Animation opening = new Animation(Animation.Easing.EASE_OUT_EXPO, 200);
     private final Animation settingOpacity = new Animation(Animation.Easing.LINEAR, 100);
     private final Animation hover = new Animation(Animation.Easing.LINEAR, 50);
@@ -53,11 +58,18 @@ final class NiaSection {
     private final NiaRow[] parents = new NiaRow[8];
 
     NiaSection(NiaConfigScreen s, String key, String title, String description, MapConfigScreen.ToggleEntry master, boolean search) {
+        this(s, key, title, description, master, search, false);
+    }
+
+    NiaSection(NiaConfigScreen s, String key, String title, String description, MapConfigScreen.ToggleEntry master,
+               boolean search, boolean feature) {
         this.s = s;
         this.key = key;
-        this.title = title;
+        this.feature = feature;
+        this.title = feature && master != null && master.isCheat() ? "⚠ " + title : title;
         this.description = description;
         this.master = master;
+        this.masterRow = feature && master != null ? NiaRow.of(s, master) : null;
         this.search = search;
         this.expanded = search || EXPANDED.contains(key);
         opening.setValue(MIN_HEADER_HEIGHT);
@@ -122,13 +134,15 @@ final class NiaSection {
         int textW = headerTextWidth();
         if (textW != linesFor) {
             titleLines = NiaRender.wrap(font, title, textW);
-            descLines = NiaRender.wrap(font, description, textW);
+            descLines = feature ? List.of() : NiaRender.wrap(font, description, textW);
             linesFor = textW;
         }
         int th = textHeight(font, titleLines.size());
         int dh = textHeight(font, descLines.size());
         int gap = th > 0 && dh > 0 ? HEADER_TITLE_DESC_GAP : 0;
-        headerHeight = Math.max(MIN_HEADER_HEIGHT, HEADER_TOP_PADDING + th + gap + dh + HEADER_BOTTOM_PADDING);
+        headerHeight = feature
+                ? Math.max(FEATURE_HEADER_HEIGHT, HEADER_TOP_PADDING + th + HEADER_BOTTOM_PADDING)
+                : Math.max(MIN_HEADER_HEIGHT, HEADER_TOP_PADDING + th + gap + dh + HEADER_BOTTOM_PADDING);
         updateVisibility();
         int childW = Math.max(1, width - SETTING_START_X_OFFSET * 2);
         for (NiaRow r : rows) {
@@ -174,7 +188,11 @@ final class NiaSection {
         }
 
         boolean enabled = master == null || master.value();
+        boolean gated = master != null && master.gateReason() != null;
+        if (feature && masterRow != null && headerHovered) s.hoverRow = masterRow;
         int nameColor = enabled ? (0xFF000000 | (theme.accentColor() & 0x00FFFFFF)) : 0xC8FFFFFF;
+        if (feature && master != null && master.isCheat()) nameColor = enabled ? CHEAT_COLOR : 0xC8FF8888;
+        if (gated) nameColor = 0x80FFFFFF;
         int ty = y + HEADER_TOP_PADDING;
         for (FormattedCharSequence line : titleLines) {
             g.text(font, line, x + HEADER_TEXT_X, ty, nameColor, false);
@@ -187,7 +205,16 @@ final class NiaSection {
         }
         if (master != null) {
             headerToggleAnim = NiaRow.Toggle.animate(headerToggleAnim, enabled);
-            NiaRow.Toggle.renderToggle(g, theme, headerSwitchX(), headerSwitchY(), headerToggleAnim, 255, false);
+            NiaRow.Toggle.renderToggle(g, theme, headerSwitchX(), headerSwitchY(), headerToggleAnim, 255, gated);
+        }
+        if (!search && !rows.isEmpty()) {
+            int ax = master != null ? headerSwitchX() - 14 : x + width - 18;
+            int ay = feature ? y + headerHeight / 2 : y + HEADER_TOP_PADDING + font.lineHeight / 2;
+            int c = 0xB4FFFFFF;
+            for (int i = 0; i < 4; i++) {
+                if (expanded) g.fill(ax - 4 + i, ay - 2 + i, ax + 4 - i, ay - 1 + i, c);
+                else g.fill(ax - 2 + i, ay - 4 + i, ax - 1 + i, ay + 4 - i, c);
+            }
         }
 
         if (total <= headerHeight + 1) return;
@@ -218,7 +245,11 @@ final class NiaSection {
         if (!inClip(my)) return false;
         if (mx >= x && mx <= x + width && my >= y && my <= y + headerHeight) {
             mouseDown = true;
-            if (NiaRow.left(button) && master != null && NiaRow.Toggle.overSwitch(mx, my, headerSwitchX(), headerSwitchY())) {
+            // a feature card without sub-options toggles anywhere on the header
+            boolean onSwitch = master != null && (NiaRow.Toggle.overSwitch(mx, my, headerSwitchX(), headerSwitchY())
+                    || (feature && rows.isEmpty()));
+            if (NiaRow.left(button) && onSwitch) {
+                if (master.gateReason() != null) return true;
                 boolean v = !master.value();
                 master.writeValue(v);
                 TeslaMapsConfig.save();
@@ -254,6 +285,7 @@ final class NiaSection {
 
     private int headerTextWidth() {
         int right = master != null ? headerSwitchX() - HEADER_SWITCH_TEXT_GAP : x + width - HEADER_TEXT_X;
+        if (!search && !rows.isEmpty()) right -= 16;
         return Math.max(1, right - (x + HEADER_TEXT_X));
     }
 

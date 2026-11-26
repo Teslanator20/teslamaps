@@ -12,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
@@ -38,7 +37,6 @@ public final class FarmingStatsHud {
     private static final long[] times = new long[RING];
     private static int head, size;
     private static String counterKey = "";
-    private static double bps;
 
     private FarmingStatsHud() {}
 
@@ -49,21 +47,18 @@ public final class FarmingStatsHud {
                 .enabled(() -> cfg().farmingStatsHud)
                 .size(() -> Math.max(width, 110) + 4, () -> Math.max(lines.size(), 4) * LINE + 2)
                 .preview((g, mc, x, y, s) -> draw(g, mc, x, y, s, List.of("§6Cultivating: §f12,345,678",
-                        "§6Crops/min: §f1,950", "§6Yaw: §f-90.00 §6Pitch: §f3.00", "§6Contest Estimate: §e1,204,000"), 150));
+                        "§6Crops/min: §f1,950", "§6Contest Estimate: §e1,204,000"), 150));
         Feature.of("FarmingStatsHud").section("Garden").when(() -> cfg().farmingStatsHud)
                 .tick(FarmingStatsHud::tick)
                 .hudHiddenInInventory("farmingstatshud", FarmingStatsHud::render)
                 .config("Garden", b -> {
                     b.label("Farming HUD");
                     b.toggle("Farming HUD", () -> cfg().farmingStatsHud, v -> cfg().farmingStatsHud = v)
-                            .desc("Cultivating counter, crops per minute from the tool counter, yaw/pitch and a Jacob contest estimate. Move it in /tmap gui.")
-                            .tags("yaw", "pitch", "cultivating", "counter", "contest", "jacob");
+                            .desc("Cultivating counter, crops per minute from the tool counter and a Jacob contest estimate. Move it in /tmap gui.")
+                            .tags("cultivating", "counter", "contest", "jacob");
                     b.toggle("  Tool Counter", () -> cfg().farmingStatsCounter, v -> cfg().farmingStatsCounter = v);
                     b.toggle("  Crops Per Minute", () -> cfg().farmingStatsCropsMin, v -> cfg().farmingStatsCropsMin = v);
-                    b.toggle("  Blocks Per Second", () -> cfg().farmingStatsBps, v -> cfg().farmingStatsBps = v);
-                    b.toggle("  Yaw / Pitch", () -> cfg().farmingStatsYawPitch, v -> cfg().farmingStatsYawPitch = v);
                     b.toggle("  Contest Estimate", () -> cfg().farmingStatsContest, v -> cfg().farmingStatsContest = v);
-                    b.toggle("  Mouse Locked Hint", () -> cfg().farmingStatsMouseLock, v -> cfg().farmingStatsMouseLock = v);
                 });
     }
 
@@ -77,8 +72,7 @@ public final class FarmingStatsHud {
         TeslaMapsConfig c = cfg();
         long now = System.currentTimeMillis();
         long counter = readCounter(mc.player.getMainHandItem(), now);
-        if (++ticks % 10 == 0 && c.farmingStatsBps) bps = FarmSpeed.blocksPerSecond();
-        if (ticks % 2 != 0) return;
+        if (++ticks % 2 != 0) return;
 
         double cpm = cropsPerMinute(now);
         List<String> out = new ArrayList<>(6);
@@ -88,16 +82,10 @@ public final class FarmingStatsHud {
                     + String.format(Locale.ROOT, "%,d", counter));
         }
         if (c.farmingStatsCropsMin) out.add("§6Crops/min: §f" + String.format(Locale.ROOT, "%,.0f", cpm));
-        if (c.farmingStatsBps) out.add("§6Blocks/s: §f" + String.format(Locale.ROOT, "%.1f", bps));
-        if (c.farmingStatsYawPitch) {
-            out.add("§6Yaw: §f" + String.format(Locale.ROOT, "%.2f", Mth.wrapDegrees(mc.player.getYRot()))
-                    + " §6Pitch: §f" + String.format(Locale.ROOT, "%.2f", mc.player.getXRot()));
-        }
         if (c.farmingStatsContest) {
             String est = contestEstimate(now, cpm);
             if (est != null) out.add("§6Contest Estimate: §e" + est);
         }
-        if (c.farmingStatsMouseLock && FarmingSensitivity.blocksTurning()) out.add("§cMouse Locked");
         int w = 0;
         for (String s : out) w = Math.max(w, mc.font.width(s));
         width = w;

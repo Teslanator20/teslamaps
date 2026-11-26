@@ -45,8 +45,8 @@ public final class ReforgeStop {
     public static void register() {
         Feature.of("ReforgeStop").section("Inventory")
                 .config("Inventory", b -> {
-                    b.label("Reforge Stop");
-                    b.toggle("Reforge Stop", () -> cfg().reforgeStop, v -> cfg().reforgeStop = v)
+                    b.label("Stop At Wanted Reforge");
+                    b.toggle("Stop At Wanted Reforge", () -> cfg().reforgeStop, v -> cfg().reforgeStop = v)
                             .desc("Reforge menu / Hex: the reforge button does nothing once the item has a wanted reforge");
                     b.searchList("  Wanted Reforges", ReforgeStop::options,
                             id -> cfg().reforgeStopList.contains(id),

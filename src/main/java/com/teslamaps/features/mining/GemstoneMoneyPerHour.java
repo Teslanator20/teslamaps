@@ -47,7 +47,7 @@ public final class GemstoneMoneyPerHour {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        hud = HudEditElement.of("gemstoneMoney", "Gemstone Money per Hour").ctx(HudEditElement.HudCtx.MINING).section("Mining")
+        hud = HudEditElement.of("gemstoneMoney", "Gemstone Money Per Hour").ctx(HudEditElement.HudCtx.MINING).section("Mining")
                 .enabled(() -> cfg().gemstoneMoney)
                 .size(() -> TextHud.width(lines.isEmpty() ? SAMPLE : lines),
                         () -> TextHud.height((lines.isEmpty() ? SAMPLE : lines).size()))
@@ -59,8 +59,8 @@ public final class GemstoneMoneyPerHour {
                 .hud("gemstonemoney", GemstoneMoneyPerHour::render)
                 .config("Mining", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.label("Gemstone Money per Hour");
-                    b.toggle("Gemstone Money per Hour", () -> c.gemstoneMoney, v -> c.gemstoneMoney = v)
+                    b.label("Gemstone Money Per Hour");
+                    b.toggle("Gemstone Money Per Hour", () -> c.gemstoneMoney, v -> c.gemstoneMoney = v)
                             .desc("Coins/h while gemstone mining: Pristine procs plus rough gems into the sacks, converted to the tier you sell. /tmap gemstonemoney reset. Position in /tmap gui.")
                             .tags("gemstone", "gem", "money", "coins per hour", "pristine", "profit");
                     b.dropdown("  Sell As", TIERS, () -> c.gemstoneMoneyTier, v -> { c.gemstoneMoneyTier = v; rebuild(); });

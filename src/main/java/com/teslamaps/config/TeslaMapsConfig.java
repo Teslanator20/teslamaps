@@ -139,7 +139,7 @@ public class TeslaMapsConfig {
     public boolean dungeonBatTracers = false;   // Draw tracers to dungeon bats
     public boolean witherKeyESP = true;         // Highlight wither/blood keys
     public boolean keyTracers = true;           // Draw tracers to wither/blood keys
-    public boolean bossESP = true;             // Box the F7 wither bosses (Maxor/Storm/Goldor/Necron)
+    public boolean bossESP = false;            // retired, carried over to witherHighlight
     public boolean bossESPFilled = true;       // Filled box instead of outline for Boss ESP
     public boolean bossESPDepthCheck = false;   // Depth check on = respect walls; off = through walls
     public boolean corpseFinder = false;         // Legit corpse finder: only corpses seen in line of sight, no walls
@@ -199,7 +199,7 @@ public class TeslaMapsConfig {
     public boolean hideReviveStone = true;     // Hide Revive Stone drops
     public boolean hidePremiumFlesh = true;    // Hide Premium Flesh drops
     public boolean hideHealerOrbs = true;      // Hide healer DAMAGE/ABILITY/DEFENSE orbs
-    public boolean hideHealerFairy = true;     // Hide the healer fairy companion skull
+    public boolean hideHealerFairy = false;    // Hide the healer fairy companion skull
     public List<String> customESPMobs = new ArrayList<>();  // Custom mob names to highlight
     public List<String> customESPTracers = new ArrayList<>();  // Of those, which also get a tracer
     // per-entry colour, keyed by the lowercased entry; absent = colorESPCustom
@@ -216,6 +216,8 @@ public class TeslaMapsConfig {
     public float secretSoundVolume = 1.75f;      // Volume for secret found sound (0.0 - 4.0)
     public String secretSoundType = "NOTE_PLING";  // see SoundOptions.keys() for all options
     public float secretSoundPitch = 1.0f;        // Pitch for secret found sound (0.5 - 2.0)
+    public String secretSoundMode = "Normal";    // Normal / Rising Chime
+    public boolean dupMergeChatSounds = false;   // one-shot carry-over of merged chat/sound options done
     public boolean secretItemPickupSound = true; // Play the secret sound when picking up dungeon item drops
     public boolean secretClickHighlight = true;  // Flash clicked secret blocks green (worked) / red (locked chest)
     public boolean secretClickBats = false;      // also box killed secret bats
@@ -584,6 +586,22 @@ public class TeslaMapsConfig {
     public boolean chatFilterRareRewards = false; // Dungeon "RARE REWARD! X found ..."
     public boolean chatFilterSoloClass = false; // Solo class + class stat lines in dungeons
     public boolean chatFilterFairy = false; // Fairy lines in dungeons
+    public boolean chatFilterBlocksInWay = false; // "There are blocks in the way!" everywhere
+    public boolean chatFilterThornSpirits = false; // F4 Spirit Bear / Spirit Bow lines + [CROWD]
+    public boolean chatFilterPetLevelUp = false; // "Your X leveled up to level N!"
+    public boolean chatFilterClaimReminders = false; // unclaimed event rewards + accessories to claim
+    public boolean chatFilterAbilityUsed = false; // "Used X!" / "X is now available!"
+    public boolean chatFilterLoadout = false; // "You equipped Loadout N!"
+
+    public boolean petLevelTracker = false;      // pet leveling HUD: main + exp share pets, lvl/h, eta
+    public int petLevelTrackerX = 10;
+    public int petLevelTrackerY = 330;
+    public float petLevelTrackerScale = 1.0f;
+    public boolean healerFairyEsp = false;       // box around the healer fairy in dungeons
+    public com.teslamaps.render.EspStyle healerFairyStyle = new com.teslamaps.render.EspStyle("FFFF55FF");
+    public boolean configClassicCards = false;  // old config layout: one card per label block
+    public boolean petLevelTrackerBars = true;   // level progress bar under each pet
+    public boolean petLevelMilestone = false;    // title + sound at level 100 and max level
 
     public boolean infiniteChat = true;          // Keep full chat history (scroll back through everything)
     public boolean chromaPrefix = true;          // [TeslaMaps] chat prefix with animated fade
@@ -1047,6 +1065,7 @@ public class TeslaMapsConfig {
     public String vacuumBagItem = "Empty Vacuum Bag";  // Slot to click in the Pesthunter menu
     public int philipWarnSeconds = 60;              // Warn this long before the Philip buff runs out
     public boolean pestBuffWarning = false;         // Title + sound when the pest fortune buff expires
+    public boolean pestBuffCallButton = false;
     public String pestBuffSound = "NOTE_PLING";     // Sound for that warning
     public float pestBuffVolume = 1.5f;
     public boolean pestResumeAttack = false;        // After closing the loadout, tap the attack key
@@ -2442,6 +2461,7 @@ public class TeslaMapsConfig {
     public boolean petSlotLevelPercent = false;
     public boolean petExpTooltip = false;        // tooltip: progress to max + total xp
     public boolean petExpTooltipAlways = false;
+    public boolean petExpTooltipLevelXp = false;
     public boolean petFavorites = false;
     public int petFavoriteKey = -1;
     public String petFavoriteColor = "80FFAA00";
@@ -4599,6 +4619,8 @@ public class TeslaMapsConfig {
     public String reversePtMessage = "";
     public boolean highlightPartyOutside = false;
     public String highlightPartyColor = "55FFFF";
+    public boolean highlightPartyNames = false;
+    public float highlightPartyNameScale = 1.0f;
     public boolean posMessages = false;
     public boolean posMessagesOnlyDungeons = true;
     public boolean posMessagesOncePerWorld = false;
@@ -4907,6 +4929,7 @@ public class TeslaMapsConfig {
     public boolean removeGlowEffect = false;
     // w09-04-vis
     public boolean noReequipAnimation = false;
+    public String noReequipMode = "Only On Item Data Updates";
     public boolean hideItemCooldownOverlay = false;
     public boolean hideHotbarItemName = false;
     public boolean compactTabList = false;
@@ -5001,6 +5024,8 @@ public class TeslaMapsConfig {
     public String iHateDoorsWitherColor = "Black";
     public boolean iHateDoorsBlood = true;
     public String iHateDoorsBloodColor = "Red";
+    public boolean iHateDoorsBloodWalls = false;        // blood room stone brick walls drawn as glass
+    public String iHateDoorsBloodWallsColor = "Default";
     public boolean trajectories = false;
     public boolean trajBows = true;
     public boolean trajTerminator = true;
@@ -5207,6 +5232,8 @@ public class TeslaMapsConfig {
     public boolean hideArachneLootTags = false;
     public boolean colorParticleFix = false;
     public boolean customWitherCloak = false;
+    public String witherCloakCreepers = "Vanilla";
+    public boolean itemCooldownsMoved = false;
     public float witherCloakCount = 8f;
     public float witherCloakSpeed = 45f;
     public float witherCloakDistance = 1.2f;
@@ -5567,6 +5594,7 @@ public class TeslaMapsConfig {
     public boolean doubleSneakFix = false;
     public boolean ridingInputFix = false;
     public boolean oldCrouch = false;
+    public boolean oldCrouchCameraOnly = false;
     public boolean noSwimPose = false;
     // w06-07-qol
     public boolean callLinks = false;
@@ -6030,7 +6058,7 @@ public class TeslaMapsConfig {
     public int keyHudY = 215;
     public float keyHudScale = 1.0f;
     public boolean secretPickupHud = false;         // ticks until nearby secret items are pickable
-    public boolean secretPickupHudSpawnTick = true; // 20-tick secret spawn cycle above
+    public boolean secretPickupHudSpawnTick = false; // retired, carried over to secretTickTimer
     public boolean secretPickupBox = false;         // draw a colored box instead of the item
     public float secretPickupBoxSize = 1.0f;
     public int secretPickupHudX = 200;
@@ -6464,6 +6492,40 @@ public class TeslaMapsConfig {
     }
 
     static void normalize(TeslaMapsConfig c) {
+        if (c.secretSoundMode == null) c.secretSoundMode = "Normal";
+        if (!c.dupMergeChatSounds) {
+            c.dupMergeChatSounds = true;
+            if (c.secretChime) {
+                c.secretSound = true;
+                c.secretSoundMode = "Rising Chime";
+                if (c.secretChimeBat) c.secretSoundBatKill = true;
+                if (c.secretChimeItem) c.secretItemPickupSound = true;
+            }
+            c.secretChime = c.secretChimeBat = c.secretChimeItem = false;
+            if (c.muteAbilityCooldownSound) c.muteErrorSound = true;
+            c.muteAbilityCooldownSound = false;
+            if (c.dungeonFilterFull) {
+                if (c.dungeonFilterBoss) c.chatFilterBossAll = true;
+                if (c.dungeonFilterBuff) c.chatFilterBlessings = true;
+                if (c.dungeonFilterNotPossible) c.chatFilterBlocksInWay = true;
+                if (c.dungeonFilterAbility) c.chatFilterUltReady = c.chatFilterAbilityCooldown = c.chatFilterAoeDamage = true;
+            }
+            c.dungeonFilterBoss = c.dungeonFilterBuff = c.dungeonFilterNotPossible = false;
+            if (c.stashCompact) c.chatFilterStash = false;
+            if (c.chatFilterFriendJoin) c.compactJoinLeave = false;
+            if (c.chatCompactMining) c.nucleusChatFilter = true;
+            if (c.chatFilterWinterGift) c.giftSpamFilter = true;
+        }
+        if (c.ghostLootCounter) { c.ghostTracker = true; c.ghostLootCounter = false; }
+        if ("Diana".equals(c.profitTrackerPreset)) { c.profitTrackerPreset = "Auto"; c.mythoTracker = true; }
+        if (c.bossESP) { c.witherHighlight = true; c.bossESP = false; }
+        if (c.secretPickupHudSpawnTick) { if (c.secretPickupHud) c.secretTickTimer = true; c.secretPickupHudSpawnTick = false; }
+        if (c.secretPickupBox) { c.secretItemReadiness = true; c.secretPickupBox = false; }
+        if (c.witherCloakCreepers == null) c.witherCloakCreepers = "Vanilla";
+        if (c.customWitherCloak) { c.witherCloakCreepers = "Shields"; c.customWitherCloak = false; }
+        if (c.hideCloakCreepers) { if (!"Shields".equals(c.witherCloakCreepers)) c.witherCloakCreepers = "Hide"; c.hideCloakCreepers = false; }
+        if (c.kuudraSupplyDropOffs) { c.kuudraPileWaypoints = true; c.kuudraSupplyDropOffs = false; }
+        if (!c.itemCooldownsMoved) { c.itemCooldownsMoved = true; if (c.itemCooldowns) c.abilityCooldownShade = true; }
         if (c.petItemSymbols == null) c.petItemSymbols = new java.util.HashMap<>();
         c.petItemSymbols.values().removeIf(java.util.Objects::isNull);
         if (c.admSimSettings == null) c.admSimSettings = new java.util.LinkedHashMap<>();
@@ -6843,6 +6905,7 @@ public class TeslaMapsConfig {
         if (c.customGlint == null) c.customGlint = new java.util.HashMap<>();
         if (c.customGlintColor == null) c.customGlintColor = new java.util.HashMap<>();
         if (c.itemNumberTypes == null) c.itemNumberTypes = new java.util.ArrayList<>();
+        migrateMiscDuplicates(c);
         if (c.skillTrackerPauseSec == null) c.skillTrackerPauseSec = new java.util.HashMap<>();
         if (c.tabWidgetHudWidgets == null) c.tabWidgetHudWidgets = new java.util.ArrayList<>();
         if (c.perfHudTpsMode == null) c.perfHudTpsMode = "Average";
@@ -6862,6 +6925,73 @@ public class TeslaMapsConfig {
             if (!c.deployableFlux && !c.deployableLantern && !c.deployableUmbrella && !c.deployableBlackHole) {
                 c.deployableFlux = c.deployableLantern = c.deployableUmbrella = c.deployableBlackHole = true;
             }
+        }
+    }
+
+    private static void migrateMiscDuplicates(TeslaMapsConfig c) {
+        if (c.noReequipMode == null) c.noReequipMode = "Only On Item Data Updates";
+        if (c.itemAnimNoReequip) {
+            if (c.itemAnimations) { c.noReequipAnimation = true; c.noReequipMode = "Always"; }
+            c.itemAnimNoReequip = false;
+        }
+        if (c.legacyCrouchHeight) {
+            if (c.changeCrouch && !c.oldCrouch) { c.oldCrouch = true; c.oldCrouchCameraOnly = true; }
+            c.legacyCrouchHeight = false;
+        }
+        if (c.noNightVision) {
+            c.nightVisionControl = true;
+            c.nightVisionStrength = 0f;
+            c.noNightVision = false;
+        }
+        java.util.List<String> numbers = c.itemNumberTypes;
+        if (c.itemNumbers) {
+            if (numbers.contains("Star Count")) c.starsStackSize = true;
+            if (numbers.contains("Pet Level")) c.petSlotLevel = true;
+            if (numbers.contains("Minion Tier")) { c.menuSlotText = true; c.mstMinion = true; }
+            if (numbers.contains("Dungeon Potion Level")) { c.menuSlotText = true; c.mstPotion = true; }
+            if (numbers.contains("Collection Level") || numbers.contains("Bestiary Tier")) { c.menuSlotText = true; c.mstLevels = true; }
+        }
+        numbers.removeAll(java.util.List.of("Star Count", "Pet Level", "Minion Tier", "Dungeon Potion Level",
+                "Collection Level", "Bestiary Tier"));
+        if (c.dailyTimersCookie || c.dailyTimersGodPot || c.dailyTimersCakes) {
+            if (c.dailyTimers) {
+                if (c.dailyTimersCookie) { c.effectTimers = true; c.effectTimersCookie = true; }
+                if (c.dailyTimersGodPot) { c.effectTimers = true; c.effectTimersGodPot = true; }
+                if (c.dailyTimersCakes) c.centuryCakeTimer = true;
+            }
+            c.dailyTimersCookie = c.dailyTimersGodPot = c.dailyTimersCakes = false;
+        }
+        if (c.petFullXp) {
+            c.petExpTooltip = true;
+            c.petExpTooltipLevelXp = true;
+            c.petFullXp = false;
+        }
+        if (c.critterSpotESP) {
+            c.floorDrops = true;
+            c.critterSpotESP = false;
+        }
+        if (c.safariTeammateEsp) {
+            if (!c.highlightTeammates || !c.highlightPartyOutside) c.highlightPartyColor = c.safariTeammateColor;
+            c.highlightTeammates = true;
+            c.highlightPartyOutside = true;
+            if (c.safariTeammateNames) {
+                c.highlightPartyNames = true;
+                c.highlightPartyNameScale = c.safariTeammateNameScale;
+            }
+            c.safariTeammateEsp = false;
+        }
+        if (c.farmingFortunePhilipChat) {
+            c.pestBuffWarning = true;
+            c.pestBuffCallButton = true;
+            c.farmingFortunePhilipChat = false;
+        }
+        if (c.farmingStatsYawPitch || c.farmingStatsBps || c.farmingStatsMouseLock) {
+            if (c.farmingStatsHud) {
+                if (c.farmingStatsYawPitch) c.yawPitchHud = true;
+                if (c.farmingStatsBps) c.bpsDisplay = true;
+                if (c.farmingStatsMouseLock) c.farmingSensitivityHud = true;
+            }
+            c.farmingStatsYawPitch = c.farmingStatsBps = c.farmingStatsMouseLock = false;
         }
     }
 

@@ -74,14 +74,14 @@ public final class PartyCategory {
                 .desc("/pcheck shows the PB line of every party member, /gxp [player] the weekly guild EXP list, /ginfo [player] the guild data. Also /tmap pcheck|gxp|ginfo; the short forms need a rejoin after switching on");
         b.info("Key: /tmap apikey <key> (developer.hypixel.net)");
         b.toggle("Party Duplicate Alert", () -> config.partyDuplicateAlert, v -> config.partyDuplicateAlert = v);
-        b.toggle("  Dup: Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v);
-        b.toggle("  Dup: Announce to Party", () -> config.partyDuplicateMessage, v -> config.partyDuplicateMessage = v);
-        b.toggle("  Dup: Check Before Start + Title", () -> config.partyDuplicatePreStart, v -> config.partyDuplicatePreStart = v);
+        b.toggle("  Play Sound", () -> config.partyDuplicateSound, v -> config.partyDuplicateSound = v);
+        b.toggle("  Announce to Party", () -> config.partyDuplicateMessage, v -> config.partyDuplicateMessage = v);
+        b.toggle("  Check Before Start + Title", () -> config.partyDuplicatePreStart, v -> config.partyDuplicatePreStart = v);
         b.label("Auto Requeue");
         b.toggle("Auto Requeue (dungeon end)", () -> config.autoRequeue, v -> config.autoRequeue = v);
-        b.toggle("  Also after Kuudra", () -> config.requeueKuudra, v -> config.requeueKuudra = v).fresh()
+        b.toggle("  Also After Kuudra", () -> config.requeueKuudra, v -> config.requeueKuudra = v).fresh()
                 .desc("Requeues on KUUDRA DOWN / Elle's end line too. !dt or .dt [reason] cancels it with a REQUEUE CANCELLED title; leaving the instance first drops it");
-        b.slider("  Kuudra: Pause if Run Under (s, 0 = off)", 0f, 180f,
+        b.slider("  Kuudra: Pause If Run Under (s, 0 = off)", 0f, 180f,
                 () -> (float) config.requeueKuudraFastStop, v -> config.requeueKuudraFastStop = Math.round(v)).fresh();
         b.toggle("Requeue on Party \"r\"", () -> config.requeueOnPartyR, v -> config.requeueOnPartyR = v);
         b.slider("Requeue Delay (s)", 0f, 30f,

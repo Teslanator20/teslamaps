@@ -126,6 +126,16 @@ public final class PetStore {
         return out;
     }
 
+    /** Chat level-up for a stored pet: level is exact, the estimated xp is pulled into that level. */
+    static void setLevel(Pet p, int level) {
+        double lo = PetConstants.levelToXp(p.type, p.rarity, level);
+        double cost = PetConstants.costForLevel(p.type, p.rarity, level);
+        if (p.exp < lo || (cost > 0 && p.exp >= lo + cost)) p.exp = lo;
+        p.level = level;
+        if (!dirty) dirtySince = System.currentTimeMillis();
+        dirty = true;
+    }
+
     static void addExp(Pet p, double xp) {
         p.exp += xp;
         p.level = PetConstants.xpToLevel(p.type, p.rarity, p.exp);
@@ -135,7 +145,8 @@ public final class PetStore {
 
     public static void register() {
         Feature.of("PetStore").section("Skills")
-                .when(() -> TeslaMapsConfig.get().petOverlay || TeslaMapsConfig.get().expSharePetHighlight).tick(PetStore::tick);
+                .when(() -> TeslaMapsConfig.get().petOverlay || TeslaMapsConfig.get().expSharePetHighlight
+                        || TeslaMapsConfig.get().petLevelTracker).tick(PetStore::tick);
     }
 
     private static void ensure() {
@@ -189,10 +200,17 @@ public final class PetStore {
      * that type, else the stored pet of that type and rarity whose level is closest.
      */
     static Pet resolve(String internalName, String rarity, int level) {
+        return resolve(internalName, rarity, level, null);
+    }
+
+    /** egg: true = only a Golden Dragon below 100 (the egg), false = only 100+, null = any. */
+    static Pet resolve(String internalName, String rarity, int level, Boolean egg) {
         ensure();
         if (internalName == null) return null;
         Pet active = activeUuid == null ? null : pets.get(activeUuid);
-        if (active != null && internalName.equals(active.type) && (rarity == null || rarity.equals(active.rarity))) {
+        if (active != null && internalName.equals(active.type) && (rarity == null || rarity.equals(active.rarity))
+                && (egg == null || egg == (active.level < 100))
+                && (level <= 0 || Math.abs(active.level - level) <= 2)) {
             return active;
         }
         Pet best = null;
@@ -200,6 +218,7 @@ public final class PetStore {
         for (Pet p : pets.values()) {
             if (!internalName.equals(p.type)) continue;
             if (rarity != null && !rarity.equals(p.rarity)) continue;
+            if (egg != null && egg != (p.level < 100)) continue;
             int diff = level > 0 ? Math.abs(p.level - level) : 0;
             if (diff < bestDiff) {
                 best = p;
@@ -231,7 +250,8 @@ public final class PetStore {
             return;
         }
         if (title.equals("Exp Sharing")) {
-            if (TeslaMapsConfig.get().petOverlayExpShare || TeslaMapsConfig.get().expSharePetHighlight) readShare(cs);
+            if (TeslaMapsConfig.get().petOverlayExpShare || TeslaMapsConfig.get().expSharePetHighlight
+                    || TeslaMapsConfig.get().petLevelTracker) readShare(cs);
             return;
         }
         if (!MENU.matcher(title).matches()) return;

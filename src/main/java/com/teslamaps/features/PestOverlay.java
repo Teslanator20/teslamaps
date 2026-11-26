@@ -245,6 +245,7 @@ public class PestOverlay {
             // Ran out: warn and queue the refill for the next key press.
             philipWarned = false;
             PestRoutine.warnPhilip("§cPest Fortune expired", "§e/call philip");
+            PestRoutine.callPhilipButton();
             PestRoutine.onPhilipExpired();
         }
 

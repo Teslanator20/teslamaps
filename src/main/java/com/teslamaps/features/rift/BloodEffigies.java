@@ -59,7 +59,7 @@ public final class BloodEffigies {
                 .world(BloodEffigies::render)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.toggle("Blood Effigies", () -> c.riftEffigies, v -> c.riftEffigies = v)
+                    b.toggle("Blood Effigy Markers", () -> c.riftEffigies, v -> c.riftEffigies = v)
                             .desc("Stillgore Château: red \"Break Effigy #n!\" on standing effigies (from the scoreboard), yellow countdown when one respawns soon.");
                     b.slider("  Respawning Soon (min)", 1f, 15f, () -> (float) c.riftEffigiesSoonMin, v -> c.riftEffigiesSoonMin = Math.round(v));
                     b.toggle("  Show Unknown", () -> c.riftEffigiesUnknown, v -> c.riftEffigiesUnknown = v)

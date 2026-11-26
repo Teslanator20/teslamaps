@@ -39,7 +39,7 @@ public final class HideExCoopMembers {
         feature = Feature.of("HideExCoopMembers").when(() -> cfg().hideExCoopMembers)
                 .tick(HideExCoopMembers::tick)
                 .config("Tooltips & Value", b -> {
-                    b.toggle("Hide Ex-Coop Members in Collections", () -> cfg().hideExCoopMembers, v -> cfg().hideExCoopMembers = v)
+                    b.toggle("Hide Ex-Coop Members In Collections", () -> cfg().hideExCoopMembers, v -> cfg().hideExCoopMembers = v)
                             .desc("Removes former co-op members from Co-op Contributions. Open Historic Members once, or use /tmap excoop add|remove <name>.");
                     b.button("  Clear Ex-Coop List", () -> {
                         cfg().hiddenCoopMembers.clear();

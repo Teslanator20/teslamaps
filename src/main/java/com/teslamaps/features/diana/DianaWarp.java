@@ -57,7 +57,7 @@ public final class DianaWarp {
                 .serverChat(DianaWarp::onChat)
                 .config("Events", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.toggle("Nearest Warp", () -> c.dianaNearestWarp, v -> c.dianaNearestWarp = v)
+                    b.toggle("Diana Nearest Warp", () -> c.dianaNearestWarp, v -> c.dianaNearestWarp = v)
                             .desc("Shows \"Warp to X\" when a Hub warp saves enough walking to the guess or a shared rare mob; the key runs /warp X (/tmap gui)")
                             .tags("diana", "warp", "burrow", "nearest");
                     b.keybind("  Warp Key", () -> c.dianaWarpKey, v -> c.dianaWarpKey = v);

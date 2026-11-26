@@ -32,15 +32,18 @@ public class DragonESP {
         if (f == null || f.getLevel() != 7 || !DungeonManager.isInBossArea()) { bossColor = -1; return; }
         if (mc.level == null || mc.player == null) return;
 
-        withers.addAll(mc.level.getEntitiesOfClass(net.minecraft.world.entity.boss.wither.WitherBoss.class,
-                mc.player.getBoundingBox().inflate(60)));
+        if (LegitMode.blocksCheats()) return;
+        for (net.minecraft.world.entity.boss.wither.WitherBoss w : mc.level.getEntitiesOfClass(
+                net.minecraft.world.entity.boss.wither.WitherBoss.class, mc.player.getBoundingBox().inflate(60))) {
+            if (w.getInvulnerableTicks() <= 400) withers.add(w);
+        }
 
         bossColor = c.witherHighlightPerBoss ? colorFromBossbar(mc, c) : -1;
 
-        if (!c.witherHighlightGlow || LegitMode.blocksCheats() || mc.player.getY() <= 45) return;
+        if (!c.witherHighlightGlow || mc.player.getY() <= 45) return;
         int rgb = (bossColor != -1 ? bossColor : TeslaMapsConfig.parseColor(c.witherHighlightColor)) & 0xFFFFFF;
         for (net.minecraft.world.entity.boss.wither.WitherBoss w : withers) {
-            if (w.isInvisible() || w.getInvulnerableTicks() == 800) continue;
+            if (w.isInvisible()) continue;
             EntityGlow.mark(w, rgb);
         }
     }
@@ -71,12 +74,12 @@ public class DragonESP {
         // wither highlight only during the actual boss fight (boss arena = outside the room grid)
         boolean inBossArea = com.teslamaps.scanner.ComponentGrid.worldToGrid((int) mc.player.getX(), (int) mc.player.getZ()) == null;
         boolean glowing = c.witherHighlightGlow && !LegitMode.blocksCheats();
-        if (c.witherHighlight && inBossArea && !glowing) {
+        if (c.witherHighlight && inBossArea && !glowing && !LegitMode.blocksCheats()) {
             int wc = c.witherHighlightPerBoss && bossColor != -1 ? 0xFF000000 | bossColor
                     : TeslaMapsConfig.parseColor(c.witherHighlightColor);
             for (net.minecraft.world.entity.boss.wither.WitherBoss w : withers) {
-                if (w.isRemoved()) continue;
-                AABB wb = w.getBoundingBox();
+                if (w.isRemoved() || w.isInvisible()) continue;
+                AABB wb = ESPRenderer.lerpBox(w);
                 if (c.witherHighlightBox) ESPRenderer.drawFilledBox(matrices, wb, (wc & 0xFFFFFF) | 0x66000000, cameraPos);
                 else ESPRenderer.drawBoxOutline(matrices, wb, wc, 3.0f, cameraPos);
             }

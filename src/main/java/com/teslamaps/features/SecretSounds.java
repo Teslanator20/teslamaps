@@ -41,7 +41,7 @@ public class SecretSounds {
         long now = System.currentTimeMillis();
         if (now - lastBat > 300) {
             lastBat = now;
-            LoudSound.play(SoundOptions.resolve(c.secretSoundType), c.secretSoundVolume, c.secretSoundPitch);
+            SecretChime.playSecret();
         }
         return true;
     }

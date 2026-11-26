@@ -48,7 +48,7 @@ public final class KuudraBoss {
                             .desc("Kuudra's health, colored by how much is left");
                     b.dropdown("  HP Format", MODES, () -> c.kuuBossHpMode, v -> c.kuuBossHpMode = v)
                             .desc("Scaled = T5 shows 240M below 25k, Percent, or the raw 100k");
-                    b.toggle("  HP in World", () -> c.kuuBossHpWorld, v -> c.kuuBossHpWorld = v);
+                    b.toggle("  HP In World", () -> c.kuuBossHpWorld, v -> c.kuuBossHpWorld = v);
                     b.slider("  World Text Size", 1f, 8f, () -> c.kuuBossHpSize, v -> c.kuuBossHpSize = v, 1);
                     b.toggle("  HP HUD", () -> c.kuuBossHpHud, v -> c.kuuBossHpHud = v)
                             .desc("Move it in /tmap gui");

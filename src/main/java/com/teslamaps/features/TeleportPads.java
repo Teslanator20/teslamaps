@@ -26,7 +26,7 @@ public class TeleportPads {
                 .config("Render", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Private Island Teleport Pads");
-                    b.toggle("Compact Pad Names", () -> c.teleportPadCompactName, v -> c.teleportPadCompactName = v)
+                    b.toggle("Compact Teleport Pad Names", () -> c.teleportPadCompactName, v -> c.teleportPadCompactName = v)
                             .desc("\"Warp To X\" becomes \"X\", \"No Destination\" tags are hidden.")
                             .tags("teleport", "pad", "island");
                 });

@@ -72,7 +72,7 @@ public final class BroodmotherTracker {
                             .tags("broodmother", "spider", "nest");
                     b.toggle("  Countdown HUD", () -> c.broodmotherHud, v -> c.broodmotherHud = v)
                             .desc("Time until it spawns, estimated from the stage. Position in /tmap gui");
-                    b.toggle("  Stage Changes in Chat", () -> c.broodmotherChat, v -> c.broodmotherChat = v)
+                    b.toggle("  Stage Changes In Chat", () -> c.broodmotherChat, v -> c.broodmotherChat = v)
                             .desc("\"Broodmother: Dormant -> Soon. 6 minutes until it spawns!\"");
                     b.toggle("  Imminent Warning", () -> c.broodmotherImminent, v -> c.broodmotherImminent = v)
                             .desc("Sound + chat when it turns Imminent (60 s left)");

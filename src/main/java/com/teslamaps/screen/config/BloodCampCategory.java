@@ -12,9 +12,9 @@ public final class BloodCampCategory {
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.classFilter("Blood Camp: Only as Class", config.bloodCampClasses);
-        b.toggle("Move Timer HUD", () -> config.bloodCampMoveTimer, v -> config.bloodCampMoveTimer = v);
-        b.toggle("Move Message", () -> config.bloodCampMoveMessage, v -> config.bloodCampMoveMessage = v);
-        b.toggle("Party Move Message", () -> config.bloodCampPartyMessage, v -> config.bloodCampPartyMessage = v);
+        b.toggle("Blood Camp Move Timer", () -> config.bloodCampMoveTimer, v -> config.bloodCampMoveTimer = v);
+        b.toggle("Blood Camp Move Message", () -> config.bloodCampMoveMessage, v -> config.bloodCampMoveMessage = v);
+        b.toggle("Announce Move to Party", () -> config.bloodCampPartyMessage, v -> config.bloodCampPartyMessage = v);
         b.label("Self Alert (title + sound)");
         b.toggle("\"KILL BLOOD\" on Watcher move", () -> config.bloodCampMoveAlert, v -> config.bloodCampMoveAlert = v);
         b.soundDropdown("  Alert Sound",
@@ -22,7 +22,7 @@ public final class BloodCampCategory {
         b.slider("  Alert Volume", 0f, 20f,
                 () -> config.bloodCampMoveVolume, v -> config.bloodCampMoveVolume = v);
         b.label("Return to Blood Timer");
-        b.toggle("Return Timer", () -> config.bloodReturnTimer, v -> config.bloodReturnTimer = v);
+        b.toggle("Return to Blood Timer", () -> config.bloodReturnTimer, v -> config.bloodReturnTimer = v);
         b.slider("  Start Estimate (s)", 10f, 60f,
                 () -> (float) config.bloodReturnEstimate, v -> config.bloodReturnEstimate = Math.round(v));
         b.label("Spawn Boxes (Assist)");

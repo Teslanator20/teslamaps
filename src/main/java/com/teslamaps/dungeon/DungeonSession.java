@@ -74,7 +74,7 @@ public final class DungeonSession {
                     b.label("Dungeon Session");
                     b.toggle("Dungeon Session Counter", () -> cfg().dungeonSession, v -> cfg().dungeonSession = v)
                             .desc("Runs per floor with average time, Cata XP and XP/h since the first run, move it in /tmap gui");
-                    b.toggle("  Run Overview in Chat", () -> cfg().dungeonSessionOverview, v -> cfg().dungeonSessionOverview = v)
+                    b.toggle("  Run Overview In Chat", () -> cfg().dungeonSessionOverview, v -> cfg().dungeonSessionOverview = v)
                             .desc("One line after every run: floor, time, rank, session runs and XP/h");
                     b.toggle("  Fragment Counter", () -> cfg().dungeonSessionFrags, v -> cfg().dungeonSessionFrags = v)
                             .desc("Boss fragments picked up this session (counted from the inventory)");

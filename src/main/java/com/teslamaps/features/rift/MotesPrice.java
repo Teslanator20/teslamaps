@@ -44,7 +44,7 @@ public final class MotesPrice {
                 .serverChat(MotesPrice::onChat)
                 .config("Rift", b -> {
                     TeslaMapsConfig c = b.config();
-                    b.toggle("Motes Price in Tooltip", () -> c.riftMotesPrice, v -> c.riftMotesPrice = v)
+                    b.toggle("Motes Price In Tooltip", () -> c.riftMotesPrice, v -> c.riftMotesPrice = v)
                             .desc("In the Rift every item shows what the Motes NPC pays for it, +5% per McGrubber burger stack.");
                     b.slider("  McGrubber Stacks", 0f, 5f, () -> (float) c.riftMcGrubberStacks, v -> c.riftMcGrubberStacks = Math.round(v));
                     b.toggle("  Auto-Detect McGrubber Stacks", () -> c.riftMcGrubberAuto, v -> c.riftMcGrubberAuto = v)

@@ -61,7 +61,7 @@ public final class BacteHelper {
                     b.toggle("Bacte Tentacle Waypoints", () -> c.riftBacteTentacles, v -> c.riftBacteTentacles = v)
                             .desc("Red beacon on every ground tentacle with its HP left (x/4, x/3 in phase 4), hit count in phase 5")
                             .tags("rift", "bacte", "colosseum", "tentacle");
-                    b.toggle("Kill Zone Warning", () -> c.riftKillZoneWarning, v -> c.riftKillZoneWarning = v)
+                    b.toggle("Bacte Kill Zone Warning", () -> c.riftKillZoneWarning, v -> c.riftKillZoneWarning = v)
                             .desc("Title with a countdown when Bacte's arena kicks you out: \"Get back in the arena!\"")
                             .tags("rift", "bacte", "colosseum", "arena");
                     b.toggle("  Warning Sound", () -> c.riftKillZoneSound, v -> c.riftKillZoneSound = v);

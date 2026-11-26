@@ -25,7 +25,7 @@ public final class EasySuperboom {
         Feature.of("EasySuperboom").section("Auto").legit().when(() -> cfg().easySuperboom)
                 .tick(EasySuperboom::tick)
                 .config("Auto", b -> {
-                    b.toggle("Easy Superboom (pick block)", () -> cfg().easySuperboom, v -> cfg().easySuperboom = v).cheat()
+                    b.toggle("Easy Superboom (Pick Block)", () -> cfg().easySuperboom, v -> cfg().easySuperboom = v).cheat()
                             .desc("Middle click on a block in dungeons selects Superboom TNT from the hotbar and uses it");
                     b.slider("  Fixed Delay (ms)", 50f, 500f, () -> (float) cfg().easySuperboomDelay, v -> cfg().easySuperboomDelay = Math.round(v));
                     b.slider("  Random Extra Delay (ms)", 0f, 300f, () -> (float) cfg().easySuperboomRandom, v -> cfg().easySuperboomRandom = Math.round(v));

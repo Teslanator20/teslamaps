@@ -60,6 +60,8 @@ public class StarredMobESP {
     private static final List<AABB> bloodDoorBoxes = new ArrayList<>();
     private static final List<AABB> fairyDoorBoxes = new ArrayList<>();
 
+    public static List<AABB> witherDoorBoxes() { return witherDoorBoxes; }
+
     private static final List<Vec3> dungeonBatPositions = new ArrayList<>();
 
     private static boolean witherKeyPickedUp = false;
@@ -232,7 +234,10 @@ public class StarredMobESP {
     public static void tick() {
         starLinkActive = false;
         tagText.clear();
-        sniperTag.clear();
+        if (++sniperTicks >= 20) {
+            sniperTicks = 0;
+            sniperTag.clear();
+        }
         itemLabels.clear();
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || com.teslamaps.features.LegitMode.blocksCheats()) {
@@ -324,6 +329,7 @@ public class StarredMobESP {
 
         if (inDungeon && TeslaMapsConfig.get().doorESP && TeslaMapsConfig.get().doorEspClasses.allowsLocal()) {
             scanDoorPositions();
+            addMapDoors(mc);
         }
         if (inDungeon && TeslaMapsConfig.get().fairyDoorESP) {
             scanFairyDoors();
@@ -433,6 +439,32 @@ public class StarredMobESP {
 
     }
 
+    // second source: the map scanner's doors (same as the fairy door), for doors the block scan misses
+    private static void addMapDoors(Minecraft mc) {
+        if (mc.level == null || DungeonManager.isInBossArea()) return;
+        for (DoorRoute.Door door : DoorRoute.allDoors()) {
+            boolean wither = door.type() == com.teslamaps.map.DoorType.WITHER;
+            boolean blood = door.type() == com.teslamaps.map.DoorType.BLOOD;
+            if (!wither && !blood) continue;
+            double x = door.x(), z = door.z();
+            Block here = mc.level.getBlockState(BlockPos.containing(x, 70, z)).getBlock();
+            if (here != (wither ? Blocks.COAL_BLOCK : Blocks.DYED_TERRACOTTA.red())) continue; // already open
+            boolean alongZ = false;
+            for (int[] ca : door.a().getComponents())
+                for (int[] cb : door.b().getComponents())
+                    if (ca[1] == cb[1] && Math.abs(ca[0] - cb[0]) == 1) alongZ = true;
+            AABB box = alongZ
+                    ? new AABB(x - 0.5, 69, z - 1.5, x + 0.5, 73, z + 1.5)
+                    : new AABB(x - 1.5, 69, z - 0.5, x + 1.5, 73, z + 0.5);
+            List<AABB> list = wither ? witherDoorBoxes : bloodDoorBoxes;
+            boolean known = false;
+            for (AABB b : list) if (b.getCenter().distanceToSqr(box.getCenter()) < 9) { known = true; break; }
+            if (known) continue;
+            list.add(box);
+            (wither ? witherDoorPositions : bloodDoorPositions).add(box.getCenter());
+        }
+    }
+
     private static boolean fairyVisited = false;
 
     // the fairy room's entrance = the door it is reached through from the entrance room
@@ -449,9 +481,14 @@ public class StarredMobESP {
         if (fairy == DungeonManager.getCurrentRoom()) fairyVisited = true;
         if (fairyVisited) return;
 
-        DoorRoute.Door door = DoorRoute.parentDoor(fairy);
-        if (door == null || door.type() == com.teslamaps.map.DoorType.WITHER) return;
+        // from the player's room first: needs a shorter scanned door chain than from the entrance
+        DoorRoute.Door door = DoorRoute.doorToward(DungeonManager.getCurrentRoom(), fairy);
+        if (door == null) door = DoorRoute.parentDoor(fairy);
+        if (door == null) return;
         double x = door.x(), z = door.z();
+        // a wither door stays WITHER in the scanner after it fell, so ask the world
+        if (door.type() == com.teslamaps.map.DoorType.WITHER
+                && !mc.level.getBlockState(BlockPos.containing(x, 69, z)).isAir()) return;
         boolean alongZ = false;
         for (int[] ca : door.a().getComponents())
             for (int[] cb : door.b().getComponents())
@@ -687,7 +724,7 @@ public class StarredMobESP {
         for (int i = 0; i < patterns.length; i++) {
             // a blank entry (a fresh row in the list screen) would match every entity
             if (patterns[i].isEmpty()) continue;
-            if (lowerName.contains(patterns[i])) {
+            if (wordMatch(lowerName, patterns[i])) {
                 return i < customMobs.size() ? customMobs.get(i) : null;
             }
         }
@@ -722,13 +759,24 @@ public class StarredMobESP {
         return TeslaMapsConfig.parseColor(hex == null ? config.colorESPCustom : hex) | 0xFF000000;
     }
 
+    /** Whole-word match: "bat" hits "Dungeon Bat", not "Combat". */
+    private static boolean wordMatch(String name, String pattern) {
+        for (int at = name.indexOf(pattern); at >= 0; at = name.indexOf(pattern, at + 1)) {
+            int end = at + pattern.length();
+            boolean startOk = at == 0 || !Character.isLetterOrDigit(name.charAt(at - 1));
+            boolean endOk = end == name.length() || !Character.isLetterOrDigit(name.charAt(end));
+            if (startOk && endOk) return true;
+        }
+        return false;
+    }
+
     private static boolean matchesCustomTracer(String entityName) {
         List<String> tracers = TeslaMapsConfig.get().customESPTracers;
         if (tracers == null || tracers.isEmpty()) return false;
 
         String lowerName = entityName.toLowerCase();
         for (String pattern : lowered(tracers, true)) {
-            if (lowerName.contains(pattern)) return true;
+            if (wordMatch(lowerName, pattern)) return true;
         }
         return false;
     }
@@ -817,7 +865,11 @@ public class StarredMobESP {
         return false;
     }
 
+    private static int sniperTicks;
+
     private static boolean hasSniperArmorStand(Entity entity) {
+        if (!TeslaMapsConfig.get().sniperESP || !DungeonManager.isInDungeon()
+                || entity instanceof ArmorStand || entity instanceof ItemEntity) return false;
         Boolean cached = sniperTag.get(entity);
         if (cached != null) return cached;
         boolean r = scanSniperArmorStand(entity);
@@ -1193,7 +1245,10 @@ public class StarredMobESP {
                     tracerColor = isWither ? TRACER_DOOR : 0xFFFF0000;
                 }
 
-                ESPRenderer.drawESPBox(matrices, box, boxColor, cameraPos);
+                int rgb = boxColor & 0xFFFFFF;
+                AABB shown = box.inflate(0.02);
+                ESPRenderer.drawFilledBox(matrices, shown, 0x78000000 | rgb, cameraPos);
+                ESPRenderer.drawBoxOutline(matrices, shown, 0xFF000000 | rgb, 3.5f, cameraPos);
                 if (drawDoorTracers) {
                     Vec3 doorCenter = box.getCenter();
                     ESPRenderer.drawTracerFromCamera(matrices, doorCenter, tracerColor, cameraPos);
@@ -1203,7 +1258,8 @@ public class StarredMobESP {
 
         if (TeslaMapsConfig.get().fairyDoorESP) {
             for (AABB box : fairyDoorBoxes) {
-                ESPRenderer.drawESPBox(matrices, box, 0xFFFF69B4, cameraPos); // fairy pink
+                ESPRenderer.drawFilledBox(matrices, box, 0x40FF69B4, cameraPos);
+                ESPRenderer.drawBoxOutline(matrices, box, 0xB0FF69B4, 2.0f, cameraPos);
             }
         }
 

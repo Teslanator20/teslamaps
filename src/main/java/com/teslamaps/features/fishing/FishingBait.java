@@ -51,7 +51,7 @@ public final class FishingBait {
                 .config("Fishing", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Bait");
-                    b.toggle("Bait Display", () -> c.fishingBaitDisplay, v -> c.fishingBaitDisplay = v)
+                    b.toggle("Fishing Bait Display", () -> c.fishingBaitDisplay, v -> c.fishingBaitDisplay = v)
                             .desc("With a rod in hand: current bait and how many are left, or No Bait. Position in /tmap gui")
                             .tags("bait", "fishing");
                     b.toggle("  Bait Changed Title", () -> c.fishingBaitChanged, v -> c.fishingBaitChanged = v)

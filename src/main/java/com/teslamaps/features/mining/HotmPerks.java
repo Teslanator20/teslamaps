@@ -51,7 +51,7 @@ public class HotmPerks {
                             .desc("Tints enabled and disabled perks in the Heart of the Mountain menu.");
                     b.color("  Enabled Color", () -> c.colorHotmEnabled, v -> c.colorHotmEnabled = v);
                     b.color("  Disabled Color", () -> c.colorHotmDisabled, v -> c.colorHotmDisabled = v);
-                    b.toggle("Tokens On Heart Item", () -> c.hotmTokenStack, v -> c.hotmTokenStack = v)
+                    b.toggle("HotM Tokens On Heart Item", () -> c.hotmTokenStack, v -> c.hotmTokenStack = v)
                             .desc("Unused Tokens of the Mountain on the heart item.");
                     b.toggle("Sky Mall Display", () -> c.hotmSkyMallDisplay, v -> c.hotmSkyMallDisplay = v)
                             .desc("HUD line with today's Sky Mall buff, read from chat and the HotM menu.")

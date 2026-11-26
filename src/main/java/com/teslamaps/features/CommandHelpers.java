@@ -52,7 +52,7 @@ public final class CommandHelpers {
         Feature.of("CommandHelpers").section("Chat")
                 .config("Chat", b -> {
                     b.label("Command Helpers");
-                    b.toggle("Command Fixes", () -> cfg().commandHelpers, v -> cfg().commandHelpers = v)
+                    b.toggle("SkyBlock Command Fixes", () -> cfg().commandHelpers, v -> cfg().commandHelpers = v)
                             .desc("Small fixes for commands typed on SkyBlock.");
                     b.toggle("  /warp is -> /is", () -> cfg().cmdWarpIs, v -> cfg().cmdWarpIs = v);
                     b.toggle("  /viewrecipe Lowercase & Spaces", () -> cfg().cmdViewRecipe, v -> cfg().cmdViewRecipe = v)

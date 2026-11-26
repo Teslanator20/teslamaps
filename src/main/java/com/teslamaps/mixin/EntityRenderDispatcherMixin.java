@@ -46,7 +46,6 @@ public class EntityRenderDispatcherMixin {
                 || com.teslamaps.features.FishingHookDisplay.shouldHide(entity)
                 || com.teslamaps.features.fishing.FishingTweaks.shouldHide(entity)
                 || com.teslamaps.features.DungeonCleanEnd.shouldHide(entity)
-                || com.teslamaps.features.SecretPickupHud.shouldHide(entity)
                 || com.teslamaps.features.MinionFeatures.shouldHide(entity)
                 || com.teslamaps.features.RenderHiders.shouldHide(entity)
                 || com.teslamaps.features.CommonSeaCreatureHider.shouldHide(entity)

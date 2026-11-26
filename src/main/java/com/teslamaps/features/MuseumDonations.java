@@ -47,7 +47,8 @@ public final class MuseumDonations {
 
     public static void register() {
         feature = Feature.of("MuseumDonations")
-                .when(() -> cfg().museumTooltip || cfg().museumSlotMarker || cfg().salvageMuseumGuard)
+                .when(() -> cfg().museumTooltip || cfg().museumSlotMarker || cfg().salvageMuseumGuard
+                        || cfg().museumHelper && cfg().section("Inventory"))
                 .tick(MuseumDonations::tick)
                 .config("Tooltips & Value", b -> {
                     b.label("Museum");

@@ -12,8 +12,8 @@ public final class CritterSafariCategory {
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Run Tracker");
-        b.toggle("Track Run", () -> config.safariTracker, v -> config.safariTracker = v);
-        b.toggle("Show HUD", () -> config.safariHud, v -> config.safariHud = v);
+        b.toggle("Safari Run Tracker", () -> config.safariTracker, v -> config.safariTracker = v);
+        b.toggle("Safari Run HUD", () -> config.safariHud, v -> config.safariHud = v);
         b.toggle("  Panel Style", () -> config.safariHudPanel, v -> config.safariHudPanel = v);
         b.dropdown("  Show Where", com.teslamaps.safari.SafariTracker.SHOW_WHERE,
                 () -> config.safariShowWhere, v -> config.safariShowWhere = v).fresh()
@@ -43,7 +43,7 @@ public final class CritterSafariCategory {
                 .desc("Hides the SAFARI REWARD SUMMARY block and posts one line instead: SAFARI +14 Shards · +80 Essence · +24.4k Hunting Exp")
                 .tags("chat", "compact", "summary", "reward");
         b.label("Missing Panel");
-        b.toggle("Missing Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
+        b.toggle("Missing Critters Panel", () -> config.safariMissingPanel, v -> config.safariMissingPanel = v);
         b.info("What the biome you stand in still needs: quota, tries, walls");
         b.toggle("  Count Critters In Sight", () -> config.safariMissingNear, v -> config.safariMissingNear = v);
         b.info("\"n near\" only counts critters with a free line of sight");
@@ -52,7 +52,7 @@ public final class CritterSafariCategory {
         b.toggle("  Mounds Broken Counter", () -> config.safariMoundCounter, v -> config.safariMoundCounter = v).fresh()
                 .desc("Cavern: \"Mounds broken 7 → 1 Rockmite\" for this run").tags("mound", "rockmite");
         b.label("Checklist");
-        b.toggle("Show Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
+        b.toggle("Critter Checklist", () -> config.safariChecklist, v -> config.safariChecklist = v);
         b.dropdown("  Biome",
                 new String[] { "Auto", "Cavern", "Forest", "Haunted", "Icy", "All" },
                 () -> config.safariChecklistBiome, v -> config.safariChecklistBiome = v);
@@ -132,14 +132,13 @@ public final class CritterSafariCategory {
         b.color("    Perch Color", () -> config.colorHideonwallPerch, v -> config.colorHideonwallPerch = v).fresh();
         b.color("    Found Color", () -> config.colorHideonwallFound, v -> config.colorHideonwallFound = v).fresh();
         b.toggle("Filled Boxes", () -> config.safariFilled, v -> config.safariFilled = v);
-        b.toggle("Legit Mode (Depth Check)", () -> config.safariLegitMode, v -> config.safariLegitMode = v);
+        b.toggle("No ESP Through Walls", () -> config.safariLegitMode, v -> config.safariLegitMode = v);
         b.info("Nothing drawn through walls");
         b.toggle("Bee Nest ESP", () -> config.safariNestESP, v -> config.safariNestESP = v);
         b.toggle("Scrappy Fish Highlight", () -> config.safariScrappyFish, v -> config.safariScrappyFish = v).fresh()
                 .desc("The fish you feed to Scrappy (Cavern)").tags("scrappy", "fish");
         b.toggle("  Stop When Scrappy Caught", () -> config.safariScrappyFishStopCaught, v -> config.safariScrappyFishStopCaught = v).fresh();
         b.fresh(() -> b.espStyle("Fish", () -> config.safariScrappyFishStyle));
-        b.toggle("Floor Spot ESP", () -> config.critterSpotESP, v -> config.critterSpotESP = v);
         b.toggle("Recatch Spot", () -> config.safariRecatchSpot, v -> config.safariRecatchSpot = v);
         b.info("Marks where an escaped critter comes back");
         b.toggle("Hidden Critter Walls", () -> config.safariWallMarkers, v -> config.safariWallMarkers = v);
@@ -149,7 +148,6 @@ public final class CritterSafariCategory {
         b.toggle("  Labels With Distance", () -> config.safariWallLabels, v -> config.safariWallLabels = v);
         b.color("Sparkling Color", () -> config.colorSafariSparkling, v -> config.colorSafariSparkling = v);
         b.color("Bee Nest Color", () -> config.colorSafariNest, v -> config.colorSafariNest = v);
-        b.color("Floor Spot Color", () -> config.colorCritterSpot, v -> config.colorCritterSpot = v);
         b.color("Recatch Spot Color", () -> config.colorSafariRecatch, v -> config.colorSafariRecatch = v);
         b.color("Wall Color", () -> config.colorSafariWall, v -> config.colorSafariWall = v);
         b.color("Troodon Wall Color",

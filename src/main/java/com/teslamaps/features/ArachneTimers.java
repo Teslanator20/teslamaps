@@ -82,8 +82,8 @@ public final class ArachneTimers {
                 .tags("arachne", "spider", "calling", "crystal");
         b.toggle("  Status HUD", () -> c.arachneStatusHud, v -> c.arachneStatusHud = v)
                 .desc("Ready / Spawning / Spawned, size and remaining brood. Position in /tmap gui");
-        b.toggle("  Countdown at Altar", () -> c.arachneAltarText, v -> c.arachneAltarText = v);
-        b.toggle("  Kill Timer in Chat", () -> c.arachneKillTimer, v -> c.arachneKillTimer = v)
+        b.toggle("  Countdown At Altar", () -> c.arachneAltarText, v -> c.arachneAltarText = v);
+        b.toggle("  Kill Timer In Chat", () -> c.arachneKillTimer, v -> c.arachneKillTimer = v)
                 .desc("\"Arachne took X seconds to kill.\" after ARACHNE DOWN");
         b.toggle("  Hide Brood Nametags", () -> c.arachneHideBroodTags, v -> c.arachneHideBroodTags = v);
     }

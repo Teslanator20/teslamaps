@@ -43,7 +43,7 @@ public final class UserSounds {
                 .config("Sounds", b -> {
                     var c = b.config();
                     b.label("Sound Picker");
-                    b.toggle("Own Sound Files", () -> c.userSoundFolder, v -> c.userSoundFolder = v)
+                    b.toggle("Custom Sound Files", () -> c.userSoundFolder, v -> c.userSoundFolder = v)
                             .desc("Every .ogg / .wav in config/teslamaps/sounds shows up in each sound picker (FILE:name). "
                                     + "The picker also gets \"Sound ID\" to type any vanilla sound id and \"Folder\" to open the folder.")
                             .tags("custom sound", "ogg", "wav", "sound file");

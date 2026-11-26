@@ -25,10 +25,6 @@ public class BlindnessMixin {
             }
         }
 
-        if (TeslaMapsConfig.get().noNightVision && effect == MobEffects.NIGHT_VISION) {
-            cir.setReturnValue(false);
-        }
-
         if (TeslaMapsConfig.get().noNausea) {
             if (effect == MobEffects.NAUSEA) {
                 cir.setReturnValue(false);

@@ -94,11 +94,11 @@ public final class ChocoStrays {
     private static TeslaMapsConfig cfg() { return TeslaMapsConfig.get(); }
 
     public static void register() {
-        timerHud = HudEditElement.of("cfStrayTimer", "Stray Timer").section(ChocoData.CATEGORY)
+        timerHud = HudEditElement.of("cfStrayTimer", "Stray Rabbit Timer").section(ChocoData.CATEGORY)
                 .enabled(() -> cfg().cfStrayTimer)
                 .size(() -> TextHud.width(TIMER_SAMPLE), () -> TextHud.height(2))
                 .preview((g, mc, x, y, s) -> TextHud.draw(g, mc, x, y, s, TIMER_SAMPLE, TextHud.width(TIMER_SAMPLE)));
-        trackerHud = HudEditElement.of("cfStrayTracker", "Stray Tracker").section(ChocoData.CATEGORY)
+        trackerHud = HudEditElement.of("cfStrayTracker", "Stray Rabbit Tracker").section(ChocoData.CATEGORY)
                 .enabled(() -> cfg().cfStrayTracker)
                 .size(() -> trackerLines.isEmpty() ? TextHud.width(TRACKER_SAMPLE) : trackerWidth,
                         () -> TextHud.height(trackerLines.isEmpty() ? TRACKER_SAMPLE.size() : trackerLines.size()))
@@ -120,11 +120,11 @@ public final class ChocoStrays {
                     b.dropdown("    Flash From", LEVELS, () -> c.cfStrayFlashLevel, v -> c.cfStrayFlashLevel = v);
                     b.toggle("  Block Closing While A Stray Is Up", () -> c.cfStrayBlockClose, v -> c.cfStrayBlockClose = v)
                             .desc("Esc, the inventory key and the Close button do nothing while a stray waits. Hold Shift to close anyway.");
-                    b.toggle("Stray Timer", () -> c.cfStrayTimer, v -> c.cfStrayTimer = v)
+                    b.toggle("Stray Rabbit Timer", () -> c.cfStrayTimer, v -> c.cfStrayTimer = v)
                             .desc("30 s countdown in the factory after you found an egg, restarts when you close the menu. Position in /tmap gui");
                     b.slider("  Ding Below (s)", 0, 15, () -> (float) c.cfStrayTimerDing, v -> c.cfStrayTimerDing = Math.round(v));
                     b.toggle("  Block Closing While Running", () -> c.cfStrayTimerBlockClose, v -> c.cfStrayTimerBlockClose = v);
-                    b.toggle("Stray Tracker", () -> c.cfStrayTracker, v -> c.cfStrayTracker = v)
+                    b.toggle("Stray Rabbit Tracker", () -> c.cfStrayTracker, v -> c.cfStrayTracker = v)
                             .desc("Caught strays per rarity and their chocolate, this session and in total. Shown in the factory, position in /tmap gui");
                     b.button("  Reset Stray Tracker", () -> {
                         ChocoData.State s = ChocoData.state();

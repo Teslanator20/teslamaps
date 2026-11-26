@@ -39,11 +39,11 @@ public final class KuudraQol {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Kuudra QoL");
-                    b.toggle("DPS Helper", () -> c.kuudraDpsHelper, v -> c.kuudraDpsHelper = v)
+                    b.toggle("Kuudra DPS Helper", () -> c.kuudraDpsHelper, v -> c.kuudraDpsHelper = v)
                             .desc("Hides Kuudra in phase 3 while you hold an Aspect or an etherwarp item, so it does not block your view");
-                    b.toggle("Cannon Hitbox", () -> c.kuudraCannonBox, v -> c.kuudraCannonBox = v)
+                    b.toggle("Kuudra Cannon Hitbox", () -> c.kuudraCannonBox, v -> c.kuudraCannonBox = v)
                             .desc("Frames the LEFT-CLICK cannons in phases 2 and 3");
-                    b.toggle("Block Menu In Phase 1", () -> c.kuudraMenuBlock, v -> c.kuudraMenuBlock = v)
+                    b.toggle("Block Menu Item In Phase 1", () -> c.kuudraMenuBlock, v -> c.kuudraMenuBlock = v)
                             .desc("Right-clicking the SkyBlock Menu (or Elle's item) in hotbar slot 9 does nothing during phase 1");
                 });
         UseItemCallback.EVENT.register((player, level, hand) -> {

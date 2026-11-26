@@ -34,10 +34,10 @@ public final class HuntingBoxSlots {
                 .config("Shards", b -> {
                     TeslaMapsConfig c = b.config();
                     b.label("Hunting Box Slots");
-                    b.toggle("Owned Amount In Slot", () -> c.huntingBoxSlotCount, v -> c.huntingBoxSlotCount = v)
+                    b.toggle("Hunting Box Owned Amount", () -> c.huntingBoxSlotCount, v -> c.huntingBoxSlotCount = v)
                             .desc("Hunting Box: how many of each shard you hold, in the slot corner (10k+ shortened)")
                             .tags("hunting box", "shard", "count", "owned");
-                    b.toggle("Sell Price In Tooltip", () -> c.huntingBoxPriceTooltip, v -> c.huntingBoxPriceTooltip = v)
+                    b.toggle("Hunting Box Sell Price", () -> c.huntingBoxPriceTooltip, v -> c.huntingBoxPriceTooltip = v)
                             .desc("Hunting Box tooltip: bazaar instant-sell value of the stack, hold Shift for the price per shard")
                             .tags("hunting box", "shard", "price", "tooltip");
                 });

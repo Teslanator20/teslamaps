@@ -41,7 +41,7 @@ public final class FossilExcavatorHelper {
                             .desc("While digging in the Fossil Excavator, the Dirt tooltip no longer covers the grid.")
                             .tags("excavator", "fossil", "dirt", "tooltip");
                     b.toggle("  Hide All Tooltips", () -> c.excavatorHideAllTooltips, v -> c.excavatorHideAllTooltips = v);
-                    b.toggle("Get Scrap from Sacks Button", () -> c.scrapGfsButton, v -> c.scrapGfsButton = v)
+                    b.toggle("Get Scrap From Sacks Button", () -> c.scrapGfsButton, v -> c.scrapGfsButton = v)
                             .desc("Button next to the Fossil Excavator start menu that runs /gfs Suspicious Scrap. Optional Bazaar button when the sacks are empty.")
                             .tags("scrap", "suspicious scrap", "gfs", "sacks", "excavator", "fossil");
                     b.slider("  Fetch Amount", 1f, 2048f, () -> (float) c.scrapGfsAmount, v -> c.scrapGfsAmount = Math.round(v), 0);

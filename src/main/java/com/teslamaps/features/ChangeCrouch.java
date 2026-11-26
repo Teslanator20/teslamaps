@@ -22,35 +22,39 @@ public final class ChangeCrouch {
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Crouch");
-                    b.toggle("Change Crouch", () -> c.changeCrouch, v -> c.changeCrouch = v)
+                    b.toggle("Crouch Camera Tweaks", () -> c.changeCrouch, v -> c.changeCrouch = v)
                             .desc("Visual only: camera changes while sneaking.");
                     b.toggle("  Instant Crouch", () -> c.instantCrouch, v -> c.instantCrouch = v)
                             .desc("No camera animation when you start or stop sneaking");
-                    b.toggle("  1.8.9 Crouch Height", () -> c.legacyCrouchHeight, v -> c.legacyCrouchHeight = v)
-                            .desc("Camera only: sneak eye height 1.54, except in the Hub, Park and Galatea. Hide > 1.8 Sneak Height also keeps the hitbox.");
                 });
+    }
+
+    public static boolean cameraOnlyOldCrouch() {
+        TeslaMapsConfig c = cfg();
+        return c.oldCrouch && c.oldCrouchCameraOnly;
     }
 
     private static boolean modernArea() {
         String a = SkyblockUtils.getArea();
-        return a.isEmpty() || a.equalsIgnoreCase("Hub") || a.equalsIgnoreCase("The Park") || a.equalsIgnoreCase("Galatea");
+        return a.equalsIgnoreCase("The Park") || a.equalsIgnoreCase("Galatea");
     }
 
     private static float eyeHeight(Entity e) {
-        if (cfg().legacyCrouchHeight && e.getPose() == Pose.CROUCHING && !modernArea()) return 1.54f;
+        if (cameraOnlyOldCrouch() && e.getPose() == Pose.CROUCHING && !modernArea()) return 1.54f;
         return e.getEyeHeight();
     }
 
     /** From CameraCrouchMixin after Camera.tick; heights = {old, new}, false keeps vanilla. */
     public static boolean apply(Entity entity, float[] heights) {
         Minecraft mc = Minecraft.getInstance();
-        if (feature == null || !cfg().changeCrouch || entity == null || entity != mc.player || !feature.active()) {
+        boolean tweaks = feature != null && cfg().changeCrouch && feature.active();
+        if (!tweaks && !cameraOnlyOldCrouch() || entity == null || entity != mc.player) {
             wasCrouching = false;
             return false;
         }
         float eye = eyeHeight(entity);
         boolean crouching = entity.getPose() == Pose.CROUCHING;
-        if (cfg().instantCrouch && (crouching || wasCrouching)) {
+        if (tweaks && cfg().instantCrouch && (crouching || wasCrouching)) {
             heights[0] = eye;
             heights[1] = eye;
         } else {

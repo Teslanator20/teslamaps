@@ -54,7 +54,7 @@ public final class HollowsAreaWalls {
                 .config("Mining", b -> {
                     TeslaMapsConfig c = TeslaMapsConfig.get();
                     b.label("Crystal Hollows Walls");
-                    b.toggle("Area Walls", () -> c.chAreaWalls, v -> c.chAreaWalls = v)
+                    b.toggle("Crystal Hollows Area Walls", () -> c.chAreaWalls, v -> c.chAreaWalls = v)
                             .desc("Coloured see-through walls at the borders of your current quarter (Jungle, Mithril Deposits, Goblin Holdout, Precursor Remnants)")
                             .tags("crystal hollows", "quarter", "zone", "border", "nucleus", "magma");
                     b.toggle("  Nucleus Walls", () -> c.chAreaWallsNucleus, v -> c.chAreaWallsNucleus = v);

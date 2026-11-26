@@ -48,7 +48,7 @@ public final class GreenhouseGrowthTimer {
                 .config("Garden", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Greenhouse Growth Stage");
-                    b.toggle("Growth Stage Timer", () -> c.greenhouseGrowthTimer, v -> c.greenhouseGrowthTimer = v)
+                    b.toggle("Greenhouse Growth Timer", () -> c.greenhouseGrowthTimer, v -> c.greenhouseGrowthTimer = v)
                             .desc("Reads \"Next Stage\" from the Crop Diagnostics menu and counts down to the next greenhouse growth stage, OVERDUE once it passed. Position in /tmap gui.")
                             .tags("greenhouse", "growth", "stage", "crop diagnostics", "timer");
                     b.toggle("  Only When Overdue", () -> c.greenhouseGrowthOnlyOverdue, v -> c.greenhouseGrowthOnlyOverdue = v);

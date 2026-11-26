@@ -60,6 +60,6 @@ public class SecretItemPickup {
         if (now - lastPlayed <= 50) return;
         lastPlayed = now;
 
-        LoudSound.play(SoundOptions.resolve(c.secretSoundType), c.secretSoundVolume, c.secretSoundPitch);
+        SecretChime.playSecret();
     }
 }

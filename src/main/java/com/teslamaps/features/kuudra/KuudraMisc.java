@@ -24,9 +24,9 @@ public final class KuudraMisc {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Misc");
-                    b.toggle("Hide Damage Title", () -> c.kuuHideDamageTitle, v -> c.kuuHideDamageTitle = v)
+                    b.toggle("Hide Kuudra Damage Title", () -> c.kuuHideDamageTitle, v -> c.kuuHideDamageTitle = v)
                             .desc("Hides the \"240M/240M\" damage title in Kuudra");
-                    b.toggle("Block Useless Perks", () -> c.kuuBlockPerks, v -> c.kuuBlockPerks = v)
+                    b.toggle("Block Useless Kuudra Perks", () -> c.kuuBlockPerks, v -> c.kuuBlockPerks = v)
                             .desc("Perk Menu: blocks clicks on Steady Hands, Mining Frenzy, Bomberman, Auto Revive, Elle's Lava Rod and Elle's Pickaxe");
                 });
     }

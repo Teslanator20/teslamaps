@@ -38,7 +38,7 @@ public final class AbilityRadius {
                 .config("Render", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Ability Radius");
-                    b.toggle("Effective Area Overlay", () -> c.effectiveAreaOverlay, v -> c.effectiveAreaOverlay = v)
+                    b.toggle("Wither Blade & Sceptre Area", () -> c.effectiveAreaOverlay, v -> c.effectiveAreaOverlay = v)
                             .desc("Holding a Wither Blade or Spirit Sceptre: filled circle at the block you look at.");
                     b.slider("  Radius", 1f, 15f, () -> c.effectiveAreaRadius, v -> c.effectiveAreaRadius = v, 1);
                     b.color("  Area Color", () -> c.effectiveAreaColor, v -> c.effectiveAreaColor = v);

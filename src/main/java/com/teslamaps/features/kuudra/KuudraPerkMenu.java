@@ -28,9 +28,9 @@ public final class KuudraPerkMenu {
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
                     b.label("Perk Menu");
-                    b.toggle("Better Cannon Close", () -> c.kuuCannonClose, v -> c.kuuCannonClose = v).cheat()
+                    b.toggle("Close Perk Menu After Cannon", () -> c.kuuCannonClose, v -> c.kuuCannonClose = v).cheat()
                             .desc("Closes the Perk Menu right after buying Human Cannonball");
-                    b.toggle("Perk Menu Middle Click", () -> c.kuuPerkMiddleClick, v -> c.kuuPerkMiddleClick = v).cheat()
+                    b.toggle("Kuudra Perk Menu Middle Click", () -> c.kuuPerkMiddleClick, v -> c.kuuPerkMiddleClick = v).cheat()
                             .desc("Left clicks in the Perk Menu are sent as middle clicks");
                 });
     }

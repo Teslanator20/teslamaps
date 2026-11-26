@@ -64,7 +64,7 @@ public final class BossHpDisplays {
                     .desc("Respawn timers of dead guardians in the F3 boss, shown in the timer HUD.");
             b.toggle("Giant HP (F6)", () -> c.giantHpDisplay, v -> c.giantHpDisplay = v)
                     .desc("Nametags of Sadan and the giants as a HUD list (/tmap gui).");
-            b.toggle("  Giant HP at Feet", () -> c.giantHpFeetLabel, v -> c.giantHpFeetLabel = v)
+            b.toggle("  Giant HP At Feet", () -> c.giantHpFeetLabel, v -> c.giantHpFeetLabel = v)
                     .desc("Repeats each giant's nametag 10 blocks lower, near its feet.");
         });
     }

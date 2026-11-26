@@ -39,7 +39,7 @@ public final class CommonSeaCreatureHider {
                     b.toggle("Common Sea Creature Hider", () -> c.commonSeaCreatureHider, v -> c.commonSeaCreatureHider = v)
                             .desc("Draws non-rare sea creatures see-through so the rare ones stand out.");
                     b.slider("  Opacity %", 0f, 100f, () -> c.commonSeaCreatureAlpha, v -> c.commonSeaCreatureAlpha = v, 0);
-                    b.toggle("  Only While Holding a Rod", () -> c.commonSeaCreatureRodOnly, v -> c.commonSeaCreatureRodOnly = v);
+                    b.toggle("  Only While Holding A Rod", () -> c.commonSeaCreatureRodOnly, v -> c.commonSeaCreatureRodOnly = v);
                 });
     }
 

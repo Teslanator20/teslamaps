@@ -12,16 +12,16 @@ public final class SoundsCategory {
 
     public static void build(ConfigBuilder b, TeslaMapsConfig config) {
         b.label("Wither Key");
-        b.toggle("Key Pickup/Spawn Title", () -> config.keyPickupTitle, v -> config.keyPickupTitle = v);
+        b.toggle("Wither Key Pickup/Spawn Title", () -> config.keyPickupTitle, v -> config.keyPickupTitle = v);
         b.toggle("  Name Who Picked It Up", () -> config.keyPickupWho, v -> config.keyPickupWho = v).fresh()
                 .desc("\"You\" or the picker's class in class colour, then \"Picked Up Wither/Blood Key\"");
-        b.toggle("Enable Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v);
+        b.toggle("Wither Key Pickup Sound", () -> config.keyPickupSoundEnabled, v -> config.keyPickupSoundEnabled = v);
         b.soundDropdown("  Pickup Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.keyPickupSound, v -> config.keyPickupSound = v);
         b.slider("  Pickup Volume", 0f, 4f,
                 () -> config.keyPickupVolume, v -> config.keyPickupVolume = v, 2);
-        b.toggle("Enable Spawn Sound", () -> config.keyOnGroundSoundEnabled, v -> config.keyOnGroundSoundEnabled = v);
+        b.toggle("Wither Key Spawn Sound", () -> config.keyOnGroundSoundEnabled, v -> config.keyOnGroundSoundEnabled = v);
         b.soundDropdown("  Spawn Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.keyOnGroundSound, v -> config.keyOnGroundSound = v);
@@ -29,7 +29,10 @@ public final class SoundsCategory {
                 () -> config.keyOnGroundVolume, v -> config.keyOnGroundVolume = v, 2);
         b.classFilter("Key Alerts: Only as Class", config.keySoundClasses);
         b.label("Secret Found");
-        b.toggle("Enable Secret Sound", () -> config.secretSound, v -> config.secretSound = v);
+        b.toggle("Secret Found Sound", () -> config.secretSound, v -> config.secretSound = v);
+        b.dropdown("  Mode", new String[]{"Normal", "Rising Chime"},
+                () -> config.secretSoundMode, v -> config.secretSoundMode = v)
+                .desc("Rising Chime: pitch climbs with each secret found in the room (uses Chime Sound/Volume)");
         b.soundDropdown("Secret Sound Type",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.secretSoundType, v -> config.secretSoundType = v);
@@ -40,14 +43,11 @@ public final class SoundsCategory {
         b.toggle("Secret Item Pickup Sound", () -> config.secretItemPickupSound, v -> config.secretItemPickupSound = v);
         b.toggle("Secret Bat Kill Sound (replaces bat)", () -> config.secretSoundBatKill, v -> config.secretSoundBatKill = v).fresh();
         b.toggle("Only Real Secrets (skull id, no buttons)", () -> config.secretSoundRealOnly, v -> config.secretSoundRealOnly = v).fresh();
-        b.toggle("Secret Chime (Rising Pitch)", () -> config.secretChime, v -> config.secretChime = v);
         b.soundDropdown("  Chime Sound",
                 com.teslamaps.utils.SoundOptions.keys(),
                 () -> config.secretChimeSound, v -> config.secretChimeSound = v);
         b.slider("  Chime Volume", 0f, 4f,
                 () -> config.secretChimeVolume, v -> config.secretChimeVolume = v, 2);
-        b.toggle("  Chime on Secret Bat Kill", () -> config.secretChimeBat, v -> config.secretChimeBat = v).fresh();
-        b.toggle("  Chime on Secret Item Pickup", () -> config.secretChimeItem, v -> config.secretChimeItem = v).fresh();
         b.toggle("  Mute Hypixel Chest Sound", () -> config.secretMuteChest, v -> config.secretMuteChest = v).fresh()
                 .desc("Drops Hypixel's own chest secret sound (exact volume/pitch match)");
         b.toggle("  Mute Hypixel Lever Sound", () -> config.secretMuteLever, v -> config.secretMuteLever = v).fresh()
@@ -103,7 +103,7 @@ public final class SoundsCategory {
                         + "except while your Inferno Demonlord is up.")
                 .tags("slayer", "tarantula", "spider", "skeleton");
         b.toggle("Mute Error Sound (wrong click / no mana)", () -> config.muteErrorSound, v -> config.muteErrorSound = v).fresh()
-                .desc("Also the ability cooldown sound (enderman teleport, pitch 0, volume 8)").tags("cooldown");
+                .desc("Also the ability cooldown sound (enderman teleport, pitch 0, volume 8)").tags("cooldown", "ability", "mute");
         b.toggle("Mute Jerry-chine Gun", () -> config.muteJerrychine, v -> config.muteJerrychine = v).fresh()
                 .desc("Villager sounds of the Jerry-chine projectiles, matched by their exact volume").tags("jerrygun", "villager");
         b.toggle("Mute Flower Of Truth", () -> config.muteFlowerOfTruth, v -> config.muteFlowerOfTruth = v).fresh()

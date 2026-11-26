@@ -809,8 +809,7 @@ public class SecretWaypoints {
         if (!DungeonManager.isInDungeon()) return;
         if (!SecretSounds.counts(type, pos)) return;
 
-        LoudSound.play(com.teslamaps.utils.SoundOptions.resolve(TeslaMapsConfig.get().secretSoundType),
-                TeslaMapsConfig.get().secretSoundVolume, TeslaMapsConfig.get().secretSoundPitch);
+        SecretChime.playSecret();
 
         TeslaMaps.LOGGER.debug("[SecretWaypoints] Secret interaction: {}", type);
     }

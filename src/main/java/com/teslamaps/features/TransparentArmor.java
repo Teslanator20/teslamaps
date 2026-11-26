@@ -27,7 +27,7 @@ public final class TransparentArmor {
                     TeslaMapsConfig c = cfg();
                     b.label("Player Armor");
                     b.toggle("Transparent Armor", () -> c.transparentArmor, v -> c.transparentArmor = v)
-                            .desc("Makes player armor and helmets see-through so skins and capes show. NPCs are not affected. Hide Player Armor above removes it fully.");
+                            .desc("Makes player armor and helmets see-through so skins and capes show. NPCs are not affected. Opacity 0 hides it fully.");
                     b.slider("  Own Armor Opacity %", 0f, 100f, () -> c.transparentArmorSelf, v -> c.transparentArmorSelf = v)
                             .desc("0 = your armor is hidden completely, 100 = normal.");
                     b.slider("  Other Players Opacity %", 0f, 100f, () -> c.transparentArmorOthers, v -> c.transparentArmorOthers = v)

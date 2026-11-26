@@ -29,7 +29,7 @@ public final class DungeonCleanEnd {
                 .tick(DungeonCleanEnd::tick)
                 .config("Hide", b -> {
                     b.label("Clean End");
-                    b.toggle("Dungeon Clean End", () -> cfg().dungeonCleanEnd, v -> cfg().dungeonCleanEnd = v)
+                    b.toggle("Hide Clutter After Boss", () -> cfg().dungeonCleanEnd, v -> cfg().dungeonCleanEnd = v)
                             .desc("Once the boss is done, hide every entity except you, your party and the reward chests, plus particles.");
                     b.toggle("  F3 Guardians While Sneaking", () -> cfg().dungeonCleanEndGuardians, v -> cfg().dungeonCleanEndGuardians = v);
                 });

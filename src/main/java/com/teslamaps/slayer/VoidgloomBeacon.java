@@ -84,11 +84,11 @@ public final class VoidgloomBeacon {
         b.toggle("Yang Glyph Alert", () -> c.voidgloomYangGlyphAlert, v -> c.voidgloomYangGlyphAlert = v)
                 .desc("Title \"Yang Glyph!\" with a pling the moment your Voidgloom throws its beacon.")
                 .tags("voidgloom", "enderman", "beacon", "yang", "glyph", "slayer");
-        b.toggle("Beacon Highlight", () -> c.voidgloomBeaconHighlight, v -> c.voidgloomBeaconHighlight = v)
+        b.toggle("Voidgloom Beacon Highlight", () -> c.voidgloomBeaconHighlight, v -> c.voidgloomBeaconHighlight = v)
                 .desc("Red line along the flying beacon, the landed beacon filled red through walls "
                         + "with a countdown to the explosion.")
                 .tags("voidgloom", "enderman", "beacon", "yang", "glyph", "slayer");
-        b.toggle("  Ping on Land", () -> c.voidgloomBeaconPing, v -> c.voidgloomBeaconPing = v)
+        b.toggle("  Ping On Land", () -> c.voidgloomBeaconPing, v -> c.voidgloomBeaconPing = v)
                 .desc("Plays a sound when the beacon lands.");
     }
 

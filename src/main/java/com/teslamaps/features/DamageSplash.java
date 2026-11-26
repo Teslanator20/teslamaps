@@ -49,7 +49,7 @@ public final class DamageSplash {
                             .desc("12,345,678 becomes 12.35M; crits get a colour gradient");
                     b.slider("    Significant Digits", 1, 6, () -> (float) c.damageSplashPrecision,
                             v -> c.damageSplashPrecision = Math.round(v), 0);
-                    b.color("    Normal Hit Colour", () -> c.damageSplashNormalColor, v -> c.damageSplashNormalColor = v);
+                    b.color("    Normal Hit Color", () -> c.damageSplashNormalColor, v -> c.damageSplashNormalColor = v);
                     b.color("    Crit Gradient Start", () -> c.damageSplashCritStart, v -> c.damageSplashCritStart = v);
                     b.color("    Crit Gradient End", () -> c.damageSplashCritEnd, v -> c.damageSplashCritEnd = v);
                     b.dropdown("  Hide", HIDE_MODES, () -> c.damageSplashHide, v -> c.damageSplashHide = v)

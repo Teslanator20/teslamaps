@@ -228,6 +228,14 @@ public class NiaConfigScreen extends Screen {
         selectTab(selected, false);
     }
 
+    public static void registerOptions() {
+        com.teslamaps.registry.Feature.of("ConfigLayout").config("Interface", b -> {
+            TeslaMapsConfig c = b.config();
+            b.toggle("Classic Config Layout", () -> c.configClassicCards, v -> c.configClassicCards = v)
+                    .desc("Old layout: one big card per section instead of one card per feature. Reopen /tmap to apply");
+        });
+    }
+
     private String firstItem() {
         if (model.groups().containsKey("Profiles & Interface")) return "Profiles & Interface";
         for (int i = 0; i < sideItems.size(); i++) {
@@ -249,21 +257,90 @@ public class NiaConfigScreen extends Screen {
                 start = 1;
             }
             NiaSection cur = new NiaSection(this, cat + "#head", cat, null, master, false);
-            int ord = 0;
-            for (int i = start; i < entries.size(); i++) {
-                MapConfigScreen.SettingsEntry e = entries.get(i);
-                if (e.isLabel()) {
-                    if (!cur.rows.isEmpty() || cur.master != null) out.add(cur);
-                    cur = new NiaSection(this, cat + "#" + (ord++), e.getLabel().trim(), e.description(), null, false);
-                } else {
-                    cur.rows.add(NiaRow.of(this, e));
+            if (TeslaMapsConfig.get().configClassicCards) {
+                int ord = 0;
+                for (int i = start; i < entries.size(); i++) {
+                    MapConfigScreen.SettingsEntry e = entries.get(i);
+                    if (e.isLabel()) {
+                        if (!cur.rows.isEmpty() || cur.master != null) out.add(cur);
+                        cur = new NiaSection(this, cat + "#" + (ord++), e.getLabel().trim(), e.description(), null, false);
+                    } else {
+                        cur.rows.add(NiaRow.of(this, e));
+                    }
                 }
+                if (!cur.rows.isEmpty() || cur.master != null) out.add(cur);
+            } else {
+                out.add(cur);
+                featureCards(cat, entries, start, out);
+                if (cur.master == null && cur.rows.isEmpty()) out.remove(cur);
             }
-            if (!cur.rows.isEmpty() || cur.master != null) out.add(cur);
         }
         for (NiaSection sec : out) sec.syncStateImmediately(font);
         catCards.put(cat, out);
         return out;
+    }
+
+    /**
+     * Every top-level toggle becomes its own card: name + switch in the header, its indented
+     * sub-options inside. Everything else under a label (loose toggles, sliders, buttons, toggles
+     * without sub-options) is collected in one card named after the label, placed first.
+     */
+    private void featureCards(String cat, List<MapConfigScreen.SettingsEntry> entries, int start, List<NiaSection> out) {
+        String label = null, labelDesc = null;
+        NiaSection loose = null;
+        List<NiaSection> features = new ArrayList<>();
+        int ord = 0;
+        for (int i = start; i < entries.size(); ) {
+            MapConfigScreen.SettingsEntry e = entries.get(i);
+            if (e.isLabel()) {
+                flush(loose, features, out);
+                loose = null;
+                features = new ArrayList<>();
+                label = e.getLabel().trim();
+                labelDesc = e.description();
+                i++;
+                // "Enable X" right under a label switches the whole block: one card, label as title
+                if (i < entries.size() && entries.get(i) instanceof MapConfigScreen.ToggleEntry t
+                        && indentOf(t.getLabel()) == 0 && t.getLabel().startsWith("Enable ")) {
+                    NiaSection f = new NiaSection(this, cat + "#f" + (ord++) + "#" + label, label, null, t, false, true);
+                    int k = i + 1;
+                    while (k < entries.size() && !entries.get(k).isLabel()) f.rows.add(NiaRow.of(this, entries.get(k++)));
+                    features.add(f);
+                    i = k;
+                }
+                continue;
+            }
+            int ind = indentOf(e.getLabel());
+            int j = i + 1;
+            while (j < entries.size() && !entries.get(j).isLabel() && indentOf(entries.get(j).getLabel()) > ind) j++;
+            boolean hasChildren = j > i + 1;
+            if (e instanceof MapConfigScreen.ToggleEntry t && ind == 0 && hasChildren) {
+                NiaSection f = new NiaSection(this, cat + "#f" + (ord++) + "#" + t.getLabel().trim(), t.getLabel().trim(),
+                        null, t, false, true);
+                for (int k = i + 1; k < j; k++) f.rows.add(NiaRow.of(this, entries.get(k)));
+                features.add(f);
+                i = j;
+                continue;
+            }
+            if (loose == null) {
+                String title = label == null || label.equals(cat) ? "General" : label;
+                loose = new NiaSection(this, cat + "#l" + (ord++), title, labelDesc, null, false);
+            }
+            loose.rows.add(NiaRow.of(this, e));
+            i++;
+        }
+        flush(loose, features, out);
+    }
+
+    private static void flush(NiaSection loose, List<NiaSection> features, List<NiaSection> out) {
+        if (loose != null && !loose.rows.isEmpty()) out.add(loose);
+        out.addAll(features);
+    }
+
+    private static int indentOf(String label) {
+        int i = 0;
+        while (i < label.length() && label.charAt(i) == ' ') i++;
+        return i;
     }
 
     private void selectTab(String tab, boolean resetScroll) {

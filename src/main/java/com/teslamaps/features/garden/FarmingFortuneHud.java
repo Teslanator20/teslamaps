@@ -12,9 +12,6 @@ import com.teslamaps.utils.TabListUtils;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +30,6 @@ public final class FarmingFortuneHud {
     private static HudEditElement hud;
     private static List<String> lines = List.of();
     private static int width, ticks;
-    private static boolean philipWas;
 
     private FarmingFortuneHud() {}
 
@@ -49,7 +45,7 @@ public final class FarmingFortuneHud {
                     else TextHud.draw(g, mc, x, y, s, lines, width);
                 });
         Feature.of("FarmingFortuneHud").section("Garden")
-                .when(() -> cfg().farmingFortuneHud || cfg().farmingFortunePhilipChat)
+                .when(() -> cfg().farmingFortuneHud)
                 .tick(FarmingFortuneHud::tick)
                 .hudHiddenInInventory("farmingfortunehud", FarmingFortuneHud::render)
                 .config("Garden", b -> {
@@ -60,8 +56,6 @@ public final class FarmingFortuneHud {
                                     + "Enable Farming Fortune and the latest crop fortune in /widget > Stats.")
                             .tags("ff", "true ff", "fortune");
                     b.toggle("  Show Pest Fortune Bonus", () -> c.farmingFortuneBonus, v -> c.farmingFortuneBonus = v);
-                    b.toggle("  Expiry Chat With Call Button", () -> c.farmingFortunePhilipChat, v -> c.farmingFortunePhilipChat = v)
-                            .desc("Chat line when the Phillip bonus runs out; clicking it calls Phillip.");
                 });
     }
 
@@ -69,12 +63,9 @@ public final class FarmingFortuneHud {
         if (++ticks % 10 != 0) return;
         if (!SkyblockUtils.isInGarden()) {
             lines = List.of();
-            philipWas = false;
             return;
         }
         TeslaMapsConfig c = cfg();
-        philipCheck(c);
-        if (!c.farmingFortuneHud) return;
 
         List<String> tab = TabListUtils.getTabListLines();
         double universal = -1, crop = -1;
@@ -127,20 +118,6 @@ public final class FarmingFortuneHud {
             case 7 -> 50;
             default -> 75;
         };
-    }
-
-    private static void philipCheck(TeslaMapsConfig c) {
-        if (!PestData.hasPestSection()) return;
-        boolean active = PestData.hasPhilipBonus();
-        if (philipWas && !active && c.farmingFortunePhilipChat) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player != null) {
-                mc.player.sendSystemMessage(Component.literal("§b[TeslaMaps] §cPest fortune buff has expired! §e[Call Phillip]")
-                        .withStyle(st -> st.withClickEvent(new ClickEvent.RunCommand("/call philip"))
-                                .withHoverEvent(new HoverEvent.ShowText(Component.literal("§eClick to call Phillip")))));
-            }
-        }
-        philipWas = active;
     }
 
     private static void render(GuiGraphicsExtractor g, DeltaTracker d) {

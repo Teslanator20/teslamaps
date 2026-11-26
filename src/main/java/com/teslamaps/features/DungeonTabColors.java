@@ -27,7 +27,7 @@ public final class DungeonTabColors {
     public static void register() {
         Feature.of("DungeonTabColors").section("Party").when(() -> TeslaMapsConfig.get().dungeonTabClassColor)
                 .tick(DungeonTabColors::tick)
-                .config("Party", b -> b.toggle("Class Level Colors in Tab (dungeon)",
+                .config("Party", b -> b.toggle("Class Level Colors In Tab",
                                 () -> TeslaMapsConfig.get().dungeonTabClassColor, v -> TeslaMapsConfig.get().dungeonTabClassColor = v)
                         .desc("Rewrites teammate tab lines to level, rank, name and class with the class level colored by tier."));
     }

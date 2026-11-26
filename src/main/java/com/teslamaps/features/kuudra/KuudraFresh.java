@@ -53,7 +53,7 @@ public final class KuudraFresh {
                 .hud("kuudrafresh", KuudraFresh::renderHud)
                 .config("Kuudra", b -> {
                     TeslaMapsConfig c = cfg();
-                    b.toggle("Fresh Tools", () -> c.kuuFreshTools, v -> c.kuuFreshTools = v)
+                    b.toggle("Fresh Tools Tracker", () -> c.kuuFreshTools, v -> c.kuuFreshTools = v)
                             .desc("Tracks your party's Fresh Tools procs during the build");
                     b.toggle("  Announce FRESH", () -> c.kuuFreshAnnounce, v -> c.kuuFreshAnnounce = v)
                             .desc("Sends \"FRESH\" to party chat when your Fresh Tools perk procs");
