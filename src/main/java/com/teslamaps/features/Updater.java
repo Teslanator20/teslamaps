@@ -33,7 +33,7 @@ import net.minecraft.network.chat.Component;
  */
 public class Updater {
 
-    private static final String API = "https://api.github.com/repos/Teslanator20/teslamaps-releases";
+    private static final String API = "https://api.github.com/repos/Teslanator20/teslamaps";
     private static final String PUBKEY_B64 = "MCowBQYDK2VwAyEAHnDN8qIaRhdGnr+EgsxVUIXdr+JhOdD+pqDwbLOZR+k=";
     private static final long MAX_JAR_BYTES = 30L * 1024 * 1024;
 
