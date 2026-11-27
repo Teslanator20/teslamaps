@@ -29,17 +29,12 @@ import net.minecraft.network.chat.Component;
 
 /**
  * Self-updater. Trust chain: the manifest is Ed25519-signed with a key that only exists on
- * the dev machine, and the jar must match the sha256 inside that manifest — the GitHub token
- * below is read-only and only ever grants download access, never trust.
+ * the dev machine, and the jar must match the sha256 inside that manifest.
  */
 public class Updater {
 
     private static final String API = "https://api.github.com/repos/Teslanator20/teslamaps-releases";
     private static final String PUBKEY_B64 = "MCowBQYDK2VwAyEAHnDN8qIaRhdGnr+EgsxVUIXdr+JhOdD+pqDwbLOZR+k=";
-    // fine-grained PAT, read-only, scoped to teslamaps-releases only (split so it survives naive scans)
-    private static final String T0 = "";
-    private static final String T1 = "";
-    private static final String T2 = "";
     private static final long MAX_JAR_BYTES = 30L * 1024 * 1024;
 
     public enum State { IDLE, CHECKING, AVAILABLE, DOWNLOADING, READY, FAILED }
@@ -58,10 +53,6 @@ public class Updater {
     private static boolean whatsNewPending = false;
     private static final long RECHECK_MILLIS = 30 * 60 * 1000L;
 
-    private static String token() {
-        return T0 + T1 + T2;
-    }
-
     public static String currentVersion() {
         return FabricLoader.getInstance().getModContainer(TeslaMaps.MOD_ID)
                 .map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("0");
@@ -71,7 +62,6 @@ public class Updater {
         cleanPending();
         loadSavedChangelog();
         if (!TeslaMapsConfig.get().updateCheck) return;
-        if (token().isEmpty()) return;
         check(false);
     }
 
@@ -310,7 +300,7 @@ public class Updater {
         }
         // the launch check cannot see a release that went up while the player was already online
         if (state == State.IDLE || state == State.FAILED) {
-            if (TeslaMapsConfig.get().updateCheck && !token().isEmpty()
+            if (TeslaMapsConfig.get().updateCheck
                     && System.currentTimeMillis() - lastCheck > RECHECK_MILLIS) {
                 check(false);
             }
@@ -338,7 +328,6 @@ public class Updater {
     private static HttpRequest api(String path, String accept) {
         return HttpRequest.newBuilder(URI.create(API + path))
                 .timeout(Duration.ofSeconds(60))
-                .header("Authorization", "Bearer " + token())
                 .header("Accept", accept)
                 .header("X-GitHub-Api-Version", "2022-11-28")
                 .GET().build();
